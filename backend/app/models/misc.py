@@ -15,6 +15,7 @@ from sqlalchemy import (
     Numeric,
     SmallInteger,
     String,
+    Text,
     UniqueConstraint,
     func,
 )
@@ -118,3 +119,27 @@ class User(Base):
 
     def __repr__(self) -> str:
         return f"<User {self.username} ({self.role})>"
+
+
+class AuditLog(Base):
+    """操作审计日志 —— 谁在何时对什么做了什么。
+
+    政务交付的可追溯性刚需：写操作（登录、建单、改状态、忽略事件）
+    都落一条审计记录，供管理员回溯「这个工单是谁改成 done 的」。
+    """
+
+    __tablename__ = "t_audit_log"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    action: Mapped[str] = mapped_column(String(64), nullable=False)
+    target_type: Mapped[str | None] = mapped_column(String(32))
+    target_id: Mapped[str | None] = mapped_column(String(64))
+    detail: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), index=True
+    )
+
+    def __repr__(self) -> str:
+        return f"<AuditLog {self.username} {self.action} {self.target_id}>"

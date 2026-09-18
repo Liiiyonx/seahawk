@@ -61,6 +61,17 @@ async def login(
 
     token = _issue_token(user.username, user.role, user.township_scope)
 
+    from app.services.audit import record_audit
+
+    await record_audit(
+        session,
+        username=user.username,
+        role=user.role,
+        action="login",
+        target_type="auth",
+        detail="登录成功",
+    )
+
     user.last_login_at = datetime.now()
     await session.commit()
 

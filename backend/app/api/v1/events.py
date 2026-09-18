@@ -193,6 +193,18 @@ async def update_event_status(
     event.status = payload.status
     await session.flush()
 
+    from app.services.audit import record_audit
+
+    await record_audit(
+        session,
+        username=_user.username,
+        role=_user.role,
+        action="event_status_update",
+        target_type="event",
+        target_id=event_id,
+        detail=f"状态 → {payload.status}",
+    )
+
     row = (
         await session.execute(
             select(func.ST_X(event.location), func.ST_Y(event.location))

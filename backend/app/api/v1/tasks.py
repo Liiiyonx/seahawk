@@ -79,6 +79,18 @@ async def create_task(
     )
     await session.flush()
 
+    from app.services.audit import record_audit
+
+    await record_audit(
+        session,
+        username=_user.username,
+        role=_user.role,
+        action="task_create",
+        target_type="task",
+        target_id=task_id,
+        detail=f"目标=({payload.target.lng},{payload.target.lat}) 机器人={payload.robot_id or '待派单'}",
+    )
+
     # 若指定了机器人，直接派单
     if payload.robot_id:
         engine = DispatchEngine(session)
@@ -141,6 +153,22 @@ async def update_task_status(
         remark=payload.remark,
     )
     await session.flush()
+
+    from app.services.audit import record_audit
+
+    await record_audit(
+        session,
+        username=_user.username,
+        role=_user.role,
+        action="task_status_update",
+        target_type="task",
+        target_id=task_id,
+        detail=(
+            f"状态 → {payload.status}"
+            + (f" 打捞量={payload.collected_weight}kg" if payload.collected_weight is not None else "")
+            + (f" 复核={payload.review_result}" if payload.review_result else "")
+        ),
+    )
 
     out = await _to_out(session, task)
     await ws_manager.push_task_update(out.model_dump())

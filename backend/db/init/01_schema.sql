@@ -225,6 +225,26 @@ CREATE INDEX IF NOT EXISTS idx_user_role ON t_user (role);
 
 
 -- ============================================================
+-- （7）操作审计日志 t_audit_log（政务交付的可追溯性）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS t_audit_log (
+    id          BIGSERIAL PRIMARY KEY,
+    username    VARCHAR(64) NOT NULL,
+    role        VARCHAR(16) NOT NULL,
+    action      VARCHAR(64) NOT NULL,      -- login / task_create / task_status_update / event_status_update
+    target_type VARCHAR(32),               -- task / event / auth
+    target_id   VARCHAR(64),
+    detail      TEXT,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE t_audit_log IS '操作审计：谁在何时对什么做了什么（政务交付的可追溯性）';
+
+CREATE INDEX IF NOT EXISTS idx_audit_created ON t_audit_log (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_user    ON t_audit_log (username);
+
+
+-- ============================================================
 -- 通用触发器：自动维护 updated_at
 -- ============================================================
 CREATE OR REPLACE FUNCTION trg_set_updated_at()
