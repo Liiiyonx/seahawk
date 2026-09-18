@@ -6,9 +6,10 @@
 
 from __future__ import annotations
 
-from datetime import date, date as _date, timedelta
+from datetime import date, date as _date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +19,16 @@ from app.models.event import WasteClass
 from app.models.misc import ReportDaily
 
 router = APIRouter()
+
+
+class AggregateRequest(BaseModel):
+    """手动触发报表聚合的请求体。
+
+    target_date 缺省为今天；传 YYYY-MM-DD 可回溯聚合历史某天
+    （例如补跑、或验证聚合与 seed 口径一致）。
+    """
+
+    target_date: str | None = None
 
 
 @router.get("/daily", summary="日报表查询")
@@ -89,3 +100,30 @@ async def report_summary(
         for r in rows.all()
     ]
     return ApiResponse.ok(items)
+
+
+@router.post("/aggregate", summary="手动触发报表聚合")
+async def aggregate_now(
+    payload: AggregateRequest | None = None,
+    session: AsyncSession = Depends(get_session),
+):
+    """把明细表（t_event / t_task）聚合进 t_report_daily。
+
+    定时任务每日凌晨自动跑；本接口用于手动触发（演示、补跑、验证）。
+    幂等：重复聚合同一日期会 UPSERT 覆盖，不会产生重复行。
+    """
+    from app.services.report import aggregate_daily
+
+    target = date.today()
+    if payload and payload.target_date:
+        try:
+            target = datetime.strptime(payload.target_date, "%Y-%m-%d").date()
+        except ValueError:
+            return ApiResponse.fail(code=4002, message="target_date 格式应为 YYYY-MM-DD")
+
+    rows = await aggregate_daily(session, target)
+    await session.commit()
+    return ApiResponse.ok(
+        {"stat_date": str(target), "rows": rows},
+        message=f"已聚合 {target} 报表，写入/更新 {rows} 行",
+    )

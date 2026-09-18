@@ -105,6 +105,42 @@
         </div>
       </div>
     </div>
+
+    <!-- 完成工单录入框：打捞量由操作员如实填写，不复用随机数 -->
+    <div v-if="completing" class="drawer" @click.self="completing = null">
+      <div class="drawer__panel panel">
+        <div class="panel-title">
+          <span>完成工单 · {{ completing.task_id }}</span>
+          <button class="drawer__close" @click="completing = null">×</button>
+        </div>
+        <div class="panel-body drawer__body">
+          <div class="form-row">
+            <label class="form-label">打捞重量（kg）</label>
+            <input
+              v-model="completion.weight"
+              class="form-input"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="如实填写本次清理量，可留空"
+            />
+            <span class="form-hint">来自人工称重或机器人仓容，留空则暂不记录</span>
+          </div>
+          <div class="form-row">
+            <label class="form-label">复核结果</label>
+            <select v-model="completion.review" class="form-input">
+              <option value="confirmed">确认清理</option>
+              <option value="not_found">到场未发现</option>
+              <option value="recheck">需人工复查</option>
+            </select>
+          </div>
+          <div class="drawer__actions">
+            <button class="btn" @click="completing = null">取消</button>
+            <button class="btn btn--primary" @click="confirmDone">确认完成</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -129,6 +165,9 @@ const tasks = ref([])
 const detail = ref(null)
 const dispatching = ref(false)
 const filters = reactive({ status: '' })
+// 完成工单的录入表单：打捞重量必须由操作员如实填写，不再伪造随机数
+const completing = ref(null)
+const completion = reactive({ weight: '', review: 'confirmed' })
 
 const COLUMNS = [
   { status: 'pending', label: '待派单', color: '#8b96a8' },
@@ -213,15 +252,19 @@ function openDetail(task) {
 }
 
 async function changeStatus(task, target) {
-  // 完成工单时补一个打捞量，让报表有数据
-  const payload = { status: target }
+  // 完成工单需要操作员真实录入打捞量与复核结果，不再伪造随机数
   if (target === 'done') {
-    payload.collected_weight = Number((1.5 + Math.random() * 11).toFixed(2))
-    payload.review_result = 'confirmed'
+    completing.value = task
+    completion.weight = ''
+    completion.review = 'confirmed'
+    return
   }
+  await applyStatus(task, target)
+}
 
+async function applyStatus(task, target, extra = {}) {
   try {
-    await tasksApi.updateStatus(task.task_id, payload)
+    await tasksApi.updateStatus(task.task_id, { status: target, ...extra })
     await load()
     if (detail.value?.task_id === task.task_id) {
       detail.value = tasks.value.find((t) => t.task_id === task.task_id) || null
@@ -229,6 +272,18 @@ async function changeStatus(task, target) {
   } catch (err) {
     store.error = err.message
   }
+}
+
+async function confirmDone() {
+  const weight = Number(completion.weight)
+  const payload = { review_result: completion.review }
+  // 只有如实填写了合法重量才上报；留空则不打捞量（保持后端 NULL）
+  if (completion.weight !== '' && !Number.isNaN(weight) && weight >= 0) {
+    payload.collected_weight = weight
+  }
+  const task = completing.value
+  completing.value = null
+  if (task) await applyStatus(task, 'done', payload)
 }
 
 async function dispatchPending() {
@@ -567,6 +622,58 @@ store.$subscribe(() => {
   color: var(--text-sub);
   font-family: 'SF Mono', Consolas, monospace;
   font-size: 11.5px;
+}
+
+/* ---------- 完成工单录入框 ---------- */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 12.5px;
+  color: var(--text-sub);
+}
+
+.form-input {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--c-primary-dim);
+}
+
+.form-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.drawer__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn--primary {
+  color: #06251f;
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+}
+
+.btn--primary:hover:not(:disabled) {
+  color: #06251f;
+  border-color: var(--c-primary);
+  filter: brightness(1.05);
 }
 
 @media (max-width: 1400px) {

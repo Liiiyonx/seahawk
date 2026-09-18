@@ -52,14 +52,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as exc:   # noqa: BLE001
         logger.warning(f"[启动] MQTT 启动失败（{exc}），设备上报通道不可用")
 
-    # ---------- 3. 后台任务（派单消费者 + 补派定时器） ----------
+    # ---------- 3. 后台任务（派单消费者 + 补派定时器 + 报表聚合） ----------
     background_tasks: list[asyncio.Task[None]] = []
     try:
         from app.services.consumer import dispatch_consumer, pending_dispatcher
+        from app.services.report import daily_report_worker
 
         background_tasks.append(asyncio.create_task(dispatch_consumer()))
         background_tasks.append(asyncio.create_task(pending_dispatcher()))
-        logger.info("[启动] 后台任务已启动（派单消费者 + 补派定时器）")
+        background_tasks.append(asyncio.create_task(daily_report_worker()))
+        logger.info("[启动] 后台任务已启动（派单消费者 + 补派定时器 + 报表聚合）")
     except Exception as exc:   # noqa: BLE001
         logger.warning(f"[启动] 后台任务启动失败（{exc}）")
 
