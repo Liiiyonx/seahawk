@@ -137,6 +137,9 @@ class Task(Base):
     )
     priority: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=5)
 
+    # 乡镇归属：由 target_location 最近邻计算，供 operator 辖区过滤
+    township: Mapped[str | None] = mapped_column(String(64), index=True)
+
     # 时间戳链：完整记录任务生命周期
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), index=True

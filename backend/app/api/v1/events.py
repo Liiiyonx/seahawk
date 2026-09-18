@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import CurrentUser, get_redis_dep, require_operator
+from app.core.deps import CurrentUser, get_current_user, get_redis_dep, require_operator
 from app.db.session import get_session
 from app.core.exceptions import ApiResponse
 from app.models.event import EventStatus, WasteClass
@@ -91,16 +91,23 @@ async def list_events(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=200),
     session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
 ):
-    """分页查询事件列表（支持时间/类别/状态/设备筛选）。"""
+    """分页查询事件列表（支持时间/类别/状态/设备筛选）。
+
+    operator 角色只看自己辖区（township_scope）的数据，admin/viewer 看全部。
+    """
     from sqlalchemy import func, select
 
     repo = EventRepository(session)
+    # 辖区过滤：operator 只看本辖区，admin/viewer 看全部
+    township = user.township_scope if user.role == "operator" else None
     events, total = await repo.list_events(
         hours=hours,
         main_class=main_class,
         status=status,
         device_id=device_id,
+        township=township,
         limit=page_size,
         offset=(page - 1) * page_size,
     )

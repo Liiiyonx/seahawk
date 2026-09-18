@@ -14,6 +14,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_session
+from app.core.deps import CurrentUser, get_current_user
 from app.core.exceptions import ApiResponse
 from app.models.event import Event, WasteClass
 from app.models.task import Task, TaskStatus
@@ -23,17 +24,24 @@ router = APIRouter()
 
 
 @router.get("/dashboard", summary="大屏顶部指标卡")
-async def dashboard_stats(session: AsyncSession = Depends(get_session)):
-    """大屏实时指标：事件数、工单数、机器人状态、累计清理量。"""
+async def dashboard_stats(
+    session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
+):
+    """大屏实时指标：事件数、工单数、机器人状态、累计清理量。
+
+    operator 角色只统计本辖区（township_scope），admin/viewer 看全部。
+    """
     event_repo = EventRepository(session)
     task_repo = TaskRepository(session)
     device_repo = DeviceRepository(session)
 
-    event_count_24h = await event_repo.count_since(hours=24)
-    task_counts = await task_repo.count_by_status()
+    township = user.township_scope if user.role == "operator" else None
+    event_count_24h = await event_repo.count_since(hours=24, township=township)
+    task_counts = await task_repo.count_by_status(township=township)
     device_counts = await device_repo.count_by_status()
-    collected = await task_repo.sum_collected_weight()
-    done_24h = await task_repo.done_count_since(hours=24)
+    collected = await task_repo.sum_collected_weight(township=township)
+    done_24h = await task_repo.done_count_since(hours=24, township=township)
 
     robots = await device_repo.list_robots()
     robots_online = sum(1 for d in robots if d.status == "online")
@@ -58,12 +66,17 @@ async def dashboard_stats(session: AsyncSession = Depends(get_session)):
 async def class_distribution(
     hours: int = Query(24, ge=1, le=720),
     session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
 ):
     """按垃圾类别统计事件数（饼图数据源）。"""
     since = datetime.now() - timedelta(hours=hours)
+    township = user.township_scope if user.role == "operator" else None
+    conditions = [Event.event_time >= since]
+    if township:
+        conditions.append(Event.township == township)
     stmt = (
         select(Event.main_class, func.count().label("cnt"))
-        .where(Event.event_time >= since)
+        .where(*conditions)
         .group_by(Event.main_class)
         .order_by(func.count().desc())
     )
@@ -84,14 +97,19 @@ async def class_distribution(
 async def event_trend(
     hours: int = Query(24, ge=1, le=168),
     session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
 ):
     """近 N 小时事件趋势折线图数据源。"""
     since = datetime.now() - timedelta(hours=hours)
+    township = user.township_scope if user.role == "operator" else None
     bucket = func.date_trunc("hour", Event.event_time).label("bucket")
 
+    conditions = [Event.event_time >= since]
+    if township:
+        conditions.append(Event.township == township)
     stmt = (
         select(bucket, func.count().label("cnt"))
-        .where(Event.event_time >= since)
+        .where(*conditions)
         .group_by(bucket)
         .order_by(bucket)
     )

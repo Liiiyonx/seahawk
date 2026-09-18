@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.exceptions import AppException, ErrorCode
+from app.core.geo import nearest_township
 from app.models.event import Event, EventStatus, WasteClass
 from app.repositories import DeviceRepository, EventRepository
 from app.schemas import EventIngest, EventIngestResult
@@ -80,6 +81,7 @@ class EventService:
             model_version=payload.model_version or settings.ai_model_version,
             seq=payload.seq,
             status=EventStatus.NEW,
+            township=nearest_township(payload.location.lng, payload.location.lat),
         )
 
         # 更新设备心跳（事件本身就是活跃证明）

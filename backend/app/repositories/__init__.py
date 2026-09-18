@@ -152,6 +152,7 @@ class EventRepository:
         main_class: str | None = None,
         status: str | None = None,
         device_id: str | None = None,
+        township: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> tuple[list[Event], int]:
@@ -163,6 +164,8 @@ class EventRepository:
             conditions.append(Event.status == status)
         if device_id:
             conditions.append(Event.device_id == device_id)
+        if township:
+            conditions.append(Event.township == township)
 
         count_stmt = select(func.count()).select_from(Event).where(and_(*conditions))
         total = int((await self.session.execute(count_stmt)).scalar_one())
@@ -232,9 +235,11 @@ class EventRepository:
             if r.lng is not None and r.lat is not None
         ]
 
-    async def count_since(self, hours: int = 24) -> int:
+    async def count_since(self, hours: int = 24, township: str | None = None) -> int:
         since = datetime.now() - timedelta(hours=hours)
         stmt = select(func.count()).select_from(Event).where(Event.event_time >= since)
+        if township:
+            stmt = stmt.where(Event.township == township)
         return int((await self.session.execute(stmt)).scalar_one())
 
     async def list_main_classes_for_events(self, event_ids: list[str]) -> set[str]:
@@ -334,6 +339,7 @@ class TaskRepository:
         *,
         status: str | None = None,
         robot_id: str | None = None,
+        township: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> tuple[list[Task], int]:
@@ -342,6 +348,8 @@ class TaskRepository:
             conditions.append(Task.status == status)
         if robot_id:
             conditions.append(Task.robot_id == robot_id)
+        if township:
+            conditions.append(Task.township == township)
 
         count_stmt = select(func.count()).select_from(Task)
         if conditions:
@@ -367,8 +375,10 @@ class TaskRepository:
         rows = await self.session.execute(stmt)
         return list(rows.scalars().all())
 
-    async def count_by_status(self) -> dict[str, int]:
+    async def count_by_status(self, township: str | None = None) -> dict[str, int]:
         stmt = select(Task.status, func.count()).group_by(Task.status)
+        if township:
+            stmt = stmt.where(Task.township == township)
         rows = await self.session.execute(stmt)
         return {row[0]: int(row[1]) for row in rows.all()}
 
@@ -378,13 +388,17 @@ class TaskRepository:
         )
         return int((await self.session.execute(stmt)).scalar_one())
 
-    async def done_count_since(self, hours: int = 24) -> int:
+    async def done_count_since(self, hours: int = 24, township: str | None = None) -> int:
         since = datetime.now() - timedelta(hours=hours)
         stmt = select(func.count()).select_from(Task).where(
             and_(Task.status == TaskStatus.DONE, Task.finished_at >= since)
         )
+        if township:
+            stmt = stmt.where(Task.township == township)
         return int((await self.session.execute(stmt)).scalar_one())
 
-    async def sum_collected_weight(self) -> float:
+    async def sum_collected_weight(self, township: str | None = None) -> float:
         stmt = select(func.coalesce(func.sum(Task.collected_weight), 0))
+        if township:
+            stmt = stmt.where(Task.township == township)
         return float((await self.session.execute(stmt)).scalar_one())

@@ -86,6 +86,9 @@ class Event(Base):
         default=EventStatus.NEW,
         index=True,
     )
+    # 乡镇归属：入库时由 location 最近邻计算（app.core.geo.nearest_township）。
+    # 存字段而非每次查询现算，是为了让 operator 的「本辖区」过滤能走索引。
+    township: Mapped[str | None] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

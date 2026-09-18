@@ -30,7 +30,6 @@ coverage_area 为什么置 0
 from __future__ import annotations
 
 import asyncio
-import math
 from datetime import date, datetime, time, timedelta
 
 from loguru import logger
@@ -38,52 +37,17 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.geo import TOWNSHIPS, nearest_township
 from app.db.session import get_session_factory
 from app.models.event import Event
 from app.models.misc import ReportDaily
 from app.models.task import Task, TaskStatus
 
-# 连江沿海乡镇中心点（lng, lat）—— 与 02_seed.sql 注释、前端 constants.js 对账。
-# 顺序无关，但名字必须逐字一致（「苔菉镇」不是「苔录镇」）。
-TOWNSHIPS: tuple[tuple[str, float, float], ...] = (
-    ("马鼻镇", 119.652, 26.386),
-    ("黄岐镇", 119.904, 26.316),
-    ("筱埕镇", 119.836, 26.352),
-    ("苔菉镇", 120.010, 26.293),
-    ("安凯镇", 119.760, 26.420),
-    ("下宫镇", 119.887, 26.374),
-)
-
+# 连江沿海乡镇中心点 —— 已抽到 app.core.geo（供事件/任务/报表三处共用，
+# 避免循环 import）。这里 re-export 保持向后兼容。
 # 每日聚合运行的时刻（本地时区），聚合「前一天」的数据
 DAILY_RUN_HOUR = 1
 DAILY_RUN_MINUTE = 0
-
-
-def nearest_township(lng: float, lat: float) -> str:
-    """返回距离 (lng, lat) 最近的乡镇名（haversine 大圆距离）。
-
-    这是乡镇归属的**唯一实现**。事件、任务、轨迹都要经过这里，
-    不允许任何地方另写一套「坐标 → 乡镇」的判断。
-    """
-    best_name = TOWNSHIPS[0][0]
-    best_dist = float("inf")
-    for name, tlng, tlat in TOWNSHIPS:
-        d = _haversine(lng, lat, tlng, tlat)
-        if d < best_dist:
-            best_dist = d
-            best_name = name
-    return best_name
-
-
-def _haversine(lng1: float, lat1: float, lng2: float, lat2: float) -> float:
-    """两点大圆距离（米）。连江范围极小，但用 haversine 避免经纬度单位混用。"""
-    r = 6371000.0
-    p1 = math.radians(lat1)
-    p2 = math.radians(lat2)
-    dp = math.radians(lat2 - lat1)
-    dl = math.radians(lng2 - lng1)
-    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(math.sqrt(a))
 
 
 async def aggregate_daily(session: AsyncSession, target_date: date) -> int:

@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS t_event (
     model_version   VARCHAR(32),                           -- 产出该事件的模型版本
     seq             BIGINT       NOT NULL,                 -- 边缘端单调序号（判重用）
     status          event_status_enum NOT NULL DEFAULT 'new',
+    township        VARCHAR(64),                           -- 乡镇归属（入库时按 location 最近邻计算）
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
 
     -- 防重复派单：同一设备同一序号只能有一条
@@ -97,6 +98,7 @@ CREATE INDEX IF NOT EXISTS idx_event_time     ON t_event (event_time DESC);
 CREATE INDEX IF NOT EXISTS idx_event_location ON t_event USING GIST (location);
 CREATE INDEX IF NOT EXISTS idx_event_status   ON t_event (status);
 CREATE INDEX IF NOT EXISTS idx_event_class    ON t_event (main_class);
+CREATE INDEX IF NOT EXISTS idx_event_township ON t_event (township);
 -- 复合索引：热力图按时间窗 + 类别筛选
 CREATE INDEX IF NOT EXISTS idx_event_time_class ON t_event (event_time DESC, main_class);
 
@@ -112,6 +114,7 @@ CREATE TABLE IF NOT EXISTS t_task (
     target_location   geometry(Point, 4326) NOT NULL,
     status            task_status_enum NOT NULL DEFAULT 'pending',
     priority          SMALLINT NOT NULL DEFAULT 5,         -- 1=最高 9=最低
+    township          VARCHAR(64),                         -- 乡镇归属（按 target_location 最近邻计算）
 
     -- 时间戳链：完整记录任务生命周期
     created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -136,6 +139,7 @@ CREATE INDEX IF NOT EXISTS idx_task_robot   ON t_task (robot_id);
 CREATE INDEX IF NOT EXISTS idx_task_event   ON t_task (event_id);
 CREATE INDEX IF NOT EXISTS idx_task_created ON t_task (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_task_target  ON t_task USING GIST (target_location);
+CREATE INDEX IF NOT EXISTS idx_task_township ON t_task (township);
 
 -- 防抖关键：同一事件在「未完成任务」状态下不重复派单（部分唯一索引）
 CREATE UNIQUE INDEX IF NOT EXISTS uq_task_active_event

@@ -27,6 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.exceptions import NoRobotAvailableError
+from app.core.geo import nearest_township
 from app.models.device import Device
 from app.models.event import Event, EventStatus
 from app.models.task import Task, TaskPriority, TaskStatus
@@ -311,6 +312,9 @@ class DispatchEngine:
             status=TaskStatus.ASSIGNED,
             priority=priority,
             assigned_at=now,
+            township=event.township or (
+                nearest_township(lng, lat) if lng is not None and lat is not None else None
+            ),
         )
 
         # 更新机器人状态（忙碌中）

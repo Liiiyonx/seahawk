@@ -12,8 +12,9 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_session
-from app.core.deps import CurrentUser, require_operator
+from app.core.deps import CurrentUser, get_current_user, require_operator
 from app.core.exceptions import ApiResponse
+from app.core.geo import nearest_township
 from app.models.task import ReviewResult, TaskStatus
 from app.repositories import TaskRepository
 from app.schemas import TaskCreate, TaskOut, TaskStatusUpdate
@@ -76,6 +77,7 @@ async def create_task(
         target_location=f"SRID=4326;POINT({payload.target.lng} {payload.target.lat})",
         status=TaskStatus.PENDING,
         priority=payload.priority,
+        township=nearest_township(payload.target.lng, payload.target.lat),
     )
     await session.flush()
 
@@ -106,12 +108,18 @@ async def list_tasks(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
 ):
-    """分页查询任务列表（工单看板数据源）。"""
+    """分页查询任务列表（工单看板数据源）。
+
+    operator 角色只看自己辖区（township_scope）的数据，admin/viewer 看全部。
+    """
     repo = TaskRepository(session)
+    township = user.township_scope if user.role == "operator" else None
     tasks, total = await repo.list_tasks(
         status=status,
         robot_id=robot_id,
+        township=township,
         limit=page_size,
         offset=(page - 1) * page_size,
     )

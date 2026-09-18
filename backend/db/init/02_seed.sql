@@ -54,38 +54,51 @@ ON CONFLICT (device_id) DO NOTHING;
 
 -- ---------- 识别事件（模拟最近 48 小时的真实分布） ----------
 -- 主要聚集在马鼻、黄岐附近（对应真实海漂垃圾高发区）
-INSERT INTO t_event (event_id, device_id, event_time, location, main_class, det_count, max_confidence, evidence_url, model_version, seq, status) VALUES
--- 马鼻镇附近（泡�类为主，高优先级）
-('evt_demo_0001', 'CAM-MABI-01',   now() - interval '2 hours',  ST_SetSRID(ST_MakePoint(119.6530, 26.3870), 4326), 'foam',        5, 0.91, NULL, 'det_v0.1.0', 1001, 'new'),
-('evt_demo_0002', 'CAM-MABI-01',   now() - interval '3 hours',  ST_SetSRID(ST_MakePoint(119.6535, 26.3875), 4326), 'foam',        3, 0.87, NULL, 'det_v0.1.0', 1002, 'new'),
-('evt_demo_0003', 'CAM-MABI-01',   now() - interval '5 hours',  ST_SetSRID(ST_MakePoint(119.6525, 26.3862), 4326), 'plastic',     2, 0.79, NULL, 'det_v0.1.0', 1003, 'new'),
-('evt_demo_0004', 'CAM-MABI-01',   now() - interval '8 hours',  ST_SetSRID(ST_MakePoint(119.6545, 26.3880), 4326), 'fishing_gear',4, 0.84, NULL, 'det_v0.1.0', 1004, 'new'),
-('evt_demo_0005', 'CAM-MABI-01',   now() - interval '12 hours', ST_SetSRID(ST_MakePoint(119.6518, 26.3858), 4326), 'foam',        7, 0.93, NULL, 'det_v0.1.0', 1005, 'new'),
+-- ★ township 是「operator 辖区隔离」的关键字段：operator(马鼻镇) 登录后
+--   只看到马鼻镇的事件，admin/viewer 看全部 —— 三个账号互不干扰。
+INSERT INTO t_event (event_id, device_id, event_time, location, main_class, det_count, max_confidence, evidence_url, model_version, seq, status, township) VALUES
+-- 马鼻镇附近（泡沫类为主，高优先级；operator 辖区）
+('evt_demo_0001', 'CAM-MABI-01',   now() - interval '2 hours',  ST_SetSRID(ST_MakePoint(119.6530, 26.3870), 4326), 'foam',        5, 0.91, NULL, 'det_v0.1.0', 1001, 'new', '马鼻镇'),
+('evt_demo_0002', 'CAM-MABI-01',   now() - interval '3 hours',  ST_SetSRID(ST_MakePoint(119.6535, 26.3875), 4326), 'foam',        3, 0.87, NULL, 'det_v0.1.0', 1002, 'new', '马鼻镇'),
+('evt_demo_0003', 'CAM-MABI-01',   now() - interval '5 hours',  ST_SetSRID(ST_MakePoint(119.6525, 26.3862), 4326), 'plastic',     2, 0.79, NULL, 'det_v0.1.0', 1003, 'new', '马鼻镇'),
+('evt_demo_0004', 'CAM-MABI-01',   now() - interval '8 hours',  ST_SetSRID(ST_MakePoint(119.6545, 26.3880), 4326), 'fishing_gear',4, 0.84, NULL, 'det_v0.1.0', 1004, 'new', '马鼻镇'),
+('evt_demo_0005', 'CAM-MABI-01',   now() - interval '12 hours', ST_SetSRID(ST_MakePoint(119.6518, 26.3858), 4326), 'foam',        7, 0.93, NULL, 'det_v0.1.0', 1005, 'new', '马鼻镇'),
+('evt_demo_0015', 'CAM-MABI-01',   now() - interval '1 hours',  ST_SetSRID(ST_MakePoint(119.6538, 26.3866), 4326), 'plastic',     3, 0.82, NULL, 'det_v0.1.0', 1006, 'new', '马鼻镇'),
+('evt_demo_0016', 'CAM-MABI-01',   now() - interval '6 hours',  ST_SetSRID(ST_MakePoint(119.6512, 26.3872), 4326), 'foam',        4, 0.89, NULL, 'det_v0.1.0', 1007, 'new', '马鼻镇'),
 -- 黄岐镇附近
-('evt_demo_0006', 'CAM-HUANGQI-01',now() - interval '4 hours',  ST_SetSRID(ST_MakePoint(119.9050, 26.3165), 4326), 'foam',        4, 0.88, NULL, 'det_v0.1.0', 2001, 'new'),
-('evt_demo_0007', 'CAM-HUANGQI-01',now() - interval '7 hours',  ST_SetSRID(ST_MakePoint(119.9055, 26.3160), 4326), 'plastic',     3, 0.76, NULL, 'det_v0.1.0', 2002, 'new'),
-('evt_demo_0008', 'CAM-HUANGQI-01',now() - interval '20 hours', ST_SetSRID(ST_MakePoint(119.9045, 26.3170), 4326), 'foam',        6, 0.90, NULL, 'det_v0.1.0', 2003, 'new'),
+('evt_demo_0006', 'CAM-HUANGQI-01',now() - interval '4 hours',  ST_SetSRID(ST_MakePoint(119.9050, 26.3165), 4326), 'foam',        4, 0.88, NULL, 'det_v0.1.0', 2001, 'new', '黄岐镇'),
+('evt_demo_0007', 'CAM-HUANGQI-01',now() - interval '7 hours',  ST_SetSRID(ST_MakePoint(119.9055, 26.3160), 4326), 'plastic',     3, 0.76, NULL, 'det_v0.1.0', 2002, 'new', '黄岐镇'),
+('evt_demo_0008', 'CAM-HUANGQI-01',now() - interval '20 hours', ST_SetSRID(ST_MakePoint(119.9045, 26.3170), 4326), 'foam',        6, 0.90, NULL, 'det_v0.1.0', 2003, 'new', '黄岐镇'),
+('evt_demo_0017', 'CAM-HUANGQI-01',now() - interval '13 hours', ST_SetSRID(ST_MakePoint(119.9058, 26.3168), 4326), 'fishing_gear',2, 0.80, NULL, 'det_v0.1.0', 2004, 'new', '黄岐镇'),
 -- 筱埕镇附近
-('evt_demo_0009', 'CAM-XIAOCHENG-01', now() - interval '6 hours', ST_SetSRID(ST_MakePoint(119.8365, 26.3520), 4326), 'fishing_gear',2, 0.81, NULL, 'det_v0.1.0', 3001, 'new'),
-('evt_demo_0010', 'CAM-XIAOCHENG-01', now() - interval '16 hours',ST_SetSRID(ST_MakePoint(119.8360, 26.3515), 4326), 'foam',        3, 0.86, NULL, 'det_v0.1.0', 3002, 'new'),
+('evt_demo_0009', 'CAM-XIAOCHENG-01', now() - interval '6 hours', ST_SetSRID(ST_MakePoint(119.8365, 26.3520), 4326), 'fishing_gear',2, 0.81, NULL, 'det_v0.1.0', 3001, 'new', '筱埕镇'),
+('evt_demo_0010', 'CAM-XIAOCHENG-01', now() - interval '16 hours',ST_SetSRID(ST_MakePoint(119.8360, 26.3515), 4326), 'foam',        3, 0.86, NULL, 'det_v0.1.0', 3002, 'new', '筱埕镇'),
 -- 苔菉 / 安凯 / 下宫（零星）
-('evt_demo_0011', 'CAM-TAILU-01',  now() - interval '9 hours',  ST_SetSRID(ST_MakePoint(120.0100, 26.2935), 4326), 'other',       1, 0.68, NULL, 'det_v0.1.0', 4001, 'new'),
-('evt_demo_0012', 'CAM-ANKAI-01',  now() - interval '11 hours', ST_SetSRID(ST_MakePoint(119.7600, 26.4200), 4326), 'foam',        2, 0.83, NULL, 'det_v0.1.0', 5001, 'new'),
-('evt_demo_0013', 'CAM-XIAGONG-01',now() - interval '14 hours', ST_SetSRID(ST_MakePoint(119.8875, 26.3745), 4326), 'plastic',     2, 0.74, NULL, 'det_v0.1.0', 6001, 'new'),
--- 无人机巡查发现
-('evt_demo_0014', 'UAV-001',       now() - interval '10 hours', ST_SetSRID(ST_MakePoint(119.8700, 26.3600), 4326), 'foam',        8, 0.89, NULL, 'det_v0.1.0', 7001, 'new')
+('evt_demo_0011', 'CAM-TAILU-01',  now() - interval '9 hours',  ST_SetSRID(ST_MakePoint(120.0100, 26.2935), 4326), 'other',       1, 0.68, NULL, 'det_v0.1.0', 4001, 'new', '苔菉镇'),
+('evt_demo_0012', 'CAM-ANKAI-01',  now() - interval '11 hours', ST_SetSRID(ST_MakePoint(119.7600, 26.4200), 4326), 'foam',        2, 0.83, NULL, 'det_v0.1.0', 5001, 'new', '安凯镇'),
+('evt_demo_0013', 'CAM-XIAGONG-01',now() - interval '14 hours', ST_SetSRID(ST_MakePoint(119.8875, 26.3745), 4326), 'plastic',     2, 0.74, NULL, 'det_v0.1.0', 6001, 'new', '下宫镇'),
+-- 无人机巡查发现（筱埕附近）
+('evt_demo_0014', 'UAV-001',       now() - interval '10 hours', ST_SetSRID(ST_MakePoint(119.8700, 26.3600), 4326), 'foam',        8, 0.89, NULL, 'det_v0.1.0', 7001, 'new', '筱埕镇')
 ON CONFLICT (event_id) DO NOTHING;
 
--- 模拟一个已完成的工单（让看板有历史数据）
+-- 模拟已完成的工单（让看板有历史数据）+ 一个马鼻镇待派单工单
 INSERT INTO t_task (task_id, event_id, robot_id, target_location, status, priority,
                     created_at, assigned_at, ack_at, started_at, finished_at,
-                    collected_weight, review_result)
+                    collected_weight, review_result, township)
 VALUES
 ('tsk_demo_0001', 'evt_demo_0005', 'RBT-001',
  ST_SetSRID(ST_MakePoint(119.6518, 26.3858), 4326), 'done', 1,
  now() - interval '12 hours', now() - interval '11 hours 55 minutes',
  now() - interval '11 hours 54 minutes', now() - interval '11 hours 50 minutes',
- now() - interval '11 hours 30 minutes', 12.500, 'confirmed')
+ now() - interval '11 hours 30 minutes', 12.500, 'confirmed', '马鼻镇'),
+('tsk_demo_0002', 'evt_demo_0016', NULL,
+ ST_SetSRID(ST_MakePoint(119.6512, 26.3872), 4326), 'pending', 1,
+ now() - interval '6 hours', NULL, NULL, NULL, NULL, NULL, 'pending', '马鼻镇'),
+('tsk_demo_0003', 'evt_demo_0006', 'RBT-002',
+ ST_SetSRID(ST_MakePoint(119.9050, 26.3165), 4326), 'collecting', 1,
+ now() - interval '4 hours', now() - interval '3 hours 55 minutes',
+ now() - interval '3 hours 54 minutes', now() - interval '3 hours 50 minutes',
+ NULL, NULL, 'pending', '黄岐镇')
 ON CONFLICT (task_id) DO NOTHING;
 
 -- 事件状态同步为已处理
