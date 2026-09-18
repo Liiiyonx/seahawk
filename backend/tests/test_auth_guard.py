@@ -112,3 +112,18 @@ class TestWriteEndpointsGuarded:
             f"写接口未挂 require_operator 依赖：{missing}。\n"
             "匿名/viewer 将可以改工单状态，权限形同虚设。"
         )
+
+    def test_event_status_update_guarded(self, project_root: Path) -> None:
+        """事件忽略/确认接口（纠误报）同样必须挂 require_operator。"""
+        src = (project_root / "backend/app/api/v1/events.py").read_text(encoding="utf-8")
+        tree = ast.parse(src)
+        guarded = {}
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                seg = ast.get_source_segment(src, node) or ""
+                guarded[node.name] = "require_operator" in seg
+
+        assert guarded.get("update_event_status") is True, (
+            "事件忽略/确认接口 update_event_status 未挂 require_operator，"
+            "匿名/viewer 将可以篡改事件状态。"
+        )

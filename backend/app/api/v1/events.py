@@ -5,15 +5,16 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_redis_dep
+from app.core.deps import CurrentUser, get_redis_dep, require_operator
 from app.db.session import get_session
 from app.core.exceptions import ApiResponse
-from app.models.event import WasteClass
+from app.models.event import EventStatus, WasteClass
 from app.repositories import EventRepository
 from app.schemas import (
     EventIngest,
     EventIngestResult,
     EventOut,
+    EventStatusUpdate,
     HeatmapQuery,
 )
 from app.services.event import EventService
@@ -159,3 +160,45 @@ async def get_event(event_id: str, session: AsyncSession = Depends(get_session))
     lat = float(row[1]) if row and row[1] is not None else 0.0
 
     return ApiResponse.ok(_to_out(event, lng, lat))
+
+
+@router.patch("/{event_id}", response_model=ApiResponse[EventOut], summary="人工更新事件状态（忽略/确认）")
+async def update_event_status(
+    event_id: str,
+    payload: EventStatusUpdate,
+    session: AsyncSession = Depends(get_session),
+    _user: CurrentUser = Depends(require_operator),
+):
+    """人工纠误报：把待处理事件标记为 ignored（识别误报，不再派单）
+    或 resolved（人工确认已清理，无需机器人）。
+
+    仅允许 new → ignored/resolved。已派单（dispatched）的事件不能直接改，
+    否则关联任务会变成孤儿 —— 这类情况须先走工单流程（取消/完成工单）。
+    """
+    from sqlalchemy import func, select
+
+    from app.core.exceptions import AppException, NotFoundError
+
+    event = await EventRepository(session).get_by_event_id(event_id)
+    if event is None:
+        raise NotFoundError(f"事件 {event_id} 不存在", code=3001)
+
+    if event.status != EventStatus.NEW:
+        raise AppException(
+            code=1001,
+            message=f"仅「待处理」事件可人工更新（当前为 {event.status}），已派单事件请走工单流程",
+            http_status=409,
+        )
+
+    event.status = payload.status
+    await session.flush()
+
+    row = (
+        await session.execute(
+            select(func.ST_X(event.location), func.ST_Y(event.location))
+        )
+    ).first()
+    lng = float(row[0]) if row and row[0] is not None else 0.0
+    lat = float(row[1]) if row and row[1] is not None else 0.0
+
+    return ApiResponse.ok(_to_out(event, lng, lat), message="事件状态已更新")

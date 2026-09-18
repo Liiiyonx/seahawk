@@ -62,6 +62,7 @@
             <th style="width: 150px">坐标</th>
             <th style="width: 90px">状态</th>
             <th>关联工单</th>
+            <th v-if="canWriteOps" style="width: 80px">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -83,6 +84,16 @@
             </td>
             <td class="text-dim" style="font-size: 12px">
               {{ taskMap[e.event_id] ? taskMap[e.event_id] : '—' }}
+            </td>
+            <td v-if="canWriteOps" class="text-dim" style="font-size: 12px">
+              <button
+                v-if="e.status === 'new'"
+                class="link-btn"
+                @click="ignoreEvent(e)"
+              >
+                忽略
+              </button>
+              <span v-else>—</span>
             </td>
           </tr>
         </tbody>
@@ -115,9 +126,13 @@ import { ref, reactive, onMounted } from 'vue'
 import { eventsApi, tasksApi } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import { CLASS_ORDER, EVENT_STATUS, classLabel, classColor } from '@/utils/constants'
+import { canWrite } from '@/utils/auth'
 import { fmtShortTime, fmtConfidence, fmtCoord } from '@/utils/format'
 
 const store = useRealtimeStore()
+
+// viewer / 匿名只读：隐藏「忽略」操作（后端 require_operator 才是最终裁决）
+const canWriteOps = canWrite()
 
 const items = ref([])
 const total = ref(0)
@@ -174,6 +189,15 @@ async function buildTaskMap() {
 function goto(p) {
   page.value = p
   load()
+}
+
+async function ignoreEvent(e) {
+  try {
+    await eventsApi.updateStatus(e.event_id, { status: 'ignored' })
+    await load()
+  } catch (err) {
+    store.error = err.message
+  }
 }
 
 onMounted(load)
@@ -270,5 +294,19 @@ onMounted(load)
 .pager__info {
   font-size: 13px;
   color: var(--text-sub);
+}
+
+.link-btn {
+  padding: 1px 8px;
+  font-size: 12px;
+  color: var(--c-danger);
+  background: transparent;
+  border: 1px solid rgba(242, 86, 76, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  background: rgba(242, 86, 76, 0.12);
 }
 </style>

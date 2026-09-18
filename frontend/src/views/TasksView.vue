@@ -13,6 +13,7 @@
         <span class="status-chip__num" :style="{ color: s.color }">{{ s.count }}</span>
       </div>
       <div class="status-bar__spacer"></div>
+      <button v-if="canWriteOps" class="btn" @click="openManual">人工建单</button>
       <button v-if="canWriteOps" class="btn" @click="dispatchPending" :disabled="dispatching">
         {{ dispatching ? '派单中…' : '触发补派' }}
       </button>
@@ -142,6 +143,59 @@
         </div>
       </div>
     </div>
+
+    <!-- 人工建单：漏检兜底，操作员手动指定位置/机器人创建任务 -->
+    <div v-if="manual" class="drawer" @click.self="manual = false">
+      <div class="drawer__panel panel">
+        <div class="panel-title">
+          <span>人工建单（漏检兜底）</span>
+          <button class="drawer__close" @click="manual = false">×</button>
+        </div>
+        <div class="panel-body drawer__body">
+          <div class="form-row">
+            <label class="form-label">目标经度（lng）</label>
+            <input
+              v-model="manualForm.lng"
+              class="form-input"
+              type="number"
+              step="0.0001"
+              placeholder="如 119.6521"
+            />
+          </div>
+          <div class="form-row">
+            <label class="form-label">目标纬度（lat）</label>
+            <input
+              v-model="manualForm.lat"
+              class="form-input"
+              type="number"
+              step="0.0001"
+              placeholder="如 26.3864"
+            />
+          </div>
+          <div class="form-row">
+            <label class="form-label">执行机器人（空则进入待派单）</label>
+            <select v-model="manualForm.robot_id" class="form-input">
+              <option value="">不指定（待自动派单）</option>
+              <option v-for="r in store.robots" :key="r.robot_id" :value="r.robot_id">
+                {{ r.name || r.robot_id }}（{{ r.status === 'online' ? '在线' : '离线' }}）
+              </option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">优先级</label>
+            <select v-model.number="manualForm.priority" class="form-input">
+              <option :value="1">P1 紧急</option>
+              <option :value="3">P3 普通</option>
+              <option :value="5">P5 一般</option>
+            </select>
+          </div>
+          <div class="drawer__actions">
+            <button class="btn" @click="manual = false">取消</button>
+            <button class="btn btn--primary" @click="submitManual">创建任务</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -173,6 +227,9 @@ const filters = reactive({ status: '' })
 // 完成工单的录入表单：打捞重量必须由操作员如实填写，不再伪造随机数
 const completing = ref(null)
 const completion = reactive({ weight: '', review: 'confirmed' })
+// 人工建单：漏检兜底
+const manual = ref(false)
+const manualForm = reactive({ lng: '', lat: '', robot_id: '', priority: 5 })
 
 const COLUMNS = [
   { status: 'pending', label: '待派单', color: '#8b96a8' },
@@ -298,6 +355,34 @@ async function confirmDone() {
   const task = completing.value
   completing.value = null
   if (task) await applyStatus(task, 'done', payload)
+}
+
+function openManual() {
+  manual.value = true
+  manualForm.lng = ''
+  manualForm.lat = ''
+  manualForm.robot_id = ''
+  manualForm.priority = 5
+}
+
+async function submitManual() {
+  const lng = Number(manualForm.lng)
+  const lat = Number(manualForm.lat)
+  if (manualForm.lng === '' || manualForm.lat === '' || Number.isNaN(lng) || Number.isNaN(lat)) {
+    store.error = '请输入有效的目标经纬度'
+    return
+  }
+  try {
+    await tasksApi.create({
+      target: { lng, lat },
+      robot_id: manualForm.robot_id || undefined,
+      priority: manualForm.priority,
+    })
+    manual.value = false
+    await load()
+  } catch (err) {
+    store.error = err.message
+  }
 }
 
 async function dispatchPending() {

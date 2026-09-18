@@ -146,6 +146,17 @@ class EventIngestResult(BaseModel):
     message: str = ""
 
 
+class EventStatusUpdate(BaseModel):
+    """人工更新事件状态 —— 用于纠误报（忽略）与人工确认清理。
+
+    只允许 new → ignored（识别误报，不再派单）或 new → resolved
+    （人工确认已清理）。已派单（dispatched）的事件不能直接改，
+    必须先处理关联任务，避免产生孤儿任务。
+    """
+
+    status: Literal["resolved", "ignored"]
+
+
 # ============================================================
 # 任务
 # ============================================================

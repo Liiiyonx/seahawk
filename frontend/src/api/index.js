@@ -15,6 +15,11 @@ export const eventsApi = {
     return http.get(`/events/${eventId}`)
   },
 
+  /** 人工更新事件状态（忽略误报 / 确认清理） */
+  updateStatus(eventId, payload) {
+    return http.patch(`/events/${eventId}`, payload)
+  },
+
   /** 热力图网格聚合 */
   heatmap(params = {}) {
     return http.get('/events/heatmap', { params })
