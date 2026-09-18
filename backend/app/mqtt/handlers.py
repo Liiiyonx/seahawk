@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 from typing import Any
 
@@ -71,6 +72,20 @@ async def handle_event(topic: str, payload: dict[str, Any]) -> None:
                 "event_time": ingest.timestamp.isoformat(),
             }
         )
+
+        # 告警外发到企业微信（仅高优先级类别）。
+        # ★ 用 create_task 异步旁路，绝不 await：外发失败/超时不能阻塞派单主流程。
+        if ingest.aggregate.main_class in WasteClass.HIGH_PRIORITY:
+            from app.services.notify import build_alert_text, send_wecom_alert
+
+            alert = build_alert_text(
+                WasteClass.LABELS.get(ingest.aggregate.main_class, ingest.aggregate.main_class),
+                ingest.device_id,
+                ingest.location.lng,
+                ingest.location.lat,
+                ingest.timestamp.isoformat(),
+            )
+            asyncio.create_task(send_wecom_alert(alert))
 
         # 自动派单（仅高优先级类别）
         # ★ 白名单必须取自 WasteClass.HIGH_PRIORITY，不能在此硬编码字面量：

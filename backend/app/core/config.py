@@ -87,6 +87,12 @@ class Settings(BaseSettings):
     ai_model_version: str = "det_v0.1.0"
     ai_timeout_seconds: int = 10
 
+    # ---------- 通知外发 ----------
+    # 企业微信机器人 webhook；为空 = 不启用告警外发（只落日志）。
+    # 这是刻意的降级：告警推送失败绝不能阻塞事件派单主流程。
+    wecom_webhook: str = ""
+    wecom_mention_mobile: str = ""     # 告警 @ 的手机号（逗号分隔），可选
+
     # ---------- CORS ----------
     cors_origins: list[str] = ["http://localhost:5173"]
 
