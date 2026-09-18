@@ -1,0 +1,116 @@
+# 探海灵眸 SeaSight — 后端工程配置
+#
+# ★★ 为什么 Alembic 的配置放在这里，而不是 alembic.ini？★★
+#
+# 因为 alembic.ini 在中文 Windows 上**必定崩**，这不是配置写法问题：
+#
+#   Alembic 读 ini 的代码（alembic/util/compat.py:130）：
+#       return file_config.read(file_argument, encoding="locale")
+#
+#   而 Python 的 open(encoding="locale") 会直接取 locale.getencoding()，
+#   **绕过 UTF-8 模式**，实测：
+#
+#       locale.getencoding()               -> cp936   ← 中文 Windows 的真实 locale
+#       open(encoding="locale").encoding   -> cp936
+#       open(encoding=None).encoding       -> utf-8   ← 因为设了 PYTHONUTF8=1
+#
+#   于是 alembic.ini 里只要有一个非 ASCII 字节（哪怕只是中文注释），
+#   `alembic` 的所有子命令都会死在 UnicodeDecodeError: 'gbk' codec ...
+#
+#   已实测无效的三种绕法（别浪费时间重试）：
+#     ① 在 ini 首行加 `# -*- coding: utf-8 -*-`
+#        → configparser 只在 encoding=None 时才探测该声明，显式传值会忽略它
+#     ② 设 PYTHONUTF8=1 / PYTHONCOERCECLOCALE=0
+#        → 只管得住 encoding=None，管不住 encoding="locale"
+#     ③ 把 ini 注释全改英文
+#        → 治标不治本，团队里任何人加一行中文就复发
+#
+# TOML 没有这个问题：Alembic 读 pyproject.toml 用的是
+#   open(self._toml_file_path, "rb") + tomllib.load(f)
+# 二进制模式 + tomllib 强制 UTF-8，**编码参数根本不参与**，根治。
+#
+# 保留 alembic.ini 仅为了那份 logging 配置（TOML 不支持 logging 段，
+# Alembic 官方说这种情况用 ``alembic init --template pyproject`` 会生成
+# 一个只含 [loggers] 的 ini）。见文件末尾说明。
+
+[tool.alembic]
+# script_location 相对本文件所在目录（backend/）
+script_location = "alembic"
+
+# 迁移脚本文件名带时间戳前缀，便于按时间排序
+#
+# ⚠️ 这里用**双**百分号 `%%` 转义，跟 ini 里一样。
+#    Alembic 对 TOML 的每个字符串值**也**做 `value % self.toml_args` 插值
+#    （见 alembic/config.py:492），而 toml_args 里只有 `here`，
+#    所以单写 `%(year)d` 会立刻抛 KeyError: 'year'。
+#    写成 `%%(year)d` 插值后正好还原成 `%(year)d`，交给 file_template 用。
+file_template = "%%(year)d%%(month).2d%%(day).2d_%%(hour).2d%%(minute).2d_%%(rev)s_%%(slug)s"
+
+# ★ 不在这里写数据库连接串。
+#   pyproject.toml 会进 git，写死密码等于泄露。
+#   真实 URL 由 alembic/env.py 从 app.core.config 读取。
+#   这个键留空仅作占位，说明「连接串不来自本文件」。
+# sqlalchemy.url =
+
+# 迁移脚本生成时的时区
+timezone = "Asia/Shanghai"
+
+# 截断过长的 slug（文件名不要太长）
+truncate_slug_length = 40
+
+# 版本目录（%(here)s = 本文件所在目录）
+#
+# ⚠️ 这里必须是 **TOML 数组**，不能写成单个字符串。
+#    原因（很容易踩）：Alembic 读 version_locations 时优先看 ini，ini 没有
+#    才回落到 TOML（config.py:587-591），而 TOML 这条路径**不做字符串分割**，
+#    直接把值原样返回；下游是
+#        for location in self.version_locations: ...
+#    所以写成字符串 "C:/.../versions" 会被**逐字符**遍历成
+#        ['C', ':', '/', 'U', 's', ...]
+#    接着第一个元素 'C' 被当成 Python 包名喂给 importlib.resources.files()，
+#    报一个极其误导的错：
+#        ValueError: Empty module name
+#    （注意 Windows 下 'C' 无冒号，所以是 Empty module name 而不是别的；
+#      如果盘符后紧跟冒号还会报找不到模块。）
+#
+#    ★ ini 里写字符串是对的（那边会按 path_separator 分割），
+#      迁到 TOML 时必须改成数组 —— 这是两轨语法最容易搞错的一处。
+#    另外 `%(here)s` 展开后是正斜杠路径，Windows 下没问题，
+#    Path() 两种斜杠都认。
+version_locations = ["%(here)s/alembic/versions"]
+
+# 新迁移文件里的 revision 依赖分隔符
+version_path_separator = "os"
+
+# ----------------------------------------------------------------------
+# 关于「双轨制」—— 理解这一点才能正确用迁移
+# ----------------------------------------------------------------------
+#
+#   轨道 A：**初始建表**走 `db/init/01_schema.sql`
+#           （postgres 容器首次启动时由 entrypoint 自动执行）
+#           为什么不全用 Alembic？因为建表脚本里有 PostGIS 扩展、
+#           分区表、触发器等 Alembic autogenerate 表达不了的东西。
+#
+#   轨道 B：**后续变更**走 Alembic
+#           加字段、加索引、改约束这类增量，用它才不会漏。
+#
+#   ⚠️ 两轨必须对齐：初始 revision 用 `alembic stamp head` 标注为
+#      「已应用」（因为表已由 SQL 建好），之后所有变更才用 revision 生成。
+#      不对齐的后果是 autogenerate 会试图「重建已存在的表」。
+#
+# 常用命令（在 backend/ 目录下执行）：
+#   alembic upgrade head                          # 应用全部迁移
+#   alembic revision --autogenerate -m "add xxx"  # 按模型差异生成迁移
+#   alembic stamp head                            # 标记为已应用（不执行 SQL）
+#   alembic history                               # 查看迁移历史
+#   alembic current                               # 当前版本
+#   alembic downgrade -1                          # 回退一步
+#
+# Makefile 里有对应封装：make migrate / make migration / make migrate-history
+
+
+[tool.pytest.ini_options]
+# 让 `pytest` 在 backend/ 下直接可跑，且能 import app.*
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
