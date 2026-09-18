@@ -1,0 +1,232 @@
+/**
+ * 全局样式 —— 大屏风格，深色底 + 青绿主色（海洋主题）。
+ *
+ * 为什么用深色：大屏部署在指挥中心，环境光弱，
+ * 深色底能突出视频宫格与热力图，久看不累。
+ */
+:root {
+  /* 主色：海洋青 */
+  --c-primary: #12d8c4;
+  --c-primary-dim: #0a9c8e;
+  --c-primary-glow: rgba(18, 216, 196, 0.24);
+
+  /* 强调色 */
+  --c-danger: #f2564c;
+  --c-warn: #f5a623;
+  --c-info: #4a9eff;
+  --c-success: #3ddc84;
+
+  /* 垃圾类别色（与热力图、饼图共用，保证全场一致） */
+  --c-foam: #f5a623;
+  --c-plastic: #4a9eff;
+  --c-fishing: #f2564c;
+  --c-other: #8b96a8;
+
+  /* 背景层次 */
+  --bg-page: #070d14;
+  --bg-panel: #0d1620;
+  --bg-panel-2: #121d29;
+  --bg-hover: #172433;
+
+  /* 文字 */
+  --text-main: #e6edf5;
+  --text-sub: #8b96a8;
+  --text-dim: #5a6678;
+
+  /* 边框 */
+  --border: #1c2a3a;
+  --border-bright: #24405a;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-primary-dim);
+}
+
+/* ---------- 通用面板 ---------- */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: 0.4px;
+}
+
+.panel-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 13px;
+  background: var(--c-primary);
+  margin-right: 8px;
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+
+.panel-body {
+  padding: 12px 14px;
+}
+
+/* ---------- 状态徽标 ---------- */
+.badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.badge-online { background: rgba(61, 220, 132, 0.14); color: var(--c-success); }
+.badge-offline { background: rgba(139, 150, 168, 0.14); color: var(--text-sub); }
+.badge-fault { background: rgba(242, 86, 76, 0.14); color: var(--c-danger); }
+
+.badge-new { background: rgba(245, 166, 35, 0.16); color: var(--c-warn); }
+.badge-dispatched { background: rgba(74, 158, 255, 0.16); color: var(--c-info); }
+.badge-resolved { background: rgba(61, 220, 132, 0.16); color: var(--c-success); }
+.badge-ignored { background: rgba(139, 150, 168, 0.16); color: var(--text-sub); }
+
+.badge-pending { background: rgba(139, 150, 168, 0.16); color: var(--text-sub); }
+.badge-assigned { background: rgba(138, 108, 255, 0.16); color: #8a6cff; }
+.badge-navigating { background: rgba(74, 158, 255, 0.16); color: var(--c-info); }
+.badge-collecting { background: rgba(18, 216, 196, 0.16); color: var(--c-primary); }
+.badge-done { background: rgba(61, 220, 132, 0.16); color: var(--c-success); }
+.badge-cancelled { background: rgba(139, 150, 168, 0.16); color: var(--text-sub); }
+
+/* 垃圾类别色点 */
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: 1px;
+}
+.dot-foam { background: var(--c-foam); }
+.dot-plastic { background: var(--c-plastic); }
+.dot-fishing_gear { background: var(--c-fishing); }
+.dot-other { background: var(--c-other); }
+
+/* ---------- 表格 ---------- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--text-sub);
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel-2);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.data-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(28, 42, 58, 0.5);
+  color: var(--text-main);
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.data-table .num {
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+/* ---------- 工具类 ---------- */
+.text-sub { color: var(--text-sub); }
+.text-dim { color: var(--text-dim); }
+.text-primary { color: var(--c-primary); }
+.text-danger { color: var(--c-danger); }
+.text-warn { color: var(--c-warn); }
+
+.flex { display: flex; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+
+.empty {
+  padding: 36px 0;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* ---------- 脉冲动画（新事件高亮） ---------- */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--c-primary-glow); }
+  70% { box-shadow: 0 0 0 8px rgba(18, 216, 196, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 216, 196, 0); }
+}
+
+.pulse {
+  animation: pulse-ring 1.6s ease-out 3;
+}
+
+@keyframes flash-in {
+  from { background: rgba(245, 166, 35, 0.18); }
+  to { background: transparent; }
+}
+
+.flash-new {
+  animation: flash-in 2s ease-out;
+}

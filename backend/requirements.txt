@@ -1,0 +1,42 @@
+# 探海灵眸 SeaSight — 后端依赖
+# Python 3.11+
+
+# ---- Web 框架 ----
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.17
+
+# ---- 数据校验与配置 ----
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# ---- 数据库 ----
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0              # 应用运行时（异步）
+psycopg2-binary==2.9.10      # Alembic 迁移用（同步，见 alembic/env.py 的说明）
+geoalchemy2==0.16.0          # PostGIS 空间类型支持
+alembic==1.14.0              # 数据库迁移
+
+# ---- 缓存与队列 ----
+redis==5.2.0                 # 含 Streams 消费者组
+
+# ---- MQTT ----
+aiomqtt==2.3.0               # 异步 MQTT 客户端
+
+# ---- 对象存储 ----
+minio==7.2.10
+
+# ---- 认证与安全 ----
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# ---- 工具 ----
+httpx==0.28.1                # 调用 AI 推理服务
+python-dateutil==2.9.0.post0
+orjson==3.10.12              # 高性能 JSON
+loguru==0.7.3                # 结构化日志
+
+# ---- 测试 ----
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0

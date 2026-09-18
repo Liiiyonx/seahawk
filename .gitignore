@@ -1,0 +1,88 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ===== 环境变量与密钥（核心！绝不提交） =====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+D:/VeriCall_data/
+
+# ===== Node / 前端 =====
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== 数据集与模型权重（体积大，不入库） =====
+ml/datasets/**
+!ml/datasets/.gitkeep
+*.pt
+*.onnx
+*.engine
+*.rknn
+*.weights
+*.tflite
+runs/
+wandb/
+
+# ===== 运行时产物 =====
+logs/
+*.log
+uploads/
+data/
+minio_data/
+postgres_data/
+redis_data/
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===== 运行时状态（绝不提交）=====
+# 模拟器把每个设备的 seq 持久化在这里，用于崩溃重启后续号。
+# 这是**运行期状态**，不是配置：
+#   · 提交后别人 clone 下来会带着你的 seq 续跑，两台机器的 seq 撞车
+#   · 平台按 (device_id, seq) 去重，撞车会导致事件被静默丢弃且无报错
+# 删掉它是安全的 —— 下次启动会从 0 重新开始。
+edge/simulator/.simulator_state.json
+.simulator_state.json
+
+# ===== 检查脚本的运行产物 =====
+# 自证脚本把逐项结果写在仓库根下，属于运行输出而非源文件。
+# 它每次运行都会被重写，提交上去只会制造无意义的 diff 噪音。
+scripts/selftest_result.txt
+scripts/selftest_events_result.txt
+
+# 临时探针：排查缺陷时随手写的验证脚本与结果，用完即删。
+# 加通配是为了防止某次忘记清理就把一次性代码提交上去。
+scripts/_probe_*
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db
+desktop.ini
