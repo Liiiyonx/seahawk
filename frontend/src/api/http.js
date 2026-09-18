@@ -13,13 +13,13 @@ const http = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ---------- 请求拦截：注入身份 ----------
+// ---------- 请求拦截：注入身份令牌 ----------
 http.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('seasight_user') || 'null')
-  if (user) {
-    config.headers['X-User'] = user.username
-    config.headers['X-Role'] = user.role
-    if (user.township_scope) config.headers['X-Scope'] = user.township_scope
+  // 令牌由登录接口签发，后端从 Authorization 头验签解析角色。
+  // 不传 X-User/X-Role：那些是前端可伪造的字段，不能作为权限依据。
+  const token = localStorage.getItem('seasight_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })

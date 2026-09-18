@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import csv
+import io
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_session
+from app.core.deps import CurrentUser, require_operator
 from app.core.exceptions import ApiResponse
-from app.models.task import TaskStatus
+from app.models.task import ReviewResult, TaskStatus
 from app.repositories import TaskRepository
 from app.schemas import TaskCreate, TaskOut, TaskStatusUpdate
 from app.services.dispatch import DispatchEngine
@@ -50,10 +56,12 @@ async def _to_out(session: AsyncSession, task) -> TaskOut:
 async def create_task(
     payload: TaskCreate,
     session: AsyncSession = Depends(get_session),
+    _user: CurrentUser = Depends(require_operator),
 ):
     """人工创建清理任务。
 
     自动派单走事件流程；本接口用于人工干预（如平台判读后手动派单）。
+    需要 operator 或 admin 写权限。
     """
     from datetime import datetime
     import uuid
@@ -109,10 +117,12 @@ async def update_task_status(
     task_id: str,
     payload: TaskStatusUpdate,
     session: AsyncSession = Depends(get_session),
+    _user: CurrentUser = Depends(require_operator),
 ):
     """更新任务状态（走状态机校验，非法跳转会被拒绝）。
 
     合法流转：pending→assigned→navigating→collecting→done
+    需要 operator 或 admin 写权限。
     """
     from app.core.exceptions import NotFoundError
 
@@ -152,10 +162,12 @@ async def get_task(task_id: str, session: AsyncSession = Depends(get_session)):
 async def dispatch_pending(
     limit: int = Query(10, ge=1, le=100),
     session: AsyncSession = Depends(get_session),
+    _user: CurrentUser = Depends(require_operator),
 ):
     """扫描待派单事件并尝试补派。
 
     使用场景：机器人离线期间产生的事件；机器人重新上线后调用本接口补派。
+    需要 operator 或 admin 写权限。
     """
     engine = DispatchEngine(session)
     created = await engine.assign_pending_tasks(limit=limit)
@@ -165,4 +177,67 @@ async def dispatch_pending(
             "task_ids": [t.task_id for t in created],
         },
         message=f"完成补派 {len(created)} 个任务",
+    )
+
+
+_REVIEW_LABELS = {
+    ReviewResult.PENDING: "待复核",
+    ReviewResult.CONFIRMED: "确认清理",
+    ReviewResult.NOT_FOUND: "到场未发现",
+    ReviewResult.RECHECK: "需人工复查",
+}
+
+
+@router.get("/export", summary="导出工单 CSV")
+async def export_tasks(
+    status: str | None = Query(None),
+    robot_id: str | None = Query(None),
+    session: AsyncSession = Depends(get_session),
+):
+    """导出工单为 CSV（带 UTF-8 BOM，Excel 打开中文不乱码）。"""
+    from app.models.task import Task
+
+    conditions = []
+    if status:
+        conditions.append(Task.status == status)
+    if robot_id:
+        conditions.append(Task.robot_id == robot_id)
+
+    stmt = select(
+        Task,
+        func.ST_X(Task.target_location).label("lng"),
+        func.ST_Y(Task.target_location).label("lat"),
+    ).order_by(Task.created_at.desc())
+    if conditions:
+        from sqlalchemy import and_
+
+        stmt = stmt.where(and_(*conditions))
+
+    rows = (await session.execute(stmt)).all()
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["任务编号", "事件编号", "执行机器人", "状态", "优先级", "目标经度", "目标纬度",
+                "打捞量(kg)", "复核结果", "创建时间", "完成时间"])
+    for task, lng, lat in rows:
+        w.writerow([
+            task.task_id,
+            task.event_id or "",
+            task.robot_id or "",
+            TaskStatus.LABELS.get(task.status, task.status),
+            task.priority,
+            f"{float(lng):.6f}" if lng is not None else "",
+            f"{float(lat):.6f}" if lat is not None else "",
+            f"{float(task.collected_weight):.2f}" if task.collected_weight is not None else "",
+            _REVIEW_LABELS.get(task.review_result, task.review_result or ""),
+            task.created_at.isoformat() if task.created_at else "",
+            task.finished_at.isoformat() if task.finished_at else "",
+        ])
+
+    content = "\ufeff" + buf.getvalue()   # UTF-8 BOM，否则 Excel 中文乱码
+    filename = f"工单台账_{datetime.now():%Y%m%d}.csv"
+    return Response(
+        content=content,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

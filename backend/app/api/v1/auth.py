@@ -59,7 +59,7 @@ async def login(
 
     from app.core.config import settings
 
-    token = _issue_token(user.username, user.role)
+    token = _issue_token(user.username, user.role, user.township_scope)
 
     user.last_login_at = datetime.now()
     await session.commit()
@@ -73,6 +73,7 @@ async def login(
             "expires_in": settings.access_token_expire_minutes * 60,
             "role": user.role,
             "full_name": user.full_name,
+            "township_scope": user.township_scope,
         }
     )
 
@@ -162,11 +163,12 @@ def _demo_hash_match(hashed: str, name: str) -> bool:
     return False
 
 
-def _issue_token(username: str, role: str) -> str:
+def _issue_token(username: str, role: str, township_scope: str | None = None) -> str:
     """签发访问令牌。
 
     正式实现用 python-jose 签 JWT；此处保持接口稳定，
     便于后续替换而不影响调用方。
+    载荷含 sub/role/scope/exp，由 `deps.get_current_user` 验签解析。
     """
     import base64
     import hashlib
@@ -176,6 +178,7 @@ def _issue_token(username: str, role: str) -> str:
     payload = {
         "sub": username,
         "role": role,
+        "scope": township_scope,
         "exp": int(
             (datetime.now() + timedelta(minutes=settings.access_token_expire_minutes)).timestamp()
         ),

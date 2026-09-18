@@ -13,9 +13,10 @@
         <span class="status-chip__num" :style="{ color: s.color }">{{ s.count }}</span>
       </div>
       <div class="status-bar__spacer"></div>
-      <button class="btn" @click="dispatchPending" :disabled="dispatching">
+      <button v-if="canWriteOps" class="btn" @click="dispatchPending" :disabled="dispatching">
         {{ dispatching ? '派单中…' : '触发补派' }}
       </button>
+      <button class="btn" @click="exportCsv">导出 CSV</button>
       <button class="btn" @click="load">刷新</button>
     </div>
 
@@ -62,7 +63,7 @@
             </div>
 
             <!-- 可执行动作 -->
-            <div v-if="nextStates(t).length" class="tcard__actions" @click.stop>
+            <div v-if="canWriteOps && nextStates(t).length" class="tcard__actions" @click.stop>
               <button
                 v-for="ns in nextStates(t)"
                 :key="ns"
@@ -150,7 +151,7 @@
  * 从待派单一路走到完成，看板能一眼看出一堆积压在哪一列。
  */
 import { ref, reactive, computed, onMounted } from 'vue'
-import { tasksApi } from '@/api'
+import { tasksApi, downloadBlob } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import {
   TASK_STATUS,
@@ -158,8 +159,12 @@ import {
   REVIEW_RESULT,
 } from '@/utils/constants'
 import { fmtCoord, fmtRelative, fmtTime } from '@/utils/format'
+import { canWrite } from '@/utils/auth'
 
 const store = useRealtimeStore()
+
+// viewer / 匿名只读：隐藏写操作（后端 require_operator 才是最终裁决）
+const canWriteOps = canWrite()
 
 const tasks = ref([])
 const detail = ref(null)
@@ -236,8 +241,17 @@ const timeline = computed(() => {
 
 async function load() {
   try {
-    const res = await tasksApi.list({ limit: 200 })
+    const res = await tasksApi.list({ page: 1, page_size: 200 })
     tasks.value = res?.items || []
+  } catch (err) {
+    store.error = err.message
+  }
+}
+
+async function exportCsv() {
+  try {
+    const blob = await tasksApi.export({ status: filters.status || undefined })
+    downloadBlob(blob, `工单台账_${new Date().toISOString().slice(0, 10)}.csv`)
   } catch (err) {
     store.error = err.message
   }

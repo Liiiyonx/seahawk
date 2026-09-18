@@ -5,6 +5,11 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
+import json
+import time
 from typing import Annotated, AsyncGenerator
 
 import redis.asyncio as aioredis
@@ -67,20 +72,45 @@ class CurrentUser:
 
 
 async def get_current_user(
-    x_user: Annotated[str | None, Header(alias="X-User")] = None,
-    x_role: Annotated[str | None, Header(alias="X-Role")] = None,
-    x_scope: Annotated[str | None, Header(alias="X-Scope")] = None,
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
 ) -> CurrentUser:
-    """获取当前用户。
+    """获取当前用户 —— 解析签名令牌，未登录回退匿名只读。
 
-    简化实现：从请求头读取（便于开发与演示）。
-    接入正式认证时，替换为 JWT 解析即可，调用方无需改动。
+    ★ 为什么不能从 X-User / X-Role 头读身份：
+    那是**前端自己填的**，用户改一下 localStorage 就能伪造角色
+    （把自己改成 admin）——「看起来有权限」其实是「没权限」。
+    真实权限必须来自**服务端签名**的令牌：角色写进签名载荷，
+    前端无法篡改，只能拿着登录时签发的令牌证明身份。
+
+    令牌格式见 `auth._issue_token`：`base64url(payload).sha256(body+secret)[:32]`。
     """
-    return CurrentUser(
-        username=x_user or "anonymous",
-        role=x_role or "viewer",
-        township_scope=x_scope,
-    )
+    token = None
+    if authorization:
+        parts = authorization.split(" ", 1)
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            token = parts[1].strip()
+
+    if not token:
+        # 未登录 → 匿名只读：大屏演示可直接看，但写操作会被 require_operator 拒绝
+        return CurrentUser("anonymous", "viewer", None)
+
+    try:
+        body, sig = token.rsplit(".", 1)
+        expected = hashlib.sha256(f"{body}.{settings.secret_key}".encode()).hexdigest()[:32]
+        if not hmac.compare_digest(sig, expected):
+            raise ValueError("签名不匹配")
+        padded = body + "=" * (-len(body) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded))
+        if int(payload.get("exp", 0)) < int(time.time()):
+            raise ValueError("令牌已过期")
+        username = payload.get("sub", "anonymous")
+        role = payload.get("role", "viewer")
+        scope = payload.get("scope")
+    except Exception:   # noqa: BLE001
+        # 令牌无效（伪造 / 过期 / 篡改）→ 视为匿名，不抛 401（演示友好，正式可收紧）
+        return CurrentUser("anonymous", "viewer", None)
+
+    return CurrentUser(username, role, scope)
 
 
 async def require_operator(

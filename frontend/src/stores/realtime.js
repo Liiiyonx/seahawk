@@ -113,7 +113,7 @@ export const useRealtimeStore = defineStore('realtime', () => {
 
   async function loadEvents({ hours = 24, limit = 50 } = {}) {
     try {
-      const res = await eventsApi.list({ hours, limit })
+      const res = await eventsApi.list({ hours, page: 1, page_size: limit })
       const items = res?.items || res || []
       // 保留已经通过 WebSocket 推来的高亮状态
       const seen = new Set(recentEvents.value.map((e) => e.event_id))

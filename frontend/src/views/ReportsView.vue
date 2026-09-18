@@ -37,6 +37,7 @@
           <option :value="90">近 90 天</option>
         </select>
         <button class="btn" @click="load">刷新</button>
+        <button class="btn" @click="exportCsv">导出 CSV</button>
       </div>
     </div>
 
@@ -107,7 +108,7 @@
  */
 import { ref, computed, onMounted } from 'vue'
 import ChartPanel from '@/components/ChartPanel.vue'
-import { reportsApi } from '@/api'
+import { reportsApi, downloadBlob } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import { classLabel, classColor, WASTE_CLASSES, CLASS_ORDER } from '@/utils/constants'
 import { fmtNumber } from '@/utils/format'
@@ -228,6 +229,15 @@ async function load() {
     store.error = err.message
   } finally {
     loading.value = false
+  }
+}
+
+async function exportCsv() {
+  try {
+    const blob = await reportsApi.export({ days: days.value })
+    downloadBlob(blob, `治理日报_近${days.value}天.csv`)
+  } catch (err) {
+    store.error = err.message
   }
 }
 

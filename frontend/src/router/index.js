@@ -1,7 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isLoggedIn } from '@/utils/auth'
 
 const routes = [
   { path: '/', redirect: '/dashboard' },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/LoginView.vue'),
+    meta: { title: '登录', noLayout: true },
+  },
   {
     path: '/dashboard',
     name: 'dashboard',
@@ -37,6 +44,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// ---------- 路由守卫：未登录一律回登录页 ----------
+router.beforeEach((to) => {
+  const isLoginPage = to.name === 'login'
+  if (!isLoginPage && !isLoggedIn()) {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  if (isLoginPage && isLoggedIn()) {
+    return { path: '/' }
+  }
+  return true
 })
 
 router.afterEach((to) => {

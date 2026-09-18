@@ -8,7 +8,11 @@ from __future__ import annotations
 
 from datetime import date, date as _date, datetime, timedelta
 
+import csv
+import io
+
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -126,4 +130,47 @@ async def aggregate_now(
     return ApiResponse.ok(
         {"stat_date": str(target), "rows": rows},
         message=f"已聚合 {target} 报表，写入/更新 {rows} 行",
+    )
+
+
+@router.get("/export", summary="导出日报表 CSV")
+async def export_report(
+    days: int = Query(30, ge=1, le=90),
+    township: str | None = Query(None),
+    session: AsyncSession = Depends(get_session),
+):
+    """导出治理日报表为 CSV（带 UTF-8 BOM，Excel 打开中文不乱码）。"""
+    since = date.today() - timedelta(days=days)
+    conditions = [ReportDaily.stat_date >= since]
+    if township:
+        conditions.append(ReportDaily.township == township)
+
+    stmt = (
+        select(ReportDaily)
+        .where(and_(*conditions))
+        .order_by(ReportDaily.stat_date.desc(), ReportDaily.township)
+    )
+    rows = (await session.execute(stmt)).scalars().all()
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["统计日期", "乡镇", "垃圾类别", "事件数", "工单数", "完成数", "清理量(kg)", "覆盖面积(㎡)"])
+    for r in rows:
+        w.writerow([
+            str(r.stat_date),
+            r.township or "",
+            WasteClass.LABELS.get(r.main_class or "", "") or (r.main_class or ""),
+            r.event_count,
+            r.task_count,
+            r.done_count,
+            f"{float(r.collected_kg):.2f}",
+            f"{float(r.coverage_area):.2f}",
+        ])
+
+    content = "\ufeff" + buf.getvalue()   # UTF-8 BOM，否则 Excel 中文乱码
+    filename = f"治理日报_{date.today().isoformat()}.csv"
+    return Response(
+        content=content,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

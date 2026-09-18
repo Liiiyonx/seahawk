@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_session
 from app.core.exceptions import ApiResponse
 from app.models.event import Event, WasteClass
+from app.models.task import Task, TaskStatus
 from app.repositories import DeviceRepository, EventRepository, TaskRepository
 
 router = APIRouter()
@@ -102,3 +103,69 @@ async def event_trend(
             for row in rows.all()
         ]
     )
+
+
+@router.get("/notifications", summary="站内通知（最近告警 + 工单动态）")
+async def notifications(
+    hours: int = Query(24, ge=1, le=720),
+    limit: int = Query(50, ge=1, le=200),
+    session: AsyncSession = Depends(get_session),
+):
+    """最近告警与工单动态的合并时间线，供顶栏通知铃铛使用。
+
+    数据来自明细表（t_event / t_task），不是独立通知表——避免为「已读」
+    状态引入一套新表；铃铛的未读判断由前端用「上次查看时间」本地完成。
+    """
+    since = datetime.now() - timedelta(hours=hours)
+
+    ev_rows = await session.execute(
+        select(
+            Event.event_id,
+            Event.main_class,
+            Event.event_time,
+            Event.device_id,
+            Event.status,
+        )
+        .where(Event.event_time >= since)
+        .order_by(Event.event_time.desc())
+        .limit(limit)
+    )
+
+    tk_rows = await session.execute(
+        select(
+            Task.task_id,
+            Task.status,
+            Task.updated_at,
+            Task.robot_id,
+        )
+        .where(Task.updated_at >= since)
+        .order_by(Task.updated_at.desc())
+        .limit(limit)
+    )
+
+    items: list[dict] = []
+    for event_id, main_class, event_time, device_id, status in ev_rows.all():
+        label = WasteClass.LABELS.get(main_class, main_class)
+        items.append({
+            "type": "event",
+            "event_id": event_id,
+            "main_class": main_class,
+            "main_class_label": label,
+            "title": f"识别到{label}，已进入事件中心",
+            "time": event_time.isoformat() if event_time else None,
+            "device_id": device_id,
+            "status": status,
+        })
+    for task_id, status, updated_at, robot_id in tk_rows.all():
+        items.append({
+            "type": "task",
+            "task_id": task_id,
+            "status": status,
+            "status_label": TaskStatus.LABELS.get(status, status),
+            "title": f"工单 {task_id} 状态更新为 {TaskStatus.LABELS.get(status, status)}",
+            "time": updated_at.isoformat() if updated_at else None,
+            "robot_id": robot_id,
+        })
+
+    items.sort(key=lambda x: x["time"] or "", reverse=True)
+    return ApiResponse.ok(items[:limit])

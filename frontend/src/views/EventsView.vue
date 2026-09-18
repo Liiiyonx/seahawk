@@ -141,8 +141,8 @@ async function load() {
       main_class: filters.mainClass || undefined,
       status: filters.status || undefined,
       device_id: filters.deviceId || undefined,
-      limit: pageSize.value,
-      offset: (page.value - 1) * pageSize.value,
+      page: page.value,
+      page_size: pageSize.value,
     })
     items.value = res?.items || []
     total.value = res?.meta?.total ?? items.value.length
@@ -159,7 +159,7 @@ async function load() {
 /** 把事件与工单关联起来，列表里直接能看出"这条有没有被处理" */
 async function buildTaskMap() {
   try {
-    const res = await tasksApi.list({ limit: 200 })
+    const res = await tasksApi.list({ page: 1, page_size: 200 })
     const tasks = res?.items || []
     const map = {}
     for (const t of tasks) {

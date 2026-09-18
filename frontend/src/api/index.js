@@ -50,6 +50,11 @@ export const tasksApi = {
   dispatchPending() {
     return http.post('/tasks/dispatch/pending')
   },
+
+  /** 导出工单 CSV（返回 Blob） */
+  export(params = {}) {
+    return http.get('/tasks/export', { params, responseType: 'blob' })
+  },
 }
 
 // ---------- 设备 ----------
@@ -95,6 +100,11 @@ export const statsApi = {
   trend(hours = 24) {
     return http.get('/stats/trend', { params: { hours } })
   },
+
+  /** 站内通知（最近告警 + 工单动态） */
+  notifications(params = {}) {
+    return http.get('/stats/notifications', { params })
+  },
 }
 
 // ---------- 报表 ----------
@@ -105,6 +115,11 @@ export const reportsApi = {
 
   summary(days = 7) {
     return http.get('/reports/summary', { params: { days } })
+  },
+
+  /** 导出日报表 CSV（返回 Blob） */
+  export(params = {}) {
+    return http.get('/reports/export', { params, responseType: 'blob' })
   },
 }
 
@@ -117,4 +132,16 @@ export const authApi = {
   me() {
     return http.get('/auth/me')
   },
+}
+
+/** 把 Blob 保存为本地文件（导出 CSV 用） */
+export function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
