@@ -26,7 +26,12 @@ _redis_client: Redis | None = None
 
 
 async def get_redis() -> Redis:
-    """获取 Redis 客户端（全局复用连接池）。"""
+    """获取 Redis 客户端（全局复用连接池）。
+
+    ★ protocol=2：redis-py 5.x 默认发 `HELLO` 做 RESP3 握手，
+    但老版本 Redis（如 Windows 的 3.0.x）不认识该命令会报
+    `unknown command 'HELLO'`。强制 RESP2 规避。
+    """
     global _redis_client
     if _redis_client is None:
         _redis_client = aioredis.from_url(
@@ -34,6 +39,7 @@ async def get_redis() -> Redis:
             encoding="utf-8",
             decode_responses=True,
             max_connections=20,
+            protocol=2,
         )
     return _redis_client
 

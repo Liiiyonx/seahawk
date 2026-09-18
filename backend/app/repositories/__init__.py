@@ -6,6 +6,7 @@
 from datetime import datetime, timedelta
 from typing import Any
 
+from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_AsText, ST_DWithin, ST_MakePoint, ST_SetSRID, ST_SnapToGrid, ST_Transform, ST_X, ST_Y
 from sqlalchemy import Float, Integer, String, and_, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -77,8 +78,8 @@ class DeviceRepository:
         )
 
         distance = func.ST_Distance(
-            cast(Device.location, func.geography),
-            cast(event_geo, func.geography),
+            cast(Device.location, Geography),
+            cast(event_geo, Geography),
         ).label("dist_m")
 
         stmt = (
@@ -88,8 +89,8 @@ class DeviceRepository:
                     Device.device_type == "robot",
                     Device.status == "online",
                     ST_DWithin(
-                        cast(Device.location, func.geography),
-                        cast(event_geo, func.geography),
+                        cast(Device.location, Geography),
+                        cast(event_geo, Geography),
                         max_distance_m,
                     ),
                 )
@@ -322,8 +323,8 @@ class TaskRepository:
                     Task.status.in_(TaskStatus.ACTIVE),
                     Task.created_at >= since,
                     ST_DWithin(
-                        cast(Task.target_location, func.geography),
-                        cast(point, func.geography),
+                        cast(Task.target_location, Geography),
+                        cast(point, Geography),
                         radius_m,
                     ),
                 )
