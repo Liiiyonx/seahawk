@@ -229,14 +229,25 @@ const trendOption = computed(() => ({
       smooth: true,
       symbol: 'none',
       data: trend.value.map((d) => d.count),
-      lineStyle: { color: '#12d8c4', width: 2 },
+      lineStyle: {
+        width: 2,
+        color: {
+          type: 'linear',
+          x: 0, y: 0, x2: 1, y2: 0,
+          colorStops: [
+            { offset: 0, color: '#18e0c8' },
+            { offset: 1, color: '#4a9eff' },
+          ],
+        },
+      },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(18,216,196,0.34)' },
-            { offset: 1, color: 'rgba(18,216,196,0.02)' },
+            { offset: 0, color: 'rgba(24,224,200,0.36)' },
+            { offset: 0.5, color: 'rgba(24,224,200,0.10)' },
+            { offset: 1, color: 'rgba(24,224,200,0.02)' },
           ],
         },
       },

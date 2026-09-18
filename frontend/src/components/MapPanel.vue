@@ -188,7 +188,7 @@ function buildCameraLayer() {
         width: 22,
         height: 26,
         anchor: { x: 11, y: 26 },
-        src: svgIcon('#12d8c4'),
+        src: svgIcon('#18e0c8'),
       }),
       offline: new window.TMap.MarkerStyle({
         width: 22,
@@ -239,7 +239,7 @@ function buildRobotLayer() {
         width: 28,
         height: 28,
         anchor: { x: 14, y: 14 },
-        src: svgIcon('#12d8c4', 'boat'),
+        src: svgIcon('#18e0c8', 'boat'),
       }),
       offline: new window.TMap.MarkerStyle({
         width: 28,

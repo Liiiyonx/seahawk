@@ -1,14 +1,23 @@
 /**
- * 全局样式 —— 大屏风格，深色底 + 青绿主色（海洋主题）。
+ * 全局样式 —— 深色海洋监控，awwwards 级设计语言。
  *
- * 为什么用深色：大屏部署在指挥中心，环境光弱，
- * 深色底能突出视频宫格与热力图，久看不累。
+ * 设计取向（2026-09 视觉改版）：
+ * - 深海渐变背景：顶部青色光晕模拟「海面反光」，底部沉入深蓝
+ * - 玻璃拟态面板：半透明 + 背景模糊，面板之间形成层次而非平面堆叠
+ * - 渐变主色：青 → 蓝，用于光带 / 强调 / 数字
+ * - 微交互：卡片 hover 提升、导航下划线、页面过渡、数字滚动
+ * 保留深色大屏的初衷：指挥中心弱光环境，久看不累。
  */
+
 :root {
-  /* 主色：海洋青 */
-  --c-primary: #12d8c4;
+  /* 主色：海洋青，微调得更通透 */
+  --c-primary: #18e0c8;
   --c-primary-dim: #0a9c8e;
-  --c-primary-glow: rgba(18, 216, 196, 0.24);
+  --c-primary-glow: rgba(24, 224, 200, 0.24);
+
+  /* 渐变主色（用于光带、强调、数字） */
+  --grad-primary: linear-gradient(135deg, #18e0c8 0%, #4a9eff 100%);
+  --grad-primary-soft: linear-gradient(135deg, rgba(24, 224, 200, 0.16), rgba(74, 158, 255, 0.16));
 
   /* 强调色 */
   --c-danger: #f2564c;
@@ -22,23 +31,32 @@
   --c-fishing: #f2564c;
   --c-other: #8b96a8;
 
-  /* 背景层次 */
-  --bg-page: #070d14;
-  --bg-panel: #0d1620;
-  --bg-panel-2: #121d29;
-  --bg-hover: #172433;
+  /* 背景层次（玻璃拟态：半透明 + backdrop-filter） */
+  --bg-page: #04080f;
+  --bg-panel: rgba(13, 22, 32, 0.62);
+  --bg-panel-2: rgba(18, 29, 41, 0.72);
+  --bg-hover: rgba(23, 36, 51, 0.85);
 
   /* 文字 */
-  --text-main: #e6edf5;
-  --text-sub: #8b96a8;
-  --text-dim: #5a6678;
+  --text-main: #eaf2fb;
+  --text-sub: #93a1b5;
+  --text-dim: #5f6d80;
 
   /* 边框 */
-  --border: #1c2a3a;
-  --border-bright: #24405a;
+  --border: rgba(46, 74, 102, 0.42);
+  --border-bright: rgba(72, 122, 170, 0.6);
 
-  --radius: 6px;
-  --radius-lg: 10px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 动效 */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.25s;
+
+  /* 阴影 */
+  --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.42);
+  --shadow-glow: 0 0 26px rgba(24, 224, 200, 0.14);
 }
 
 * {
@@ -57,7 +75,12 @@ body,
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  background: var(--bg-page);
+  /* 深海渐变背景：顶部青色光晕（海面反光）→ 沉入深蓝 */
+  background:
+    radial-gradient(1100px 560px at 18% -8%, rgba(24, 224, 200, 0.11), transparent 60%),
+    radial-gradient(900px 480px at 88% -4%, rgba(74, 158, 255, 0.09), transparent 55%),
+    radial-gradient(1400px 900px at 50% 120%, rgba(10, 60, 90, 0.28), transparent 60%),
+    var(--bg-page);
   color: var(--text-main);
   font-size: 14px;
   line-height: 1.6;
@@ -81,19 +104,39 @@ body {
   background: var(--c-primary-dim);
 }
 
-/* ---------- 通用面板 ---------- */
+/* ---------- 通用面板（玻璃拟态） ---------- */
 .panel {
   background: var(--bg-panel);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   position: relative;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.panel:hover {
+  border-color: var(--border-bright);
+}
+
+/* 面板顶部一条极细的渐变高光（玻璃边缘光） */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg, transparent, rgba(24, 224, 200, 0.35), transparent);
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .panel-title {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-main);
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -105,21 +148,21 @@ body {
   content: '';
   display: inline-block;
   width: 3px;
-  height: 13px;
-  background: var(--c-primary);
-  margin-right: 8px;
+  height: 14px;
+  background: var(--grad-primary);
+  margin-right: 9px;
   border-radius: 2px;
-  vertical-align: -1px;
+  vertical-align: -2px;
 }
 
 .panel-body {
-  padding: 12px 14px;
+  padding: 14px 16px;
 }
 
 /* ---------- 状态徽标 ---------- */
 .badge {
   display: inline-block;
-  padding: 1px 7px;
+  padding: 1px 8px;
   border-radius: 10px;
   font-size: 12px;
   line-height: 18px;
@@ -138,7 +181,7 @@ body {
 .badge-pending { background: rgba(139, 150, 168, 0.16); color: var(--text-sub); }
 .badge-assigned { background: rgba(138, 108, 255, 0.16); color: #8a6cff; }
 .badge-navigating { background: rgba(74, 158, 255, 0.16); color: var(--c-info); }
-.badge-collecting { background: rgba(18, 216, 196, 0.16); color: var(--c-primary); }
+.badge-collecting { background: rgba(24, 224, 200, 0.16); color: var(--c-primary); }
 .badge-done { background: rgba(61, 220, 132, 0.16); color: var(--c-success); }
 .badge-cancelled { background: rgba(139, 150, 168, 0.16); color: var(--text-sub); }
 
@@ -165,10 +208,11 @@ body {
 
 .data-table thead th {
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 12px;
   color: var(--text-sub);
   font-weight: 500;
   font-size: 12px;
+  letter-spacing: 0.3px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel-2);
   position: sticky;
@@ -177,9 +221,10 @@ body {
 }
 
 .data-table tbody td {
-  padding: 8px 10px;
-  border-bottom: 1px solid rgba(28, 42, 58, 0.5);
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(46, 74, 102, 0.28);
   color: var(--text-main);
+  transition: background var(--dur) var(--ease);
 }
 
 .data-table tbody tr:hover {
@@ -188,7 +233,7 @@ body {
 
 .data-table .num {
   font-variant-numeric: tabular-nums;
-  font-family: 'SF Mono', Consolas, monospace;
+  font-family: 'SF Mono', 'JetBrains Mono', Consolas, monospace;
 }
 
 /* ---------- 工具类 ---------- */
@@ -211,11 +256,20 @@ body {
   font-size: 13px;
 }
 
+/* ---------- 渐变文字（用于关键数字/标题） ---------- */
+.grad-text {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 /* ---------- 脉冲动画（新事件高亮） ---------- */
 @keyframes pulse-ring {
   0% { box-shadow: 0 0 0 0 var(--c-primary-glow); }
-  70% { box-shadow: 0 0 0 8px rgba(18, 216, 196, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(18, 216, 196, 0); }
+  70% { box-shadow: 0 0 0 8px rgba(24, 224, 200, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(24, 224, 200, 0); }
 }
 
 .pulse {
@@ -229,4 +283,28 @@ body {
 
 .flash-new {
   animation: flash-in 2s ease-out;
+}
+
+/* ---------- 入场动画（面板/卡片依次浮现） ---------- */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rise-in {
+  animation: rise-in 0.5s var(--ease) both;
+}
+
+/* ---------- 页面过渡（配合 RouterView <transition>） ---------- */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }

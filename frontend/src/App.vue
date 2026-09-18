@@ -65,7 +65,11 @@
 
     <!-- 内容 -->
     <main class="layout__main">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <transition name="fade-slide" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </RouterView>
     </main>
 
     <!-- 全局错误条 -->
@@ -180,18 +184,20 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-page);
+  background: transparent;
 }
 
-/* ---------- 顶栏 ---------- */
+/* ---------- 顶栏（玻璃拟态） ---------- */
 .layout__header {
-  height: 52px;
+  height: 56px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 26px;
-  padding: 0 18px;
-  background: linear-gradient(180deg, #0d1620, #0a121b);
+  padding: 0 20px;
+  background: rgba(8, 16, 26, 0.55);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
   border-bottom: 1px solid var(--border);
 }
 
@@ -203,13 +209,17 @@ onUnmounted(() => {
 }
 
 .brand__mark {
-  color: var(--c-primary);
-  font-size: 17px;
+  font-size: 20px;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 9px rgba(24, 224, 200, 0.45));
 }
 
 .brand__name {
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 2px;
   color: var(--text-main);
 }
@@ -227,6 +237,7 @@ onUnmounted(() => {
 }
 
 .nav__item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -235,9 +246,22 @@ onUnmounted(() => {
   color: var(--text-sub);
   text-decoration: none;
   border-radius: var(--radius);
-  border: 1px solid transparent;
-  transition: all 0.16s;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
   white-space: nowrap;
+}
+
+/* 导航下划线动效 */
+.nav__item::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--grad-primary);
+  transform: translateX(-50%);
+  transition: width 0.25s var(--ease);
 }
 
 .nav__item:hover {
@@ -245,10 +269,14 @@ onUnmounted(() => {
   background: var(--bg-hover);
 }
 
+.nav__item:hover::after,
+.nav__item--active::after {
+  width: 56%;
+}
+
 .nav__item--active {
   color: var(--c-primary);
-  background: rgba(18, 216, 196, 0.09);
-  border-color: rgba(18, 216, 196, 0.28);
+  background: rgba(24, 224, 200, 0.08);
 }
 
 .nav__icon {

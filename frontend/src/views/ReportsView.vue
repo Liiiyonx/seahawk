@@ -172,7 +172,7 @@ const townshipOption = computed(() => {
         name: '完成工单',
         type: 'bar',
         data: summary.value.map((s) => s.done_count),
-        itemStyle: { color: '#12d8c4', borderRadius: [0, 3, 3, 0] },
+        itemStyle: { color: '#18e0c8', borderRadius: [0, 3, 3, 0] },
         barWidth: 9,
       },
     ],

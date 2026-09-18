@@ -235,7 +235,7 @@ const COLUMNS = [
   { status: 'pending', label: '待派单', color: '#8b96a8' },
   { status: 'assigned', label: '已派单', color: '#8a6cff' },
   { status: 'navigating', label: '前往中', color: '#4a9eff' },
-  { status: 'collecting', label: '作业中', color: '#12d8c4' },
+  { status: 'collecting', label: '作业中', color: '#18e0c8' },
   { status: 'done', label: '已完成', color: '#3ddc84' },
 ]
 
