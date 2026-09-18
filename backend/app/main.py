@@ -12,8 +12,16 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+
+# ★ Windows 上 aiomqtt（基于 paho-mqtt）依赖事件循环的 add_reader/add_writer，
+#   而 Windows 默认的 ProactorEventLoop 不支持这两个 API（抛 NotImplementedError），
+#   导致 MQTT 客户端永远连不上、表现为「Operation timed out」。
+#   必须在任何事件循环创建之前（uvicorn 启动前）切到 Selector 事件循环。
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
