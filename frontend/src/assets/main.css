@@ -295,6 +295,103 @@ body {
   animation: rise-in 0.5s var(--ease) both;
 }
 
+/* ---------- 通用控件（按钮 / 下拉 / 输入，全站统一） ---------- */
+.btn {
+  padding: 5px 14px;
+  font-size: 13px;
+  color: var(--text-sub);
+  background: rgba(18, 29, 41, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease),
+    background 0.2s var(--ease), transform 0.15s var(--ease);
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  color: var(--c-primary);
+  border-color: var(--c-primary-dim);
+  background: rgba(24, 224, 200, 0.08);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 主按钮（渐变强调） */
+.btn--primary {
+  color: #06251f;
+  background: var(--grad-primary);
+  border-color: transparent;
+}
+
+.btn--primary:hover:not(:disabled) {
+  color: #06251f;
+  border-color: transparent;
+  background: var(--grad-primary);
+  box-shadow: 0 4px 16px rgba(24, 224, 200, 0.28);
+}
+
+select,
+input[type='text'],
+input[type='password'],
+input[type='number'] {
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+select:focus,
+input:focus {
+  border-color: var(--c-primary-dim);
+  box-shadow: 0 0 0 3px rgba(24, 224, 200, 0.12);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 12.5px;
+  color: var(--text-sub);
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 11px;
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.form-input:focus {
+  border-color: var(--c-primary-dim);
+  box-shadow: 0 0 0 3px rgba(24, 224, 200, 0.12);
+}
+
+.form-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
 /* ---------- 页面过渡（配合 RouterView <transition>） ---------- */
 .fade-slide-enter-active,
 .fade-slide-leave-active {

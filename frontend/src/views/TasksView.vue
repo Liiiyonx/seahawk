@@ -461,26 +461,6 @@ store.$subscribe(() => {
   flex: 1;
 }
 
-.btn {
-  padding: 3px 12px;
-  font-size: 13px;
-  color: var(--text-main);
-  background: var(--bg-panel-2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.btn:hover:not(:disabled) {
-  border-color: var(--c-primary-dim);
-  color: var(--c-primary);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* ---------- 看板 ---------- */
 .kanban {
   display: grid;
@@ -723,56 +703,12 @@ store.$subscribe(() => {
   font-size: 11.5px;
 }
 
-/* ---------- 完成工单录入框 ---------- */
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.form-label {
-  font-size: 12.5px;
-  color: var(--text-sub);
-}
-
-.form-input {
-  width: 100%;
-  padding: 7px 10px;
-  font-size: 13px;
-  color: var(--text-main);
-  background: var(--bg-panel-2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: var(--c-primary-dim);
-}
-
-.form-hint {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
+/* ---------- 完成工单录入框（表单控件样式由全局 main.css 提供） ---------- */
 .drawer__actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
-}
-
-.btn--primary {
-  color: #06251f;
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-}
-
-.btn--primary:hover:not(:disabled) {
-  color: #06251f;
-  border-color: var(--c-primary);
-  filter: brightness(1.05);
 }
 
 @media (max-width: 1400px) {

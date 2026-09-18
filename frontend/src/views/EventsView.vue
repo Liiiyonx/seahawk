@@ -231,21 +231,6 @@ onMounted(load)
   color: var(--text-sub);
 }
 
-.toolbar__group select {
-  background: var(--bg-panel-2);
-  color: var(--text-main);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 3px 8px;
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-}
-
-.toolbar__group select:focus {
-  border-color: var(--c-primary-dim);
-}
-
 .toolbar__spacer {
   flex: 1;
 }
@@ -253,26 +238,6 @@ onMounted(load)
 .toolbar__count {
   font-size: 12px;
   color: var(--text-sub);
-}
-
-.btn {
-  padding: 3px 12px;
-  font-size: 13px;
-  color: var(--text-main);
-  background: var(--bg-panel-2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.btn:hover:not(:disabled) {
-  border-color: var(--c-primary-dim);
-  color: var(--c-primary);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 
 .table-panel {

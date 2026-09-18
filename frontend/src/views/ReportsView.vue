@@ -299,32 +299,6 @@ onMounted(load)
   gap: 8px;
 }
 
-.summary__actions select {
-  background: var(--bg-panel-2);
-  color: var(--text-main);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 4px 9px;
-  font-size: 13px;
-  cursor: pointer;
-  outline: none;
-}
-
-.btn {
-  padding: 4px 13px;
-  font-size: 13px;
-  color: var(--text-main);
-  background: var(--bg-panel-2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.btn:hover {
-  border-color: var(--c-primary-dim);
-  color: var(--c-primary);
-}
-
 .chart-row {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
