@@ -71,6 +71,9 @@ redis_data/
 # 删掉它是安全的 —— 下次启动会从 0 重新开始。
 edge/simulator/.simulator_state.json
 .simulator_state.json
+# 真实边缘程序的 seq 持久化（同上，运行期状态）
+edge/.edge_state.json
+.edge_state.json
 
 # ===== 检查脚本的运行产物 =====
 # 自证脚本把逐项结果写在仓库根下，属于运行输出而非源文件。

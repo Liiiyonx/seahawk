@@ -1,0 +1,145 @@
+# ============================================================
+# 探海灵眸 SeaSight — 真实边缘盒配置（OpenCV 检测版）
+# ============================================================
+# 与 edge/simulator/config.yaml 的区别：
+#   · 那个是**模拟器**用的（自己造假检测框）
+#   · 这个是**真实边缘程序** edge/main.py 用的（OpenCV 真检测）
+# 两者共用同一套 MQTT 主题、时序校验与上报节流参数，
+# 因此平台侧完全无法区分报文来自模拟器还是真实摄像头。
+
+site_id: "lianjiang"
+
+mqtt:
+  host: "localhost"
+  port: 1883
+  username: "seasight"
+  password: "seasight"
+  keepalive: 60
+  reconnect_interval: 5
+  use_lwt: true
+
+# ------------------------------------------------------------
+# OpenCV 检测器（edge/detector/detector.py）
+#
+# 这套参数的设计前提：**检测器可以不准，但必须可解释**。
+# 误报由下游时序校验（temporal 段）压制，架构上已经为此付过费，
+# 见 docs/software-design.md §2.3：原始检测 5772 条 → 确认事件 52 条。
+# ------------------------------------------------------------
+detector:
+  # ---- 背景建模（抓"新出现的/动着的"东西）----
+  background:
+    history: 300            # 建模用的历史帧数：越大越稳，但适应光照变慢
+    dist2_threshold: 300.0  # 判定为前景的距离阈值：调小 → 更敏感也更多噪点
+    detect_shadows: true    # 阴影标为 127，下面阈值化时会剔掉
+
+  # ---- 颜色通道（抓"白亮的泡沫"，即使它停着不动）----
+  # 为什么要单独一路：泡沫可能随浪停在镜头前不动，
+  # 纯背景减除会在几十帧后把它学成背景，永远不再报警。
+  color:
+    enabled: true
+    v_min: 150              # HSV 明度下限
+    s_max: 70               # HSV 饱和度上限（白色几乎不带颜色）
+    # 暗色通道：废旧渔网/湿缆绳比海面暗得多，而 KNN 背景建模会把
+    # "比背景暗"的东西标成**阴影(127)**，阈值化时被剔掉 ——
+    # 实测暗色细长渔具的候选区因此整帧为空，所以必须单独一路抓暗目标。
+    dark_enabled: true
+    dark_v_max: 70          # 低于此明度视为"暗目标"（海面本身约 110）
+
+  # ---- 形态学与候选过滤 ----
+  morph_open: 3             # 开运算核：吃掉孤立噪点/波光
+  morph_close: 7            # 闭运算核：填上泡沫内部的空洞
+  min_area: 40              # 最小面积（px²）—— 小于此基本是水花
+  max_area: 40000           # 最大面积（px²）—— 大于此是船/大块漂浮物，不是目标
+  min_solidity: 0.35        # 面积/凸包面积：过低说明形状破碎，是浪花
+  max_aspect: 8.0           # 长宽比上限：过细长是水痕或缆绳阴影
+
+  # ---- 四类别判定规则（顺序即优先级，先命中先得）----
+  # 设计依据：连江养殖区实际海漂垃圾构成
+  #   foam         EPS 泡沫浮球碎片 —— 白、亮、团状，最易分，也是治理优先级最高的
+  #   fishing_gear 废旧渔网绳索     —— 暗、细长、破碎
+  #   plastic      塑胶浮球/瓶/袋   —— 有彩度（蓝/红/黄）
+  #   other        兜底（木板、藻团、生活杂物）
+  classifier:
+    fishing_gear:
+      aspect_min: 2.5       # 长宽比（长边/短边）
+      solidity_max: 0.80    # 网状/绳状物体凸包填充度低
+      v_max: 170            # 废旧渔具偏暗（湿、脏、半沉）
+    foam:
+      s_max: 70             # 几乎不带颜色
+      v_min: 150            # 白亮
+      circularity_min: 0.20 # 团状（圆度 = 4πA/P²，圆=1，线≈0）
+    plastic:
+      s_min: 70             # 有彩度是塑料与泡沫最主要的 separable 特征
+
+  # ---- 置信度（伪置信度：不是概率，是"多像该类"的可解释打分）----
+  # 为什么要有：下游 TemporalValidator 用 min_confidence=0.45 做第一道过滤。
+  # 打分必须能把"明显的水花/反光"压到 0.45 以下，否则门限形同虚设。
+  confidence:
+    base: 0.55              # 命中某类规则的基础分
+    span: 0.40              # 匹配度带来的浮动
+    min: 0.30               # 下限（低于此必然被时序校验丢弃）
+    max: 0.95
+    # 反光惩罚：正午海面高光是白色、小面积、形状破碎的圆点，
+    # 与泡沫在这三个特征上高度重合，是最大的误报源。
+    glare:
+      v_threshold: 245      # 极亮
+      area_max: 400         # 且很小
+      circularity_max: 0.55 # 且形状不规整
+      penalty: 0.25
+    # 面积适中度：太大（船/浮筒）或太小（水花）都降分
+    size:
+      small_factor: 0.4     # area < min_area * small_times
+      small_times: 2
+      large_factor: 0.5     # area > max_area * large_ratio
+      large_ratio: 0.5
+
+# ------------------------------------------------------------
+# 时序校验（与模拟器、docs/software-design.md §2.3 三处必须一致）
+# ------------------------------------------------------------
+temporal:
+  enabled: true
+  window_frames: 15
+  min_hits: 3
+  grid_size: 64
+  min_confidence: 0.45
+  decimation: 4
+  match_distance: 60.0
+  min_iou: 0.25
+  max_misses: 5
+
+# 上报节流
+reporting:
+  cooldown_seconds: 90
+  min_interval_seconds: 2
+  max_detections: 20
+
+# 断网补传缓存
+buffer:
+  enabled: true
+  max_size: 1000
+  flush_batch: 20
+  flush_interval: 1.0
+
+# 取流源（真实边缘盒上是 RTSP；调试可用视频文件或本地摄像头）
+source:
+  # 三选一：rtsp / file / camera
+  type: "file"
+  rtsp: "rtsp://admin:password@192.168.1.64:554/stream1"
+  file: "samples/shore.mp4"
+  camera: 0
+  # 取流失败后的重连间隔（秒）
+  reconnect_interval: 5
+  # 每读多少帧打一次日志
+  log_every: 100
+
+# 设备身份（与平台种子数据 db/init/02_seed.sql 对齐，否则平台拒收）
+device:
+  device_id: "CAM-MABI-01"
+  name: "马鼻码头摄像头"
+  device_type: "shore_camera"
+  lng: 119.6521
+  lat: 26.3864
+
+# 只处理画面的一部分（排除天空、岸边建筑、固定缆绳等恒定误报源）
+# 为空表示全画面；填多边形顶点（相对宽高，0~1）则只在多边形内检测
+roi: []

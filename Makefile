@@ -1,7 +1,7 @@
 # 探海灵眸 SeaSight — 常用命令
 # 用法：make <target>     查看全部：make help
 
-.PHONY: help up down restart logs ps db-init db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-data check-data-stats test test-edge test-all clean
+.PHONY: help up down restart logs ps db-init db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-data check-data-stats test test-edge test-cv-selftest run-edge run-edge-demo test-all clean
 
 SHELL := /bin/bash
 
@@ -135,8 +135,18 @@ check-data-stats:  ## 数据集体检并把统计写回 seasight.yaml 的 stats 
 	python ml/scripts/check_dataset.py --write-stats
 	@echo "[check-data-stats] 完成 —— 请 git diff 确认只改了数字，没动注释"
 
-test-edge:  ## 时序校验逻辑测试（不需要 MQTT Broker）
+test-edge:  ## 边缘逻辑测试：时序校验 + OpenCV 检测器（不需要摄像头与 Broker）
 	cd edge/simulator && python test_temporal.py
+	cd edge/detector && python -m pytest test_detector.py -q
+
+test-cv-selftest:  ## 真实边缘程序自检：合成海面跑通「检测→时序→报文」全链路
+	python edge/main.py --source synthetic --dry-run --max-frames 200 --cooldown 0.3 --min-interval 0
+
+run-edge:  ## 启动真实边缘感知程序（RTSP 取流，读 edge/config.yaml）
+	python edge/main.py --source rtsp
+
+run-edge-demo:  ## 无摄像头时的演示：合成海面 + 弹窗看检测框
+	python edge/main.py --source synthetic --show --cooldown 5 --min-interval 1
 
 test:  ## 运行后端单元测试
 	cd backend && pytest -v
