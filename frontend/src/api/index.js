@@ -139,6 +139,23 @@ export const authApi = {
   },
 }
 
+// ---------- AI（智能体 + 图片分析） ----------
+export const aiApi = {
+  /** 智能体列表 */
+  agents() {
+    return http.get('/ai/agents')
+  },
+
+  /** 图片分析（OpenCV 检测） */
+  analyzeImage(file) {
+    const fd = new FormData()
+    fd.append('file', file)
+    return http.post('/ai/analyze-image', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+}
+
 /** 把 Blob 保存为本地文件（导出 CSV 用） */
 export function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob)

@@ -4,7 +4,7 @@
     <!-- 顶栏 -->
     <header class="layout__header">
       <div class="brand">
-        <span class="brand__mark">◈</span>
+        <LogoMark :size="30" />
         <span class="brand__name">探海灵眸</span>
         <span class="brand__sub">SeaSight · 海漂垃圾智能治理平台</span>
       </div>
@@ -23,6 +23,14 @@
       </nav>
 
       <div class="header-right">
+        <button
+          class="theme-toggle"
+          :title="theme === 'light' ? '切换到深色模式' : '切换到浅色模式'"
+          @click="toggleThemeBtn"
+        >
+          {{ theme === 'light' ? '☀' : '☾' }}
+        </button>
+
         <div class="notif">
           <button class="notif__bell" @click="toggleNotif">
             通知
@@ -89,6 +97,8 @@ import { useRealtimeStore } from '@/stores/realtime'
 import { getUser, clearAuth, roleLabel } from '@/utils/auth'
 import { statsApi } from '@/api'
 import { fmtTime } from '@/utils/format'
+import { getTheme, toggleTheme } from '@/utils/theme'
+import LogoMark from '@/components/LogoMark.vue'
 
 const store = useRealtimeStore()
 const route = useRoute()
@@ -104,6 +114,13 @@ function logout() {
   clearAuth()
   currentUser.value = null
   router.replace('/login')
+}
+
+// ---------- 主题切换 ----------
+const theme = ref(getTheme())
+
+function toggleThemeBtn() {
+  theme.value = toggleTheme()
 }
 
 // ---------- 站内通知铃铛 ----------
@@ -203,25 +220,21 @@ onUnmounted(() => {
 
 .brand {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   flex-shrink: 0;
 }
 
-.brand__mark {
-  font-size: 20px;
+.brand__name {
+  font-family: '华文行楷', 'STXingkai', '楷体', 'KaiTi', 'STKaiti', serif;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 4px;
   background: var(--grad-primary);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 9px rgba(24, 224, 200, 0.45));
-}
-
-.brand__name {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: var(--text-main);
+  filter: drop-shadow(0 0 10px rgba(24, 224, 200, 0.28));
 }
 
 .brand__sub {
@@ -356,6 +369,27 @@ onUnmounted(() => {
 .user__logout:hover {
   color: var(--text-main);
   border-color: var(--border-bright);
+}
+
+/* ---------- 主题切换 ---------- */
+.theme-toggle {
+  width: 30px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--text-sub);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.theme-toggle:hover {
+  color: var(--c-primary);
+  border-color: var(--c-primary-dim);
 }
 
 /* ---------- 通知铃铛 ---------- */

@@ -39,6 +39,18 @@ const routes = [
     component: () => import('@/views/ReportsView.vue'),
     meta: { title: '治理报表', icon: '▦' },
   },
+  {
+    path: '/agents',
+    name: 'agents',
+    component: () => import('@/views/AgentsView.vue'),
+    meta: { title: '智能体', icon: '◉' },
+  },
+  {
+    path: '/analyze',
+    name: 'analyze',
+    component: () => import('@/views/AnalyzeView.vue'),
+    meta: { title: '图片分析', icon: '◎' },
+  },
 ]
 
 const router = createRouter({

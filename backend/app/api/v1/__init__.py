@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    ai,
     audit,
     auth,
     devices,
@@ -18,6 +19,7 @@ api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["认证"])
 api_router.include_router(audit.router, prefix="/audit", tags=["审计"])
+api_router.include_router(ai.router, prefix="/ai", tags=["AI"])
 api_router.include_router(events.router, prefix="/events", tags=["事件"])
 api_router.include_router(tasks.router, prefix="/tasks", tags=["任务"])
 api_router.include_router(devices.router, prefix="/devices", tags=["设备"])

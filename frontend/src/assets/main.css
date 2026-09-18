@@ -59,6 +59,31 @@
   --shadow-glow: 0 0 26px rgba(24, 224, 200, 0.14);
 }
 
+/* ---------- 浅色主题（政务白天/演示环境） ---------- */
+html[data-theme='light'] {
+  --c-primary: #0a9c8e;
+  --c-primary-dim: #078a7e;
+  --c-primary-glow: rgba(10, 156, 142, 0.18);
+
+  --grad-primary: linear-gradient(135deg, #0a9c8e 0%, #3d8bf0 100%);
+  --grad-primary-soft: linear-gradient(135deg, rgba(10, 156, 142, 0.12), rgba(61, 139, 240, 0.12));
+
+  --bg-page: #eef2f7;
+  --bg-panel: rgba(255, 255, 255, 0.78);
+  --bg-panel-2: #ffffff;
+  --bg-hover: #e8eef5;
+
+  --text-main: #1a2432;
+  --text-sub: #55647a;
+  --text-dim: #8a98ab;
+
+  --border: rgba(30, 48, 70, 0.14);
+  --border-bright: rgba(30, 48, 70, 0.26);
+
+  --shadow-card: 0 6px 20px rgba(30, 48, 70, 0.10);
+  --shadow-glow: 0 0 24px rgba(10, 156, 142, 0.16);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -86,6 +111,15 @@ body {
   line-height: 1.6;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+
+/* 浅色主题背景：柔和的浅灰蓝渐变 + 顶部淡青光晕 */
+html[data-theme='light'] body {
+  background:
+    radial-gradient(1100px 560px at 18% -10%, rgba(10, 156, 142, 0.08), transparent 60%),
+    radial-gradient(900px 480px at 88% -6%, rgba(61, 139, 240, 0.06), transparent 55%),
+    var(--bg-page);
 }
 
 /* ---------- 滚动条 ---------- */

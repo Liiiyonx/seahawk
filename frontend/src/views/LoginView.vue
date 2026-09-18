@@ -2,7 +2,7 @@
   <div class="login">
     <div class="login__card panel">
       <div class="login__brand">
-        <span class="login__mark">◈</span>
+        <LogoMark :size="46" />
         <div>
           <div class="login__name">探海灵眸</div>
           <div class="login__sub">SeaSight · 海漂垃圾智能治理平台</div>
@@ -66,6 +66,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { authApi } from '@/api'
 import { setAuth } from '@/utils/auth'
+import LogoMark from '@/components/LogoMark.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -131,20 +132,20 @@ function fillDemo(u, p) {
 .login__brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 24px;
 }
 
-.login__mark {
-  color: var(--c-primary);
-  font-size: 30px;
-}
-
 .login__name {
-  font-size: 20px;
+  font-family: '华文行楷', 'STXingkai', '楷体', 'KaiTi', 'STKaiti', serif;
+  font-size: 24px;
   font-weight: 600;
-  letter-spacing: 3px;
-  color: var(--text-main);
+  letter-spacing: 5px;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(24, 224, 200, 0.3));
 }
 
 .login__sub {
