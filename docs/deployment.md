@@ -212,6 +212,10 @@ make check-demo-accounts PROBE_URL=https://<host>/seasight    # 真实：四个�
 **全程只读，不写任何数据**。这一步能查出静态核对查不出来的问题 ——
 2026-09-27 的 P0-5（approver 登不上，401）就是这样发现的。
 
+2026-09-28 线上复验：`approver` 账号已存在，四个演示账号登录全部 `200`，
+角色与审批门禁均符合预期，登录验收报告 `passed: true`
+（产物见 `artifacts/prod-login-verification/latest.json`）。
+
 **三个已知的坑**：
 
 1. **这台服务器还跑着聆心**（同一张 `lingxin.crt` 证书、同一个 443 server 块，

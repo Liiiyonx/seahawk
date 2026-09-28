@@ -50,8 +50,16 @@
 - “已通过协议级验收”不等于“已在真实平台运行”，更不等于“识别准了”。
 - 昇腾、ModelArts、鲲鹏三条一律写“架构/配置已就绪、待验证”，不写“已适配”。
 
-## 六、变更记录
+## 六、运行验收
+
+| 项 | 状态 | 说明 |
+| --- | --- | --- |
+| 生产 approver | 已通过 | 2026-09-28 线上四账号登录验收 `passed: true`；approver 登录 `200`、角色 `approver`、审批门禁放行。产物见 `artifacts/prod-login-verification/latest.json` |
+| Git 冻结 | 已执行 | checkpoint `8b56532` + tag `lianjiang-2026`（本地、未推送、可回退） |
+
+## 七、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
 | 2026-09-28 | v1.0 建立：双赛推进清单、Nexent 协议级验收产物落盘 | WP-15 |
+| 2026-09-28 | 生产登录验收 `passed: true`；checkpoint `8b56532` + tag `lianjiang-2026` | WP-15 |
