@@ -46,7 +46,17 @@ WS_MESSAGE_CONTRACT: dict[str, tuple[str, ...]] = {
     # 任务状态变更（工单看板刷新）
     "task_update": ("task_id", "event_id", "robot_id", "status"),
     # 机器人遥测上报（地图标记刷新）
-    "robot_status": ("robot_id", "battery", "status", "lng", "lat"),
+    "robot_status": (
+        "robot_id",
+        "battery",
+        "status",
+        "lng",
+        "lat",
+        "task_id",
+        "bins",
+        "heading",
+        "speed",
+    ),
     # 连接建立后立即发送
     "connected": ("message",),
     # 客户端 ping 的应答（无 data）

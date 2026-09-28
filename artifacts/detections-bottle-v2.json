@@ -1,0 +1,44 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic bottle",
+    "bottle",
+    "plastic waste",
+    "water pollution",
+    "garbage"
+  ],
+  "confidence_threshold": 0.005,
+  "iou_threshold": 0.45,
+  "image_size": 1600,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-candidates2\\bottle-danube.jpg",
+      "name": "bottle-danube.jpg",
+      "width": 1280,
+      "height": 853,
+      "count": 2,
+      "detections": [
+        {
+          "class": "water pollution",
+          "confidence": 0.041254,
+          "bbox": [
+            256.806,
+            491.679,
+            703.723,
+            698.436
+          ]
+        },
+        {
+          "class": "garbage",
+          "confidence": 0.006844,
+          "bbox": [
+            727.771,
+            501.943,
+            1070.559,
+            696.591
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,36 +1,75 @@
 <template>
   <svg
     class="logo-mark"
-    viewBox="0 0 36 36"
+    viewBox="0 0 48 48"
     :width="size"
     :height="size"
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="seasight-logo-grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#18e0c8" />
-        <stop offset="1" stop-color="#4a9eff" />
+      <linearGradient :id="backgroundId" x1="7" y1="4" x2="41" y2="44" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#0877e8" />
+        <stop offset="1" stop-color="#00a6c8" />
+      </linearGradient>
+      <linearGradient :id="lensId" x1="30" y1="15" x2="39" y2="25" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#e8fdff" />
+        <stop offset="0.48" stop-color="#71ebff" />
+        <stop offset="1" stop-color="#22b9dc" />
       </linearGradient>
     </defs>
-    <!-- 眼睛轮廓（灵眸） -->
-    <path
-      d="M5 18 Q18 4.5 31 18 Q18 31.5 5 18 Z"
+
+    <!-- 应用图标底座：保证 Logo 在顶栏、浏览器标签和移动端保持同一识别 -->
+    <rect x="2" y="2" width="44" height="44" rx="13" :fill="`url(#${backgroundId})`" />
+    <rect
+      x="2.75"
+      y="2.75"
+      width="42.5"
+      height="42.5"
+      rx="12.25"
       fill="none"
-      stroke="url(#seasight-logo-grad)"
-      stroke-width="2.1"
+      stroke="#ffffff"
+      stroke-opacity="0.2"
+      stroke-width="1.5"
+    />
+
+    <!-- 探海望远镜 -->
+    <g transform="rotate(-20 24 20)">
+      <rect x="8.6" y="17.1" width="5.8" height="5.8" rx="2.9" fill="#ffffff" opacity="0.8" />
+      <rect x="12" y="15.3" width="22.6" height="9.4" rx="4.7" fill="#ffffff" />
+      <rect x="16.8" y="15.3" width="4.2" height="9.4" fill="#b9effb" opacity="0.92" />
+      <rect x="27.1" y="14.4" width="2.8" height="11.2" rx="1.4" fill="#d6f8ff" opacity="0.96" />
+      <circle
+        cx="34.5"
+        cy="20"
+        r="6.3"
+        fill="#07324f"
+        stroke="#ffffff"
+        stroke-width="2.55"
+      />
+      <circle cx="34.5" cy="20" r="3.55" :fill="`url(#${lensId})`" />
+      <path
+        d="M32.7 18.2c0.8-0.9 1.9-1.35 3.1-1.2"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="1.25"
+        stroke-linecap="round"
+        opacity="0.9"
+      />
+    </g>
+
+    <!-- 探海波浪 -->
+    <path
+      d="M7.5 32.2c2.75-2.15 5.5-2.15 8.25 0s5.5 2.15 8.25 0 5.5-2.15 8.25 0 5.5 2.15 8.25 0"
+      fill="none"
+      stroke="#ffffff"
+      stroke-width="2.15"
       stroke-linecap="round"
     />
-    <!-- 虹膜 -->
-    <circle cx="18" cy="18" r="7" fill="url(#seasight-logo-grad)" />
-    <!-- 瞳孔 -->
-    <circle cx="18" cy="18" r="2.9" fill="#06121c" />
-    <!-- 高光 -->
-    <circle cx="15.2" cy="15.2" r="1.6" fill="#ffffff" opacity="0.9" />
-    <!-- 底部波浪（探海） -->
     <path
-      d="M8 27.5 q2.8 -2.4 5.5 0 t5.5 0 t5.5 0"
+      d="M13.5 38.2c1.75-1.45 3.5-1.45 5.25 0s3.5 1.45 5.25 0 3.5-1.45 5.25 0 3.5 1.45 5.25 0"
       fill="none"
-      stroke="url(#seasight-logo-grad)"
+      stroke="#c9f8ff"
+      stroke-opacity="0.72"
       stroke-width="1.7"
       stroke-linecap="round"
     />
@@ -38,14 +77,21 @@
 </template>
 
 <script setup>
+import { useId } from 'vue'
+
 defineProps({
   size: { type: Number, default: 30 },
 })
+
+const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
+const backgroundId = `seasight-logo-bg-${uid}`
+const lensId = `seasight-logo-lens-${uid}`
 </script>
 
 <style scoped>
 .logo-mark {
   display: block;
-  filter: drop-shadow(0 0 8px rgba(24, 224, 200, 0.45));
+  flex: 0 0 auto;
+  filter: drop-shadow(0 5px 12px rgba(0, 92, 190, 0.2));
 }
 </style>

@@ -8,7 +8,7 @@
 import axios from 'axios'
 
 const http = axios.create({
-  baseURL: '/api/v1',
+  baseURL: `${import.meta.env.BASE_URL}api/v1`,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -46,17 +46,33 @@ http.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status
-    let message = error.message
+    const payload = error.response?.data
 
-    if (status === 401) message = '未登录或登录已过期'
-    else if (status === 403) message = '无权限执行该操作'
-    else if (status === 404) message = '接口不存在'
-    else if (status >= 500) message = '服务异常，请稍后重试'
-    else if (error.code === 'ECONNABORTED') message = '请求超时'
-    else if (!error.response) message = '无法连接后端服务，请确认后端已启动'
+    // ★ 后端即便在 4xx/5xx 上也带业务信封（{code,message,trace_id}），
+    //   它的 message 比这里的兜底文案精确得多，优先采用。
+    //   典型场景：登录接口用 401 表达「用户名或密码错误」，
+    //   若一律降级成兜底文案「未登录或登录已过期」，用户会误以为
+    //   是会话过期，而不是自己把密码打错了。
+    const serverMessage =
+      payload && typeof payload === 'object' && typeof payload.message === 'string'
+        ? payload.message.trim()
+        : ''
+
+    let message = serverMessage || error.message
+
+    if (!serverMessage) {
+      if (status === 401) message = '未登录或登录已过期'
+      else if (status === 403) message = '无权限执行该操作'
+      else if (status === 404) message = '接口不存在'
+      else if (status >= 500) message = '服务异常，请稍后重试'
+      else if (error.code === 'ECONNABORTED') message = '请求超时'
+      else if (!error.response) message = '无法连接后端服务，请确认后端已启动'
+    }
 
     const err = new Error(message)
     err.status = status
+    err.code = payload?.code
+    err.traceId = payload?.trace_id
     return Promise.reject(err)
   },
 )

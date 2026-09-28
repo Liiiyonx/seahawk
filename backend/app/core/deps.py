@@ -77,6 +77,37 @@ class CurrentUser:
         return self.role in ("admin", "operator")
 
 
+def decode_access_token(token: str | None) -> CurrentUser | None:
+    """严格验签并解析访问令牌；缺失、过期、伪造时返回 ``None``。
+
+    HTTP 接口可通过 ``get_current_user`` 将无效令牌降级为匿名只读；
+    WebSocket 在生产环境必须直接拒绝 ``None``，不能沿用匿名连接。
+    """
+    if not token:
+        return None
+
+    try:
+        body, sig = token.rsplit(".", 1)
+        expected = hashlib.sha256(f"{body}.{settings.secret_key}".encode()).hexdigest()[:32]
+        if not hmac.compare_digest(sig, expected):
+            raise ValueError("签名不匹配")
+        padded = body + "=" * (-len(body) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded))
+        if int(payload.get("exp", 0)) < int(time.time()):
+            raise ValueError("令牌已过期")
+        username = payload.get("sub", "anonymous")
+        role = payload.get("role", "viewer")
+        scope = payload.get("scope")
+        # approver 只用于人工审批；写权限仍由 can_write 单独限制为
+        # admin/operator，不能让审批角色意外获得工单写权限。
+        if role not in ("admin", "operator", "approver", "viewer"):
+            raise ValueError("角色无效")
+    except Exception:   # noqa: BLE001
+        return None
+
+    return CurrentUser(username, role, scope)
+
+
 async def get_current_user(
     authorization: Annotated[str | None, Header(alias="Authorization")] = None,
 ) -> CurrentUser:
@@ -100,23 +131,12 @@ async def get_current_user(
         # 未登录 → 匿名只读：大屏演示可直接看，但写操作会被 require_operator 拒绝
         return CurrentUser("anonymous", "viewer", None)
 
-    try:
-        body, sig = token.rsplit(".", 1)
-        expected = hashlib.sha256(f"{body}.{settings.secret_key}".encode()).hexdigest()[:32]
-        if not hmac.compare_digest(sig, expected):
-            raise ValueError("签名不匹配")
-        padded = body + "=" * (-len(body) % 4)
-        payload = json.loads(base64.urlsafe_b64decode(padded))
-        if int(payload.get("exp", 0)) < int(time.time()):
-            raise ValueError("令牌已过期")
-        username = payload.get("sub", "anonymous")
-        role = payload.get("role", "viewer")
-        scope = payload.get("scope")
-    except Exception:   # noqa: BLE001
+    user = decode_access_token(token)
+    if user is None:
         # 令牌无效（伪造 / 过期 / 篡改）→ 视为匿名，不抛 401（演示友好，正式可收紧）
         return CurrentUser("anonymous", "viewer", None)
 
-    return CurrentUser(username, role, scope)
+    return user
 
 
 async def require_operator(

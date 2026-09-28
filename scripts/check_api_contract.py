@@ -65,30 +65,30 @@ def main() -> int:
 
     missing = sorted(p for p in fe if p not in impl_paths)
 
-    print("── 前端调用 → 后端实现 ──")
+    print("-- 前端调用 -> 后端实现 --")
     for p in sorted(fe):
         methods = sorted(m for m, pp in impl if normalize(pp) == p)
         if methods:
             print(f"  OK      {p:<40} [{','.join(methods)}]")
         else:
-            print(f"  缺失    {p:<40} ← 后端没有这个路径")
+            print(f"  缺失    {p:<40} <- 后端没有这个路径")
 
     print()
     if missing:
-        print(f"✗ 有 {len(missing)} 个前端调用找不到后端实现：")
+        print(f"[FAIL] 有 {len(missing)} 个前端调用找不到后端实现：")
         for p in missing:
             print(f"    {p}")
         print()
         print("  可能原因：① 路径写错；② 后端路由没注册；③ 改了后端忘了同步前端。")
         return 1
 
-    print("✓ 前端调用的每个路径在后端都有实现")
+    print("[OK] 前端调用的每个路径在后端都有实现")
 
     # 反向：后端有但前端没调（只是提示，不算失败）
     unused = sorted(impl_paths - fe)
     if unused:
         print()
-        print(f"ℹ 后端有但前端未调用的路径（{len(unused)} 个，仅提示）：")
+        print(f"[INFO] 后端有但前端未调用的路径（{len(unused)} 个，仅提示）：")
         for p in unused:
             print(f"    {p}")
     return 0

@@ -26,6 +26,13 @@ mqtt:
 # 见 docs/software-design.md §2.3：原始检测 5772 条 → 确认事件 52 条。
 # ------------------------------------------------------------
 detector:
+  # ---- 检测通道选择（★ 默认 cv：现网与主告警链路行为完全不变）----
+  #   cv    = OpenCV 传统视觉（本文件下面那套参数），零数据依赖，主通道
+  #   world = 开放词汇检测（YOLO-World，零样本），演示/对照用，见下面的 world 段
+  # 改这一行之前请先读 docs/decisions.md 里关于"换通道不换契约"的说明：
+  # 两个通道的输出契约完全一致，但**置信度尺度不同**，时序门限不能共用。
+  backend: "cv"
+
   # ---- 背景建模（抓"新出现的/动着的"东西）----
   background:
     history: 300            # 建模用的历史帧数：越大越稳，但适应光照变慢
@@ -92,6 +99,61 @@ detector:
       small_times: 2
       large_factor: 0.5     # area > max_area * large_ratio
       large_ratio: 0.5
+
+  # ----------------------------------------------------------
+  # 开放词汇通道（YOLO-World，零样本）—— 仅在 backend: world 时启用
+  #
+  # ★ 为什么单独一套参数、而不是复用上面那套：
+  #   两个通道的**置信度尺度不同**。上面那套的 confidence 是"伪置信度"
+  #   （基础分 + 匹配度浮动，范围 0.30~0.95）；而开放词汇模型的输出分数
+  #   要低一个量级 —— 本仓库历史实测：5 张演示原图最高 0.413，
+  #   4 份 prompt 标定记录里最高 0.184（详见 world_detector.py 模块头部标定表）。
+  #   把 cv 通道的 0.45 门限套过来，本通道会**一条检测都过不去**，
+  #   而现象只是"world 通道没结果"，排查方向会被完全带偏。
+  #
+  # ★ 姿态：本通道用于演示与对照，不承诺精度，不进主告警链路。
+  # ----------------------------------------------------------
+  world:
+    weights: "yolov8s-worldv2.pt"
+    # ★ 这是**相对路径，按仓库根解析**（不是按当前工作目录）。
+    #   为什么强调：ultralytics 默认按 cwd 找权重，找不到就**静默联网下载**。
+    #   从 edge/ 启动（`edge/main.py` 的常规用法）时裸文件名会找不到 →
+    #   联网重试 3 次、启动卡住 2 分钟以上、且不抛任何异常。
+    #   代码已在 world_detector.resolve_weights_path 里统一按仓库根解析。
+    clip_dir: "~/.cache/clip-vit-base-patch32"
+    # CPU 是刻意默认：本机 torch 构建与 5060（sm_120）不匹配，见 README 环境说明
+    device: "cpu"
+    imgsz: 960              # 原演示脚本用 1600；CPU 上太慢，演示降到 960
+    # 模型侧打分门限（零样本尺度，**不是** 0.45 —— 那是 cv 的时序门限）。
+    # 为什么是 0.02：本通道的用途是"现场加词即检出该类"，默认门限必须让
+    # **四个契约类别都可报**。实测逐类最高分（见
+    # artifacts/metrics/vision_backends_latest.json 的 threshold_probe）：
+    #   other 0.5824 / fishing_gear 0.0514 / plastic 0.0355 / foam 0.0260
+    # → foam 最紧，门限须低于 0.026，故取 0.02。
+    # ★ 这是为满足"四类皆可报"选定的**演示工作点**，不是精度最优门限：
+    #   独立测试集真值标注为 0，无数据可标定。现场换门限用 --world-conf。
+    conf: 0.02
+    iou: 0.45
+    max_det: 60
+    # 喂给时序校验的门限，与 conf 同尺度。
+    # 若沿用 temporal 段的 0.45，本通道的检测会在时序环节被全部丢掉。
+    temporal_min_confidence: 0.02
+    # 默认提示词集：与 scripts/detect_marine_demo.py 的 DEFAULT_CLASSES 一致
+    # （test_world_detector.py 里有 AST 对账测试守住同步）
+    # 现场加词不需要改这个文件，用 --world-prompt 追加即可。
+    prompt_classes:
+      - "plastic bottle"
+      - "plastic waste"
+      - "garbage"
+      - "fishing net"
+      - "foam debris"
+      - "marine debris"
+      - "discarded shoe"
+    # 是否允许本地找不到权重时自动联网下载。
+    # 默认 false：现场网络不可预期，静默下载会让启动时间不可控
+    # （实测联网重试 3 次卡住 2 分多钟，且不抛异常 —— 现象只是"程序没反应"）。
+    # 首次部署确需下载时改 true，或手工把权重放到上面 weights 解析出的位置。
+    allow_weights_download: false
 
 # ------------------------------------------------------------
 # 时序校验（与模拟器、docs/software-design.md §2.3 三处必须一致）

@@ -23,13 +23,13 @@
 #   生产部署必须重新生成（见文末命令），否则等于没有密码。
 
 mqtt_user,user_id,password_hash,salt,is_superuser
-mqtt_user,seasight,e9c1cf7d1edb1f18f3a6b7dbd9e6c2d5a4b8f0e1c3d5a7b9e1f3c5d7a9b1e3f5,,false
+mqtt_user,seasight,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
 
-mqtt_user,backend_service,8f2a1c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a,,false
+mqtt_user,backend_service,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
 
-mqtt_user,edge_device,c4e6a8b0d2f4c6e8a0b2d4f6c8e0a2b4d6f8c0e2a4b6d8f0c2e4a6b8d0f2c4e6,,false
+mqtt_user,edge_device,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
 
-mqtt_user,dashboard_viewer,2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f6a8c0e2b4d,,false
+mqtt_user,dashboard_viewer,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
 
 # ----------------------------------------------------------------------
 # ACL —— 最小权限原则
@@ -50,7 +50,7 @@ mqtt_user,dashboard_viewer,2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4
 mqtt_acl,backend_service,allow,subscribe,marine/+/+/event
 mqtt_acl,backend_service,allow,subscribe,marine/+/+/telemetry
 mqtt_acl,backend_service,allow,subscribe,marine/+/+/status
-mqtt_acl,backend_service,allow,subscribe,robot/+/task/ack
+mqtt_acl,backend_service,allow,subscribe,robot/+/cmd/ack
 mqtt_acl,backend_service,allow,subscribe,robot/+/task/progress
 mqtt_acl,backend_service,allow,publish,robot/+/task
 mqtt_acl,backend_service,allow,publish,robot/+/cmd

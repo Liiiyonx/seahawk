@@ -1,0 +1,52 @@
+{
+  "base": "http://127.0.0.1:5188",
+  "summary": {
+    "url": "http://127.0.0.1:5188/vision-compare?sample=fishing-gear&demo=1",
+    "title": "双通道对照 · 探海灵眸 SeaSight",
+    "appHtmlLen": 9507,
+    "bodyHead": "探海灵眸 SEASIGHT ◈ 监测大屏 ◉ 事件中心 ▤ 工单看板 ◎ 设备态势 ▦ 治理报表 ✦ 智能助手 ⚙ 智能体控制台 ◇ 知识智能体 ⧉ 双通道对照 口径 ☾ 通知 实时已断开 2026-09-27 23:46:12 双通道对照 传统视觉（OpenCV）与开放词汇（YOLO-World）各自在什么条件下有效、在同一张图上各看到什么。 这是定性对照，不是\"谁更准\"的对决。 实测样例 塑料容器 生活塑料 渔具 泡沫 两条通道回答的是不同的问题：左列靠帧间差异（固定机位 + 连续帧）， 右列靠语义（单帧零样本）。两者的置信度尺度不同，不可横向比较。 传统视觉 OpenCV 背景建模 ∪ ",
+    "modeButtons": [],
+    "columns": 2,
+    "canvasStats": [
+      {
+        "w": 3840,
+        "h": 2880,
+        "paintedRatio": 1
+      },
+      {
+        "w": 3840,
+        "h": 2880,
+        "paintedRatio": 1
+      }
+    ],
+    "hasZeroNote": true,
+    "hasScaleNote": true,
+    "hasRegime": true,
+    "hasCaveats": true,
+    "hasCaptionNote": true,
+    "navHasItem": true,
+    "stillInLogin": false
+  },
+  "zeroNote": [],
+  "errors": [
+    "console: WebSocket connection to 'ws://127.0.0.1:5188/api/v1/ws/alerts?token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJyZW5kZXItY2hlY2siLCJyb2xlIjoidmlld2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.x' failed: Connection closed before receiving a handshake response",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: WebSocket connection to 'ws://127.0.0.1:5188/api/v1/ws/alerts?token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJyZW5kZXItY2hlY2siLCJyb2xlIjoidmlld2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.x' failed: Connection closed before receiving a handshake response",
+    "console: WebSocket connection to 'ws://127.0.0.1:5188/api/v1/ws/alerts?token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJyZW5kZXItY2hlY2siLCJyb2xlIjoidmlld2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.x' failed: Connection closed before receiving a handshake response",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: WebSocket connection to 'ws://127.0.0.1:5188/api/v1/ws/alerts?token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJyZW5kZXItY2hlY2siLCJyb2xlIjoidmlld2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.x' failed: Connection closed before receiving a handshake response",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "console: WebSocket connection to 'ws://127.0.0.1:5188/api/v1/ws/alerts?token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJyZW5kZXItY2hlY2siLCJyb2xlIjoidmlld2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.x' failed: Connection closed before receiving a handshake response"
+  ]
+}

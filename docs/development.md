@@ -279,7 +279,7 @@ make help               # 列出全部命令
 make ps                 # 服务状态
 make logs               # 跟随日志
 make smoke              # 端到端冒烟测试
-make test               # 后端单元测试
+make test               # 仓库全量测试（backend + edge + ml）
 make clean              # 清 Python 缓存
 make db-reset           # ⚠️ 清空数据库重建（会丢数据）
 ```
@@ -432,16 +432,131 @@ python test_temporal.py
 | 1:20–1:50 | 点开工单详情，展示时间戳链 | 从发现到派单 2 秒，从派单到机器人确认 3 秒，全链路可追溯 |
 | 1:50–2:20 | 切到热力图 | 颜色深的是高发区。注意这是密度不是总数，否则大网格会天然更热 |
 | 2:20–2:40 | 切到报表页 | 治理量化：本周清理 62kg，马鼻镇占 45% |
-| 2:40–3:00 | 回大屏 | 这一切的前提是误报率压得住——实测抑制率 42%~43% |
+| 2:40–3:00 | 回大屏 | 这一切的前提是误报率压得住——合成链路时序抑制率 76%（非识别精度） |
 
 ### 9.3 三个高频提问的准备
 
 | 提问 | 回答要点 |
 | --- | --- |
-| **误报率多少** | 报实测数字（抑制率 42%~43%，三场景交叉验证），说明机制（目标级跟踪 + 三重门限 + 抽帧 + 冷却），不要报"目测还行" |
+| **误报率多少** | 报时序链路抑制率 76%（被过滤检测数 / 输入检测数），说明机制与分母；声明它不是识别精度，真实海域精度待独立测试 |
 | **和 WasteShark 区别** | 他们是单机产品，我们是区域级三级系统；识别对象是连江特色垃圾（EPS 子安碎片、废旧渔具），不是通用垃圾 |
 | **机器人怎么分拣** | 打捞即三仓粗分（泡沫/塑胶/混合），岸基精分。**仓容是遥测回传的真实数据**，不是摆设 |
-| **成本** | 国产化路线，单台成本对比进口 17 万元级 |
+| **成本** | 国产化路线；WasteShark 报价按 F-05 引用，约 2.36 万美元起（E1），1:7.2 折算约 17 万元为 E0 假设，待询价验证 |
+
+---
+
+## WP-17 集成验收（浏览器 E2E + 受控故障演练）
+
+> 证据等级上限：**E1**。浏览器 E2E 是本机代码 + 真实后端服务的集成验收，
+> 最多是 E1，**不是真实用户试点**；故障包是受控注入测试，**不是真实
+> broker / 硬件 / 公网故障**。不得据此宣称 E3/E4。
+
+### 前置服务（必须在线；本包不自行启动/停止已有服务）
+
+| 服务 | 地址 | 说明 |
+| --- | --- | --- |
+| 前端 dev server | `http://127.0.0.1:5174` | `/api` 代理到后端 |
+| 后端 | `http://127.0.0.1:8001` | 数据库/Redis 在线即可；MQTT 断开正是降级场景要验证的状态 |
+| 系统 Chrome | `C:\Program Files\Google\Chrome\Application\chrome.exe` | 不下载 Playwright 自带浏览器 |
+| playwright-core | 全局安装，经 `PLAYWRIGHT_CORE_PATH` 指向入口 | 缺失时脚本打印修复命令并以退出码 1 中止 |
+
+### 命令
+
+```powershell
+# 1) 前端生产构建（验证产物可构建）
+cd frontend; npm run build
+
+# 2) 浏览器集成验收（E1）
+$env:PLAYWRIGHT_CORE_PATH='C:\Users\Liii\AppData\Roaming\npm\node_modules\@playwright\mcp\node_modules\playwright-core'
+node scripts/browser_acceptance.mjs
+
+# 3) 受控故障演练（E1；可选 live probe：设置 SEASIGHT_BACKEND_URL 后只读观测 /health）
+$env:SEASIGHT_BACKEND_URL='http://127.0.0.1:8001'
+.\.venv-analysis\Scripts\python.exe scripts\fault_acceptance.py
+
+# 4) Makefile 封装（保持既有目标不变）
+make test-browser
+make fault-acceptance
+```
+
+### 产物
+
+| 产物 | 说明 |
+| --- | --- |
+| `artifacts/browser-acceptance/latest.json` | 全量结果：generated_at / frontend_url / backend_url / evidence_level=E1 / scope_note / results / summary / observation.api_paths |
+| `artifacts/browser-acceptance/*.png` | 各场景全页截图（稳定文件名，可找） |
+| `artifacts/browser-acceptance/tasks-export.csv`、`reports-export.csv` | 真实导出的工单/日报 CSV（BOM、字节数、SHA256 记录在 JSON） |
+| `artifacts/browser-acceptance/admin-storage.json`、`viewer-storage.json` | 真实登录后的 storageState，供同角色上下文复用 |
+| `artifacts/fault-acceptance/latest.json` | 故障包逐组结果（command / returncode / parsed_summary / passed）+ live_probe（未配置时为 null） |
+
+### 证据上限（如实声明）
+
+- 浏览器 E2E 走**真实登录**（登录页表单 + 真实 `POST /api/v1/auth/login`）、
+  **真实业务读取链路**（dashboard / events / tasks / devices / reports / agents 六页）、
+  **真实 CSV 导出**、**真实 `/health` 降级探针**；仅 Agent 页交互场景允许
+  `page.route` 拦截以稳定构造「活跃运行 / waiting_approval」状态，结果中逐项
+  标注 `mocked: true` 与原因。
+- 以上均为 **E1**（有代码、自动化验收、确定性用例），不是真实用户试点、
+  真实设备接入、真实海域或真实网络压测。
+- 故障包是受控测试（进程内注入 / 内存 transport / scratch PostgreSQL），
+  不代表真实 broker、公网、硬件或现场故障。
+
+### 最近一次本机实测（2026-09-22）
+
+| 检查 | 结果 |
+| --- | --- |
+| 前端生产构建 | `npm run build` 通过，681 个模块完成转换 |
+| 浏览器集成验收 | 15/15 通过；12 个无拦截场景，3 个 Agent 场景 `mocked: true` |
+| 受控故障演练 | 4/4 组、127/127 用例通过，0 skipped |
+| 契约漂移 | 通过 26、警告 0、失败 0 |
+| 宣称门禁 | `CLEAN`，10 条红线命中 0 |
+| 全量 pytest | 1061 passed / 0 skipped / 0 failed / 1 warning / 91.63s |
+
+---
+
+## WP-18 Agent 真实状态端到端验收（E2 软件集成）
+
+> 证据等级：**E2**。使用合成塑料垃圾事件，但走真实 HTTP、登录与角色权限、
+> PostgreSQL Agent 仓储、工单/事件写入、WRITE 审批、幂等重放和进程重启后
+> 只读回放。AgentRuntime 仍在进程内；`t_agent_run_state` 是审计与重启只读
+> 回放镜像，不声称未完成 run 可续跑，也不构成生产级、真实设备或真实海域证据。
+
+### 命令
+
+```powershell
+.\.venv-analysis\Scripts\python.exe scripts\agent_real_state_acceptance.py
+```
+
+脚本自行启动和停止验收后端，只允许占用 `127.0.0.1:8011`；验收进程设置
+`BACKGROUND_WORKERS_ENABLED=false`，避免自动派发 worker 与显式 Agent 调用竞争。
+
+### 覆盖范围
+
+| 阶段 | 关键验收 |
+| --- | --- |
+| phase1-baseline | 真实 HTTP 事件接入、operator/admin/viewer 权限、成功轨迹、真实工单创建、事件 `dispatched`、同 idempotency key 重放 |
+| phase2-approval | WRITE 动作进入 `waiting_approval`，admin 审批后 run `succeeded`，工单和事件落库 |
+| phase3-restart-readback | 重启进程后读取已完成 run/steps/task_result，并从数据库重放相同幂等键 |
+
+直接数据库证据：2 个 succeeded run、25 个 steps、2 个 run state、2 个 task、
+2 个 dispatched event、1 个 approved 审批；验收总计 129 项检查全部通过。
+
+### 最近一次门禁复核（2026-09-22）
+
+```text
+[WP-18] PASS checks=129 run1=run_5c706c14dcc1 run2=run_d16e5ec8fe12
+[WP-18] evidence=artifacts/agent-real-state-acceptance/latest.json
+```
+
+同时复跑的门禁结果：全量 pytest **1061 passed / 0 skipped / 0 failed /
+1 warning / 91.63s**；浏览器集成 **15/15**；受控故障演练 **4/4 组、
+127/127**；契约漂移 **26 passed / 0 failed**；宣称扫描 **CLEAN**。
+
+### 证据上限（如实声明）
+
+- 事件和模型输入是合成的，AgentRuntime 在当前进程中执行，不是分布式 Worker。
+- 重启验收只覆盖已完成 run 的读取、轨迹回放和幂等重放，不覆盖未完成 run 续跑。
+- 不包含真实摄像头、真实海域、真实用户、真实机器人、真实订单或生产级 SLA。
 
 ---
 

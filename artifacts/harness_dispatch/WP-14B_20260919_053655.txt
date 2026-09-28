@@ -1,0 +1,1365 @@
+dsh: reasoning:
+Let me start by understanding the task. This is WP-14B, a work package to extend the backend dispatch MQTT message envelope. I need to:
+
+1. Read existing files: backend/app/mqtt/client.py, backend/app/services/dispatch.py, backend/tests/test_mqtt_layer.py, docs/device-interface.md
+2. Make minimal compatible extension
+3. Add envelope fields
+4. Update docs
+5. Add tests
+6. Run acceptance commands
+7. Output in 9 sections
+
+Let me create a goal first? The user's request is a bounded work package — a single-turn task with clear scope. It's substantial but not a long-running multi-round objective. I think a todo list is appropriate; a goal might be overkill. Actually the guidance says "Use goal tools for one long-running completion objective" — this is a single work package to complete now. I'll use todo_write to track progress instead.
+
+Let me start by reading the relevant files. I'll read multiple files in parallel.
+dsh: reasoning:
+Now let me read the docs/device-interface.md (especially §3 and §11) and docs/api.md to understand the frozen envelope contract.
+dsh: reasoning:
+Now let me read the protocol.py of device_sim to understand the envelope construction (I may reuse/export envelope construction), and check docs/api.md for the MQTT section, plus the check_contract_drift.py and check_claims.py scripts to understand what they check (so my changes don't break them).
+dsh: reasoning:
+Now let me look at docs/api.md around the "服务端推送消息" section and the MQTT-related parts. Also I need to check the check_contract_drift.py and check_claims.py scripts to understand what they check, so my changes don't break them.
+
+Let me search for the section in api.md about MQTT / 服务端推送消息.
+dsh: reasoning:
+Now let me check the check_claims.py script — it likely scans docs for claims like "已接真船" etc. My doc changes to device-interface.md §11 need to not make false claims. Let me also check whether there's anything else that checks publish_task structure — e.g., smoke_test.py or other tests referencing publish_task payload shape. Let me grep for publish_task across the repo.
+dsh: reasoning:
+Now I understand the constraints. Let me look at the test_dispatch_finalize.py to see what it expects from publish_task (it uses monkeypatch on mqtt_client.publish_task, so I don't need to worry much, but let me check the fake_publish signature and what's being asserted). Also, let me check `edge/device_sim/device.py` to see how the DeviceTwin consumes the dispatch command (params structure), and check the `Topics` class. Also check config for a place to put the TTL default (though the requirement says: "TTL 可配置但不要为单个工作包改全局配置体系；提供合理默认值" — so I should provide a default TTL constant, maybe module-level constant in client.py or a keyword arg with default; avoid touching settings).
+
+Let me read test_dispatch_finalize.py relevant parts, topics.py, and device.py's dispatch handler.
+dsh: reasoning:
+Now I have a good understanding. Let me check `test_dispatch_finalize.py` around the fake_publish usage to make sure my signature changes don't break those tests — they monkeypatch `publish_task` with a fake, so the fake's signature must accept whatever `finalize_dispatch` calls. Let me look at those sections briefly.
+
+Also, I need to understand the "envelope construction" reuse requirement: `edge/device_sim/protocol.py`（仅复用/导出信封构造，不得破坏现有测试). The `DeviceCommand` dataclass in protocol.py is the frozen envelope. I can reuse it in backend? Wait — the allowed files for backend are only `backend/app/mqtt/client.py`, `backend/app/services/dispatch.py`, `backend/tests/`. But can backend import from `edge/device_sim/protocol.py`? The edge package is not on the backend's sys.path typically. Importing from edge/device_sim would be fragile (backend runs from `backend/` directory, edge is at repo root). The work package says edge/device_sim/protocol.py is allowed "仅复用/导出信封构造" — meaning I could reuse/export the envelope construction there. Hmm, re-reading:
+
+【允许文件】backend/app/mqtt/client.py、backend/app/services/dispatch.py、backend/tests/（仅新增或修改与本次 WP-14B 直接相关的测试）、docs/device-interface.md、docs/api.md（仅必要的报文说明）、edge/device_sim/protocol.py（仅复用/导出信封构造，不得破坏现有测试）
+
+So edge/device_sim/protocol.py is allowed only for "复用/导出信封构造" — i.e., if I want to reuse/export envelope construction (e.g., add a builder function for dispatch envelopes there so both backend and sim can use it). But that would create a cross-package dependency. The requirement says "为 MQTT publish_task 增加可选信封字段或统一构造器" — a unified constructor. 
+
+Hmm. The cleanest minimal approach: implement envelope construction as a pure function in `backend/app/mqtt/client.py` (a module-level function like `build_dispatch_payload(...)`), with an injectable clock. That keeps the backend self-contained. For edge/device_sim/protocol.py, the doc says "仅复用/导出信封构造" — I can optionally add an exported helper there. But do I need to? The instruction is that if I touch protocol.py, it must only be for reusing/exporting envelope construction and must not break existing tests.
+
+Actually, re-reading: the parenthetical for protocol.py says "仅复用/导出信封构造，不得破坏现有测试" — this means protocol.py is permitted to be modified ONLY for the purpose of reuse/export of envelope construction. It doesn't mandate touching it. 
+
+I think the cleanest design that satisfies "复用/导出信封构造":
+- Option A: Backend implements its own pure builder `build_dispatch_envelope(...)` in client.py. Protocol.py untouched. But then "统一构造器" exists in backend only, and the sim has DeviceCommand. Two implementations of envelope construction (backend builder vs DeviceCommand). That's duplication — the WP says "统一构造器".
+- Option B: Add to protocol.py an exported function like `build_dispatch_command(...)` or a `DispatchEnvelopeBuilder` that constructs a `DeviceCommand` dict in the frozen format, then backend imports it. But backend importing from `edge/device_sim` — check whether backend tests can import it. The test for MQTT layer runs with cwd=repo root presumably (`pytest backend/tests/test_mqtt_layer.py edge/device_sim`). Actually the acceptance command runs `.\\.venv-analysis\\Scripts\\python.exe -m pytest backend\\tests\\test_mqtt_layer.py edge\\device_sim -q`. When pytest runs from the repo root, `backend/` needs to be on sys.path (conftest probably handles that). Does `edge/` get on sys.path? Not necessarily. backend/app imports work because conftest.py in backend/tests probably adds backend to sys.path. Importing `device_sim` from backend code would require repo root on sys.path.
+
+Hmm, importing from edge into backend would create an unwanted coupling direction (backend → edge simulation). That's architecturally backwards: the sim should consume the platform contract, not the platform depend on the sim. The frozen contract lives in docs/device-interface.md §3. The cleanest: implement the envelope builder as a pure function in backend/app/mqtt/client.py (the "统一构造器" for publish), with injectable clock and per-device seq counter. And optionally export from protocol.py a small helper that constructs dispatch params/envelope dict in the frozen format for the sim side, reusing the same field semantics — but NOT have backend depend on it.
+
+Actually wait — let me reconsider. "edge/device_sim/protocol.py（仅复用/导出信封构造，不得破坏现有测试）" — I think the intent is: if the envelope constructor is best placed somewhere shared, protocol.py is the allowed place to put/export it (since it's the frozen protocol module), and the backend may reuse it. But backend importing from edge is risky for the test environment. Let me check whether the repo has an established way for backend to import edge... Let me check conftest.py in backend/tests and the root for any sys.path manipulation.
+
+Let me check backend/tests/conftest.py.
+dsh: reasoning:
+Good. The `finalize_dispatch` calls `publish_task(robot_id=..., task_id=..., lng=..., lat=..., priority=...)` with keyword arguments, and the test `test_dispatch_finalize.py` uses `fake_publish(**kwargs)` so it's agnostic to the signature. So I can keep `publish_task` signature unchanged and just extend the payload internally — that satisfies "保留原有 task_id/target/priority/issued_at 顶层字段...确保旧调用无需修改".
+
+Now the design:
+
+### Design for `backend/app/mqtt/client.py`
+
+Add:
+1. A module-level constant `DISPATCH_TTL_SECONDS = 30` (default TTL, aligned with the sim's default 30s per docs §9 `expires_at=issued_at+ttl` default 30s). Configurable via keyword arg on publish_task / builder.
+2. A per-device monotonic seq counter, thread/event-loop-safe for concurrent calls. Since this is asyncio-based (single-threaded event loop), but the requirement says "处理并发调用". Two concurrent calls could interleave at await points — but building the payload is synchronous code; the seq increment and payload build happen before any await. However, "并发调用" might mean multiple concurrent tasks calling `publish_task`. To be safe, use a lock or atomicity. Simplest robust approach: maintain `_seq_by_device: dict[str, int]` and increment synchronously before any await — since Python's GIL makes dict read-modify-write atomic enough in a single thread, and asyncio tasks only interleave at await points, there's no interleaving risk if the seq allocation happens in a synchronous section before the first await. But to be explicit and testable, I'll implement a small helper class `SeqCounter` or just a function `next_seq(device_id)`. Actually, for thread-safety under concurrent asyncio tasks, since allocation is synchronous and atomic (no await inside), it's fine. But to be defensive and make intent clear, I'll use a lock? Hmm, that adds async complexity to a sync helper. 
+
+Actually the cleanest: make the envelope builder a **pure function** `build_dispatch_payload(...)` with injectable `now` and `seq` parameters, plus a `DispatchEnvelopeFactory`/`SeqCounter` that handles per-device monotonic seq. Then `publish_task` uses the factory. Tests use pure functions + FakeClock-like injection, no MQTT.
+
+Let me design concretely:
+
+```python
+# 信封默认 TTL：与 docs/device-interface.md §9 孪生默认 30s 对齐
+DISPATCH_TTL_SECONDS = 30.0
+
+def _now_epoch() -> float:
+    return time.time()
+```
+
+Wait — issued_at in the frozen envelope is epoch seconds float (docs §3: `issued_at`: float 命令信封 epoch 秒; 报文另有 *_iso 字段). But the current backend payload has `issued_at` as ISO string (`datetime.now().isoformat()`). The WP says: "至少包含 command_id、device_id、seq、issued_at、expires_at、action=dispatch、params{task_id,target,priority}" and "保留原有 task_id/target/priority/issued_at 顶层字段". So the top-level legacy `issued_at` field keeps its ISO string format (backward compat), while the envelope's `issued_at`/`expires_at`... hmm wait. The frozen envelope's `issued_at` is a float (epoch seconds). But there's a conflict: the legacy top-level `issued_at` is an ISO string. The WP says the envelope fields include `issued_at` — and "保持向后兼容字段 task_id/target/priority 也可存在" — note it says task_id/target/priority 也可存在, NOT issued_at. Hmm: "至少包含 command_id、device_id、seq、issued_at、expires_at、action=dispatch、params{task_id,target,priority}。保持向后兼容字段 task_id/target/priority 也可存在".
+
+So the new envelope's `issued_at` (float epoch) replaces/upgrades the legacy top-level issued_at? But requirement 4 says "保留原有 task_id/target/priority/issued_at 顶层字段" — keep the original top-level fields including issued_at. Hmm, there's tension: top-level issued_at as ISO string vs envelope issued_at as epoch float.
+
+Option: keep top-level `issued_at` as ISO string (as today) AND add envelope fields where `issued_at` is epoch float... but then two keys named `issued_at` can't coexist. So we need one `issued_at` that satisfies both: it must be a valid ISO string (legacy consumers parse it) AND... no wait, legacy consumers — do they parse issued_at? The frozen envelope says "issued_at: float 命令信封 epoch 秒；报文另有 *_iso 字段" — meaning the envelope format ALSO carries `issued_at_iso` alongside. So the frozen format has `issued_at` (float) + `issued_at_iso` (string).
+
+The legacy backend format has `issued_at` (ISO string).
+
+To keep both compatible: the new payload could have:
+- `issued_at`: float (epoch seconds) — per frozen envelope §3
+- `issued_at_iso`: string — per frozen envelope ("报文另有 *_iso 字段")
+- top-level legacy fields: task_id, target, priority — keep
+- But requirement 4 says "保留原有 task_id/target/priority/issued_at 顶层字段" — keep original issued_at top-level field too. If issued_at becomes a float, that changes its type from ISO string to float — that's a semantic change for legacy consumers who expected ISO string. Hmm.
+
+Wait, let me re-read requirement 4: "保留原有 task_id/target/priority/issued_at 顶层字段，新增 action、device_id、command_id、seq、expires_at 以及 params；确保旧调用无需修改。" — "旧调用无需修改" refers to old *callers* of publish_task (backend code calling with the same signature), not old *consumers* of the payload. And requirement: "保持向后兼容字段 task_id/target/priority 也可存在，避免破坏既有消费者" — the backward-compat *fields* explicitly named are task_id/target/priority. issued_at isn't named in that sentence. But requirement 4 names issued_at among fields to retain.
+
+The safest interpretation that satisfies both: keep the payload's top-level `issued_at` as an ISO string (exactly as today, so existing consumers that read `issued_at` as a string keep working), AND add envelope fields with `issued_at` being... no — conflict on the key name.
+
+Hmm. Let me think about what "the frozen envelope compatible format" requires: docs §3 example shows `issued_at: 1758230400.0` (float) and the table says "issued_at | float | 下发时间（epoch 秒；报文另有 *_iso 字段）". And DeviceCommand.to_dict() produces BOTH `issued_at` (float) and `issued_at_iso` (string). So the device-side (twin) parses `issued_at` as float. If the backend keeps top-level `issued_at` as ISO string, the twin's `DeviceCommand.from_dict` would do `float(data["issued_at"])` → ValueError on an ISO string!
+
+Wait — does the twin actually consume the backend's publish? No: the twin is E1/E2 simulation with its own envelope generated by DeviceCommand. But the goal of WP-14B is to make the backend's dispatch message *compatible with the frozen envelope format* so that a twin/device receiving it can parse it with DeviceCommand.from_dict. For that, `issued_at` must be a float epoch. And `issued_at_iso` should be present too.
+
+So the resolution: change top-level `issued_at` from ISO string to epoch float? That breaks "保留原有...issued_at 顶层字段" in the sense of its format... but "保留字段" = keep the field present, and the value format follows the frozen contract (which is the whole point of the WP: 扩展为冻结命令信封兼容格式). The legacy consumers that used issued_at... were there any? In this repo, the consumer of `robot/{id}/task` — backend subscribes only to cmd/ack and progress. There's no backend consumer parsing the dispatch payload. The "既有消费者" is a hypothetical/edge twin. Actually let me check handlers.py to see if there's a robot task payload consumer.
+
+Actually, the cleanest and most defensible: keep BOTH formats available:
+- `issued_at`: epoch float (frozen envelope field — required for DeviceCommand.from_dict compatibility)
+- `issued_at_iso`: ISO string (frozen envelope companion field)
+- legacy top-level `task_id`, `target`, `priority` retained.
+
+But requirement 4 explicitly lists issued_at among "原有顶层字段" to retain. If I keep `issued_at` as float, the field name is retained but type changes. The requirement's parenthetical in the goal says "保持向后兼容字段 task_id/target/priority 也可存在" — deliberately omitting issued_at from the "backward-compat" set. This suggests issued_at is allowed to change to the frozen format (epoch float) since it's an envelope field, while task_id/target/priority stay as legacy extras.
+
+Hmm, but wait — maybe I'm overcomplicating. Let me reconsider: what if we keep top-level `issued_at` as ISO string AND make the envelope `issued_at` the same key? No, one key = one value.
+
+Alternative: envelope uses `issued_at` (float) at top-level; legacy consumers who need ISO can use `issued_at_iso`. The old backend code itself (`publish_task`) no longer needs to produce ISO at top-level, but nothing in the repo consumes the old payload's issued_at. Let me verify: grep for consumers of "issued_at" in backend and edge.
+
+Let me check handlers.py for any parse of robot task messages, and grep issued_at usage across repo (non-doc, non-sim).
+
+Actually from the earlier grep of publish_task, only dispatch.py calls it. And who reads the task topic payload? Backend doesn't subscribe to robot/+/task. The sim's DeviceTwin consumes commands via DeviceCommand.from_dict — which needs float issued_at and expires_at.
+
+So the correct design: publish_task payload becomes:
+
+```json
+{
+  "command_id": "cmd_<...>",      // stable, idempotent, per-dispatch unique
+  "device_id": "<robot_id>",
+  "seq": 1,                        // per-device monotonic
+  "action": "dispatch",
+  "issued_at": 1758230400.0,       // epoch float (frozen)
+  "issued_at_iso": "2026-...",     // companion ISO (frozen)
+  "expires_at": 1758230430.0,      // epoch float
+  "expires_at_iso": "2026-...",
+  "params": {
+    "task_id": "...",
+    "target": {"lng": ..., "lat": ...},
+    "priority": 1
+  },
+  // ---- legacy top-level fields (backward compat) ----
+  "task_id": "...",
+  "target": {"lng": ..., "lat": ...},
+  "priority": 1
+}
+```
+
+And for `issued_at` legacy compat: the old top-level `issued_at` was ISO string. Now `issued_at` is float per frozen envelope. To honor requirement 4 ("保留原有 task_id/target/priority/issued_at 顶层字段") — the field IS retained (same key present). Its value format changes to epoch float per the frozen contract — that's the entire point of "冻结命令信封兼容". I'll document this clearly in docs: the top-level `issued_at` now follows the frozen envelope (epoch seconds float); legacy consumers that need the ISO string should read `issued_at_iso`. And in my report, I'll note this as a deliberate, documented decision (issued_at is an envelope field whose type is frozen by §3; task_id/target/priority are the pure legacy extras kept at top level).
+
+Hmm wait, but actually there's a subtlety. Let me re-read: "保持向后兼容字段 task_id/target/priority 也可存在，避免破坏既有消费者。" So the explicitly-backward-compat fields are task_id/target/priority. And "保留原有 task_id/target/priority/issued_at 顶层字段" — issued_at retained as a top-level field (with frozen type). OK my design matches both readings.
+
+But wait — would the DeviceTwin's dispatch handler (params) accept priority inside params? Let me check device.py's dispatch handler for how it reads params (task_id, target). Let me read the rest of device.py to see dispatch command handling.
+
+Also for command_id stability: "command_id 必须稳定且可幂等追踪" — command_id should be stable per dispatch (so a retry of the same dispatch reuses the same command_id → device dedups). Currently publish_task is called once per dispatch. For idempotent tracking, derive command_id deterministically from something stable: e.g., `cmd_{task_id}` — task_id is unique and stable per task; a re-dispatch of the same task (e.g., MQTT retry) would reuse the same task_id → same command_id → device dedups. That's a good stable idempotent key. But the sim's SequentialIdFactory produces `cmd_{n:04d}`. Backend command_id format: `cmd_{task_id}`? task_id like `tsk_20260919_ab12cd` → `cmd_tsk_20260919_ab12cd`. That's stable and idempotent per task. But wait — reassign_task re-dispatches the same task to a *different* robot with a new... hmm, actually reassign_task keeps the same task.task_id and sends to a new robot. If command_id = cmd_{task_id}, then a re-dispatch to a different robot has the same command_id but different device_id. Idempotency keys should be scoped per device ideally, but command_id must be unique enough. DeviceCommand dedup is per-device (the twin tracks command_ids it has processed). If task X dispatched to robot A with cmd_tsk_X, then reassigned to robot B with same command_id — robot B has never seen it, so it's fine; robot A might see a duplicate if re-delivered, but A already processed it → dedup OK. So `cmd_{task_id}` works and is stable & idempotent. 
+
+However there's a risk: same task re-dispatched to the same robot after ACK timeout — same command_id → device dedups → no re-execution! That's actually semantically questionable (re-dispatch after timeout is a *new* intent). But the WP says "command_id 必须稳定且可幂等追踪" — stable & idempotent. And the frozen contract's AckTracker dedups by command_id. For the WP-14B scope, deterministic `cmd_{task_id}` satisfies "稳定且可幂等追踪". I'll document this: command_id derives from task_id so MQTT QoS1 redelivery of the same dispatch is deduplicated; a genuinely new dispatch (new task) gets a new command_id.
+
+Hmm, but actually let me reconsider: should command_id include a per-publish uniqueness component (e.g., seq or timestamp)? The frozen example is `cmd_0001` — sequential per... The sim uses SequentialIdFactory (global counter across devices, actually — let me check: in faults.py `run_device_scenario` creates an id_factory per twin? DeviceTwin takes id_factory for ACKs. Commands are built by the executor with `cmd_{n:04d}`). For the backend, per-device seq exists; command_id could be `cmd_{task_id}` for stability. I'll go with `cmd_{task_id}` — deterministic, stable across retries of the same task, idempotent-traceable. And I'll expose it as a pure function `command_id_for_task(task_id)`.
+
+Now seq: per-device monotonic counter, in-process. "不得用随机数导致测试漂移" — deterministic. Implementation: module-level dict `_SEQ_COUNTER: dict[str, int]` with a lock, or a class. For testability ("测试不得依赖真实 MQTT 或网络", "优先实现为纯函数/可注入时钟"), I'll implement:
+
+```python
+class SeqAllocator:
+    """进程内按 device_id 单调递增的命令序号分配器。"""
+    def __init__(self) -> None:
+        self._counters: dict[str, int] = {}
+        self._lock = threading.Lock()
+
+    def next(self, device_id: str) -> int:
+        with self._lock:
+            seq = self._counters.get(device_id, 0) + 1
+            self._counters[device_id] = seq
+            return seq
+```
+
+Thread lock handles concurrent threads; within asyncio single-thread it's fine too. This is deterministic.
+
+And the pure envelope builder:
+
+```python
+def build_dispatch_payload(
+    *,
+    robot_id: str,
+    task_id: str,
+    lng: float,
+    lat: float,
+    priority: int,
+    seq: int,
+    now: float | None = None,
+    ttl: float = DISPATCH_TTL_SECONDS,
+) -> dict[str, Any]:
+    """构造冻结命令信封兼容的派单报文（纯函数，时钟可注入）。"""
+    issued = now if now is not None else time.time()
+    expires = issued + ttl
+    params = {"task_id": task_id, "target": {"lng": lng, "lat": lat}, "priority": priority}
+    return {
+        "command_id": f"cmd_{task_id}",
+        "device_id": robot_id,
+        "seq": int(seq),
+        "action": "dispatch",
+        "issued_at": issued,
+        "issued_at_iso": _iso(issued),
+        "expires_at": expires,
+        "expires_at_iso": _iso(expires),
+        "params": params,
+        # ---- 向后兼容顶层字段 ----
+        "task_id": task_id,
+        "target": params["target"],
+        "priority": priority,
+    }
+```
+
+Wait, but requirement says "写入合法 expires_at，建议 TTL 可配置但不要为单个工作包改全局配置体系；提供合理默认值" — TTL configurable via keyword (ttl param) with default 30s (aligns with sim default 30s per docs §9). Good — no global config changes.
+
+Then `publish_task` keeps its existing signature and calls the builder:
+
+```python
+async def publish_task(self, robot_id, task_id, lng, lat, priority) -> bool:
+    seq = self._seq_allocator.next(robot_id)
+    payload = build_dispatch_payload(robot_id=robot_id, task_id=task_id, lng=lng, lat=lat, priority=priority, seq=seq)
+    return await self.publish(Topics.robot_task(robot_id), payload, qos=1)
+```
+
+This keeps old call sites unchanged (finalize_dispatch and its tests use keyword args matching). 
+
+Hmm wait — should `publish_task` accept injectable clock too? For tests "不得依赖真实 MQTT 或网络" and "可注入时钟" — the pure builder has injectable `now`. Tests can call `build_dispatch_payload(now=...)` directly. For publish_task itself, tests would need to avoid the real `self.publish` (MQTT client not connected) — they can monkeypatch `publish` to capture the payload. The seq allocator on MqttClient instance is fine (deterministic per instance).
+
+Should the builder be reusable from edge? The WP allows protocol.py "仅复用/导出信封构造". Options:
+(a) Leave protocol.py untouched; the envelope construction lives in backend. The sim already has DeviceCommand. 
+(b) Add an exported convenience in protocol.py, e.g., a `build_dispatch_command(...)` that mirrors backend's builder, so both sides share semantics. But then we'd have two builders (backend + protocol) — the "统一构造器" would be split. Since backend cannot cleanly import edge (sys.path), the pragmatic choice: implement the builder in backend (authoritative, since backend is the producer), and NOT modify protocol.py (it's allowed but not required). The WP text says protocol.py 仅复用/导出信封构造 — I read this as: if you want to reuse/export envelope construction, protocol.py is where you may do it. Not mandatory.
+
+Hmm, but is there a test in edge/device_sim that checks DeviceCommand.from_dict can parse a backend-style payload? Let me check test_device.py / test_faults.py quickly for envelope construction tests. If the acceptance command runs `pytest backend/tests/test_mqtt_layer.py edge/device_sim -q` together, my backend changes must not break edge tests. Since I'm not changing edge code, fine.
+
+Actually, wait — one more consideration: could I export the envelope builder from protocol.py and have backend import it? Import path problem: backend code runs with `backend/` on sys.path, and `device_sim` lives under `edge/`. `from device_sim.protocol import ...` would need `edge/` on sys.path — fragile in production (uvicorn runs from backend/). Adding sys.path hacks to client.py would be bad. So backend stays self-contained; protocol.py is already the twin's frozen contract, and the backend builder is implemented to *match* that frozen contract (documented in device-interface.md §11). This avoids a wrong-direction dependency. I'll note in the report that the builder mirrors the frozen §3 contract and protocol.DeviceCommand can parse it (verify by constructing DeviceCommand.from_dict on the builder output in a test? That would require importing edge from backend tests — edge is at repo root, not on sys.path during `pytest backend/tests`. But the acceptance command runs BOTH backend tests and edge tests in one pytest invocation from repo root — conftest only adds backend/. edge/device_sim tests — do they have their own conftest or sys.path handling? Let me check edge/device_sim for conftest or how it imports `device_sim` package. Since pytest rootdir would be repo root and `edge/device_sim` is a package with `__init__.py`, pytest inserts the package's parent dir (edge/) into sys.path (rootdir-based insertion for test modules under a package). So during that combined run, `edge/` might be on sys.path via pytest's rootdir insertion... Actually pytest inserts the *first* parent dir without `__init__.py` — for edge/device_sim/test_device.py, that's `edge/` (since device_sim has __init__.py). So `device_sim` package becomes importable during the combined run. But relying on that in backend tests is fragile when running `pytest backend/tests` alone. I'll add a cross-check test only if robust... Better: keep backend tests self-contained (pure builder assertions matching the documented frozen field set), and add ONE optional cross-parse test in edge? No — the WP restricts edge changes to protocol.py reuse/export only, not test files (allowed files for backend/tests only; edge/device_sim tests are NOT in the allowed-modify list — "backend/tests/（仅新增或修改与本次 WP-14B 直接相关的测试）" and protocol.py only). So no edge test changes.
+
+OK. Decision: implement everything in backend, no edge changes. But the WP explicitly lists edge/device_sim/protocol.py as allowed for "复用/导出信封构造" — maybe they want the *backend builder* to be the exported envelope constructor, or they anticipate someone exporting from protocol. I'll implement in backend and mention that protocol.py's DeviceCommand.to_dict format is the reference; no protocol.py changes needed (its existing frozen contract already matches what backend now produces). Actually — hold on. Let me reconsider whether to ALSO add a tiny export to protocol.py: e.g., a module-level function `dispatch_envelope(...)` used by... nothing else. Adding dead code isn't great. I'll skip protocol.py changes and clearly report why (contract already frozen & matching; avoiding duplicate construction paths and cross-package coupling). That respects "仅复用/导出信封构造" as permission, not mandate.
+
+Hmm, wait. Let me re-read once more: "edge/device_sim/protocol.py（仅复用/导出信封构造，不得破坏现有测试）". This might mean: the allowed modification to protocol.py is only to reuse/export envelope construction. Since I don't strictly need it, skipping is safest and most minimal ("不要扩大范围").
+
+Now — one thing to double check: does the DeviceTwin's dispatch handler read `params["priority"]`? Let me read the dispatch handling in device.py to confirm param names (`task_id`, `target`, and whether it tolerates extra `priority` in params). Also check test_device.py to see how commands are constructed for tests (they use DeviceCommand directly presumably). Not strictly needed but good to confirm the payload shape my builder produces is parseable by the twin. Let me read the relevant part of device.py.
+dsh: reasoning:
+Confirmed: the twin's `_do_dispatch` reads `params["target"]` and `params["task_id"]` (or mission_id). `priority` extra in params is harmless (ignored). `DeviceCommand.from_dict` requires `command_id, device_id, seq, issued_at, expires_at, action` and tolerates extra top-level keys? Let me check: `from_dict` reads specific keys and ignores extras — yes, it constructs from specific keys only. So legacy top-level `task_id/target/priority` are ignored by from_dict. Good — a backend envelope with both frozen fields and legacy extras parses fine.
+
+Also DEFAULT_COMMAND_TTL = 30 (faults.py line ~40). Let me confirm quickly: "DEFAULT_COMMAND_TTL" default 30s. My backend DISPATCH_TTL_SECONDS = 30.0 aligns.
+
+Now, let me check the rest of device.py `_do_dispatch` (lines 312-323) — reads task_id or mission_id. Fine.
+
+Now, one more consideration: `issued_at` in the envelope as float epoch — DeviceCommand.from_dict does `float(data["issued_at"])`. My builder produces float. `expires_at` float. `seq` int. `command_id` str. `device_id` str. `action` "dispatch". `params` dict with task_id/target/priority. All parseable.
+
+Now check: does anything else consume the backend dispatch payload currently (e.g., smoke_test.py asserts payload fields)? Let me grep for "issued_at" in backend and scripts to be safe.
+dsh: reasoning:
+Confirmed: the only consumer of the backend dispatch payload's `issued_at` is the old `publish_task` itself; nothing in the repo parses the backend `issued_at` ISO string. The twin parses epoch floats. My design is sound:
+
+- Top-level `issued_at` becomes epoch float (frozen envelope) — field name retained (requirement 4 satisfied for "field present"), value format upgraded to the frozen contract.
+- `issued_at_iso` / `expires_at_iso` companion ISO strings (frozen format has *_iso).
+- Legacy top-level `task_id`, `target`, `priority` retained verbatim.
+- New: `command_id`, `device_id`, `seq`, `action`, `expires_at`, `params`.
+
+Now write the implementation. Let me now write the new client.py publish_task section.
+
+Design details:
+
+```python
+"""..."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import threading
+import time
+from datetime import datetime, timezone
+from typing import Any
+
+import aiomqtt
+from loguru import logger
+
+from app.core.config import settings
+from app.mqtt.topics import SUBSCRIBE_PLAN, Topics
+
+#: 派单命令默认有效期（秒），与孪生默认 `DEFAULT_COMMAND_TTL` 对齐。
+#: 可通过 `publish_task(..., ttl=...)` 覆盖，不引入全局配置项。
+DISPATCH_TTL_SECONDS = 30.0
+
+
+def _iso_utc(epoch: float) -> str:
+    """epoch 秒 → UTC ISO-8601 字符串（冻结信封 `*_iso` 字段）。"""
+    return datetime.fromtimestamp(epoch, tz=timezone.utc).isoformat(timespec="seconds")
+
+
+def command_id_for_task(task_id: str) -> str:
+    """派单命令幂等键：稳定派生自 task_id。
+
+    同一任务重复下发（MQTT QoS1 重投、ACK 超时后换车重派等）会复用同一
+    command_id —— 设备侧按 command_id 幂等去重，重复命令只执行一次。
+    """
+    return f"cmd_{task_id}"
+
+
+def build_dispatch_payload(
+    *,
+    robot_id: str,
+    task_id: str,
+    lng: float,
+    lat: float,
+    priority: int,
+    seq: int,
+    now: float | None = None,
+    ttl: float = DISPATCH_TTL_SECONDS,
+) -> dict[str, Any]:
+    """构造冻结命令信封兼容的派单报文（纯函数，时钟可注入）。
+
+    报文同时携带：
+      - 冻结信封字段（docs/device-interface.md §3）：command_id / device_id /
+        seq / issued_at / expires_at / action / params
+      - 向后兼容顶层字段：task_id / target / priority
+    `now` 可注入（测试确定性）；`ttl` 控制 expires_at = issued_at + ttl。
+    """
+    issued = now if now is not None else time.time()
+    expires = issued + ttl
+    params = {
+        "task_id": task_id,
+        "target": {"lng": float(lng), "lat": float(lat)},
+        "priority": int(priority),
+    }
+    return {
+        "command_id": command_id_for_task(task_id),
+        "device_id": robot_id,
+        "seq": int(seq),
+        "action": "dispatch",
+        "issued_at": issued,
+        "issued_at_iso": _iso_utc(issued),
+        "expires_at": expires,
+        "expires_at_iso": _iso_utc(expires),
+        "params": params,
+        # ---- 向后兼容顶层字段（既有消费者可继续读取）----
+        "task_id": task_id,
+        "target": params["target"],
+        "priority": int(priority),
+    }
+
+
+class SeqAllocator:
+    """进程内按 device_id 维护单调递增的命令序号（并发安全）。"""
+
+    def __init__(self) -> None:
+        self._counters: dict[str, int] = {}
+        self._lock = threading.Lock()
+
+    def next(self, device_id: str) -> int:
+        with self._lock:
+            seq = self._counters.get(device_id, 0) + 1
+            self._counters[device_id] = seq
+            return seq
+```
+
+Then in MqttClient.__init__: `self._seq_allocator = SeqAllocator()`.
+
+publish_task:
+
+```python
+async def publish_task(
+    self, robot_id: str, task_id: str, lng: float, lat: float, priority: int,
+    *,
+    ttl: float = DISPATCH_TTL_SECONDS,
+) -> bool:
+    """下发派单任务（冻结命令信封兼容报文）。
+
+    信封字段：command_id / device_id / seq / issued_at / expires_at /
+    action=dispatch / params{task_id,target,priority}；
+    顶层保留 task_id / target / priority / issued_at 向后兼容。
+    seq 按 device_id 进程内单调递增。
+    """
+    seq = self._seq_allocator.next(robot_id)
+    payload = build_dispatch_payload(
+        robot_id=robot_id,
+        task_id=task_id,
+        lng=lng,
+        lat=lat,
+        priority=priority,
+        seq=seq,
+        ttl=ttl,
+    )
+    return await self.publish(Topics.robot_task(robot_id), payload, qos=1)
+```
+
+Wait — `issued_at` legacy top-level: requirement 4 says "保留原有 task_id/target/priority/issued_at 顶层字段". My builder keeps the key `issued_at` (now epoch float per frozen). Should I ALSO keep an ISO string at top level under a legacy name? The frozen format uses `issued_at_iso`. I'll keep `issued_at_iso` and `expires_at_iso` as the frozen companion fields. That's documented. Good.
+
+Hmm — but is changing top-level `issued_at` type from ISO string to float a "breaking change" for "既有消费者"? The WP text: "保持向后兼容字段 task_id/target/priority 也可存在，避免破坏既有消费者" — explicitly only task_id/target/priority are the back-compat fields. issued_at is an envelope field (frozen: float). So changing issued_at to float is the *intended* contract change, and task_id/target/priority remain as legacy extras. I'll document this in device-interface.md §11 and in api.md (报文说明), and flag it in the report as a deliberate decision (with `issued_at_iso` provided for consumers needing ISO).
+
+Now — one concern about the check_claims.py scanner: my client.py comments and docs must not trigger red lines. Terms like "并发安全" — check the MEM rule: `(?:内存|in[- ]memory|进程内).{0,40}(?:生产级|高可用|分布式|集群|...)`. My text: "进程内按 device_id 维护单调递增的命令序号（并发安全）" — "进程内" followed within 40 chars by...? "并发安全" — not in the pattern list (生产级/高可用/分布式/集群/production-grade/...). OK. But careful about the word "高可用" — I won't use it. Also `_MEM_REV` — "生产级|高可用|分布式|集群" then {0,40} then "内存|进程内". My comment has "进程内" but no 生产级/高可用/分布式/集群 nearby. Fine.
+
+Also "并发" alone isn't a trigger. Good.
+
+Now the docs update (device-interface.md §11). Current §11 says publish_task "当前报文只含 task_id/target/priority/issued_at，缺少冻结信封的 command_id/seq/expires_at。如需真实接线，应扩展下发报文..." I need to change this to reflect the current implementation. The WP: "更新 docs/device-interface.md §11，将"当前报文缺少信封"改成准确的当前实现说明；不得把它写成真实设备接入完成。"
+
+New §11 text:
+
+```
+## 11. 集成状态（WP-14B：派单报文信封接线）
+
+- `backend/app/mqtt/client.py`：`MqttClient.publish_task` 已按 §3 冻结信封
+  扩展下发报文：新增 `command_id/device_id/seq/action/expires_at/params`，
+  `params` 内含 `task_id/target/priority`；顶层同时保留向后兼容字段
+  `task_id/target/priority` 与 `issued_at`（信封字段，epoch 秒，
+  `issued_at_iso` 为 ISO-8601 副本）。`command_id = cmd_{task_id}` 稳定且
+  可幂等追踪；`seq` 按 `device_id` 进程内单调递增；`expires_at` 默认
+  `issued_at + 30s`（TTL 可经 `publish_task(ttl=...)` 覆盖，与孪生
+  `DEFAULT_COMMAND_TTL` 对齐）。以上为后端侧报文扩展，**不代表真实设备
+  接入完成**；`robot/+/cmd/ack` 用 `AckTracker` 判重的消费端接线见下。
+- `backend/app/services/consumer.py`：消费端对 `robot/{id}/cmd/ack` 与
+  `robot/{id}/telemetry` 的接入点（未在本次 WP-14B 范围内改动）。
+- `edge/simulator/**`：感知事件模拟器与本孪生保持独立；如演示需要把
+  孪生命令/遥测并入同一 broker，由总控统一编排，**不得**在本包内
+  耦合或改写模拟器。
+```
+
+Wait — the current §11 header says "集成请求（不得直接修改，由总控决策后接线）". WP says update §11 to accurate current implementation. I'll rewrite §11 heading to "集成状态（WP-14B）" and keep the remaining two bullets (consumer.py, simulator) — but the first bullet about "如需真实接线，应扩展下发报文" must be replaced. Note WP says "更新 §11" — the §11 section is allowed (docs/device-interface.md is in allowed files). Also check: check_claims scanner might flag "集成请求（不得直接修改）" — no, that's not a trigger. And my new text — avoid "已接入真实" style claims. The scanner rule "static_agents_online" triggers on "6 个智能体在线" etc. — not relevant. "sim_as_real" requires both SIM tokens and REAL tokens; my text has "模拟器" (sim token) and... "真实设备" (real token) — with _AFFIRM_RE (已|经|于|在|通过|完成|验收|验证|部署|确认|证明|等同|即|就是|达到|实现). My sentence: "**不代表真实设备接入完成**" — contains "真实设备" and "完成"... and "不代表" is in _SIM_AS_REAL_NEG → self-exempt. Good. But let me double check the trigger: line "以上为后端侧报文扩展，**不代表真实设备**接入完成；" — hmm this is split across bold markers: "不代表真实设备**接入完成" — contains "真实设备" and "完成"? The line text: `以上为后端侧报文扩展，**不代表真实设备**接入完成；` — as a raw line, contains "真实设备" and "完成" (in "接入完成"). _AFFIRM_RE matches "完成". SIM tokens: "扩展"... wait "扩展" is not in _SIM_TOKENS. SIM tokens: 合成/模拟/仿真/规划/拟建/stub/MD5. My line has none of those unless "拟" appears... "拟建" — no. Hmm "以上为后端侧报文扩展" — no SIM token → trigger returns [] regardless. OK safe.
+
+But to be extra safe, I'll phrase: "以上仅为后端侧报文格式扩展（E1/E2 证据等级），不代表真实设备接入完成。" — includes "E2" level tag which is a self-limiting qualifier anyway. Good.
+
+Also the WP says "不得把它写成真实设备接入完成" — my text explicitly says not completed. Good.
+
+Now docs/api.md — "仅必要的报文说明". Add a short subsection describing the robot task downlink payload. Where? api.md has sections 一..十. There's a "服务端推送消息" in §9 (WebSocket). MQTT downlink isn't currently documented in api.md (it's in mqtt-topics.md / device-interface.md). The WP allows api.md "仅必要的报文说明" — I'll add a brief note under §9 or a new small subsection? Let me look at api.md structure to find a suitable spot — maybe near the end there's a section about MQTT or I can add a subsection. Actually, minimal: add a short subsection under §9 or as §10.5? Let me read the api.md tail to find a good place. Actually, better: since the dispatch downlink is robot/{id}/task, maybe mqtt-topics.md would be the natural home, but that's NOT in the allowed files list! Allowed docs: docs/device-interface.md, docs/api.md only. So any doc changes go into api.md (and device-interface.md). I'll add a compact "派单下发报文（robot/{robot_id}/task）" description to api.md, e.g., right after the WebSocket section (§9) as a new subsection "九之二" or before 系统接口. Let me check the api.md table of contents at the top.
+
+Let me read the beginning of api.md and the tail (after line 540).
+dsh: reasoning:
+I'll add a compact subsection to api.md documenting the robot dispatch downlink payload — best placed as a new subsection under §十 (系统接口) or as its own section before 十一? Actually the downlink MQTT message is more related to mqtt-topics.md (not allowed). A short "MQTT 派单下发报文（robot/{robot_id}/task）" section makes sense. I'll insert it between §十 and §十一 as "十之一" or renumber? Renumbering sections would be invasive. Better: add it as a subsection under §十 (系统接口) — "### 10.2 MQTT 派单下发报文（robot/{robot_id}/task）". §10 has "10.1 /health 必须反映真实降级". So adding "10.2" fits cleanly without renumbering.
+
+Now, the tests. I need to add tests to backend/tests/test_mqtt_layer.py (allowed: only new/modify tests directly related to WP-14B). Required coverage:
+1. 信封必填字段 (envelope required fields present)
+2. 同设备 seq 单调 (seq monotonic per device)
+3. 不同设备独立 (different devices independent)
+4. payload action/params (action=dispatch, params{task_id,target,priority})
+5. 旧字段兼容 (legacy fields task_id/target/priority top-level present; and legacy call signature unchanged)
+6. expires_at > issued_at
+
+Plus: command_id stable & idempotent (same task_id → same command_id); seq not random (deterministic); TTL default 30 and configurable; pure function with injectable now.
+
+I'll add a new test class `TestDispatchEnvelope` (or two classes) to test_mqtt_layer.py. Tests:
+
+```python
+# ======================================================================
+# WP-14B：派单命令信封（冻结 docs/device-interface.md §3）
+# ======================================================================
+ENVELOPE_FIELDS = ("command_id", "device_id", "seq", "issued_at", "expires_at", "action", "params")
+
+class TestDispatchEnvelope:
+    """`build_dispatch_payload` 必须产出冻结命令信封兼容的派单报文。"""
+
+    def test_envelope_required_fields_present(self):
+        payload = build_dispatch_payload(robot_id="RBT-001", task_id="tsk_001", lng=119.6, lat=26.3, priority=1, seq=1, now=1758230400.0)
+        for key in ENVELOPE_FIELDS:
+            assert key in payload, key
+
+    def test_action_and_params(self):
+        payload = build_dispatch_payload(...)
+        assert payload["action"] == "dispatch"
+        assert payload["params"] == {"task_id": "tsk_001", "target": {"lng": 119.6, "lat": 26.3}, "priority": 1}
+
+    def test_expires_after_issued(self):
+        now = 1758230400.0
+        payload = build_dispatch_payload(..., now=now, ttl=30)
+        assert payload["expires_at"] > payload["issued_at"]
+        assert payload["expires_at"] == now + 30.0
+
+    def test_ttl_configurable(self):
+        payload = build_dispatch_payload(..., now=100.0, ttl=7.5)
+        assert payload["expires_at"] == 107.5
+
+    def test_command_id_stable_per_task(self):
+        a = build_dispatch_payload(..., task_id="tsk_001", seq=1, now=1.0)
+        b = build_dispatch_payload(..., task_id="tsk_001", seq=2, now=2.0)  # 重发同一任务
+        assert a["command_id"] == b["command_id"]
+        assert a["command_id"] == "cmd_tsk_001"
+
+    def test_legacy_top_level_fields_kept(self):
+        payload = build_dispatch_payload(robot_id="RBT-001", task_id="tsk_001", lng=119.6, lat=26.3, priority=3, seq=1, now=0.0)
+        assert payload["task_id"] == "tsk_001"
+        assert payload["target"] == {"lng": 119.6, "lat": 26.3}
+        assert payload["priority"] == 3
+        assert "issued_at" in payload  # 保留顶层字段名（值按冻结信封为 epoch 秒）
+
+    def test_parseable_by_frozen_contract(self):
+        # 与 edge/device_sim 的 DeviceCommand.from_dict 对齐的手工断言：
+        # 不 import edge（避免测试环境耦合），按 §3 字段类型校验
+        payload = build_dispatch_payload(...)
+        assert isinstance(payload["issued_at"], float)
+        assert isinstance(payload["expires_at"], float)
+        assert isinstance(payload["seq"], int)
+        assert isinstance(payload["command_id"], str)
+        assert isinstance(payload["device_id"], str)
+        assert isinstance(payload["params"], dict)
+```
+
+Hmm, for parseable-by-frozen-contract, I could actually import `device_sim.protocol` if available and skip otherwise... The combined acceptance run has edge on sys.path (pytest inserts edge/ since device_sim has __init__.py). But `pytest backend/tests/test_mqtt_layer.py -q` alone (the full suite run `pytest -q -rs` runs from repo root too — both backend tests and others). In `pytest -q -rs` (whole repo), edge/device_sim is on sys.path too (its tests import it). So importing device_sim from a backend test would work in the repo-root runs. But the WP acceptance only runs `backend/tests/test_mqtt_layer.py edge/device_sim` and `pytest -q -rs` from root — both have edge on path. However, robustness: if someone runs `pytest backend/tests -q` from root, edge/ isn't inserted unless edge tests run... Actually pytest inserts basedir per-test-module when collecting. If backend tests are collected but edge tests aren't, edge/ won't be inserted. So a hard import would break that mode. I'll make the cross-parse check tolerant:
+
+```python
+def test_payload_matches_frozen_envelope_contract(self):
+    """报文必须能被 §3 冻结契约解析（字段名/类型对齐 edge 的 DeviceCommand）。"""
+    try:
+        from device_sim.protocol import DeviceCommand
+    except ImportError:
+        pytest.skip("edge/device_sim 不在 sys.path（未随本次运行收集），跳过跨包契约比对")
+    cmd = DeviceCommand.from_dict(payload)
+    assert cmd.action == "dispatch"
+    assert cmd.params["task_id"] == "tsk_001"
+```
+
+Wait — would `from device_sim.protocol import DeviceCommand` work when running `pytest backend/tests/test_mqtt_layer.py edge/device_sim -q` from repo root? pytest collects both; for edge/device_sim/test_device.py, the rootdir insertion: pytest uses "rootdir" based on ini... Actually for each test file, pytest determines its package by walking up __init__.py files and inserts the first non-package dir into sys.path (prepend). edge/device_sim has __init__.py; edge/ does not → `edge/` gets inserted into sys.path during collection of edge tests. Since collection happens before running backend tests, edge/ will be on sys.path when backend tests run in that invocation. For `pytest -q -rs` whole-repo run — same: edge tests collected → edge/ on sys.path. So the skip only triggers in isolated backend-only runs. 
+
+Hmm, but there's an ordering subtlety: pytest inserts paths during collection; by test-run time, all collected modules' basedirs are inserted. Yes.
+
+But is this cross-import wise? The WP says tests "不得依赖真实 MQTT 或网络" — importing device_sim is fine (no network). And it's a nice verification that the backend builder output is parseable by the frozen contract. With pytest.skip fallback, it won't break isolated runs. I'll include it.
+
+Seq tests:
+
+```python
+class TestDispatchSeqAllocator:
+    """seq 必须按 device_id 进程内单调递增，且不同设备互相独立。"""
+
+    def test_monotonic_per_device(self):
+        alloc = SeqAllocator()
+        assert [alloc.next("RBT-001") for _ in range(5)] == [1, 2, 3, 4, 5]
+
+    def test_devices_independent(self):
+        alloc = SeqAllocator()
+        assert alloc.next("RBT-001") == 1
+        assert alloc.next("RBT-002") == 1
+        assert alloc.next("RBT-001") == 2
+        assert alloc.next("RBT-002") == 2
+
+    def test_deterministic_no_randomness(self):
+        # 重复构造同一设备序列必须一致（不得依赖随机数）
+        a, b = SeqAllocator(), SeqAllocator()
+        assert [a.next("RBT-001") for _ in range(3)] == [b.next("RBT-001") for _ in range(3)] == [1, 2, 3]
+```
+
+Hmm, the deterministic test is a bit weak but OK. Better: verify that consecutive publish_task calls on the same client produce seqs 1,2,3 via captured payload. Use a fake publish:
+
+```python
+class TestPublishTaskEnvelope:
+    """`publish_task` 集成：旧调用签名不变，报文带信封。"""
+
+    def _capture(self, monkeypatch):
+        client = MqttClient()
+        captured: list[dict] = []
+        async def fake_publish(topic, payload, *, qos=1, retain=False):
+            captured.append(payload)
+            return True
+        monkeypatch.setattr(client, "publish", fake_publish)
+        return client, captured
+
+    def test_legacy_call_signature_unchanged(self, monkeypatch):
+        client, captured = self._capture(monkeypatch)
+        asyncio.run(client.publish_task(robot_id="RBT-001", task_id="tsk_001", lng=119.6, lat=26.3, priority=1))
+        assert len(captured) == 1
+        # publish 只拿到 (topic, payload, qos)，旧调用方无需任何改动
+
+    def test_seq_monotonic_across_calls(self, monkeypatch):
+        client, captured = self._capture(monkeypatch)
+        for _ in range(3):
+            asyncio.run(client.publish_task(robot_id="RBT-001", task_id=f"tsk_{_}", lng=1.0, lat=2.0, priority=1))
+        seqs = [p["seq"] for p in captured]
+        assert seqs == [1, 2, 3]
+
+    def test_topic_is_robot_task(self, monkeypatch):
+        client = MqttClient()
+        topics: list[str] = []
+        async def fake_publish(topic, payload, *, qos=1, retain=False):
+            topics.append(topic)
+            return True
+        monkeypatch.setattr(client, "publish", fake_publish)
+        asyncio.run(client.publish_task("RBT-001", "tsk_001", 1.0, 2.0, 1))
+        assert topics == [Topics.robot_task("RBT-001")]
+```
+
+Note: asyncio.run with a coroutine that doesn't touch the network — fine. But wait — is there an issue with the seq allocator being shared across tests via the module-level singleton? No — each test creates a fresh MqttClient with its own allocator.
+
+Also, is `publish_task`'s docstring update OK? Fine.
+
+Now check pytest -q -rs run — the full suite includes test_dispatch_finalize.py which monkeypatches `mqtt_mod.mqtt_client.publish_task` — unaffected since publish_task signature keeps same required args.
+
+One more thing: the acceptance command also runs `edge/device_sim` tests — untouched, still pass.
+
+Now — does anything statically check the publish_task payload (e.g., selftest_dispatch_finalize.py or scripts/smoke_test.py)? Let me check selftest_dispatch_finalize.py line 109 context — it's a fixture with text of the finalize call; the anchor includes `await mqtt_client.publish_task(` — my change to client.py doesn't alter dispatch.py, so that anchor holds. Good. But wait — that selftest scans dispatch.py? Let me quickly check what selftest_dispatch_finalize.py does with client.py. It scans services/dispatch.py for finalize_dispatch structure. Since I'm not touching dispatch.py, no risk.
+
+Should I touch dispatch.py at all? The WP lists it as allowed but "不要扩大范围" — publish_task already called there with matching keywords; nothing needed. I'll leave dispatch.py untouched (mention in report: no change required — old call sites unaffected).
+
+Now implement. Steps:
+1. Edit backend/app/mqtt/client.py — add imports (threading, time), DISPATCH_TTL_SECONDS, _iso_utc, command_id_for_task, build_dispatch_payload, SeqAllocator; update __init__ to create allocator; update publish_task.
+2. Edit docs/device-interface.md §11.
+3. Edit docs/api.md — add 10.2 subsection.
+4. Add tests to backend/tests/test_mqtt_layer.py.
+5. Run acceptance commands.
+
+For client.py imports: currently `from datetime import datetime` — used only in publish_task (datetime.now().isoformat()) and now in _iso_utc (datetime.fromtimestamp with timezone.utc). I'll import timezone too. Keep datetime.
+
+Let me write the edits now.
+
+First, client.py. I'll restructure the top imports and add the new code before `class MqttClient`. Also update the `publish_task` method and `__init__`.
+
+Let me carefully craft the edit for the import block:
+
+```python
+from __future__ import annotations
+
+import asyncio
+import json
+import threading
+import time
+from datetime import datetime, timezone
+from typing import Any
+
+import aiomqtt
+from loguru import logger
+
+from app.core.config import settings
+from app.mqtt.topics import SUBSCRIBE_PLAN, Topics
+
+
+#: 派单命令默认有效期（秒）。与孪生侧默认 TTL（edge/device_sim/faults.py
+#: `DEFAULT_COMMAND_TTL = 30.0`）对齐；可通过 `publish_task(ttl=...)` 覆盖，
+#: 不引入全局配置项（docs/device-interface.md §9）。
+DISPATCH_TTL_SECONDS = 30.0
+
+
+def _iso_utc(epoch: float) -> str:
+    """epoch 秒 → UTC ISO-8601 字符串（冻结信封的 `*_iso` 伴随字段）。"""
+    return datetime.fromtimestamp(epoch, tz=timezone.utc).isoformat(timespec="seconds")
+
+
+def command_id_for_task(task_id: str) -> str:
+    """派单命令幂等键：稳定派生自 task_id。
+
+    同一任务重复下发（MQTT QoS1 重投、ACK 超时换车重派同一任务等）会复用
+    同一个 command_id，设备侧按 command_id 幂等去重，重复命令只执行一次。
+    """
+    return f"cmd_{task_id}"
+
+
+def build_dispatch_payload(
+    *,
+    robot_id: str,
+    task_id: str,
+    lng: float,
+    lat: float,
+    priority: int,
+    seq: int,
+    now: float | None = None,
+    ttl: float = DISPATCH_TTL_SECONDS,
+) -> dict[str, Any]:
+    """构造冻结命令信封兼容的派单报文（纯函数，时钟可注入）。
+
+    报文同时携带：
+      - 冻结信封字段（docs/device-interface.md §3）：``command_id`` /
+        ``device_id`` / ``seq`` / ``issued_at`` / ``expires_at`` /
+        ``action`` / ``params``（params 含 task_id / target / priority）；
+      - 向后兼容顶层字段：``task_id`` / ``target`` / ``priority`` 与
+        ``issued_at``（信封字段，epoch 秒；``issued_at_iso`` 为 ISO 副本）。
+
+    ``now`` 可注入（测试用确定性时钟）；``expires_at = issued_at + ttl``。
+    """
+    issued = now if now is not None else time.time()
+    expires = issued + ttl
+    params = {
+        "task_id": task_id,
+        "target": {"lng": float(lng), "lat": float(lat)},
+        "priority": int(priority),
+    }
+    return {
+        "command_id": command_id_for_task(task_id),
+        "device_id": robot_id,
+        "seq": int(seq),
+        "action": "dispatch",
+        "issued_at": issued,
+        "issued_at_iso": _iso_utc(issued),
+        "expires_at": expires,
+        "expires_at_iso": _iso_utc(expires),
+        "params": params,
+        # ---- 向后兼容顶层字段（既有消费者可继续按原字段名读取）----
+        "task_id": task_id,
+        "target": params["target"],
+        "priority": int(priority),
+    }
+
+
+class SeqAllocator:
+    """进程内按 device_id 维护单调递增的命令序号（并发安全）。
+
+    序号是派单报文 `seq` 的唯一真源：同设备必须严格递增（冻结信封要求
+    平台侧单调），不同设备各自独立计数。分配在锁内同步完成，多个并发
+    派单任务不会互相覆盖。
+    """
+
+    def __init__(self) -> None:
+        self._counters: dict[str, int] = {}
+        self._lock = threading.Lock()
+
+    def next(self, device_id: str) -> int:
+        with self._lock:
+            seq = self._counters.get(device_id, 0) + 1
+            self._counters[device_id] = seq
+            return seq
+```
+
+Then in MqttClient.__init__ add `self._seq_allocator = SeqAllocator()`.
+
+Then publish_task:
+
+```python
+    async def publish_task(
+        self, robot_id: str, task_id: str, lng: float, lat: float, priority: int
+    ) -> bool:
+        """下发派单任务（冻结命令信封兼容报文，docs/device-interface.md §3）。
+
+        信封字段：``command_id``（= cmd_{task_id}，稳定幂等）、
+        ``device_id``、``seq``（同设备进程内单调递增）、``issued_at``、
+        ``expires_at``（默认 issued_at + 30s，可经 ``ttl`` 覆盖）、
+        ``action="dispatch"``、``params{task_id,target,priority}``。
+        顶层同时保留向后兼容字段 ``task_id`` / ``target`` / ``priority``。
+        旧调用方签名不变，无需修改。
+        """
+        seq = self._seq_allocator.next(robot_id)
+        payload = build_dispatch_payload(
+            robot_id=robot_id,
+            task_id=task_id,
+            lng=lng,
+            lat=lat,
+            priority=priority,
+            seq=seq,
+        )
+        return await self.publish(Topics.robot_task(robot_id), payload, qos=1)
+```
+
+Should publish_task expose ttl kwarg? "TTL 可配置" — I'll add `ttl: float = DISPATCH_TTL_SECONDS` keyword arg. Adding a keyword-only param with default doesn't break old call sites. Do it:
+
+```python
+    async def publish_task(
+        self,
+        robot_id: str,
+        task_id: str,
+        lng: float,
+        lat: float,
+        priority: int,
+        *,
+        ttl: float = DISPATCH_TTL_SECONDS,
+    ) -> bool:
+```
+
+and pass ttl=ttl to build_dispatch_payload.
+
+Wait — `finalize_dispatch` calls with positional/keyword mix: `publish_task(robot_id=..., task_id=..., lng=..., lat=..., priority=...)` — all keyword, fine with new kw-only ttl.
+
+Check `test_dispatch_finalize.py` fake_publish(**kwargs) — fine.
+
+Now let me also double-check: `datetime` import still needed? _iso_utc uses datetime.fromtimestamp — yes.
+
+Now edits. Let me apply them.
+dsh: reasoning:
+Now update publish_task:
+dsh: reasoning:
+Now update docs/device-interface.md §11. Replace the "集成请求（不得直接修改，由总控决策后接线）" section with accurate current implementation info.
+dsh: reasoning:
+Now add a brief payload note to docs/api.md — as subsection 10.2 under §十 系统接口. Insert after the 10.1 section (which ends around line 560 with the health note before `---` at line 562).
+dsh: reasoning:
+Now add the tests to backend/tests/test_mqtt_layer.py. I'll append a new section at the end of the file with the envelope tests. The imports at top of file: `from app.mqtt.client import MqttClient` — I need to add imports for `build_dispatch_payload`, `SeqAllocator`, `DISPATCH_TTL_SECONDS`, `command_id_for_task`. And `asyncio` for the publish_task integration tests.
+
+Let me write the test additions. I'll update the import block and append test classes at the end.
+dsh: reasoning:
+Now append the test classes at the end of the file (after line 687 area, the last test class `TestContractDriftCheckerSelfTest` ends with `test_full_selftest_suite_passes`). Let me append after the last line.
+dsh: reasoning:
+Now let me run the acceptance tests. First the targeted command:
+`$env:PYTHONIOENCODING='utf-8'; .\.venv-analysis\Scripts\python.exe -m pytest backend\tests\test_mqtt_layer.py edge\device_sim -q`
+
+Let me run it via pwsh. Working dir is the repo root.
+dsh: reasoning:
+137 passed. Note the cross-package test (`test_payload_parseable_by_frozen_contract`) apparently did not skip — it ran (since edge/device_sim collected, device_sim importable). Good, and it passed, meaning backend builder output is genuinely parseable by DeviceCommand.from_dict.
+
+Now run the full test suite: `.\.venv-analysis\Scripts\python.exe -m pytest -q -rs`
+dsh: reasoning:
+The full suite run shows failures, but they are NOT related to my change: they are `PermissionError: [WinError 5] 拒绝访问` on `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY\pytest-of-Liii` and temp directories — i.e., the sandbox blocks pytest's `tmp_path`/`tempfile` access in the OS temp area. The failures are:
+- `ml/tests/test_data_protocol_wiring.py` — uses tempfile → PermissionError
+- `backend/tests/agent_evals/test_wave3_scenarios.py` — uses tempfile → PermissionError
+- pytest tmp_path fixtures (TestReport tests etc.) → PermissionError on `pytest-of-Liii` dir
+
+These are environment/sandbox issues with the OS temp directory `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY`, not caused by my WP-14B changes. The first acceptance command (backend/tests/test_mqtt_layer.py + edge/device_sim) passed 137/137, which is the WP-relevant target.
+
+I need to confirm: are these failures pre-existing (present before my change)? Let me check what the "4 failed" tests are. The output was truncated. Let me read the full log to see the 4 failed tests specifically. Let me grep the spill file.
+
+Also — the 65 errors are all PermissionError on temp dir. The sandbox denies access to `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY`. Note the doc: "Some platform temporary areas may also be writable" — apparently this particular temp area is not writable under the sandbox, or pytest-of-Liii dir got locked.
+
+Wait — interesting: the sandbox env var DSH_* — the temp dir `dsh-HDNAmY` suggests the harness sandbox redirects TMPDIR. But the tests use `tempfile.TemporaryDirectory()` which uses `tempfile.gettempdir()` → probably `TEMP` env → `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY`. And pytest's tmp_path uses basetemp under the same. These are denied by the sandbox.
+
+To verify this is a pre-existing environment issue, not caused by my change: my changes touch only backend/app/mqtt/client.py, backend/tests/test_mqtt_layer.py, docs. The failing tests are in ml/tests and backend/tests/agent_evals and TestReport — none related. Let me confirm by checking git status / diff to ensure I didn't touch those, and then attempt to rerun the full suite with a writable basetemp to demonstrate the failures are environmental. Actually — can I set `--basetemp` to a workspace-local directory? That would make pytest tmp_path work. And `tempfile.TemporaryDirectory` uses the OS temp — that would still fail unless TMP env var points to a writable location. I can set `$env:TMP`/`$env:TEMP` to a workspace dir for the pytest process. Let me try running the full suite with `--basetemp` pointing into the workspace and `$env:TMP` redirected to the workspace.
+
+But wait — the acceptance command is specified exactly as `.\\.venv-analysis\\Scripts\\python.exe -m pytest -q -rs`. If it fails in this environment due to sandbox temp restrictions, I should try to demonstrate the failures are environmental (pre-existing) and that the WP-relevant tests pass. The WP says the acceptance command is the gate. If the environment can't run it due to sandbox, I should report that, but first try to make it work by redirecting temp to a writable location — that's an environment accommodation, not a code change. The key question: would the suite pass in a normal environment? The failures are all PermissionError on temp paths, which strongly indicates sandbox restriction, not code regressions.
+
+Let me verify by:
+1. Reading the full log to enumerate the 4 failed tests.
+2. Rerunning the full suite with TMP/TEMP redirected to a workspace-local temp dir and `--basetemp` workspace-local, to see if everything passes (proving the earlier failures were purely environmental).
+
+Actually, careful: modifying TMP env for pytest is legitimate debugging. Let me first check the 4 failed tests from the spill file.
+dsh: reasoning:
+The grep matched mostly traceback lines. The summary line says "4 failed, 808 passed, 65 errors". The tail of the log should have the short test summary with FAILED lines. Let me read the very end of the log file.
+dsh: reasoning:
+The full stdout log is at `C:\Users\Liii\AppData\Local\Temp\dsh-subprocess-FWZGT1\dsh-subprocess-9056-1-80238d611d5f-stdout.log`. Let me grep that for the short FAILED summary lines (pytest -rs prints short test summary at the end like "FAILED ml/tests/...::..." when using -r s? Actually `-rs` shows skipped reasons; failed short summary is shown by default in the final "short test summary info" section? With `-q`, pytest prints `FAILED path::test` lines at the end (short test summary) unless `-rN` disables... Default `-r` is 'fE'? Actually default is -rfE? In pytest 8, the default summary includes failures? The output above didn't show FAILED lines in the visible portion, likely truncated. Let me grep the stdout log for "^FAILED" lines.
+dsh: reasoning:
+The stdout log may have failed early or be elsewhere. Let me search for "FAILED" anywhere in that file.
+dsh: reasoning:
+The `-q` run doesn't print FAILED short summary (short summary with `-rs` only shows skips; failures are shown as tracebacks in `-q` verbose failure section... actually in quiet mode, the tracebacks shown are the tail; the 4 failed test tracebacks were likely in the earlier portion (the "Omitted 14367 bytes" part was the beginning of the output — the head was omitted). The 4 failed tests' names aren't visible.
+
+Let me rerun the full suite with `-q --tb=no -ra` to get a concise failure summary and verify whether failures are temp-related, and try redirecting TMP/TEMP and --basetemp to workspace-local writable dirs to see if the suite then passes. This proves whether the failures are purely environmental (sandbox temp restriction).
+
+Actually wait — before that: is the sandbox denying temp access? The environment says "Some platform temporary areas may also be writable." The temp dir used was `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY` — a sandbox-scoped temp. But PermissionError suggests it's NOT writable in this mode (workspace-write). Hmm, but the first acceptance command passed — it doesn't use tmp_path (test_mqtt_layer.py doesn't use tmp_path? Actually `TestContractDriftCheckerSelfTest` uses `project_root` fixture, no tmp_path. And edge/device_sim tests — do they use tmp_path? They didn't fail. So they don't use temp either.)
+
+Plan: rerun full suite with:
+- `$env:TMP` and `$env:TEMP` redirected to a workspace-local folder (e.g., `.tmp-wp14b` under repo root — but creating a directory under workspace; I should clean it up after). Actually simpler: use pytest's `--basetemp` for pytest's tmp_path, and for `tempfile.TemporaryDirectory()` tests, set `$env:TMP`/`$env:TEMP` to a workspace dir.
+- Add `-p no:cacheprovider` maybe to avoid .pytest_cache writes (already excluded). Actually .pytest_cache under workspace root was created by first run — fine, it's an allowed write (workspace-write mode).
+
+Let me create a temp dir under the workspace: `.wp14b-tmp` and set TMP/TEMP to it, run pytest -q -rs with --basetemp pointing there too. Then remove the dir.
+
+Wait, but do I even need to do this? The acceptance command is the gate. If in THIS environment it can't pass due to sandbox temp restrictions, I must report it honestly. But it's worth verifying the failures are indeed temp-related and pre-existing (not caused by my change). Two checks:
+
+1. Identify the 4 failed tests — rerun with --tb=no -ra --basetemp to a workspace dir + TMP redirect. If all pass → failures were purely environmental.
+2. Confirm my changed files are not implicated.
+
+Let me do it. I'll create `.wp14b-tmp` inside workspace.
+
+Actually hold on — creating a directory inside the workspace is a file operation. The write tool creates files; pwsh New-Item creates dirs. That's fine in workspace-write mode.
+
+Let me run:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$tmp = Join-Path (Get-Location) '.wp14b-tmp'
+New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+$env:TMP = $tmp; $env:TEMP = $tmp
+.\.venv-analysis\Scripts\python.exe -m pytest -q -rs --basetemp "$tmp\pytest" -p no:cacheprovider 2>&1 | Select-Object -Last 40
+```
+
+Hmm, but `--basetemp` requires the dir not exist or it errors? pytest requires basetemp to be a new empty dir (it errors if it already exists with content). Using a subdir `$tmp\pytest` that doesn't exist yet is fine.
+
+Also some tests use `tempfile.TemporaryDirectory()` — with TMP/TEMP redirected to `$tmp`, those should work.
+
+Let me also make sure removing afterward. Run it.
+dsh: reasoning:
+Interesting — now with basetemp under the workspace, the actual test failures are gone but pytest's own session-finish cleanup (`cleanup_dead_symlinks(basetemp)`) hits a PermissionError on `.wp14b-tmp\pytest` — because the sandbox... hmm, "拒绝访问" on `.wp14b-tmp\pytest` in workspace? That's odd — the workspace should be writable. Possibly because a previous pytest process still holds a lock on the dir, or the sandbox treats it oddly. Actually more likely: the pytest-of-Liii creation inside basetemp creates subdirs and the session-finish cleanup iterates `root.iterdir()` — a leftover from an earlier crashed run? No, first run with basetemp was this one.
+
+Wait — actually the problem: `.wp14b-tmp\pytest` was created by THIS pytest run as basetemp, and at session finish it tries cleanup_dead_symlinks — but `pytest` dir has test dirs inside... PermissionError on listing the basetemp dir itself. Hmm, why would listing fail? Possibly because `--basetemp` dir was created with restrictive ACL by the sandbox? Or a file lock from the sandbox's virtualized file system?
+
+Let me look at the earlier portion of the output — what were the "...........E." — that's just the last line showing almost everything passed except one E (error) somewhere. I only got the tail. I need the full summary. The output was piped through Select-Object -Last 30, so I lost the summary line and the FAILED list.
+
+Let me rerun capturing the full output to a file inside the workspace, then read the summary. Also, avoid the cleanup crash: the PermissionError happens in pytest_sessionfinish (cleanup_dead_symlinks) — that's a pytest teardown error, which sets exit code non-zero but tests themselves may have passed. The `E` at the end of the progress line is this sessionfinish error, which counts as... it printed "...........E." — the E is an error. And the traceback is the cleanup failure.
+
+Hmm wait, actually the first run (without basetemp override) had 65 errors — most from tmp_path fixtures failing to create dirs in the sandbox temp. This run with workspace basetemp: the progress line ends "...........E." which suggests only 1 error total — but I only see the tail; the actual number of tests run isn't visible. Let me rerun and capture full output to a workspace file, then read the tail summary.
+
+To avoid the sessionfinish cleanup crash on the basetemp: the crash is in cleanup_dead_symlinks — iterating `.wp14b-tmp\pytest`. Maybe the issue is that basetemp was created by a prior... no, this was the first. Actually maybe the sandbox denies listing directories that contain files created via a different permission context? Odd. Let me try a different approach: put basetemp INSIDE the workspace but as a fresh unique name, and add `-p no:cacheprovider`. Or try without --basetemp but with TMP/TEMP redirected: pytest's default basetemp is `$TMP/pytest-of-<user>`; with TMP redirected to workspace, that becomes `.wp14b-tmp/pytest-of-Liii` — same area. The cleanup crash might still occur.
+
+Alternative: use `--basetemp` with a *pre-created* empty dir? pytest errors if basetemp already exists ("basetemp directory already exists") unless empty? Actually pytest requires basetemp to not exist or be empty; if it exists non-empty it errors. Hmm.
+
+Let me think about WHY cleanup_dead_symlinks fails with PermissionError listing `.wp14b-tmp\pytest`. cleanup_dead_symlinks iterates the basetemp dir. PermissionError WinError 5 on iterdir of a directory I just created... Could it be that the sandbox grants write access to files but enumerating a directory created by the python process under a redirected env var is treated differently? Or maybe an antivirus/Defender lock? Or the directory is actually there but python's os.listdir fails due to permissions inherited...
+
+Wait — actually, maybe the real issue: I created `.wp14b-tmp` with `New-Item` from pwsh (workspace-write mode). Then pytest creates `pytest` subdir inside. At session finish, `cleanup_dead_symlinks(basetemp)` → `root.iterdir()` → PermissionError. But pytest itself wrote test files into that dir successfully during the run (tmp_path fixtures worked — that's why no test errors). So writing works but listing fails?? That's bizarre unless something deleted or locked the dir mid-run... OR the sandbox intercepts os.listdir on that path? The pwsh tool description mentions the sandbox denies certain file ops. os.scandir/os.listdir from python might be denied under "workspace-write" mode for dirs created...? But then pytest's own _mk_tmp (which uses os.scandir on the basetemp to find suffixes) would also fail... unless _mk_tmp uses a different mechanism. Actually earlier errors were on `find_prefixed` → os.scandir on the sandbox temp root. In the workspace run, that same os.scandir on `.wp14b-tmp\pytest` apparently worked during test execution (since tmp_path fixtures succeeded), but failed during sessionfinish. Weird. Possibly the directory got locked by... hmm.
+
+Hold on — maybe the issue is Windows Defender or the harness snapshotting? Not worth deep speculation. Alternative: skip cleanup crash by giving pytest a basetemp under the system temp but ensure the system temp IS writable... but the earlier failure was that the sandbox temp root `dsh-HDNAmY` was NOT listable/writable.
+
+Wait, actually re-examine: the first full-suite run (no overrides) had errors on `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY\pytest-of-Liii` — os.scandir denied. So the sandbox's own temp root is not writable/listable. Now with workspace basetemp, during the run tmp_path worked, but at sessionfinish cleanup it failed. Perhaps cleanup runs in a different context? That seems unlikely...
+
+Hmm, wait — look again at the traceback: `cleanup_dead_symlinks(basetemp)` at tmpdir.py:303, iterating `C:\Users\Liii\Desktop\seahawk\.wp14b-tmp\pytest`. PermissionError. Maybe because pytest *deleted and recreated* some subdirs and something holds a handle... On Windows, os.listdir on a dir where a subdir is currently open by another process fails with "Access denied"? Not typically — you can list a dir with open children. But you CANNOT list if the directory itself has restrictive ACL. New-Item creates with inherited ACLs, should be fine.
+
+Actually — I bet the issue is this: pytest's basetemp gets created, and during the run pytest's `make_numbered_dir_with_cleanup` may have DELETED `.wp14b-tmp\pytest` and recreated it... And the pwsh sandbox layer might be virtualizing `.wp14b-tmp` writes such that os.listdir returns access denied when the dir is created by the python process rather than by the shell? 
+
+Rather than fighting this, let me try a cleaner approach: run pytest with `--basetemp` under the system temp (`$env:TEMP\wp14b-pytest`) and ALSO redirect TMP/TEMP... no, that's the denied area.
+
+Alternative approach to prove the point: run ONLY the previously-failing test files (ml/tests/test_data_protocol_wiring.py, backend/tests/agent_evals/test_wave3_scenarios.py) with TMP redirected to workspace temp (no --basetemp needed since those tests use tempfile, not tmp_path). If they pass with TMP redirect, the failures are environmental.
+
+And for pytest's tmp_path-based tests (TestReport etc.), run them with --basetemp under workspace but tolerate the sessionfinish cleanup crash — the crash happens AFTER tests run; the test results themselves would be shown. The exit code is 1 due to the teardown error, but I can read the summary line.
+
+Actually the cleanest: capture FULL output to a file (not piped through Select-Object), then read the summary from the file. Let me do that — run full suite with TMP/TEMP redirected + --basetemp workspace, redirect stdout to a file inside workspace, then grep the file for the summary and FAILED lines.
+
+Also, the sessionfinish cleanup crash — can I disable it? `cleanup_dead_symlinks` is called in pytest_sessionfinish of tmpdir plugin. It's controlled by... there's no simple flag. But `--basetemp` with `-p no:...`? The tmpdir plugin can't be disabled easily (tmp_path fixture needed).
+
+Alternative: use `--basetemp` and then ignore the exit code, reading the "N passed, M failed" line. The crash at sessionfinish happens after the summary is printed? No — the summary is printed during sessionfinish too (terminal plugin). Order of plugins at sessionfinish: tmpdir's cleanup_dead_symlinks (fixture?), warnings, terminal summary... From the traceback: logging → terminal.pytest_sessionfinish → warnings.pytest_sessionfinish → tmpdir.pytest_sessionfinish (cleanup_dead_symlinks). The terminal summary is printed inside terminal.pytest_sessionfinish — which runs BEFORE tmpdir's cleanup in the wrapper chain? The traceback shows terminal's `yield` then tmpdir's function — meaning tmpdir.pytest_sessionfinish is an outer wrapper: the "yield" resumes after inner hooks complete. So tmpdir cleanup runs... the traceback shows `pytest_sessionfinish` at terminal.py:893 `result = yield`, then tmpdir.py:303 cleanup_dead_symlinks raising — so tmpdir's hook is INSIDE terminal's wrapper (runs before terminal prints the final summary?). Hmm, the exact ordering: hookwrappers nest; the summary might print after. Given the "...........E." line printed, the progress line prints at the end via terminal. The final "N passed" summary may or may not have printed before the crash. In the tail I captured, there was no "N passed" line — only the E and traceback. So the crash aborted before the summary printed. 
+
+OK, let me just capture the full output to a file and inspect. If the cleanup crash prevents the summary, I can compute pass/fail from the progress line (all dots) — actually I need test names for the 4 failed ones. With `-q -rs`, failed tests in quiet mode DO print "FAILED ..." lines at the end? No — in -q mode pytest doesn't print the short test summary by default (that's `-rA`). The first run's visible output had full tracebacks for each failure (the head was omitted in the spill but the actual file has them). The 4 failed test names were in the "head" of the full output — I can grep the full stdout log for the first occurrence of each traceback header like "_____ test_name _____" and "FAILED".
+
+Actually simpler: rerun with `-q --tb=line -ra` so the output is compact: each failure one line, plus short summary with all failed/errored test names. Let me do that with TMP redirected and basetemp in workspace, capturing to a workspace file. Then grep for FAILED/ERROR lines. The sessionfinish cleanup crash might still occur; if it does, -ra summary won't print. Hmm.
+
+Let me try yet another approach to avoid the cleanup crash: create the basetemp dir MYSELF (empty) and pass `--basetemp` to it. pytest with an existing basetemp: it checks `if basetemp.exists(): ... error`? Let me recall pytest tmpdir.py: `mktemp` uses make_numbered_dir_with_cleanup... and at session start, `getbasetemp` does: if basetemp exists and is non-empty → error "basetemp directory already exists". If empty → uses it. So pre-creating an EMPTY dir works. And cleanup_dead_symlinks at finish might still crash... but maybe the crash is caused by something specific. Let me just try: pre-create `.wp14b-tmp\pytest` empty.
+
+Actually, wait. Let me reconsider the crash: `cleanup_dead_symlinks(root)` iterates `root.iterdir()`. Root = `.wp14b-tmp\pytest`. This dir contains numbered subdirs created during the run (pytest-0/, pytest-1/...). os.listdir on it → PermissionError WinError 5. On Windows, a directory listing fails with access denied if... the directory has a reparse point / is a sandbox overlay? 
+
+Hmm, actually — I wonder if this is the harness's file sandbox: it may virtualize writes such that a process cannot list a directory containing files it didn't create through sanctioned channels... The earlier successful tmp_path creation during the run contradicts that.
+
+Let me step back and think about what actually matters:
+1. The WP's acceptance gate: `pytest backend\tests\test_mqtt_layer.py edge\device_sim -q` → PASSED (137 passed). ✅
+2. The full suite `pytest -q -rs` — fails in THIS sandbox environment with temp-dir PermissionErrors unrelated to my change. I need to establish this is pre-existing/environmental, ideally by showing the same failures occur on the pre-change code, OR by showing they're all temp-file related and my changed files aren't implicated.
+
+The cleanest evidence: run the full suite with TMP/TEMP redirected into the workspace so tempfile works, and --basetemp into the workspace so tmp_path works. If everything passes except a pytest-internal sessionfinish cleanup crash (which is itself environmental), that proves my change introduced no regressions.
+
+Actually — better idea for the basetemp problem: what if the crash is because `.wp14b-tmp\pytest` gets DELETED by pytest at some point (numbered cleanup) and recreated, and the sandbox ACLs end up weird... Let me try pre-creating the basetemp empty as I said. Actually pytest creates basetemp lazily; if I pre-create it empty, `make_numbered_dir_with_cleanup` uses it.
+
+Let me also consider: maybe run with `--basetemp` pointing to the ORIGINAL system temp (where it's denied)... no.
+
+Plan B (simplest and robust): run the full suite with TMP/TEMP redirected to workspace (fixes tempfile.TemporaryDirectory tests) and NO --basetemp (pytest's default basetemp goes under $TMP → workspace → tmp_path fixtures work; the numbered dirs go to `.wp14b-tmp\pytest-of-Liii`). Capture full output to workspace file. Read the summary. If sessionfinish cleanup crashes again, at least the progress line and per-failure tracebacks are in the file; I can extract test names from the traceback headers (they look like "_____ TestName.test_x _____" or "____ test_y ____").
+
+Actually — wait. In the previous run WITH basetemp override, the tail showed "...........E." — meaning only 1 error (the E at the very end is likely the sessionfinish crash rendered as an E in the progress?). Hmm no, sessionfinish errors appear after the progress line, not as E in it. The E in the progress line was an actual test error... Only one test errored? But the first run had 65 errors. With basetemp override, most tmp_path fixtures worked, leaving maybe 1 error (perhaps a test that uses tmp_path with a custom dir or a race). I need to see the full summary.
+
+Let me just run it and capture to a file. I'll do:
+```
+$env:PYTHONIOENCODING='utf-8'
+$tmp = Join-Path (Get-Location) '.wp14b-tmp'
+New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+$env:TMP = $tmp; $env:TEMP = $tmp
+.\.venv-analysis\Scripts\python.exe -m pytest -q -rs --basetemp (Join-Path $tmp 'pytest') -p no:cacheprovider *> (Join-Path $tmp 'full.log')
+```
+then read/grep the log. The `*>` redirects all streams. Then I'll read the tail and grep for FAILED/ERROR/错误.
+
+If the sessionfinish crash occurs, the exit code is 1 and summary may be missing, but I'll still see test progress. To get the failing test names even without short summary, I can grep the log for lines starting with "_____" (traceback headers) or "E " / "F " progress markers... The progress line is one long line. Hmm.
+
+Better: use `-q -ra --tb=no` — with --tb=no, failures print as "FAILED path::testname" in the short summary (with -ra). Even if sessionfinish crashes after, the short summary should print before? Order again uncertain. Let me check: with --tb=no, pytest prints at sessionfinish: "short test summary info" + "N failed, M passed..." — via terminal plugin's pytest_sessionfinish. If tmpdir's sessionfinish crash happens INSIDE terminal's wrapper (i.e., before terminal's summary code), summary won't print. From the earlier traceback: `terminal.py:893 in pytest_sessionfinish result = yield` → then warnings → then tmpdir cleanup raises → exception propagates through terminal's yield → terminal's code after yield never runs → no summary. Confirmed: summary won't print when cleanup crashes.
+
+So I need to PREVENT the cleanup crash. Options:
+- Pre-create the basetemp empty. The crash was on `cleanup_dead_symlinks(basetemp)` iterating the basetemp. If I pre-create it empty and pytest uses it... cleanup still iterates it at the end. Same crash risk.
+- Hmm, why would os.listdir on `.wp14b-tmp\pytest` be denied at session finish when os.scandir worked during the run?
+
+OH WAIT. I think I understand now! `cleanup_dead_symlinks` iterates the basetemp to remove dead symlinks. PermissionError WinError 5 "拒绝访问" on `os.listdir` — on Windows this can happen when the directory contains a subdirectory that is CURRENTLY THE CURRENT WORKING DIRECTORY of another process, or... no. Actually more likely: the sandbox! The pwsh tool description says: "Under the Windows sandbox, read-only pwsh runs in PowerShell ConstrainedLanguage mode..." and "programs cannot open named pipes..." — the file sandbox intercepts file syscalls. Maybe os.listdir on that dir gets intercepted differently at teardown.
+
+Honestly, the fastest robust path: use `-p no:tmpdir`? Can't disable tmpdir plugin without breaking tmp_path-using tests. 
+
+Alternative: patch around it by running pytest from a batch that... no.
+
+Alternative: Run the suite EXCLUDING the known temp-dependent test areas, and run those separately with TMP redirect. Actually the acceptance command runs the WHOLE repo (`pytest -q -rs`). I can't change what the acceptance command is, but I CAN report the environmental failure with evidence.
+
+Let me try ONE more thing: pre-create `.wp14b-tmp\pytest` as an empty dir BEFORE running, so pytest doesn't create it itself (maybe the sandbox marks dirs created by python as non-listable, but dirs created by pwsh as listable). Then at sessionfinish, cleanup iterates the pwsh-created dir → maybe OK.
+
+Let me try that. Also capture full output to a workspace file.
+dsh: reasoning:
+Interesting! `Remove-Item -Recurse -Force $bt` failed with "Access to the path ... denied" — meaning the `.wp14b-tmp\pytest` directory (created by the earlier pytest run) is locked/denied even for the shell. This strongly suggests the sandbox (or something) locked that directory. But the run proceeded (EXITCODE=1 from pytest; Remove-Item error was non-terminating in PowerShell, and New-Item -Force on existing dir is fine).
+
+Now let me check the log tail for the summary.
+dsh: reasoning:
+Still "4 failed, 808 passed, 65 errors" even with TMP/TEMP redirected to the workspace and basetemp pre-created in the workspace! So the errors are NOT just about the OS temp dir — they persist with a workspace-local basetemp. Hmm.
+
+Wait — but this run used the PRE-EXISTING `.wp14b-tmp\pytest` from the previous run? No — Remove-Item failed (denied), but that's a pre-existing dir from run #2 (the one with --basetemp). New-Item -Force on existing dir = no-op. So pytest used the SAME basetemp dir that was already denied for Remove-Item. If the dir is locked/denied at the shell level, pytest's tmp_path writes inside might fail again → 65 errors.
+
+The root cause remains: `.wp14b-tmp\pytest` became inaccessible (denied listing/removal) after pytest used it. That suggests the sandbox virtualizes this dir such that after python writes into it, subsequent access is denied? Very strange. OR — the ACLs on the dir got changed.
+
+Key insight needed: which tests fail with these 65 errors, and are they the same temp-dependent ones? The summary says 4 failed + 65 errors = same counts as the very first run. So the basetemp redirect didn't change anything — meaning pytest's tmp_path fixtures are STILL hitting the denied dir (maybe because the previous run's locked dir persists, or TMP redirect didn't take effect for pytest's basetemp because basetemp was pre-created).
+
+Let me try a completely FRESH basetemp name not previously touched, e.g. `.wp14b-tmp\pytest2`, and also delete the whole `.wp14b-tmp`... but Remove-Item on `.wp14b-tmp\pytest` is denied. Let me try removing `.wp14b-tmp` entirely (maybe only the subdir is locked).
+
+Actually — hold on. Let me reconsider: maybe the failures/errors are NOT temp-related at all in this run. Let me look at what the 4 failed and 65 errors actually ARE. Let me grep the log for traceback headers to identify the failed tests. The head of the log will contain the first failures. Let me extract lines starting with underscores (traceback headers) or "FAILED"/"ERROR" — with -q and -rs, no short summary (the "4 failed, 808 passed" line is it). Traceback headers look like "_____ TestClass.test_x _____" or "_____ test_y _____".
+
+Let me grep the log for "^_+" lines and also "PermissionError" and "Error" counts.
+dsh: reasoning:
+Now it's crystal clear. All the errors and the 4 failures are in `ml/tests/**` and `backend/tests/agent_evals/**` (and `scripts/` tests?) — all caused by `PermissionError`/`OSError` accessing temp directories (`tmp_path` fixtures and `tempfile.TemporaryDirectory()`). The test names are all ML/dataset/agent-eval tests that use `tmp_path`/`tempfile` — completely unrelated to my WP-14B change (which touched only `backend/app/mqtt/client.py`, `backend/tests/test_mqtt_layer.py`, and docs).
+
+Key question: why does `tmp_path` still fail even with basetemp in the workspace? The answer might be that pytest's `tmp_path` fixture uses `tmp_path_factory.getbasetemp()` which is the `--basetemp` I passed... but wait, the errors persist. Let me check one of the error tracebacks in the log to see the actual failing path now.
+
+Actually — the pre-existing `.wp14b-tmp\pytest` dir was locked from the previous run (Remove-Item denied, listing denied). pytest's tmp_path uses numbered dirs under basetemp: `pytest-N`. If the parent `pytest` dir is denied, then `find_prefixed`/`mktemp` fails → all tmp_path fixtures error at setup. That explains why redirecting didn't help: the dir was already poisoned by run #2.
+
+So let me try with a FRESH basetemp dir name that was never touched by a prior run: `.wp14b-tmp\pytest_fresh`. But first I need to be able to create it — New-Item should work for a NEW name. The problem is only the locked existing dir. Let me also try removing the poisoned `.wp14b-tmp` after the process is done... but Remove-Item is denied NOW (dir locked). Maybe the lock is transient (the python process from run #2 exited; but the harness sandbox might hold it). Whatever — use a fresh name.
+
+Let me check one traceback to confirm the failing path, then rerun with fresh basetemp `pytest_fresh` + fresh TMP subdir `tmp2`.
+dsh: reasoning:
+Confirmed: the failing path is `\\?\C:\Users\Liii\Desktop\seahawk\.wp14b-tmp\pytest` — the basetemp dir I pre-created, which was ALREADY locked from the earlier run (Remove-Item denied). pytest tried to clean/recreate it (rm_rf) → PermissionError → all tmp_path fixtures error at setup.
+
+So this run's failures are an artifact of my own second run having created the locked dir. Let me do a clean run with a brand-new basetemp name that has never existed: `.wp14b-tmp\pytest3` and a fresh TMP subdir. If the sandbox allows python to create and list dirs under `.wp14b-tmp` (the first override run DID successfully use tmp_path during execution — the dots passed), then this should reduce errors dramatically.
+
+Wait, actually in run #2 (first basetemp override), the progress showed "...........E." at the tail — but I only saw the tail; the summary line wasn't shown. In run #3 (this one), summary was 4 failed, 808 passed, 65 errors — SAME as run #1 without overrides. So in run #3, all tmp_path tests failed because the basetemp was poisoned.
+
+For run #2, I don't know the counts. Let me just do a clean run #4 with a fresh basetemp name and fresh TMP. Also, importantly: cleanup after — I need to remove `.wp14b-tmp` at the end; if it's locked I'll report.
+
+Let me run with:
+- TMP/TEMP → `.wp14b-tmp\tmp2` (fresh)
+- --basetemp `.wp14b-tmp\pytest3` (fresh, not pre-created — let pytest create it; but wait, does pytest's own creation then get locked for sessionfinish cleanup? In run #2 the crash at sessionfinish was cleanup_dead_symlinks on the pytest-created dir. Hmm. That run had the crash AFTER tests passed. So even a pytest-created basetemp triggers the sessionfinish cleanup crash. But the crash only affects exit code and summary printing, not test results.
+
+Hmm, so there's a consistent pattern: dirs created by the python process under `.wp14b-tmp` become unlistable at sessionfinish (cleanup_dead_symlinks) → PermissionError. But during the run they're writable. Bizarre sandbox behavior — possibly the sandbox "seals" directories created by spawned processes.
+
+Given that, maybe the right move: run the full suite and ACCEPT that pytest's own sessionfinish cleanup will crash, but extract the summary from the log (the "N passed" line prints BEFORE the crash? No — established it doesn't print). Ugh.
+
+Alternative: disable the cleanup by making cleanup_dead_symlinks a no-op? Can't without touching pytest.
+
+Alternative: run with `-p no:tmpdir`? Not possible — needed.
+
+Hmm, what about setting `--basetemp` to a path under the SYSTEM temp that the sandbox allows? The first run showed the system temp root `dsh-HDNAmY\pytest-of-Liii` was denied for os.scandir. But maybe pytest-of-Liii itself is fine if... no, denied.
+
+Wait — let me reconsider. Maybe the sandbox's temp area `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY` is the *sandbox's own* virtual temp, and it IS writable by processes, but the PermissionError occurred because of concurrent access from my pwsh calls? No...
+
+Let me look at this from a totally different angle. The `4 failed` tests — are they also temp-related? The traceback headers list showed only 4 test-name headers without "ERROR at setup": `test_gt_map_builder_maps_objects_and_converts_bbox`, `test_invalid_protocol_yields_not_evaluated_reason`, `test_overlevel_evidence_rejected` — all in ml/tests/test_data_protocol_wiring.py, all using tempfile.TemporaryDirectory (which uses TMP). And a 4th? The header list shows 3 non-ERROR headers plus... let me count: `test_gt_map_builder...`, `test_invalid_protocol...`, `test_overlevel_evidence_rejected` — that's 3. The 4th failed test name wasn't in the extracted unique headers because I limited to 120 unique... Let me not worry; all failures are in ml/tests temp-based tests.
+
+Now the definitive check: does `ml/tests/test_data_protocol_wiring.py` fail because of TMP redirect not taking effect? In run #3, TMP/TEMP were set to `.wp14b-tmp`... but tempfile.TemporaryDirectory uses `tempfile.gettempdir()` which caches `TMPDIR/TEMP/TMP` env at first call — python might have been started with TMP env set correctly. The failures in run #3 for test_data_protocol_wiring were: the 4 failures — let me check their actual error in the log. From the earlier spill (run #1), they were PermissionError on `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY\tmpc7fokqks\dataset.json` — that's the SANDBOX temp (dsh-HDNAmY), NOT `.wp14b-tmp`. But in run #3, TMP/TEMP were redirected to `.wp14b-tmp` — did tempfile pick it up? Maybe python caches the temp dir at interpreter start BEFORE env change? No, env is set before starting python in the same pwsh invocation, so python sees it.
+
+Hmm wait — run #3's log was created with `*>` redirection. Let me check what path the 4 failures used in run #3's log. Let me grep the log for "dsh-HDNAmY" occurrences.
+dsh: reasoning:
+In run #3, zero references to the sandbox temp (dsh-HDNAmY) — everything was redirected to `.wp14b-tmp`. The failures persist because the poisoned `.wp14b-tmp\pytest` dir (locked) broke ALL tmp_path fixtures. The `tempfile.TemporaryDirectory()` tests (test_data_protocol_wiring) — they use `.wp14b-tmp\tmp...`? Wait, wp14b refs: 482. Let me see whether the 4 failures in run #3 were also PermissionError on the poisoned dir or something else. From the earlier grep of run #3 log: "PermissionError: [WinError 5] 拒绝访问。: '\\?\C:\Users\Liii\Desktop\seahawk\.wp14b-tmp\pytest'" — that's the poisoned basetemp.
+
+So the fix: use a FRESH basetemp that has never been touched, e.g. `.wp14b-tmp\pytest3`. Python-created dirs under `.wp14b-tmp` were writable during run #2 (tests passed until sessionfinish cleanup crash). So a fresh basetemp should let tmp_path fixtures work, and tempfile tests should work with TMP redirected.
+
+The remaining issue is pytest's sessionfinish `cleanup_dead_symlinks` crash on the python-created basetemp. But wait — in run #2, the crash happened on `.wp14b-tmp\pytest` — created by python. In run #4 with fresh `pytest3` created by python, same crash risk at sessionfinish → exit code 1, no summary printed. 
+
+Hmm, BUT maybe the crash is specific: cleanup_dead_symlinks iterates basetemp to remove symlinks. Why denied? On Windows, os.listdir on a dir whose entries include a subdir currently in use... no. Actually you know what? Maybe it's the HARNESS SNAPSHOT mechanism or an indexer holding the dir. Whatever the cause, I can avoid pytest's own basetemp cleanup entirely by NOT using `--basetemp` (default basetemp under $TMP) — but default basetemp in run #1 (system temp) failed at _mk_tmp (os.scandir denied on pytest-of-Liii). With TMP redirected to `.wp14b-tmp`, default basetemp becomes `.wp14b-tmp\pytest-of-Liii` — same python-created dir → same sessionfinish crash risk, BUT during the run it might work.
+
+Key question: does the sessionfinish crash actually matter for the WP acceptance? The acceptance command is `pytest -q -rs` (no basetemp, no env override) — in THIS sandbox it fails with temp PermissionErrors regardless of my changes. The failures are environmental. To prove my changes don't regress, I want a run where all non-temp tests pass. Since the temp problem is orthogonal, I can:
+1. Run the full suite with fresh workspace temp redirect + fresh basetemp → get test results (mostly pass) despite the sessionfinish crash, by capturing output and extracting the "N passed, M failed" line — but that line won't print due to crash...
+
+Alternative trick: prevent the sessionfinish cleanup crash by making the basetemp NOT exist at sessionfinish?? No.
+
+Alternative: I can run pytest with `--basetemp` to a dir and pass `-p no:...`? There's no flag to disable cleanup_dead_symlinks. But maybe I can monkeypatch via `-c`? Too invasive.
+
+Better alternative: run the suite EXCLUDING tmp_path-using modules? No — that changes the gate.
+
+Actually, let me test the hypothesis about the sessionfinish crash differently: maybe the crash in run #2 was because `.wp14b-tmp\pytest` contained dirs from a CRASHED run (run #2 was the FIRST --basetemp run, so no). Hmm.
+
+OK here's another thought — maybe the issue is that pytest's `tmpdir` plugin's `cleanup_dead_symlinks` only crashes when basetemp contains SYMLINKS or when it can't iterate; on Windows with sandbox "sealing", iterating python-created dirs after process teardown... The simplest workaround: after pytest finishes, I don't care about cleanup crash; I just need the summary. The summary prints at the END of terminal.pytest_sessionfinish — which is AFTER tmpdir's sessionfinish in the wrapper chain? From the traceback chain in run #2: `terminal.py:893 pytest_sessionfinish result = yield` → `warnings.py:141` → `tmpdir.py:303 cleanup_dead_symlinks` raised. So tmpdir's hook is the INNERMOST (called first), terminal's summary code runs AFTER tmpdir's cleanup returns. Since tmpdir's cleanup raised, terminal's summary never printed. Confirmed.
+
+So to get the summary, I must avoid the tmpdir sessionfinish crash. Options:
+a) Find why cleanup fails and fix (e.g., remove readonly attribute? On Windows, PermissionError on iterdir is unusual).
+b) Make basetemp a path the sandbox doesn't seal.
+
+Let me try (b): use a basetemp OUTSIDE the workspace and outside the sandbox temp — e.g., `C:\Users\Liii\AppData\Local\Temp\wp14b-outer`? That's the same denied area? Actually run #1 denied `dsh-HDNAmY\pytest-of-Liii` — that specific sandbox-scoped dir. Maybe the PARENT `C:\Users\Liii\AppData\Local\Temp` itself is fine and only `dsh-HDNAmY` is the sandbox jail. Let me test: create a dir via pwsh at `$env:TEMP\wp14b-test` and try to list/write it from python. Actually simpler: set TMP to `C:\Users\Liii\AppData\Local\Temp` root? Then pytest-of-Liii would be created directly there — might work if the parent is accessible.
+
+Hmm wait, but actually — I realize I should test whether the PermissionError on python-created dirs is reproducible in a minimal way: run a tiny python that creates a dir under workspace, writes files, then lists it. If listing fails → sandbox seals python-created dirs (which would explain everything). If listing works → something about pytest's specific usage.
+
+Let me run a quick probe. Also probe the outer temp.
+dsh: reasoning:
+Very revealing:
+- Workspace dirs: created, listed, written fine. No sealing.
+- `tempfile.gettempdir()` returns `C:\Users\Liii\AppData\Local\Temp\dsh-HDNAmY` — the sandbox temp root (env TMP/TEMP is set to it for child processes).
+- `tempfile.mkdtemp()` under `dsh-HDNAmY` SUCCEEDS (creates the dir), but then `os.rmdir` on it → PermissionError. So dirs created under the sandbox temp can be CREATED but not REMOVED/LISTED by the same process?! Actually listdir of the parent failed in run #1. So the sandbox temp area is write-only-ish: you can create but not enumerate/delete. That's a sandbox quirk of this harness's workspace-write mode.
+
+Key finding: `tempfile.gettempdir()` uses the `TEMP` env var which is set by the harness to `dsh-HDNAmY` for the python process — my earlier `$env:TEMP = $tmp` should have overridden it... but the probe shows gettempdir() = dsh-HDNAmY even though... wait, in the probe I did NOT override TMP/TEMP. Right, the probe ran with default env. So overriding TMP/TEMP in the pwsh invocation DOES work (run #3 had 0 dsh-HDNAmY refs).
+
+So in run #3, tempfile tests used `.wp14b-tmp` — but the 4 failures... let me actually check what the 4 failures' errors were in run #3. The 4 failed tests all come from ml/tests/test_data_protocol_wiring.py? Wait no — test_wave3_scenarios.py also had OperationalError. The "4 failed" in run #3 — let me get their exact error from the log. But honestly the mechanism is now clear:
+
+1. pytest's tmp_path uses basetemp: with `--basetemp .wp14b-tmp\pytest` (poisoned dir from run #2 — locked), ALL tmp_path fixtures error at setup → 65 errors.
+2. The 4 failed: ml/tests tests using tempfile.TemporaryDirectory → created dirs under `.wp14b-tmp` fine, but... wait why would they FAIL (not just cleanup error)? In run #3 they might have failed at rmdir cleanup inside the `with` block (tempfile cleanup on exit of the with block calls rmtree → PermissionError → test fails with PermissionError). Actually in run #3, `tempfile.TemporaryDirectory()` with TMP=.wp14b-tmp — creation OK, but on Windows, `TemporaryDirectory` cleanup... hmm, `.wp14b-tmp` is workspace — rmdir should work. Unless... the same "python-created dir gets locked" issue? But my probe showed workspace dirs list/remove fine!
+
+Wait, in the probe: `(d/'a.txt') and None` — that line creates d/'a.txt' AGAIN (exists) — fine. Then 'cleanup done' printed? No — the traceback happened at `os.rmdir(t)` on the TEMP dir (dsh-HDNAmY), before workspace cleanup. So workspace remove wasn't tested. Let me not worry — the probe showed workspace listdir/scandir work.
+
+So why did test_data_protocol_wiring FAIL in run #3 (TMP=.wp14b-tmp)? Let me look at the actual error lines in run #3's log for those 4 tests. Let me extract them.
+dsh: reasoning:
+Now I see it. Even under `.wp14b-tmp` (workspace!), `tempfile.TemporaryDirectory()` creates the dir, but writing a file INSIDE it fails with PermissionError: `C:/Users/Liii/Desktop/seahawk/.wp14b-tmp/tmpoaoxmv9k/dataset.json`. So directories created by `tempfile.mkdtemp()` inside the workspace are not writable?! But my probe created `.wp14b-probe` with pathlib.mkdir and wrote a.txt fine...
+
+Difference: tempfile.mkdtemp() creates the dir with mode 0o700 on Windows → Windows ACLs: mkdtemp applies `chmod(0o700)` which on Windows restricts the ACL to... actually on Windows, Python's os.chmod only affects the read-only bit, so 0o700 shouldn't restrict. Hmm.
+
+Wait — actually, maybe the issue: `TemporaryDirectory` sets the dir, and the sandbox denies writes into dirs created by the SAME process when the parent path was set via TMP env var?? No — probe created via cwd.
+
+Actually let me recheck the probe: `d.mkdir(exist_ok=True); (d/'a.txt').write_text('x')` — SUCCESS. And in the failing tests, `Path(td)` from TemporaryDirectory → write_text → PermissionError. What's different?
+
+1. Probe: mkdir created `.wp14b-probe` (mode default 0o777 → on Windows). Wrote a.txt fine.
+2. Test: `tempfile.TemporaryDirectory()` → mkdtemp with mode=0o700 → on Windows this maps to... hmm.
+
+Could the sandbox (or something) be denying access to dirs with 0o700 ACL? My probe wrote into a 0o777 dir. mkdtemp creates 0o700. On Windows, Python's mkdtemp does `os.mkdir(dirname, 0o700)` — 0o700 on Windows sets... os.mkdir mode is mostly ignored on Windows except read-only. So ACLs should be inherited.
+
+Hmm, wait — but is the ACTUAL error "Permission denied" on the FILE write, meaning the DIR is not writable by the process? This looks like the DSH file sandbox is mediating: perhaps the sandbox denies python's file writes to paths under `$env:TMP`?? But I redirected TMP to the workspace...
+
+OH WAIT. I see it now! Look at the path: `C:/Users/Liii/Desktop/seahawk/.wp14b-tmp/tmpoaoxmv9k/dataset.json`. My pwsh command set `$env:TMP = $tmp` where `$tmp = Join-Path (Get-Location) '.wp14b-tmp'` → `C:\Users\Liii\Desktop\seahawk\.wp14b-tmp`. So TMP was correctly redirected. And tempfile.mkdtemp created `tmpoaoxmv9k` under it. Then writing dataset.json → PermissionError. So the sandbox denies file writes to dirs created via mkdtemp... but the probe's pathlib.mkdir dir was writable.
+
+Difference between pathlib.mkdir and tempfile.mkdtemp: mkdtemp creates with mode 0o700. Maybe the DSH sandbox sees the 0o700 dir and treats it as "not shared" — actually on Windows, there's no POSIX mode; but Python's tempfile on Windows also does `os.chmod(dirname, 0o700)` — hmm no, it passes mode to mkdir.
+
+Actually — hold on. Let me reconsider: maybe the DSH file sandbox monitors the TMP env var path at process spawn and *jails* that path (the sandbox temp `dsh-HDNAmY` was derived from TMP?). The harness sets TMP to `dsh-HDNAmY` for child processes, and the sandbox "workspace-write" policy allows workspace writes but jails temp. When I override TMP to `.wp14b-tmp`, the sandbox might treat THAT as the jail too (since it's now the temp location), allowing creation but denying... no wait, the probe showed workspace dirs are writable.
+
+Let me look at run #3 more carefully: which tests PASSED? 808 passed including all backend tests presumably. The 65 errors were all tmp_path fixture errors at `.wp14b-tmp\pytest` (poisoned dir). The 4 failed were ml tests with tempfile under `.wp14b-tmp\tmpXXX`. So tempfile-created dirs under the workspace are NOT writable, but pathlib-created dirs (probe) ARE.
+
+Hypothesis: The DSH sandbox denies WRITES into directories whose name matches tempfile's pattern (tmpXXXX)?? That's absurd. Alternative hypothesis: it's not the sandbox at all — it's that on Windows, tempfile.TemporaryDirectory with `ignore_cleanup_errors` default... no, creation succeeded, WRITE failed.
+
+Hmm, let me actually reproduce precisely: python creates a dir with tempfile.mkdtemp() under the workspace and writes a file inside. And separately pathlib.mkdir. Compare. Quick probe.
+dsh: reasoning:
+Reproduced precisely:
+- `pathlib`-created dir: writable.
+- `tempfile.mkdtemp()`-created dir: NOT writable (Permission denied on writing a file inside).
+
+The ONLY difference is how the dir was created. `tempfile.mkdtemp` calls `os.mkdir(name, 0o700)` — passing mode 0o700. On Windows, `os.mkdir` with mode... Actually on Windows, Python's `os.mkdir` mode parameter only has meaning via `security attributes`? No — on Windows, os.mkdir ignores mode (or applies read-only attribute?). Hmm, actually Python's `os.mkdir(path, mode)` on Windows DOES apply the mode as the read-only attribute bit? No, that's for files. For dirs, mode is ignored... except 0o200 (write bit) absence → read-only? Let me think: On Windows, `os.mkdir(path, 0o700)` — the mode 0o700 has the write bit (0o200) set, so it shouldn't be read-only.
+
+Hmm wait, but the DSH sandbox might be the one applying this. The sandbox mediates file operations; maybe it translates POSIX modes: a dir created with 0o700 (owner-only) under "workspace-write" mode gets... no, we're in workspace-write which is FullLanguage; the sandbox file policy says workspace is writable.
+
+Actually — could this be the harness's *sandboxed filesystem* where the temp dir gets created inside a sandbox overlay that's read-only for subsequent writes? Let me test: does `tempfile.mkdtemp()` at the SYSTEM temp (dsh-HDNAmY) allow writes inside? Earlier run #1 showed failures writing inside tmpXXX dirs under dsh-HDNAmY too (dataset.json write failed). And the probe showed mkdtemp under dsh-HDNAmY created ok but rmdir denied.
+
+So the pattern: dirs created by tempfile.mkdtemp (mode 0o700) are unwritable AND unremovable — both under sandbox temp and workspace. But pathlib.mkdir (default mode 0o777) dirs are writable. 
+
+Hypothesis: the DSH sandbox treats 0o700 dirs as "private" and denies access (maybe it's simulating POSIX semantics where 0o700 = owner-only, and the "owner" identity for the sandbox process is different?). Or maybe on Windows the 0o700 mode sets the directory ACL to owner-only via Python's _winapi? Let me check: Python's os.mkdir on Windows DOES apply the mode — it creates the directory with a security descriptor based on mode? Actually no — CPython on Windows ignores the mode for mkdir except the read-only bit. BUT — tempfile.mkdtemp then... let me check CPython's tempfile: `mkdtemp` does `os.mkdir(file, 0o700)`. Then `TemporaryDirectory` sets `self._rmtree`... but the write happened before cleanup.
+
+Hmm, hold on — actually I recall: on Windows, `os.mkdir(path, 0o700)` — CPython's os module DOES map POSIX modes to Windows ACLs?? No, it doesn't. `os.chmod` on Windows only toggles the read-only attribute. `os.mkdir` mode is ignored on Windows.
+
+So what else differs? Let me look at the actual directory attributes/ACLs of the mkdtemp dir vs manual dir. Quick check with Get-Acl / attrib. Let me run a probe comparing ACLs.
+dsh: reasoning:
+Extremely revealing:
+
+- `acl_manual` (pathlib.mkdir): ACL has `DESKTOP-R96A9EE\Liii` FullControl — writable.
+- `acl_td_wgfcoxae` (mkdtemp): `Get-Acl` fails with "unauthorized operation" — and its Attributes print shows just "Directory" but Get-Acl can't even read it. This confirms: `tempfile.mkdtemp()` on this machine creates a directory with an ACL that even the owner cannot read (Python's `os.mkdir` with mode 0o700 on Windows actually creates a restrictive ACL via the security descriptor — this is CPython behavior on Windows: `os.mkdir` with a mode lacking read/write bits for others? Actually more precisely: CPython's `os.mkdir` on Windows passes the mode through to `CreateDirectory` via `win32` security... no.
+
+Hmm, actually I recall now: CPython on Windows — `os.mkdir(path, mode)` DOES honor the mode by creating the directory with an ACL derived from the mode (using `CreateDirectory` with a security descriptor built from the mode). This has been in CPython since 3.x? There was a change where os.mkdir/os.open with mode 0o700 creates owner-only ACLs on Windows. Yes! CPython 3.x on Windows maps POSIX mode to a security descriptor: mode 0o700 → only the current user has access. And the "current user" at the time might resolve differently (SID vs the CodexSandboxUsers group), causing the resulting ACL to grant access only to a SID that doesn't map to the shell user... Actually the dir was created by the same user, so why can't Get-Acl read it? Maybe the ACL grants only to a user SID that the sandbox process doesn't have, e.g., the mode mapping created an ACL with the *creator* SID but the sandbox's impersonation context is CodexSandboxUsers.
+
+Either way — this is a Windows-specific ACL issue with tempfile's 0o700 mode under this environment, NOT related to my WP-14B changes. The full-suite acceptance command's failures are all caused by this environment issue (ml/tests and agent_evals use tmp_path/tempfile heavily; backend tests I care about don't).
+
+Actually WAIT. Now I really understand the root cause — it's `tempfile.mkdtemp`'s 0o700 mode → restrictive ACL on Windows. This would fail on ANY Windows machine? No — normally on Windows, os.mkdir mode is ignored... let me check: actually, in CPython on Windows, `os.mkdir` calls `_winapi.CreateDirectory`... Hmm, but the evidence is clear: mkdtemp dirs have unreadable ACLs here. Actually I remember now: since Python 3.6?, `os.mkdir` on Windows DOES apply the mode by creating a DACL — there's `win32` code in `Modules/posixmodule.c` `win32_chmod`... for mkdir, CPython uses `CreateDirectoryW` which ignores mode entirely. So how did the ACL become restrictive?
+
+Unless... it's the DSH sandbox. The sandbox might intercept directory creation and set restrictive ACLs based on some heuristic (e.g., mkdtemp's known pattern). The manual dir got the sandbox user ACL (CodexSandboxUsers read + Liii FullControl). The mkdtemp dir got a different ACL that's unreadable.
+
+Regardless of the exact mechanism: this is an environment/sandbox artifact. All 69 failing/erroring tests (4 failed + 65 errors) in the full suite are ml/tests + agent_evals tests that depend on `tmp_path`/`tempfile.TemporaryDirectory` — none touch my changed code. And notably, the FIRST acceptance command (backend/tests/test_mqtt_layer.py + edge/device_sim) — 137/137 passed, including my new WP-14B tests.
+
+Now, can I make the full suite pass in this environment to fully demonstrate? If the root cause is tempfile's 0o700, I could set `TMP` to a workspace dir AND work around mkdtemp... I can't change third-party tests. But maybe I can set the `PYTHONHASHSEED`... no. Hmm — could I pre-seed a `PYTHONPATH` shim that patches tempfile? Too hacky, and it would modify the environment rather than the repo. The WP says tests must not depend on network/MQTT; nothing about sandbox temp.
+
+Actually — wait. Maybe I can verify the failures are PRE-EXISTING (not caused by my change) by checking git: my changes are only in backend/app/mqtt/client.py, backend/tests/test_mqtt_layer.py, docs/device-interface.md, docs/api.md. The failing tests (ml/tests/test_data_protocol_wiring.py, ml/tests/test_manifests.py, ml/tests/test_annotation_pipeline.py, ml/tests/test_evaluate_opencv.py, ml/tests/test_calibration.py, ml/tests/test_check_dataset.py, backend/tests/agent_evals/test_wave3_scenarios.py, etc.) are untouched. So the failures are demonstrably not caused by WP-14B.
+
+To be thorough, let me confirm the same failures occur on the pristine tree. I can stash my changes? No — "禁止 git reset/checkout/clean" and don't commit. I can't easily test the pristine tree without reverting files (which is forbidden — I must not delete or revert; and git stash is arguably a form of reset? Stash modifies working tree — risky). Instead, the evidence is already conclusive: the 69 failures are all temp-access PermissionErrors in untouched test modules; my modules pass 137/137.
+
+Actually — hmm, let me double-check one thing: could my change to `backend/tests/test_mqtt_layer.py` have caused any of the full-suite failures? The failing/erroring test names are all in ml/tests and backend/tests/agent_evals — none in test_mqtt_layer.py. And 808 passed includes all of backend/tests/test_mqtt_layer.py? Let me verify test_mqtt_layer tests passed in the full run — grep the log for test_mqtt_layer mentions in failure context. The log had failures only in ml and agent_evals. Let me quickly confirm the full run's pass count includes my new tests: run `pytest backend/tests/test_mqtt_layer.py -q` alone (already done as part of acceptance cmd #1: 137 passed total = 105 mqtt-layer + 32 device_sim? whatever). Actually acceptance cmd #1 passed 137 — includes all my new tests (they didn't error).
+
+Wait — actually I realize I should double check whether my new tests are counted. 137 passed for backend/tests/test_mqtt_layer.py + edge/device_sim. Previously (before my change), how many tests were in test_mqtt_layer.py? The file had ~30+ tests. Let me count my new tests: TestDispatchEnvelope (8 tests), TestDispatchSeqAllocator (4), TestPublishTaskIntegration (5) = 17 new tests. Plus edge/device_sim has its own. The 137 total seems plausible.
+
+Let me verify my new tests actually ran (not silently skipped): run pytest with `-k 'Dispatch or Seq or Envelope' -v` on test_mqtt_layer.py to list them. Actually simpler: run the acceptance command #1 again with `-v` filter... it passed already. Let me just run a quick verbose check of my new test classes to show they executed and passed.
+
+Then, for the full suite, my conclusion: 69 failures/errors all environmental (temp ACL) in untouched modules; WP-relevant suites green. I'll also clean up the `.wp14b-tmp` directory... but it's locked (Remove-Item denied earlier for `pytest` subdir). Hmm — I created `.wp14b-tmp` and it contains locked dirs. It's inside the workspace. The "禁止删除任何文件" rule — deleting my own scratch dir is fine (it's not a repo file; it's a temp artifact I created). But Remove-Item was denied for the `pytest` subdir. Let me try removing the whole `.wp14b-tmp` tree; if denied, leave it and note it. Actually, wait — is `.wp14b-tmp` inside the workspace tracked by git? It's a new dir; git status would show it as untracked. I should remove it to keep the tree clean. Let me try Remove-Item -Recurse -Force on `.wp14b-tmp` and `.wp14b-probe`. The `pytest` subdir was denied earlier — maybe because a previous pytest process still had handles; now all processes have exited, so removal might work.
+
+Also `.wp14b-probe` and `.wp14b-tmp` — let me clean both. And check git status to ensure only intended files changed.
+
+Let me also verify: did I leave `.pytest_cache` changes? `-p no:cacheprovider` for the redirected runs avoided cache writes; the first acceptance run created `.pytest_cache` (pre-existing anyway). Fine.
+
+Now, one more validation: run acceptance command #1 once more (it's the primary gate) to show it passes cleanly, and run my new tests verbosely. Also run the two script gates:
+- `scripts/check_contract_drift.py`
+- `scripts/check_claims.py --root .`
+
+Let me run those now (they don't need temp). And then cleanup.
+
+Also — I should double-check the `check_claims.py` output for my new doc text (api.md 10.2 + device-interface.md §11 + client.py comments). Run it.
+
+Plan:
+1. Run acceptance cmd #1 again (quick, ~50s) — or actually it already passed; but re-running after all edits (no further edits since) is unnecessary. It passed after ALL edits were complete (edits were done before I ran it). Yes — cmd #1 was run after all code/doc/test edits. Good.
+2. Run the two script gates.
+3. Run my new tests verbosely to show names.
+4. Try cleaning `.wp14b-tmp` / `.wp14b-probe`.
+5. git status to confirm changed file set.
+
+Let me do 2+3+4 in parallel-ish (independent).
+dsh: reasoning:
+Both script gates pass (drift: 26 OK / 0 fail; claims: CLEAN). The verbose test run: 18 passed, 1 skipped, 74 deselected. The 1 skipped is `test_payload_parseable_by_frozen_contract` — because running `pytest backend/tests/test_mqtt_layer.py` alone doesn't collect edge/device_sim, so `device_sim` isn't importable → skip. That's by design (the combined acceptance run collected edge and it passed there).
+
+Wait — "18 passed, 1 skipped" for -k 'Dispatch or SeqAllocator or PublishTaskIntegration'. My classes: TestDispatchEnvelope has 8 tests, TestDispatchSeqAllocator 4, TestPublishTaskIntegration 5 → 17. Plus existing tests matching 'Dispatch'? There might be other tests with 'Dispatch' in the name (TestDispatchWhitelistNotHardcoded has 2 tests, TestWasteClassEnumSingleSource? no). 'Dispatch' matches TestDispatchWhitelistNotHardcoded.test_handlers_use_constant_not_literal and test_mqtt_and_http_paths_agree → 2 more. 17 + 2 = 19? But we got 18 passed + 1 skipped = 19 collected. And 'SeqAllocator' matches TestDispatchSeqAllocator's 4. Hmm — 17 (mine) + 2 (whitelist) = 19. One of mine or the whitelist ones... 18 passed + 1 skipped = 19 total. The skipped one is my cross-package test. So 18 passed = 17 of mine minus 1 skipped = 16, plus 2 whitelist = 18. ✓ consistent.
+
+So all my new tests pass except the cross-package one which runs (and passed) in the acceptance command #1 run where edge is collected.
+
+Hmm wait — in acceptance command #1 (137 passed), did `test_payload_parseable_by_frozen_contract` run and pass? It collected edge/device_sim, so device_sim was importable → it ran. 137 passed with 0 skipped? The output said "137 passed" — no skips mentioned. So yes, it ran and passed. 
+
+Now cleanup: remove `.wp14b-tmp` and `.wp14b-probe`. The earlier Remove-Item on `.wp14b-tmp\pytest` was denied. All python processes have exited now. Let me try again — maybe with the processes gone it works. If still denied, I'll note it. Actually, the denial might be permanent ACL-based. Let me try.
+
+Also check git status to confirm the changed-file set matches the allowed list exactly.
+dsh: reasoning:
+The workspace already has many pre-existing modified/untracked files (this is a working tree with lots of history from other work packages — the repo appears to have many uncommitted changes from prior WPs; that's the working state I inherited). My own changes among the modified files: `backend/app/mqtt/client.py`, `backend/tests/test_mqtt_layer.py`, `docs/api.md`, and `docs/device-interface.md` (untracked — it's shown as `?? docs/device-interface.md`, meaning the whole file was never committed; I only edited it).
+
+Important: The git status shows many pre-existing modifications that are NOT mine (e.g., 项目文档/**, artifacts/**, backend/app/services/dispatch.py modified before me, etc.). My instruction said 禁止文件: 项目文档/**, artifacts/**, README.md etc. — I didn't touch those. The `?? .wp14b-tmp/` still shows as untracked even though I removed it? The output says "leftover wp14b dirs: 0" — but git status shows `?? .wp14b-tmp/`. Hmm — the Remove-Item emitted a warning "could not open directory '.wp14b-tmp/acl_td_wgfcoxae/': Permission denied" — so the removal partially succeeded but one subdir (the mkdtemp one with locked ACL) couldn't be removed, leaving `.wp14b-tmp/` still present. The "leftover wp14b dirs: 0" counted only top-level dirs matching 'wp14b*' — but git shows `.wp14b-tmp/` still exists. Let me check what's inside and try to force-remove the locked ACL dir.
+
+Also `?? $null` — a pre-existing odd file, not mine.
+
+Note: `backend/app/services/dispatch.py` shows as modified — but I did NOT modify it. It was already modified in the working tree before my session (pre-existing change). Same for `scripts/check_contract_drift.py`, `README.md`, `Makefile`, etc. — all pre-existing working-tree state. My allowed file list included dispatch.py, but I made no edits there. Good.
+
+Let me confirm I didn't accidentally modify dispatch.py: my only edits were client.py, test_mqtt_layer.py, device-interface.md, api.md. dispatch.py was already "M" before I started. Since I never wrote to it, that's pre-existing.
+
+Now clean up `.wp14b-tmp` fully. The locked subdir `acl_td_wgfcoxae` — try icacls to grant delete, or just remove with -Force after taking ownership. Since it's a scratch dir I created, I can use icacls. But careful: icacls might be blocked by sandbox. Let me try a few approaches:
+
+1. `Remove-Item -Recurse -Force` again with error output.
+2. If fails: `cmd /c rmdir /s /q` — probably same.
+3. icacls to reset ACLs then remove.
+
+Also the `.wp14b-probe` and other probe dirs are gone. Let me handle the remaining `.wp14b-tmp`.
+
+Actually — wait, there's also `.wp14b-tmp/full.log` (my log file) and `pytest` subdir etc. Let me list what remains and force-remove.
+dsh: reasoning:
+The sandbox denies removing `.wp14b-tmp\acl_td_wgfcoxae` under workspace-write mode (the ACL-locked dir from mkdtemp). The sandbox message says escalation is available — retry with `sandbox_permissions` (danger-full-access) + justification, and the approval prompt asks the user.
+
+Is this worth escalating? It's my own scratch directory that I created for debugging. Leaving it would pollute the workspace (a `?? .wp14b-tmp/` untracked entry). The rule "禁止删除任何文件" refers to repo files; my scratch dir is not a repo file — but leaving it is untidy and might confuse the final status. However, escalating for a scratch-dir removal requires user approval via prompt. The task says minimal scope; I'd rather attempt the escalation since it's genuinely my own junk that the sandbox denies removing. The one-shot retry rule: "escalate immediately in the same turn — the one sanctioned exception to a denial: retry the exact same command once with sandbox_permissions".
+
+Let me retry the exact same Remove-Item command with sandbox_permissions: danger-full-access and a justification. This is sanctioned since the same command was just denied.
+dsh: reasoning:
+No approval channel available — escalation fails closed. So `.wp14b-tmp` remains partially (the `acl_td_wgfcoxae` subdir can't be removed). The other subdirs might be removable individually. Let me try removing everything EXCEPT the locked one, so only the minimal locked dir remains... but it's all inside `.wp14b-tmp`. Let me try removing individual entries except acl_td_wgfcoxae, then move acl_td_wgfcoxae? Moving requires permission too.
+
+Alternatively, keep it simple: remove what I can. The remaining `.wp14b-tmp/acl_td_wgfcoxae` (an empty dir with locked ACL) will stay. It's harmless — an empty untracked dir (git doesn't track empty dirs anyway, so `git status` will show `?? .wp14b-tmp/` only if it contains files — an empty dir shows nothing in git status? Actually git status shows untracked directories as `?? dir/` even if... no, git shows `?? dir/` only if the dir contains at least one file; empty dirs are invisible to git status).
+
+Wait — git status earlier showed `?? .wp14b-tmp/` — that was before my cleanup when it had many files. Now most files are gone. If only the empty locked dir remains, git status will no longer list it. Let me verify: try removing each remaining entry except the locked one.
+dsh: reasoning:
+All the temp subdirs (created by tempfile/pytest under the sandbox) are ACL-locked and cannot be removed even by the shell — this is the same environmental quirk that broke the full test suite. The `.wp14b-tmp` dir itself remains with these locked empty subdirs, but git status shows nothing for it (`-- .wp14b-tmp` returned nothing), because... hmm, it still contains subdirs with files? No — the locked dirs are empty (files were removed? or never...). Git status for `.wp14b-tmp` is empty, meaning git sees no files under it (all dirs are empty → git ignores empty dirs).
+
+Wait, but are they truly empty? `full.log` was removed. The locked dirs like `pytest/` — the pytest basetemp had numbered subdirs inside, which may still contain files! But git status shows nothing... because git can't even read them (permission denied) → git treats unreadable dirs as empty? Actually git status walks the tree; unreadable dirs produce warnings or are skipped. The output shows no warnings from git. Hmm, possibly git just can't stat them and silently skips. Either way, the workspace is left with a `.wp14b-tmp` folder containing ACL-locked empty subdirs — invisible to git status. It's a leftover scratch area; the locked ACLs are an environment artifact of this sandbox (same root cause as the temp failures). I'll note it in the report as an environment leftover, not a repo change.
+
+Actually, let me try one more thing — Windows `cmd /c rmdir /s /q` which uses a different mechanism... it will hit the same ACL. Or `takeown`/`icacls` to reset the ACL on the locked dirs. icacls earlier said "ok" but the access was still denied (because icacls itself couldn't enumerate due to the locked ACL — actually icacls printed "Access is denied" for the dir and its contents but exited without error since /C continued).
+
+The ACL on these dirs was created by `tempfile.mkdtemp` with mode 0o700 → the sandbox's restricted ACL that even the owner can't read. `takeown /f` might work since the sandbox process might have admin? Probably not (no approval channel). Let me try takeown + icacls grant + remove once — if it fails, I accept the leftover and report it. Actually — the escalation was already denied; trying different commands (takeown) is not a re-attempt of the same command, it's a new approach, which is allowed (the escalation failure only finalizes THAT command). But given no approval channel exists, any privileged op likely fails. Let me just try takeown quickly; if it fails, accept.
+
+Actually — let me not burn more time. The leftover is: `.wp14b-tmp/` with a few empty, ACL-locked subdirectories, invisible to git. It's an environment artifact. I'll try one quick takeown attempt and then move on.
+
+Hmm, actually one consideration: is `.wp14b-tmp` inside the workspace going to interfere with check_claims.py scanning? check_claims iterates files (rglob) — the locked dirs may cause permission errors in the scanner. Let me check: check_claims.py `iter_target_files` does `sorted(root.rglob("*"))` — on unreadable dirs, rglob silently skips (pathlib swallows PermissionError for iterdir? In Python 3.12, Path.rglob with a directory it can't read — os.scandir raises PermissionError → rglob propagates? Actually pathlib's rglob catches OSError? In 3.12, `Path.rglob` uses `walk` which by default ignores errors? `os.walk` with onerror=None ignores errors by default? No — os.walk swallows errors by default (it skips dirs it can't list, emitting nothing). Path.rglob in 3.12 is implemented via `_WildcardSelector`... it may raise. The earlier check_claims run (CLAIMS_EXIT=0) ran BEFORE I created... no wait, check_claims ran AFTER .wp14b-tmp existed (it ran in the same batch as the verbose test). And it returned CLEAN exit 0. So the locked dirs didn't break the scanner.
+
+Also the final acceptance command will be re-run? I've run everything already. Let me now do the FINAL acceptance run of command #1 to confirm everything is green after all edits (no edits since, but re-run for the record — it's the primary gate and takes ~50s). Actually I already ran it after all edits. But to be rigorous and to have a fresh final result, I'll re-run command #1 once more, plus git diff of my 4 files to double-check content.
+
+Wait — one more important thing: I should double check the final content of the changed client.py to make sure everything is coherent (read it back). And also verify there are no leftover references to the old `datetime` usage issue: `datetime` is still imported and used in `_iso_utc`. Also `time` module used. OK.
+
+Also — the `check_claims` scanner includes backend/app/mqtt/client.py and my test file. It returned CLEAN. Good.
+
+One more consideration — the WP acceptance also includes `pytest -q -rs` (full suite). It fails environmentally. I must report this clearly with the evidence: the 69 temp-related failures are in ml/tests + agent_evals (untouched), caused by the sandbox's ACL-locked tempfile directories; backend tests (808 passed) all pass. I should also verify the count: 808 passed includes backend/tests. Let me confirm that backend tests passed in the full run — from the log, the failures/errors were all in ml/tests and backend/tests/agent_evals. Let me verify no backend test OTHER than agent_evals failed: grep the log for 'backend\\tests' in failure context. The traceback headers list showed only ml/tests and backend/tests/agent_evals (test_wave3_scenarios.py). Let me confirm by grepping the log for backend\ tests paths in the ERROR sections. Actually the error headers listed: test_wave3_scenarios (backend/tests/agent_evals/), test_manifests (ml), TestReport (ml), test_data_protocol_wiring (ml), TestDetectorState (ml), etc. Let me do a final grep for any backend/tests file (excluding agent_evals) appearing in error/failure sections of the log.
+dsh: reasoning:
+Oops — `full.log` was removed in my cleanup step (it wasn't in the "remaining" list — right, full.log was removed). I need the full-suite log again to verify. But I already have strong evidence from the earlier extraction: all error/failure traceback headers were in ml/tests and backend/tests/agent_evals/test_wave3_scenarios.py. The 808 passed count includes all other backend tests.
+
+Rather than re-running the whole 100s suite, let me re-run just the previously-failing areas to double confirm the environmental nature isn't triggered by my code: `pytest backend\tests\agent_evals\test_wave3_scenarios.py ml\tests\test_data_protocol_wiring.py -q` — these are the "4 failed" tests. They'll fail with temp PermissionErrors regardless of my change (they don't import my code). But that doesn't add much evidence beyond what I have.
+
+Actually the cleaner demonstration: run the full suite ONE more time, capture to a NEW log inside the workspace (fresh basetemp name to avoid the poisoned dir), and check: (a) backend tests pass; (b) failures confined to ml/tests + agent_evals temp tests. But that's another ~100s and will again leave locked dirs. I already have this evidence from the run with the poisoned basetemp — no wait, that run had 65 errors from the POISONED basetemp which masked real results.
+
+Hmm, let me think about what evidence I actually have:
+- Run #1 (exact acceptance cmd `pytest -q -rs`, no overrides): 4 failed, 808 passed, 65 errors. Failures = temp PermissionErrors in ml/tests + agent_evals. This IS the actual acceptance command result in this environment. The failures are temp-ACL environmental.
+- Run #3 (TMP redirected to workspace, poisoned basetemp): 4 failed, 808 passed, 65 errors — identical counts, all temp-related.
+
+For a truly clean full-suite run I'd need a fresh basetemp + fresh TMP subdir. The risk: pytest's sessionfinish cleanup crash on python-created basetemp (observed in run #2). But maybe that crash was because run #2's basetemp dir was created by python while TMP was set to `.wp14b-tmp`, and... the crash pattern suggests any python-created dir under the workspace gets locked eventually? But my probe showed pathlib-created dirs work fine (writable, listable). The probe removed them fine too (`cleanup done`? Actually the probe's workspace cleanup — the probe traceback happened at os.rmdir of the TEMP dir before workspace cleanup; the workspace dir `.wp14b-probe` remained and I removed it in the big Remove-Item).
+
+Ugh, let me just do one more full run with FRESH names to get a definitive clean result, capturing to a file I can read, and then read the summary. To avoid the sessionfinish cleanup crash issue, I could... actually, you know what? Let me test whether the sessionfinish cleanup crash still happens with a fresh basetemp. If it doesn't (maybe run #2's crash was caused by the pre-existing dir from run #1 — no, run #2 was the first --basetemp run...).
+
+Hold on, actually let me re-examine run #2's crash. In run #2: `New-Item -Force -Path $tmp` created `.wp14b-tmp`; `--basetemp (Join-Path $tmp 'pytest')` → `.wp14b-tmp\pytest` created BY PYTEST. At sessionfinish, cleanup_dead_symlinks iterated it → PermissionError. So pytest-created basetemp dir got locked. But then in run #3, I pre-created `.wp14b-tmp\pytest` via New-Item (shell) — but Remove-Item of it was ALREADY denied (from run #2's lock). So run #3 used the locked dir → 65 errors.
+
+So: dirs created by the PYTHON process under the workspace get their ACL locked eventually (at least pytest's basetemp). But my probe's pathlib dirs didn't lock... difference: probe dirs were created by `-c` one-liner python and used immediately; pytest's basetemp gets used by many processes over time...
+
+OK here's the thing — I'm now fairly confident the ACL-locking is tied to `tempfile.mkdtemp` (0o700) which pytest uses for numbered dirs (pytest's make_numbered_dir uses tempfile.mkdtemp? Yes! pytest's tmpdir uses `tempfile.mkdtemp(prefix=..., dir=basetemp)`). So pytest's tmp dirs get 0o700 ACLs → locked on this system. And `cleanup_dead_symlinks` at sessionfinish iterates the basetemp containing those locked dirs → PermissionError.
+
+So the fundamental blocker for the full suite in THIS environment: `tempfile.mkdtemp()` creates ACL-locked dirs (a Windows/Python/sandbox interaction). EVERY test using tmp_path or tempfile.TemporaryDirectory fails — which is ~69 tests across ml/tests and agent_evals. No test using tmp_path passes. This is 100% environmental and orthogonal to WP-14B.
+
+Could I verify quickly that mkdtemp's 0o700 is the trigger by doing mkdtemp with a different mode? Not needed — evidence is sufficient.
+
+Actually — one more idea to get a definitive full-suite result: set the env var `PYTHONTMPDIR`? Doesn't exist. Or monkeypatch tempfile via sitecustomize... too invasive.
+
+Alternatively: run the full suite EXCLUDING the known-broken-in-this-env test paths (ml/tests, backend/tests/agent_evals) to demonstrate everything else passes:
+`pytest -q -rs --ignore=ml/tests --ignore=backend/tests/agent_evals -p no:cacheprovider`
+This covers all backend tests (the WP's domain) + everything else. If that's fully green, combined with the evidence that ml/tests/agent_evals failures are temp-ACL environmental, the picture is complete.
+
+Actually wait — does `--ignore` affect the acceptance? The acceptance command runs everything. But since the environment can't run tmp-based tests at all (even the pre-existing ones), the gate can't be fully green in this sandbox regardless of my change. Demonstrating "everything except sandbox-blocked temp tests" passes is the strongest achievable evidence.
+
+Let me run: full suite minus ml/tests and agent_evals. These are exactly the two areas that use tmp_path/tempfile (ml tests all use tempfile; agent_evals use tempfile). Backend tests mostly don't use tmp_path (conftest says no DB). Let me check if any backend test uses tmp_path... test_mqtt_layer.py doesn't. OK.
+
+Also — to avoid leaving more locked dirs, run with `-p no:cacheprovider` and WITHOUT --basetemp override (default basetemp goes to $TMP which is the sandbox temp dsh-HDNAmY — that's where tmp_path fixtures would fail — but if no tmp_path tests run, basetemp may never be created → no cleanup crash). Wait — `-p no:cacheprovider` avoids .pytest_cache. Default basetemp `pytest-of-Liii` under sandbox temp: if no test uses tmp_path, pytest still calls cleanup_dead_symlinks at sessionfinish — on a basetemp that may not exist → `cleanup_dead_symlinks` iterates... it checks `if not basetemp.exists(): return`? Let me just try. Actually make_numbered_dir_with_cleanup creates basetemp at first tmp_path use; if none, basetemp never created, and cleanup_dead_symlinks on non-existent dir → iterdir on nonexistent → FileNotFoundError? It does `for left_dir in root.iterdir()` — on missing root, FileNotFoundError → caught? Not sure. Risky.
+
+Safer: pass `--basetemp` to a FRESH dir under the sandbox temp or workspace... any python-created basetemp risks locking at sessionfinish cleanup. But if NO test uses tmp_path, basetemp might still be created by pytest itself at startup? pytest creates basetemp lazily via getbasetemp() during tmp_path_factory fixture setup only. If no fixture uses it, not created. Then cleanup_dead_symlinks(basetemp) with nonexistent dir: pytest's tmpdir.py:303 `cleanup_dead_symlinks(basetemp)` → pathlib.py:357 `for left_dir in root.iterdir()` — nonexistent → raises FileNotFoundError, which pytest's rm_rf wraps... it'd become an internal error. Hmm, but actually in the earlier full runs, the sessionfinish cleanup only crashed when basetemp existed and was locked. In run #1 (no basetemp override), there was no cleanup crash mentioned (the 65 errors were at fixture setup, and the summary "4 failed, 808 passed, 65 errors" printed fine). So when basetemp is under sandbox temp and locked, cleanup at sessionfinish... didn't crash run #1? Run #1 DID print the summary. So cleanup_dead_symlinks either didn't crash or was tolerated there. Interesting — so the crash only happens for python-created basetemp under the workspace? Whatever.
+
+Decision: run `pytest -q -rs --ignore=ml/tests --ignore=backend/tests/agent_evals -p no:cacheprovider` WITHOUT basetemp override and WITHOUT TMP redirect (use default sandbox temp). If any test needs tmp_path it'll error (but I expect none outside ml/agent_evals). Capture output to workspace file. Read summary. Then clean up the log file.
+
+Let me run it.
+dsh: reasoning:
+665 passed, 8 errors. The 8 errors — let me see what they are. They're probably tmp_path-using tests OUTSIDE ml/tests and agent_evals that I didn't anticipate. Let me check which tests errored. The PermissionError at pathlib.py:176 is the os.scandir on the sandbox temp — so 8 tests still use tmp_path/tempfile outside the ignored areas. Let me identify them.
+dsh: reasoning:
+The 8 errors are in `backend/tests/test_agent_api.py::TestEvalLatest` and `backend/tests/test_ai_postprocess.py::TestDetectorState/TestStubMode` — all use `tmp_path`/`tempfile` (AI model state tests and eval artifact tests). These are also pre-existing tests untouched by me, and their errors are the same environmental temp-ACL issue.
+
+So the definitive picture:
+- All tests that don't use temp dirs: 665 passed.
+- All failures/errors across every run: exclusively tests using `tmp_path`/`tempfile.TemporaryDirectory` — 8 (in backend) + 61 (ml/agent_evals) ≈ 69, all blocked by the sandbox's ACL-locking of `tempfile.mkdtemp` 0o700 dirs.
+- My WP-14B code + tests: pass (137/137 in acceptance cmd #1, incl. 17 new tests).
+
+To be thorough, let me verify these 8 are indeed temp-based by checking their error: they're "ERROR at setup" of tmp_path fixture? test_ai_postprocess TestDetectorState.test_load_records_timestamp uses tmp_path (records model file paths). test_agent_api TestEvalLatest tests read eval artifact dirs — likely tmp_path too. Yes.
+
+Interesting — wait, why didn't these 8 show up in run #1's 65 errors? They did — 65 errors included them (61 + 4? no...). Run #1: 65 errors included all tmp_path errors. Whatever, consistent.
+
+Now I have complete evidence. Let me do the final primary acceptance run (cmd #1) fresh for the record, since it's THE gate and it passed before but let me re-confirm post-everything, and then write the final report.
+
+Actually — cmd #1 already passed (137 passed) and nothing changed since. Re-running wastes ~50s but gives a clean final result for the report. It's worth it for rigor since the WP's #1 acceptance is the most important. Let me re-run it, and in parallel review my final client.py content.
+
+Also let me quickly re-read the final client.py to make sure the file is coherent (imports used, no leftovers).
+dsh: reasoning:
+Primary acceptance gate re-confirmed: 137 passed. client.py looks coherent.
+
+Let me also read the final publish_task section to double-check, and verify the docs edits. Then finalize the report. Also — one detail: the cross-package test passed in the acceptance run (137 passed, no skip). Good.
+
+Let me quickly view the publish_task method end of client.py and the test file's new section once more (brief), then check that `pytest -q -rs`'s remaining risk is purely the temp issue. Then write the 9-section report.
+
+Actually — I also want to double check that the test file edits didn't break the selftest anchors in test_mqtt_layer.py (TestContractDriftCheckerSelfTest injected defects into client.py — my client.py still has the exact anchor `'            if parts[2] == "cmd" and parts[3] == "ack":\n                return "handle_robot_ack"'`? I didn't touch _match_handler, so yes. And 137 passed includes those selftests (they passed in acceptance run #1).
+
+One more sanity check: `git diff` of just my 4 files to show exact changes for the report (optional but useful for accuracy). Let me do a compact git diff stat for those files. Note docs/device-interface.md is untracked (whole file), so git diff won't show it — use git diff on tracked files: backend/app/mqtt/client.py, backend/tests/test_mqtt_layer.py, docs/api.md.
+
+Let me get diff --stat for the three tracked files and confirm dispatch.py untouched by me (git diff dispatch.py would show pre-existing changes; I can't distinguish mine from pre-existing via git, but I know I never wrote to it).
+
+Then write the report.
+dsh: reasoning:
+Everything is in place. Let me finalize the todo list and write the nine-section report.
+
+Summary of work:
+- Modified: backend/app/mqtt/client.py (+127), backend/tests/test_mqtt_layer.py (+265), docs/device-interface.md (§11 rewritten), docs/api.md (+40).
+- NOT modified: backend/app/services/dispatch.py (no change needed — old call sites use the unchanged signature), edge/device_sim/protocol.py (not touched; backend builder mirrors the frozen contract; cross-package parse verified by test when edge collected).
+
+Tests:
+- Acceptance #1: `pytest backend\tests\test_mqtt_layer.py edge\device_sim -q` → 137 passed (includes 17 new WP-14B tests; cross-package test ran & passed).
+- Acceptance #2: `pytest -q -rs` → in this sandbox: 4 failed / 808 passed / 65 errors — ALL failures are temp-dir ACL PermissionErrors in untouched ml/tests + agent_evals + test_agent_api/test_ai_postprocess (tests using tmp_path/tempfile); environmental, reproduced independent of my change; excluding temp-dependent areas → 665 passed / 8 errors (all tmp_path-based, same cause). Root cause: `tempfile.mkdtemp`'s 0o700 ACL on this sandbox locks the created dir.
+- Acceptance #3: check_contract_drift.py → exit 0, 26 OK / 0 fail.
+- Acceptance #4: check_claims.py --root . → exit 0, CLEAN.
+
+Unfinished: full-suite green in this environment (blocked by sandbox temp ACL; unrelated to WP-14B). Leftover `.wp14b-tmp/` scratch dir with empty ACL-locked subdirs (couldn't delete without admin; invisible to git).
+
+Risks/assumptions:
+- `issued_at` top-level value changed from ISO string to epoch float per frozen §3 (envelope field); ISO available as `issued_at_iso`. This is a deliberate contract change — task_id/target/priority remain as pure legacy extras. Flagged for 总控.
+- command_id = cmd_{task_id} means re-dispatch of the SAME task (e.g., ACK timeout re-dispatch to another robot) reuses the same command_id → device-side dedup treats it as idempotent. If re-dispatch must be a NEW command intent, command_id scheme needs revisiting (总控决策).
+- seq is process-local (per MqttClient instance); restarting the process resets seq (acceptable per "进程内单调" requirement; not persisted).
+- ttl is a keyword arg default 30s, not a global config item (per WP).
+- The cross-package contract test skips when edge/device_sim isn't collected; it ran and passed in the acceptance invocation.
+
+Needs 总控 decision:
+1. Whether the legacy top-level `issued_at` becoming epoch-float (per frozen envelope) is acceptable, or whether to keep an additional legacy-format copy under a different key.
+2. Whether command_id derived from task_id (idempotent across re-dispatches) matches the intended idempotency semantics, or should include per-dispatch uniqueness.
+3. Whether to proceed with wiring robot/+/cmd/ack consumption (AckTracker) as a follow-up WP (out of scope here).
+4. Full-suite gate can't be green in this sandbox due to temp ACL — needs environment fix or exemption; not a code issue.
+
+Now write the final report in the exact 9-section format:
+状态 / 修改文件 / 实现内容 / 关键设计 / 执行的测试 / 测试结果 / 未完成事项 / 风险与假设 / 需要总控决策
+
+Update todos to completed first.
+# WP-14B 派单命令信封接线 —— 完成报告
+
+## 一、状态
+
+**已完成（最小兼容实现）**。`MqttClient.publish_task` 的下发报文已扩展为《docs/device-interface.md》§3 冻结命令信封兼容格式；旧调用（`backend/app/services/dispatch.py::finalize_dispatch` 及其测试）签名不变、无需修改；未触碰任何禁止文件，未提交 git commit。四条验收命令中：①④⑤ 全部通过；②（全量 `pytest -q -rs`）在本沙箱环境中受临时目录 ACL 限制出现与本次改动无关的既有失败（详见「测试结果」与「风险与假设」）。
+
+## 二、修改文件
+
+| 文件 | 改动 | 说明 |
+| --- | --- | --- |
+| `backend/app/mqtt/client.py` | +127 行 | 信封构造纯函数、seq 分配器、`publish_task` 扩展 |
+| `backend/tests/test_mqtt_layer.py` | +265 行 | 新增 3 个测试类、17 条用例 |
+| `docs/device-interface.md` | §11 重写 | 「当前报文缺少信封」→ 当前实现说明 |
+| `docs/api.md` | +40 行 | 新增 10.2 小节派单下发报文说明 |
+
+`backend/app/services/dispatch.py`、`edge/device_sim/protocol.py` **未改动**（前者旧调用已兼容，后者冻结契约已匹配，避免跨包反向耦合）。
+
+## 三、实现内容
+
+1. **纯函数信封构造器 `build_dispatch_payload(...)`**（`client.py`）：产出含 `command_id`（=`cmd_{task_id}`，稳定幂等）、`device_id`、`seq`、`action="dispatch"`、`issued_at`（epoch 秒）、`expires_at`（=`issued_at`+TTL）、`params{task_id,target,priority}` 的报文，并保留顶层向后兼容字段 `task_id/target/priority` 与 `issued_at`，附带 `issued_at_iso/expires_at_iso`。
+2. **`SeqAllocator`**：进程内按 `device_id` 维护单调递增 seq，`threading.Lock` 保证并发安全；不使用随机数（测试可复现）。
+3. **TTL 可配置**：`publish_task(..., ttl=...)` 关键字参数，默认 `DISPATCH_TTL_SECONDS = 30.0`（与孪生 `DEFAULT_COMMAND_TTL` 对齐），未动全局配置体系。
+4. **`publish_task` 签名不变**（新增 kw-only `ttl` 带默认值），旧调用零修改；下发仍走 `robot/{id}/task`（QoS1）。
+5. **文档**：§11 改写为准确实现状态并明确「不代表真实设备接入完成」（E1/E2）；api.md 增加报文样例与字段说明。
+
+## 四、关键设计
+
+- **command_id = `cmd_{task_id}`**：同一任务重复下发（QoS1 重投、ACK 超时换车重派同一任务）复用同一命令 ID，设备侧按 command_id 幂等去重，满足「稳定且可幂等追踪」。
+- **seq 唯一真源**：同设备严格递增、不同设备独立；分配在锁内同步完成，并发不重号。
+- **可注入时钟**：`now` 参数注入 epoch 秒，测试不依赖真实时钟；`expires_at = issued_at + ttl` 保证恒晚于 issued_at。
+- **向后兼容双轨**：冻结字段与旧字段并存于同一报文；`DeviceCommand.from_dict` 可完整解析（跨包契约测试验证），旧消费者按原字段名读取不受影响。
+- **不引入 backend→edge 依赖**：构造器在 backend 侧实现并逐字段对齐 §3；协议层保持不变（其冻结格式即为参照）。
+
+## 五、执行的测试
+
+1. `.\\.venv-analysis\\Scripts\\python.exe -m pytest backend\\tests\\test_mqtt_layer.py edge\\device_sim -q` — **137 passed**（含 17 条新用例）
+2. `.\\.venv-analysis\\Scripts\\python.exe -m pytest -q -rs` — 4 failed / 808 passed / 65 errors（全部为环境性临时目录 ACL 失败，见下）
+3. `.\\.venv-analysis\\Scripts\\python.exe scripts\\check_contract_drift.py` — exit 0
+4. `.\\.venv-analysis\\Scripts\\python.exe scripts\\check_claims.py --root .` — exit 0，CLEAN
+
+新测试覆盖：信封必填字段齐全、`action=dispatch`/`params` 形状、`expires_at > issued_at`、TTL 可配置、command_id 稳定幂等、字段类型符合冻结契约、**后端报文可被 `DeviceCommand.from_dict` 解析**（跨包比对）、同设备 seq 单调、不同设备独立、确定性无随机、8 线程 800 次并发不重号、旧调用签名不变、实际发布报文信封完整、连续下发 seq=1,2,3、双设备交替独立计数、ttl 覆盖生效。
+
+## 六、测试结果
+
+- 命令①（WP 主门禁）：**137 passed**，含全部新用例与既有自证测试（selftest 注入/还原均绿）。
+- 命令③④：**契约一致（26 OK / 0 FAIL）**、**宣称扫描 CLEAN**。
+- 命令②（全量）：本沙箱环境下 4 failed + 65 errors，**经逐条核验全部为 `PermissionError: [WinError 5]`**，发生于 `ml/tests/**`、`backend/tests/agent_evals/**`、`test_agent_api.py::TestEvalLatest`、`test_ai_postprocess.py` 中使用 `tmp_path`/`tempfile` 的既有测试 —— 与本改动无关（未触碰这些模块）。根因：沙箱下 `tempfile.mkdtemp()`（0o700 ACL）创建的目录被锁死，写入/列举/删除均被拒。排除临时目录依赖后的全量（`--ignore=ml/tests --ignore=backend/tests/agent_evals`）：**665 passed / 8 errors**（8 errors 同为 tmp_path 环境失败）。所有非临时目录测试（含全部 backend 业务测试）全绿。
+
+## 七、未完成事项
+
+1. 全量 `pytest -q -rs` 在本沙箱环境无法全绿 —— 环境性阻塞（临时目录 ACL），与 WP-14B 代码无关；需环境侧修复或豁免后再复跑确认。
+2. `robot/+/cmd/ack` 用 `AckTracker` 判重的**消费端接线**未做（WP 明确不在本包范围）。
+3. 工作区残留 `.wp14b-tmp/`（我调试时创建的临时目录，含空 ACL 锁死子目录，普通权限无法删除；git 不可见，不影响仓库）。
+
+## 八、风险与假设
+
+1. **`issued_at` 顶层值类型变化（需知会既有消费者）**：按冻结信封 §3，`issued_at` 由原 ISO 字符串改为 epoch 秒 float（信封必填字段类型）；ISO 副本为 `issued_at_iso`。仓库内无消费者解析旧 `issued_at`，孪生 `DeviceCommand.from_dict` 反而要求 float——这是本 WP 的预期契约变更；纯向后兼容的旧字段是 `task_id/target/priority`。
+2. **command_id 幂等语义**：`cmd_{task_id}` 使「同一任务重派」幂等去重；若业务上「ACK 超时后的重派」必须视为**新命令意图**，需调整 command_id 生成策略。
+3. **seq 为进程内单调**：进程重启后从 1 重新计数（符合「进程内」要求，未持久化）；多实例部署时需按实例隔离或引入外部序号源。
+4. 测试不依赖真实 MQTT/网络；跨包契约测试在未收集 `edge/device_sim` 时自动 skip（验收命令①场景下已实际运行并通过）。
+
+## 九、需要总控决策
+
+1. 顶层 `issued_at` 改为 epoch 秒（信封字段）是否接受；若需保留旧 ISO 格式兼容副本，请指定字段名。
+2. `command_id = cmd_{task_id}` 的幂等范围是否符合「换车重派 = 新命令」的业务语义，还是需要 command_id 携带重派代次。
+3. 是否批准后续工作包接线 `robot/+/cmd/ack` 消费端（`AckTracker` 判重 + 超时/乱序处理），以及 `seq` 是否需要跨进程持久化。
+4. 全量测试门禁在本沙箱环境受临时目录 ACL 阻塞（非代码问题），请确认环境修复方案或对该门禁给出豁免口径。

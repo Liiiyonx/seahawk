@@ -1,0 +1,480 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic bottle",
+    "plastic waste",
+    "garbage",
+    "fishing net",
+    "foam debris",
+    "marine debris",
+    "discarded shoe"
+  ],
+  "confidence_threshold": 0.02,
+  "iou_threshold": 0.45,
+  "image_size": 1600,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\beach.jpg",
+      "name": "beach.jpg",
+      "width": 4896,
+      "height": 3264,
+      "count": 8,
+      "detections": [
+        {
+          "class": "plastic bottle",
+          "confidence": 0.123421,
+          "bbox": [
+            495.849,
+            2732.971,
+            677.2,
+            3044.206
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.074989,
+          "bbox": [
+            2867.332,
+            3023.85,
+            2929.198,
+            3084.775
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.05693,
+          "bbox": [
+            1038.527,
+            2858.583,
+            1107.363,
+            2930.946
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.053032,
+          "bbox": [
+            3363.355,
+            486.185,
+            3838.631,
+            936.973
+          ]
+        },
+        {
+          "class": "foam debris",
+          "confidence": 0.030961,
+          "bbox": [
+            174.942,
+            1953.407,
+            419.925,
+            2150.368
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.021311,
+          "bbox": [
+            1639.882,
+            2813.067,
+            1797.381,
+            3057.169
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.021216,
+          "bbox": [
+            3016.643,
+            2511.143,
+            3097.474,
+            2578.415
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.020644,
+          "bbox": [
+            890.555,
+            258.763,
+            947.05,
+            359.18
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\foam.jpg",
+      "name": "foam.jpg",
+      "width": 6000,
+      "height": 4000,
+      "count": 3,
+      "detections": [
+        {
+          "class": "marine debris",
+          "confidence": 0.048038,
+          "bbox": [
+            4148.305,
+            1889.316,
+            4282.653,
+            1947.276
+          ]
+        },
+        {
+          "class": "marine debris",
+          "confidence": 0.035627,
+          "bbox": [
+            2732.801,
+            2108.775,
+            2813.165,
+            2202.604
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.023711,
+          "bbox": [
+            5841.073,
+            1959.778,
+            5982.401,
+            2013.572
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\midway.jpg",
+      "name": "midway.jpg",
+      "width": 6000,
+      "height": 4000,
+      "count": 7,
+      "detections": [
+        {
+          "class": "discarded shoe",
+          "confidence": 0.413309,
+          "bbox": [
+            3268.955,
+            157.24,
+            5831.621,
+            3121.535
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.15098,
+          "bbox": [
+            2532.955,
+            322.7,
+            5002.278,
+            1953.723
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.048203,
+          "bbox": [
+            5059.698,
+            3141.186,
+            5776.183,
+            3736.752
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.034692,
+          "bbox": [
+            2088.519,
+            1526.806,
+            5248.959,
+            3822.952
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.025483,
+          "bbox": [
+            573.721,
+            904.295,
+            2657.228,
+            2859.774
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.022125,
+          "bbox": [
+            2517.618,
+            1049.843,
+            4663.132,
+            2152.62
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.020194,
+          "bbox": [
+            3618.36,
+            1305.544,
+            5675.384,
+            2607.696
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\net.jpg",
+      "name": "net.jpg",
+      "width": 4608,
+      "height": 3456,
+      "count": 7,
+      "detections": [
+        {
+          "class": "fishing net",
+          "confidence": 0.106681,
+          "bbox": [
+            1015.813,
+            2113.296,
+            1593.107,
+            2839.854
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.080866,
+          "bbox": [
+            2359.053,
+            2056.175,
+            2391.584,
+            2096.736
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.057897,
+          "bbox": [
+            2403.137,
+            2057.66,
+            2470.338,
+            2096.803
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.055648,
+          "bbox": [
+            3959.597,
+            2544.805,
+            4040.791,
+            2611.84
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.038673,
+          "bbox": [
+            879.363,
+            1730.808,
+            1416.578,
+            2243.359
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.022721,
+          "bbox": [
+            1677.591,
+            1794.583,
+            1872.22,
+            2054.492
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.021878,
+          "bbox": [
+            1673.281,
+            1738.448,
+            1974.724,
+            2185.047
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\plastic.jpg",
+      "name": "plastic.jpg",
+      "width": 5184,
+      "height": 3434,
+      "count": 16,
+      "detections": [
+        {
+          "class": "discarded shoe",
+          "confidence": 0.293687,
+          "bbox": [
+            106.818,
+            2060.733,
+            204.796,
+            2108.631
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.141326,
+          "bbox": [
+            811.2,
+            2100.367,
+            877.28,
+            2138.625
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.110463,
+          "bbox": [
+            1532.788,
+            2890.463,
+            2038.041,
+            3316.778
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.070348,
+          "bbox": [
+            1066.672,
+            2435.239,
+            1128.806,
+            2466.869
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.053072,
+          "bbox": [
+            3501.965,
+            2287.198,
+            3616.368,
+            2339.748
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.048146,
+          "bbox": [
+            2001.956,
+            2234.223,
+            2070.515,
+            2262.16
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.047633,
+          "bbox": [
+            814.853,
+            2184.469,
+            876.279,
+            2208.605
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.046239,
+          "bbox": [
+            2971.778,
+            2184.261,
+            3129.302,
+            2237.555
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.038642,
+          "bbox": [
+            4427.235,
+            2221.647,
+            4530.019,
+            2271.512
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.037953,
+          "bbox": [
+            1278.798,
+            2336.957,
+            1336.478,
+            2374.121
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.033615,
+          "bbox": [
+            0.18,
+            1927.768,
+            124.92,
+            2010.483
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.033396,
+          "bbox": [
+            4850.551,
+            2135.849,
+            4927.112,
+            2187.118
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.031647,
+          "bbox": [
+            2903.209,
+            1913.469,
+            3071.702,
+            1999.428
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.022202,
+          "bbox": [
+            3960.555,
+            2253.896,
+            4053.123,
+            2298.896
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.022108,
+          "bbox": [
+            2507.252,
+            2223.833,
+            2589.191,
+            2276.105
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.021245,
+          "bbox": [
+            912.348,
+            2009.271,
+            956.592,
+            2051.667
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-candidates2\\bottle-danube.jpg",
+      "name": "bottle-danube.jpg",
+      "width": 1280,
+      "height": 853,
+      "count": 0,
+      "detections": []
+    }
+  ]
+}

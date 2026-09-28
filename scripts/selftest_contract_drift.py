@@ -20,9 +20,32 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
+
+# Windows 控制台默认 GBK：自证日志会回显捕获输出（含 ✅ / ⚠️ 等字符），
+# 先重配置 stdout/stderr 为 UTF-8，避免 print 抛 UnicodeEncodeError。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
+# 子进程（pytest / 检查脚本）必须显式以 UTF-8 输出：
+# 仅靠父进程 decoding="utf-8" 不够 —— 若控制台是 GBK 且未设
+# PYTHONIOENCODING，子进程会按 GBK 编码写出字节，父进程按 UTF-8
+# 解码得到乱码，证据行就匹配不上了。这里在子进程环境里强制 UTF-8。
+_UTF8_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"}
+
+# 捕获的子进程输出带 ANSI 颜色码，写进结果文件前剥掉，保持可复核文本干净。
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _clean(text: str) -> str:
+    return _ANSI_RE.sub("", text)
+
 
 ROOT = Path(__file__).resolve().parent.parent
 BACKEND = ROOT / "backend"
@@ -49,9 +72,10 @@ def run_checker() -> tuple[int, str]:
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=_UTF8_ENV,
         cwd=str(ROOT),
     )
-    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+    return proc.returncode, _clean((proc.stdout or "") + (proc.stderr or ""))
 
 
 def run_pytest(rel: str) -> tuple[int, str]:
@@ -62,9 +86,10 @@ def run_pytest(rel: str) -> tuple[int, str]:
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=_UTF8_ENV,
         cwd=str(BACKEND),
     )
-    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+    return proc.returncode, _clean((proc.stdout or "") + (proc.stderr or ""))
 
 
 def inject(
@@ -75,16 +100,24 @@ def inject(
     guard=None,
     evidence_marker: str = "[FAIL]",
 ) -> None:
-    """临时改一处代码，跑守卫，确认变红，然后还原。
+    """临时改一处代码，跑守卫，确认变红，然后**字节级原样还原**。
 
     guard            ：守卫运行器，默认跑 check_contract_drift.py；
                        传 run_pytest 的偏函数可验证测试型守卫。
     evidence_marker  ：从输出里挑证据行时用的标记。
+
+    ★ 字节级还原：Windows 上文本模式 write_text 会把 '\n' 翻成 '\r\n'，
+    还原后文件字节与原始不一致（git 出现假 M、mtime 搅动）。
+    因此这里始终以 read_bytes 读原始字节、write_bytes 写回，
+    锚点匹配与替换在内存中的 UTF-8 文本上进行，落盘字节前后完全一致。
     """
     global total
     total += 1
     run_guard = guard or run_checker
-    original = path.read_text(encoding="utf-8")
+    raw = path.read_bytes()
+    # 锚点匹配统一在 LF 文本上进行：Windows 检出文件多为 CRLF，
+    # 锚点字符串用 '\n' 书写，需先归一化，避免 CRLF 导致锚点失效。
+    original = raw.decode("utf-8").replace("\r\n", "\n")
     if old not in original:
         # ★ 锚点失效必须显式记账，不能静默跳过：
         #   否则源码一改，自证就悄悄少覆盖一项，而报告还是"看起来全过"。
@@ -94,7 +127,7 @@ def inject(
         log("         请更新本脚本的锚点字符串，否则该项自证已失效")
         return
     try:
-        path.write_text(original.replace(old, new, 1), encoding="utf-8")
+        path.write_bytes(original.replace(old, new, 1).encode("utf-8"))
         code, out = run_guard()
         if code != 0:
             evidence = next(
@@ -107,7 +140,7 @@ def inject(
             missed.append(label)
             log(f"  [FAIL] {label} —— 注入缺陷后守卫仍全绿，检查项失效！")
     finally:
-        path.write_text(original, encoding="utf-8")
+        path.write_bytes(raw)
 
 
 log("=" * 70)
@@ -264,6 +297,38 @@ else:
         log("\n".join(out_ws2.splitlines()[-15:]))
 
 code = 0 if (code == 0 and code_ws2 == 0) else 1
+
+# ---- 字节级还原自证 ----
+# Windows 文本模式写回会把 '\n' 翻成 '\r\n'，导致"还原后"文件字节与原始
+# 不一致（git 假 M、mtime 搅动）。这里对同一文件做一次注入→还原，
+# 断言前后 SHA256 完全一致 —— 不一致即自证失败。
+log("\n--- 字节级还原自证 ---")
+_byte_selfcheck_target = BACKEND / "app" / "mqtt" / "handlers.py"
+_raw_before = _byte_selfcheck_target.read_bytes()
+_text_before = _raw_before.decode("utf-8")
+_anchor = '    "returning": "collecting",'
+if _anchor not in _text_before:
+    log("  [SKIP] 字节级还原自证 —— handlers.py 锚点已变动")
+else:
+    _injected = _text_before.replace(
+        _anchor, '    "returning": "collecting",  # byte-selfcheck', 1
+    )
+    try:
+        _byte_selfcheck_target.write_bytes(_injected.encode("utf-8"))
+        _byte_selfcheck_target.write_bytes(_raw_before)
+    finally:
+        _byte_selfcheck_target.write_bytes(_raw_before)
+    _hash_before = hashlib.sha256(_raw_before).hexdigest()
+    _hash_after = hashlib.sha256(
+        _byte_selfcheck_target.read_bytes()
+    ).hexdigest()
+    if _hash_before == _hash_after:
+        log(f"  [PASS] 注入→还原后字节完全一致，SHA256 一致（{_hash_before[:16]}…）")
+    else:
+        missed.append("字节级还原自证")
+        log("  [FAIL] 注入→还原后字节不一致（git 会出现假 M）！")
+        log(f"         还原前 SHA256 = {_hash_before}")
+        log(f"         还原后 SHA256 = {_hash_after}")
 
 # ---- 汇总 ----
 log("\n" + "=" * 70)

@@ -1,0 +1,113 @@
+[
+  {
+    "viewport": {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\map-verification\\desktop-map.png",
+    "offline_visible": true,
+    "error_visible": 0,
+    "outline_path_length": 24934,
+    "marker_count": 27,
+    "marker_info_visible": true,
+    "zoom_changed": true,
+    "controls_overlap_tools": false,
+    "controls_overlap_badge": false,
+    "tools_overlap_badge": false,
+    "control_box": {
+      "x": 480.6875,
+      "y": 258.25,
+      "width": 42,
+      "height": 122
+    },
+    "tools_box": {
+      "x": 956.625,
+      "y": 258.25,
+      "width": 91,
+      "height": 105
+    },
+    "badge_box": {
+      "x": 480.6875,
+      "y": 587.015625,
+      "width": 140.421875,
+      "height": 43.984375
+    },
+    "page_errors": [],
+    "console_errors": []
+  },
+  {
+    "viewport": {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\map-verification\\mobile-map.png",
+    "offline_visible": true,
+    "error_visible": 0,
+    "outline_path_length": 24934,
+    "marker_count": 27,
+    "marker_info_visible": true,
+    "zoom_changed": true,
+    "controls_overlap_tools": false,
+    "controls_overlap_badge": false,
+    "tools_overlap_badge": false,
+    "control_box": {
+      "x": 23,
+      "y": 449.75,
+      "width": 42,
+      "height": 122
+    },
+    "tools_box": {
+      "x": 215,
+      "y": 447.75,
+      "width": 154,
+      "height": 61
+    },
+    "badge_box": {
+      "x": 23,
+      "y": 665.765625,
+      "width": 140.421875,
+      "height": 43.984375
+    },
+    "page_errors": [],
+    "console_errors": []
+  },
+  {
+    "viewport": {
+      "name": "mobile-narrow",
+      "width": 320,
+      "height": 568
+    },
+    "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\map-verification\\mobile-narrow-map.png",
+    "offline_visible": true,
+    "error_visible": 0,
+    "outline_path_length": 24934,
+    "marker_count": 27,
+    "marker_info_visible": true,
+    "zoom_changed": true,
+    "controls_overlap_tools": false,
+    "controls_overlap_badge": false,
+    "tools_overlap_badge": false,
+    "control_box": {
+      "x": 23,
+      "y": 311.390625,
+      "width": 42,
+      "height": 122
+    },
+    "tools_box": {
+      "x": 154,
+      "y": 309.390625,
+      "width": 145,
+      "height": 58
+    },
+    "badge_box": {
+      "x": 23,
+      "y": 507.40625,
+      "width": 140.421875,
+      "height": 43.984375
+    },
+    "page_errors": [],
+    "console_errors": []
+  }
+]

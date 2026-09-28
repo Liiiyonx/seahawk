@@ -24,9 +24,18 @@ services/consumer.py 等多处。手工拼装必然漂移。
 from __future__ import annotations
 
 import ast
+import sys
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
+
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from app.api.v1.auth import _issue_token  # noqa: E402
+from app.core.config import settings  # noqa: E402
+from app.main import create_app  # noqa: E402
 
 from app.ws.manager import (
     WS_MESSAGE_CONTRACT,
@@ -84,7 +93,7 @@ class TestContractDeclaration:
         [
             ("new_event", 8),      # api.md 列出 8 个字段
             ("task_update", 4),    # api.md 列出 4 个字段
-            ("robot_status", 5),   # api.md 列出 5 个字段
+            ("robot_status", 9),   # api.md 列出 9 个字段
         ],
     )
     def test_field_counts_match_doc(self, mtype: str, expected_min_fields: int) -> None:
@@ -160,6 +169,10 @@ class TestValidatePayload:
             "status": "idle",
             "lng": None,
             "lat": None,
+            "task_id": None,
+            "bins": {},
+            "heading": None,
+            "speed": None,
         }
         assert validate_payload("robot_status", with_none) == []
 
@@ -320,3 +333,37 @@ class TestFrontendConsumesKnownTypes:
         assert not undeclared, (
             f"前端在处理后端契约未声明的类型：{sorted(undeclared)}"
         )
+
+
+class TestProductionWebSocketAuth:
+    """Production WebSocket requires a signed token; development stays permissive."""
+
+    def test_forged_token_is_rejected_in_production(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(settings, "app_env", "production")
+        client = TestClient(create_app())
+        try:
+            with pytest.raises(WebSocketDisconnect) as exc_info:
+                with client.websocket_connect(
+                    "/api/v1/ws/alerts?token=forged-token"
+                ):
+                    pass
+            assert exc_info.value.code == 4401
+        finally:
+            client.close()
+
+    def test_valid_token_is_accepted_in_production(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(settings, "app_env", "production")
+        token = _issue_token("viewer", "viewer", None)
+        client = TestClient(create_app())
+        try:
+            with client.websocket_connect(
+                f"/api/v1/ws/alerts?token={token}"
+            ) as websocket:
+                welcome = websocket.receive_json()
+                assert welcome["type"] == "connected"
+        finally:
+            client.close()

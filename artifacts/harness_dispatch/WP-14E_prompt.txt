@@ -1,0 +1,111 @@
+【工作包】WP-14E 端到端闭环收口：启动恢复接线 + 设备序号持久化 + 孪生联调
+
+【上位文件】项目文档/探海灵眸_项目计划书.md
+【执行手册】项目文档/Harness_分工执行手册.md（必读第 7 节执行记录第 16~19 条，
+  本包是第 19 条「遗留、需后续工作包收口」的指定承接包；通用约束见第 5、6 节）
+
+【背景】
+WP-14C 让平台真正消费冻结 ACK 信封；WP-14D 把判定落成 `t_task_ack` 审计账本，
+提供 `TaskAckRepository.record_arrival` 与 `rebuild_ack_tracker`，并让
+`handle_robot_ack` 走「校验与判定 → 写账本 → 状态推进 → 提交」单事务。
+但截至 WP-14D 仍有三处未收口：
+(1) `rebuild_ack_tracker` 只是能力方法，未接入应用启动流程，重启后判重水位不自动恢复；
+(2) 设备孪生 `edge/device_sim` 的遥测 `seq` 只存在进程内存，重启后从头计数，
+    平台侧看到的序号会倒退；
+(3) 设备孪生到平台的 ACK 闭环没有一条可复现的端到端联调用例。
+
+【目标】
+把上面三处收口，使「设备孪生产生回执 → 平台消费 → 任务推进 → 落账本 →
+进程重启 → 重复回执不再重复推进」成为一条可在本机无 Broker 条件下复现的闭环。
+
+【允许新增】
+backend/tests/test_ack_startup_recovery.py
+backend/tests/test_ack_twin_loopback.py
+edge/device_sim/test_seq_persistence.py
+
+【允许修改】
+backend/app/main.py
+backend/app/mqtt/client.py
+edge/device_sim/device.py
+edge/device_sim/__init__.py
+edge/device_sim/test_device.py
+edge/device_sim/test_faults.py
+docs/device-interface.md
+docs/mqtt-topics.md
+docs/architecture.md
+
+【禁止修改】
+backend/app/services/dispatch.py
+backend/app/mqtt/ack.py
+backend/app/models/**
+backend/alembic/**
+backend/db/init/**
+frontend/**
+
+【实现要求】
+1. 启动恢复接线：应用 lifespan 启动阶段在 MQTT 客户端可用后，尝试用
+   `TaskAckRepository.rebuild_ack_tracker(mqtt_client.ack_tracker)` 从 `t_task_ack`
+   恢复判重水位。必须做到：
+   - 数据库不可用、表不存在或查询异常时**降级为 warning 并继续启动**，
+     绝不让启动失败（与现有「每步独立 try」的降级风格一致）；
+   - 恢复是幂等的，重复启动不叠加、不报错；
+   - 恢复耗时要有上界（例如超时或行数上限），不得让启动无限期挂起；
+   - 恢复结果（行数/耗时/是否降级）要能以可观测方式拿到（日志或健康检查字段），
+     不得静默。
+2. 设备孪生 `seq` 持久化：为 `edge/device_sim` 的遥测序号提供跨进程持久化：
+   - 路径可配置（环境变量或构造参数），**默认不写盘**，保持现有测试与行为不变；
+   - 落盘使用原子写（临时文件 + 替换），进程重启后序号严格单调递增，
+     不得回退到 0 或重复已用序号；
+   - 文件缺失或损坏时以 warning 降级（从 0 或最后一个可解析值开始），不得抛异常崩溃；
+   - 必须覆盖「写盘 → 新进程重新加载 → New 号 > 旧号」的跨进程断言，
+     且测试不得依赖真实网络。
+3. 孪生闭环联调（不依赖真实 Broker）：写一条端到端用例，串起
+   `edge/device_sim` 生成的冻结 ACK 信封 → 平台 `handle_robot_ack` →
+   任务状态推进 + `t_task_ack` 落账；再模拟进程重启（新建 AckTracker +
+   `rebuild_ack_tracker`）后重放同一回执，断言：
+   - 任务**不再**重复推进；
+   - 账本 `duplicate_count` 递增且首次规范回执未被覆盖；
+   - 身份不一致 / 未知任务 / 未登记 deadline 等负例仍按 WP-14C 语义拒绝，
+     且不污染 tracker、不写账本。
+   用例必须能在有 PostgreSQL 时走真实 scratch 库；无数据库时按既有模式
+   `pytest.skip` 并明确说明，不得用内存假设冒充实库结论。
+4. 文档同步：`docs/device-interface.md` 记录设备序号持久化与重启语义；
+   `docs/mqtt-topics.md` / `docs/architecture.md` 记录启动恢复行为与其边界
+   （`late` 判定对「发布后未 ACK」命令重启后仍不可恢复 —— 必须如实写明，
+   不得宣称完整恢复）。
+
+【工程约束】
+- 工作区很脏，包含大量他人未提交改动（含未跟踪文件）。只改本工作包允许的文件；
+  严禁 `git reset --hard`、`git checkout --`、`git clean`、严禁删除 artifacts/ 下任何文件。
+- 手工编辑一律用 `apply_patch`。
+- 不得删除、跳过、弱化既有测试；不得新增无断言占位测试。
+- 不得宣称真实成交、签约、回款、真实部署、真实设备接入或真实海域验证。
+  本轮闭环是**孪生/本地**证据，报告里必须这样表述，不得写成真实设备联调。
+- 当前本机 **1883 端口没有 MQTT Broker**；不要为此引入外部依赖或要求联网，
+  闭环用例请用进程内调用/注入方式构造。
+
+【验收命令】
+$env:PYTHONIOENCODING='utf-8'
+.\.venv-analysis\Scripts\python.exe -m pytest backend\tests\test_ack_startup_recovery.py backend\tests\test_ack_twin_loopback.py edge\device_sim\test_seq_persistence.py edge\device_sim\test_device.py edge\device_sim\test_faults.py backend\tests\test_mqtt_ack.py backend\tests\test_task_ack_persistence.py backend\tests\test_task_ack_api.py -q
+.\.venv-analysis\Scripts\python.exe -m pytest -q
+.\.venv-analysis\Scripts\python.exe -m compileall -q backend\app backend\alembic edge\device_sim
+.\.venv-analysis\Scripts\python.exe scripts\check_contract_drift.py
+.\.venv-analysis\Scripts\python.exe scripts\check_claims.py --root .
+
+注意：`backend\tests` 单独运行会有 1 条既有跨包跳过
+（test_mqtt_layer.py:799，`edge/device_sim` 未随本次运行收集时跳过），从仓库根目录
+全量运行时为 0 skipped。当前总控实测根目录全量基线为 **983 passed / 0 skipped / 0 failed**，
+本包新增用例应使其上升，不得下降。若本沙箱对 `tmp_path`/`tempfile` 目录迭代报
+`PermissionError`，那是已知环境限制，请在报告中如实标注并给出绕过基线（总控会在
+正常环境复跑确认），不得据此修改或删除既有用例。
+
+【输出格式】严格按下列字段回执：
+状态：完成 / 部分完成 / 阻塞
+修改文件：
+实现内容：
+关键设计：
+执行的测试：
+测试结果：
+未完成事项：
+风险与假设：
+需要总控决策：

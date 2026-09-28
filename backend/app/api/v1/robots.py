@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.db.session import get_session
 from app.core.exceptions import ApiResponse
+from app.db.session import get_session
 from app.repositories import DeviceRepository, TaskRepository
 from app.schemas import RobotOut
+from app.services.dispatch import _parse_point
 
 router = APIRouter()
 
@@ -27,13 +26,8 @@ async def list_robots(session: AsyncSession = Depends(get_session)):
 
     items: list[RobotOut] = []
     for device in devices:
-        row = (
-            await session.execute(
-                select(func.ST_X(device.location), func.ST_Y(device.location))
-            )
-        ).first()
-        lng = float(row[0]) if row and row[0] is not None else 0.0
-        lat = float(row[1]) if row and row[1] is not None else 0.0
+        point = _parse_point(device.location)
+        lng, lat = point if point is not None else (0.0, 0.0)
 
         meta = device.meta or {}
         active_tasks = await task_repo.list_active_tasks_for_robot(device.device_id)
@@ -63,13 +57,8 @@ async def get_robot(robot_id: str, session: AsyncSession = Depends(get_session))
     if device is None:
         raise NotFoundError(f"机器人 {robot_id} 不存在", code=2001)
 
-    row = (
-        await session.execute(
-            select(func.ST_X(device.location), func.ST_Y(device.location))
-        )
-    ).first()
-    lng = float(row[0]) if row and row[0] is not None else 0.0
-    lat = float(row[1]) if row and row[1] is not None else 0.0
+    point = _parse_point(device.location)
+    lng, lat = point if point is not None else (0.0, 0.0)
 
     meta = device.meta or {}
     active_tasks = await TaskRepository(session).list_active_tasks_for_robot(robot_id)

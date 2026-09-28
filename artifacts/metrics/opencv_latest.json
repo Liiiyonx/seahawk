@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "status": "not_evaluated",
+  "not_evaluated_reasons": [
+    "清单未就绪（status=planned）：未采集或未放行数据，禁止评测"
+  ],
+  "command": "python ml\\scripts\\evaluate_opencv.py --config ml\\configs\\seasight.yaml --output artifacts\\metrics\\opencv_latest.json",
+  "date": "2026-09-19T04:37:16+08:00",
+  "code_version": {
+    "source": "git",
+    "value": "1670ce97918e",
+    "fingerprint": "dab221ffd3ca497cc1a5b3dd3f0c48378b71409680cb5ee29fe763dedcd99b6e",
+    "note": "有 .git 时取 HEAD 短哈希；无 .git 时 value 为固定版本串，fingerprint 覆盖评测脚本/检测器/配置/清单"
+  },
+  "config": {
+    "path": "C:\\Users\\Liii\\Desktop\\seahawk\\ml\\configs\\seasight.yaml",
+    "hash": "7356dfe613c17a9ef92067acd1a41fdcf9a04a78ca74592ea8b56760086bb288",
+    "names": [
+      "foam",
+      "plastic",
+      "fishing_gear",
+      "other"
+    ]
+  },
+  "dependencies": {
+    "cv2": "4.10.0",
+    "numpy": "1.26.4",
+    "pyyaml": "6.0.3"
+  },
+  "dataset": {
+    "manifest_dir": "C:\\Users\\Liii\\Desktop\\seahawk\\ml\\datasets\\manifests",
+    "split": "test",
+    "manifest_present": true,
+    "empty": true,
+    "sample_size": 0,
+    "data_type": "synthetic",
+    "evidence_level": "E0",
+    "isolation": {
+      "method": "physical",
+      "physical_note": "独立目录树 ml/datasets/seasight_test/，与 train/val 根目录不同；仅评测脚本可读",
+      "logical_rule": "按日期+点位隔离：采集日期晚于 train/val 批次收尾日；点位与 train/val 不重叠；任何文件不得同时出现在 train|val 与本清单"
+    },
+    "manifest_name": "test_20260918_lianjiang_example",
+    "status": "planned"
+  },
+  "denominators": {},
+  "metrics": {
+    "per_class": {},
+    "temporal_pipeline": {}
+  },
+  "confounders": {}
+}

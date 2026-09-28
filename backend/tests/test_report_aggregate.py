@@ -1,24 +1,41 @@
-"""报表聚合的纯逻辑测试 + 接线守卫。
+"""报表聚合的纯逻辑测试 + 接线守卫 + WP-07 数据完整性语义。
 
 报表聚合的 SQL 依赖 PostgreSQL/PostGIS（conftest 约定单元测试不连库），
-所以这里分两层验证：
+所以这里分四层验证：
 1. **纯函数** `nearest_township`（乡镇归属唯一实现）—— 直接断言。
 2. **接线守卫**（AST/文本）—— 断言「定时任务真的挂上了」「手动端点
    真的调了聚合函数」，防止重演「docstring 声称有报表聚合、实现却没有」
    的静默缺陷。
 3. **真源对账** —— `TOWNSHIPS` 与 seed.sql、前端 constants.js 逐项一致，
    防止乡镇列表在第三处漂移。
+4. **coverage_area 诚实语义（WP-07）** —— 未统计=null（不是 0）、真实 0、
+   可用性三态（available/partial/not_available）；`aggregate_daily` 不得
+   裸写数字，必须走 `coverage_for_rows` 单一入口。
 """
 
 from __future__ import annotations
 
 import ast
 import re
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
-from app.services.report import TOWNSHIPS, nearest_township
+from app.services.report import (
+    COVERAGE_AVAILABLE,
+    COVERAGE_NOT_AVAILABLE,
+    COVERAGE_PARTIAL,
+    METRIC_DEFINITIONS,
+    REQUIRED_METRIC_FIELDS,
+    TOWNSHIPS,
+    CoverageReport,
+    aggregate_coverage,
+    coverage_availability,
+    coverage_for_rows,
+    coverage_summary_availability,
+    nearest_township,
+)
 
 
 # ----------------------------------------------------------------------
@@ -139,3 +156,116 @@ class TestAggregateWiring:
             if isinstance(node, ast.AsyncFunctionDef) and node.name == "aggregate_daily":
                 found = True
         assert found, "services/report.py 缺少 async aggregate_daily 函数"
+
+
+# ----------------------------------------------------------------------
+# 4. coverage_area 诚实语义（WP-07 数据完整性）
+# ----------------------------------------------------------------------
+class TestCoverageAreaSemantics:
+    """coverage_area 必须区分「未统计(null)」与「真实 0」，禁止估数冒充实测。"""
+
+    def test_no_source_aggregates_to_not_available(self) -> None:
+        """无任何上报记录 → None（未统计），不得当作 0 消费。"""
+        assert aggregate_coverage(None) is None
+        assert aggregate_coverage([]) is None
+
+    def test_null_records_are_skipped(self) -> None:
+        """聚合跳过 null 记录：全部为 null → None（未统计）。"""
+        assert aggregate_coverage([None, None]) is None
+
+    def test_with_source_aggregates_real_total_skipping_null(self) -> None:
+        """有上报记录 → 真实合计（两位小数，ROUND_HALF_UP）；跳过 null。"""
+        total = aggregate_coverage([Decimal("12.345"), None, 0, "5.5"])
+        assert total == Decimal("17.85")
+
+    def test_true_zero_distinct_from_not_available(self) -> None:
+        """有记录但合计为 0 → Decimal('0.00')（真实 0），结构上不等于 None。"""
+        zero = aggregate_coverage([0, 0])
+        assert zero == Decimal("0.00")
+        assert zero is not None
+
+    def test_availability_states(self) -> None:
+        """可用性三态：无记录→not_available；完整→available；部分→partial。"""
+        assert coverage_availability(0) == COVERAGE_NOT_AVAILABLE
+        assert coverage_availability(0, 5) == COVERAGE_NOT_AVAILABLE
+        assert coverage_availability(5, 5) == COVERAGE_AVAILABLE
+        assert coverage_availability(3, None) == COVERAGE_AVAILABLE
+        assert coverage_availability(2, 5) == COVERAGE_PARTIAL
+
+    def test_summary_availability_states(self) -> None:
+        """汇总层可用性：全未统计→not_available；全实测→available；部分→partial。"""
+        assert coverage_summary_availability(0, 0) == COVERAGE_NOT_AVAILABLE
+        assert coverage_summary_availability(0, 5) == COVERAGE_NOT_AVAILABLE
+        assert coverage_summary_availability(5, 5) == COVERAGE_AVAILABLE
+        assert coverage_summary_availability(3, 5) == COVERAGE_PARTIAL
+
+    def test_coverage_for_rows_no_map_is_not_available(self) -> None:
+        """无数据源（coverage_map 为空/None）→ (None, not_available)，不写 0。"""
+        assert coverage_for_rows(None, ("马鼻镇", "foam")) == (None, COVERAGE_NOT_AVAILABLE)
+        assert coverage_for_rows({}, ("马鼻镇", "foam")) == (None, COVERAGE_NOT_AVAILABLE)
+
+    def test_coverage_for_rows_missing_key_is_not_available(self) -> None:
+        """数据源存在但该行无记录 → (None, not_available)。"""
+        m = {("黄岐镇", "foam"): CoverageReport(Decimal("12.50"), COVERAGE_AVAILABLE)}
+        assert coverage_for_rows(m, ("马鼻镇", "foam")) == (None, COVERAGE_NOT_AVAILABLE)
+
+    def test_coverage_for_rows_present_returns_report(self) -> None:
+        """有记录 → 返回真实聚合值与可用性（原样透传，不吞掉 partial）。"""
+        m = {
+            ("马鼻镇", "foam"): CoverageReport(Decimal("12.50"), COVERAGE_AVAILABLE),
+            ("黄岐镇", "foam"): CoverageReport(Decimal("3.00"), COVERAGE_PARTIAL),
+        }
+        assert coverage_for_rows(m, ("马鼻镇", "foam")) == (Decimal("12.50"), COVERAGE_AVAILABLE)
+        assert coverage_for_rows(m, ("黄岐镇", "foam")) == (Decimal("3.00"), COVERAGE_PARTIAL)
+
+    def test_availability_declared_not_available(self) -> None:
+        """当前必须显式声明为 not_available，且口径表同步声明来源缺失、NULL 语义。"""
+        assert METRIC_DEFINITIONS["coverage_area"]["availability"] == "not_available"
+        assert "无" in METRIC_DEFINITIONS["coverage_area"]["来源"]
+        assert "NULL" in METRIC_DEFINITIONS["coverage_area"]["备注"]
+
+    def test_aggregate_daily_writes_null_and_availability_not_literal(self, project_root: Path) -> None:
+        """aggregate_daily 的 UPSERT 不得再裸写数字：
+
+        - .values(coverage_area=...) 实参不得是数字字面量（未统计必须 null，经 coverage_for_rows）；
+        - .values(coverage_availability=...) 必须存在（三态随行落库）。
+        """
+        tree = _parse(project_root / "backend/app/services/report.py")
+        fn = next(
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.AsyncFunctionDef) and node.name == "aggregate_daily"
+        )
+        calls = [node for node in ast.walk(fn) if isinstance(node, ast.Call)]
+        values_calls = [
+            c for c in calls
+            if isinstance(c.func, ast.Attribute) and c.func.attr == "values"
+        ]
+        assert values_calls, "aggregate_daily 找不到 .values(...) 调用 —— 守门失效"
+        literal_writes: list[str] = []
+        has_availability_kwarg = False
+        for c in values_calls:
+            for kw in c.keywords:
+                if kw.arg == "coverage_area" and isinstance(kw.value, ast.Constant):
+                    literal_writes.append(ast.unparse(kw.value))
+                if kw.arg == "coverage_availability":
+                    has_availability_kwarg = True
+        assert not literal_writes, (
+            f"aggregate_daily 仍在 .values(coverage_area=...) 写数字字面量"
+            f"{literal_writes} —— 未统计必须写 null，经 coverage_for_rows。"
+        )
+        assert has_availability_kwarg, (
+            "aggregate_daily 的 .values(...) 缺少 coverage_availability —— "
+            "可用性三态未随行落库。"
+        )
+
+    def test_metric_definitions_complete(self) -> None:
+        """报表每个对外指标都有 口径/分母/时间窗/来源 且非空。"""
+        expected = {"event_count", "task_count", "done_count", "collected_kg", "coverage_area"}
+        assert set(METRIC_DEFINITIONS) == expected, (
+            f"METRIC_DEFINITIONS 指标集合漂移：{set(METRIC_DEFINITIONS) ^ expected}"
+        )
+        for name, meta in METRIC_DEFINITIONS.items():
+            for field in REQUIRED_METRIC_FIELDS:
+                assert field in meta, f"{name} 缺指标字段 {field}"
+                assert str(meta[field]).strip(), f"{name} 的 {field} 为空"

@@ -17,12 +17,14 @@ export const useRealtimeStore = defineStore('realtime', () => {
   const robots = ref([])
   const heatmap = ref([])
   const taskFeed = ref([])           // 工单动态
+  const telemetryFeed = ref([])      // 机器人遥测原文（仿真报文流）
 
   const loading = ref(false)
   const error = ref('')
   const connected = ref(false)
 
   const MAX_FEED = 80
+  const MAX_TELEMETRY = 200
 
   // ---------- 派生 ----------
   const onlineDevices = computed(() => devices.value.filter((d) => d.status === 'online'))
@@ -41,6 +43,7 @@ export const useRealtimeStore = defineStore('realtime', () => {
         pushTask(msg.data)
       } else if (msg.type === 'robot_status' && msg.data) {
         patchRobot(msg.data)
+        pushTelemetry(msg.data, msg.ts)
       }
     },
     onError() {
@@ -88,6 +91,27 @@ export const useRealtimeStore = defineStore('realtime', () => {
     const idx = robots.value.findIndex((r) => r.robot_id === data.robot_id)
     if (idx >= 0) {
       robots.value[idx] = { ...robots.value[idx], ...data }
+      return 'updated'
+    }
+    // 仿真机器人可能在机器人列表首次加载完成后才出现；不能像旧实现那样
+    // 直接丢弃，否则地图与右侧资源面板会一直看不到遥测来源。
+    if (data?.robot_id) {
+      robots.value = [data, ...robots.value]
+      return 'inserted'
+    }
+    return 'ignored'
+  }
+
+  function pushTelemetry(data, receivedAt = null) {
+    if (!data?.robot_id) return
+    const item = {
+      ...data,
+      _receivedAt: receivedAt || new Date().toISOString(),
+      _key: `${data.robot_id}-${receivedAt || Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    }
+    telemetryFeed.value.unshift(item)
+    if (telemetryFeed.value.length > MAX_TELEMETRY) {
+      telemetryFeed.value = telemetryFeed.value.slice(0, MAX_TELEMETRY)
     }
   }
 
@@ -149,13 +173,13 @@ export const useRealtimeStore = defineStore('realtime', () => {
 
   return {
     // state
-    stats, recentEvents, devices, robots, heatmap, taskFeed,
+    stats, recentEvents, devices, robots, heatmap, taskFeed, telemetryFeed,
     loading, error, wsConnected, connected,
     // derived
     onlineDevices, onlineRobots,
     // actions
     startRealtime, stopRealtime, refreshAll,
     loadOverview, loadEvents, loadHeatmap,
-    pushEvent, pushTask, patchRobot,
+    pushEvent, pushTask, patchRobot, pushTelemetry,
   }
 })

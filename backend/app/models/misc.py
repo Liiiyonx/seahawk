@@ -12,12 +12,14 @@ from sqlalchemy import (
     DateTime,
     Enum as SAEnum,
     Index,
+    Integer,
     Numeric,
     SmallInteger,
     String,
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -75,7 +77,15 @@ class ReportDaily(Base):
     task_count: Mapped[int] = mapped_column(default=0)
     done_count: Mapped[int] = mapped_column(default=0)
     collected_kg: Mapped[Decimal] = mapped_column(Numeric(10, 3), default=0)
-    coverage_area: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)
+    # WP-07：coverage_area 可空 —— NULL=未统计（无可靠数据源），与「真实 0」区分；
+    # 未统计禁止以 0 冒充实测。可用性三态见 app.services.report.coverage_availability。
+    coverage_area: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    coverage_availability: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="not_available",
+        server_default=text("'not_available'"),
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -86,17 +96,18 @@ class ReportDaily(Base):
 
 
 class UserRole:
-    """用户角色：admin=全部 / operator=本辖区 / viewer=只读大屏。"""
+    """用户角色：admin=全部 / operator=本辖区写 / approver=审批 / viewer=只读。"""
 
     ADMIN = "admin"
     OPERATOR = "operator"
+    APPROVER = "approver"
     VIEWER = "viewer"
 
-    ALL = (ADMIN, OPERATOR, VIEWER)
+    ALL = (ADMIN, OPERATOR, APPROVER, VIEWER)
 
 
 class User(Base):
-    """用户表。政务项目对数据权限敏感，三级角色不能省。"""
+    """用户表。政务项目对审批和写权限敏感，角色分层不能省。"""
 
     __tablename__ = "t_user"
 
@@ -130,7 +141,11 @@ class AuditLog(Base):
 
     __tablename__ = "t_audit_log"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True,
+        autoincrement=True,
+    )
     username: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     role: Mapped[str] = mapped_column(String(16), nullable=False)
     action: Mapped[str] = mapped_column(String(64), nullable=False)

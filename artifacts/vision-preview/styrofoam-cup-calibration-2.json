@@ -1,0 +1,92 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "broken styrofoam cup",
+    "damaged foam cup",
+    "polystyrene cup"
+  ],
+  "confidence_threshold": 0.006,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\frontend\\public\\demo\\styrofoam-cup-4k.webp",
+      "name": "styrofoam-cup-4k.webp",
+      "width": 3840,
+      "height": 2876,
+      "count": 7,
+      "detections": [
+        {
+          "class": "polystyrene cup",
+          "confidence": 0.101107,
+          "bbox": [
+            1431.494,
+            1301.649,
+            2554.065,
+            2561.898
+          ]
+        },
+        {
+          "class": "polystyrene cup",
+          "confidence": 0.035513,
+          "bbox": [
+            1986.392,
+            1315.07,
+            2553.448,
+            2108.592
+          ]
+        },
+        {
+          "class": "polystyrene cup",
+          "confidence": 0.02903,
+          "bbox": [
+            654.923,
+            405.356,
+            737.742,
+            486.957
+          ]
+        },
+        {
+          "class": "damaged foam cup",
+          "confidence": 0.022809,
+          "bbox": [
+            1536.39,
+            1126.759,
+            2617.612,
+            2321.448
+          ]
+        },
+        {
+          "class": "damaged foam cup",
+          "confidence": 0.020637,
+          "bbox": [
+            655.29,
+            405.485,
+            737.212,
+            487.388
+          ]
+        },
+        {
+          "class": "damaged foam cup",
+          "confidence": 0.016565,
+          "bbox": [
+            1586.854,
+            422.815,
+            1695.223,
+            484.927
+          ]
+        },
+        {
+          "class": "polystyrene cup",
+          "confidence": 0.006266,
+          "bbox": [
+            1584.132,
+            422.281,
+            1694.17,
+            495.889
+          ]
+        }
+      ]
+    }
+  ]
+}

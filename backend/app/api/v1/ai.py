@@ -10,12 +10,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import sys
 from pathlib import Path
 
 from fastapi import APIRouter, File, UploadFile
 
-from app.core.exceptions import ApiResponse
+from app.core.exceptions import ApiResponse, ErrorCode
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ AGENTS: list[dict] = [
         "role": "海漂垃圾识别",
         "status": "running",
         "capabilities": ["OpenCV 检测", "时序校验", "四类别分类", "反光抑制"],
-        "description": "把摄像头画面变成结构化事件：泡沫、塑胶、渔具、其他四类识别，误报由时序校验压制，抑制率 76%。",
+        "description": "把摄像头画面变成结构化事件：泡沫、塑胶、渔具、其他四类识别；合成链路时序误报抑制率约 76%（被过滤检测数 / 输入检测数），不代表识别精度。",
     },
     {
         "id": "dispatch",
@@ -102,8 +103,21 @@ AGENTS: list[dict] = [
 
 @router.get("/agents", summary="智能体列表")
 async def list_agents():
-    """返回平台全部智能体的定义与状态（前端智能体页展示）。"""
-    return ApiResponse.ok(AGENTS)
+    """返回平台全部智能体的定义与真实运行时状态（前端智能体页展示）。
+
+    能力目录与运行实例是两个概念：这些条目描述平台已实现的能力，
+    `status` 则来自进程内 Agent Runtime 的真实快照。无活跃运行时
+    显示 idle，不能用硬编码 running 把「有代码」冒充「正在执行」。
+    """
+    try:
+        from app.api.v1.agents import get_agent_runtime
+
+        runtime_status = get_agent_runtime().status()
+        status = runtime_status.state
+    except Exception:  # noqa: BLE001
+        status = "unavailable"
+
+    return ApiResponse.ok([{**agent, "status": status} for agent in AGENTS])
 
 
 @router.post("/analyze-image", summary="图片分析（OpenCV 检测）")
@@ -111,12 +125,27 @@ async def analyze_image(file: UploadFile = File(...)):
     """上传图片 → OpenCV 检测 → 返回检测结果（类别/置信度/框）。
 
     图片解码失败、无检测框都正常返回（不抛异常），前端据此展示。
-    """
-    from edge.detector.detector import CLASS_NAMES, CvDetector
 
-    # cv2/numpy 只在真正分析图片时才 import，避免缺依赖时影响整个 API 导入
-    import cv2
-    import numpy as np
+    依赖说明（线上踩过的坑）：本接口需要 cv2 + numpy，以及仓库根的 edge/ 包。
+    两者都不在 backend 镜像的默认构建范围内 —— 依赖装在
+    backend/requirements.txt，edge/ 由 docker-compose 只读挂载到容器内的 /edge。
+    缺任一项都会 ImportError。这里显式接住并返回可读的业务错误，
+    而不是让异常穿出去变成「服务器内部错误」——
+    否则线上只会看到一个 500 和一个 trace_id，完全不知道是缺件。
+    """
+    try:
+        from edge.detector.detector import CLASS_NAMES, CvDetector
+
+        import cv2
+        import numpy as np
+    except ImportError as exc:  # noqa: BLE001
+        return ApiResponse.fail(
+            code=ErrorCode.AI_SERVICE_UNAVAILABLE,
+            message=(
+                f"图片检测组件不可用（{exc}）：请确认镜像已安装 opencv/numpy，"
+                "且 edge/ 已挂载到容器"
+            ),
+        )
 
     data = await file.read()
     if not data:
@@ -127,8 +156,10 @@ async def analyze_image(file: UploadFile = File(...)):
     if img is None:
         return ApiResponse.fail(code=4001, message="无法解析图片，请上传 jpg/png 格式")
 
+    # 检测是 CPU 密集 + 同步，放线程池执行，避免阻塞事件循环
+    # （与 services/assistant/tools.py 的 image.analyze 保持同一处理方式）
     detector = CvDetector()
-    detections = detector.detect(img)
+    detections = await asyncio.to_thread(detector.detect, img)
 
     return ApiResponse.ok(
         {

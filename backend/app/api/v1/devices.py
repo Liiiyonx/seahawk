@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import quote
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +15,26 @@ from app.repositories import DeviceRepository, TaskRepository
 from app.schemas import DeviceOut, RobotOut
 
 router = APIRouter()
+
+
+def _stream_key(device) -> str:
+    """返回 go2rtc 流 key；必须与 deploy/go2rtc/go2rtc.yaml 完全一致。"""
+    if device.meta and device.meta.get("stream_key"):
+        return str(device.meta["stream_key"]).strip()
+    return str(device.device_id).strip()
+
+
+def _stream_url(device, endpoint: str) -> str:
+    """构造浏览器可达的视频地址。
+
+    默认返回同源相对路径，由前端 Nginx 的 /stream/ 代理到 go2rtc。只有
+    显式配置 STREAM_PUBLIC_BASE_URL 时才返回该基地址，避免把容器内的
+    ``go2rtc:1984`` 暴露给浏览器。
+    """
+    key = quote(_stream_key(device), safe="")
+    path = f"/stream/api/{endpoint}?src={key}"
+    base = settings.stream_public_base_url.rstrip("/")
+    return f"{base}{path}" if base else path
 
 
 async def _to_device_out(session: AsyncSession, device) -> DeviceOut:
@@ -31,7 +53,11 @@ async def _to_device_out(session: AsyncSession, device) -> DeviceOut:
         lat=lat,
         status=device.status,
         last_heartbeat=device.last_heartbeat,
-        stream_url=device.stream_url,
+        stream_url=(
+            _stream_url(device, "stream.flv")
+            if device.device_type == "shore_camera"
+            else device.stream_url
+        ),
         meta=device.meta or {},
     )
 
@@ -73,16 +99,11 @@ async def get_stream_url(device_id: str, session: AsyncSession = Depends(get_ses
     if device is None:
         raise NotFoundError(f"设备 {device_id} 不存在", code=2001)
 
-    # go2rtc 标准播放地址
-    stream_key = device.meta.get("stream_key") if device.meta else None
-    if not stream_key:
-        stream_key = device_id.lower().replace("_", "")
-
     return ApiResponse.ok(
         {
             "device_id": device_id,
-            "flv_url": f"{settings.stream_base_url}/api/stream.flv?src={stream_key}",
-            "webrtc_url": f"{settings.stream_base_url}/api/webrtc?src={stream_key}",
-            "hls_url": f"{settings.stream_base_url}/api/stream.m3u8?src={stream_key}",
+            "flv_url": _stream_url(device, "stream.flv"),
+            "webrtc_url": _stream_url(device, "webrtc"),
+            "hls_url": _stream_url(device, "stream.m3u8"),
         }
     )

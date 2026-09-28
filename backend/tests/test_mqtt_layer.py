@@ -19,11 +19,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import inspect
 
 import pytest
 
-from app.mqtt.client import MqttClient
+from app.mqtt.client import (
+    DISPATCH_TTL_SECONDS,
+    MqttClient,
+    SeqAllocator,
+    build_dispatch_payload,
+    command_id_for_task,
+)
 from app.mqtt.handlers import (
     ROBOT_STATUS_MAP,
     _device_from_topic,
@@ -603,7 +610,14 @@ class TestContractDriftCheckerSelfTest:
 
         checker = project_root / "scripts" / "check_contract_drift.py"
         client_py = project_root / "backend" / "app" / "mqtt" / "client.py"
-        original = client_py.read_text(encoding="utf-8")
+        # 字节级注入/还原：read_text/write_text 在 Windows 上会把 LF 翻成
+        # CRLF（或反之），导致还原后字节不一致、锚点偶发失效（既有 flaky）。
+        # 这里按目标文件实际行尾构造字节锚点，最终写回原始 bytes。
+        original = client_py.read_bytes()
+        nl = b"\r\n" if b"\r\n" in original else b"\n"
+
+        def _b(s: str) -> bytes:
+            return s.replace("\n", nl.decode()).encode("utf-8")
 
         good = (
             '            if parts[2] == "cmd" and parts[3] == "ack":\n'
@@ -615,11 +629,11 @@ class TestContractDriftCheckerSelfTest:
             '                return "handle_robot_ack"'
         )
 
-        if good not in original:
+        if _b(good) not in original:
             pytest.skip("client.py 路由实现已变动，自证锚点失效 —— 请更新本条测试")
 
         try:
-            client_py.write_text(original.replace(good, bad, 1), encoding="utf-8")
+            client_py.write_bytes(original.replace(_b(good), _b(bad), 1))
             proc = subprocess.run(
                 [sys.executable, str(checker)],
                 capture_output=True,
@@ -633,7 +647,7 @@ class TestContractDriftCheckerSelfTest:
                 "该检查项已失效，必须修复后才能依赖它"
             )
         finally:
-            client_py.write_text(original, encoding="utf-8")
+            client_py.write_bytes(original)
 
     def test_checker_restored_after_selftest(self, project_root) -> None:
         """自证注入必须还原干净，否则会污染后续测试与工作区。"""
@@ -675,6 +689,247 @@ class TestContractDriftCheckerSelfTest:
             )
         )
         assert "锚点失效   : 0" in out, f"有注入项锚点失效，自证覆盖率下降：\n{out[-600:]}"
+
+
+# ======================================================================
+# WP-14B：派单命令信封（冻结契约真源：docs/device-interface.md §3）
+# ======================================================================
+# 冻结信封必填字段（action/params 单独校验，这里只列"缺一不可"的五字段
+# 加 action/params 两个结构字段）
+ENVELOPE_KEYS = (
+    "command_id",
+    "device_id",
+    "seq",
+    "issued_at",
+    "expires_at",
+    "action",
+    "params",
+)
+LEGACY_TOP_LEVEL_KEYS = ("task_id", "target", "priority")
+
+
+def _dispatch_payload(**overrides) -> dict:
+    """构造一份确定性派单报文（注入 now，不用真实时钟）。"""
+    base = dict(
+        robot_id="RBT-001",
+        task_id="tsk_wp14b_0001",
+        lng=119.66,
+        lat=26.39,
+        priority=1,
+        seq=1,
+        now=1758230400.0,
+        ttl=DISPATCH_TTL_SECONDS,
+    )
+    base.update(overrides)
+    return build_dispatch_payload(**base)
+
+
+class TestDispatchEnvelope:
+    """`build_dispatch_payload` 必须产出冻结命令信封兼容的派单报文。"""
+
+    def test_envelope_required_fields_present(self) -> None:
+        """信封必填字段一个都不能少（§3 冻结五字段 + action + params）。"""
+        payload = _dispatch_payload()
+        for key in ENVELOPE_KEYS:
+            assert key in payload, f"信封缺少必填字段 {key}"
+        assert set(ENVELOPE_KEYS) <= set(payload)
+
+    def test_action_is_dispatch_and_params_shape(self) -> None:
+        """action 固定为 dispatch；params 内含 task_id/target/priority。"""
+        payload = _dispatch_payload()
+        assert payload["action"] == "dispatch"
+        assert payload["params"] == {
+            "task_id": "tsk_wp14b_0001",
+            "target": {"lng": 119.66, "lat": 26.39},
+            "priority": 1,
+        }
+
+    def test_expires_at_after_issued_at(self) -> None:
+        """expires_at 必须晚于 issued_at（TTL 默认 30s）。"""
+        payload = _dispatch_payload(now=1758230400.0)
+        assert payload["expires_at"] > payload["issued_at"]
+        assert payload["expires_at"] == 1758230400.0 + DISPATCH_TTL_SECONDS
+
+    def test_ttl_configurable(self) -> None:
+        """TTL 可配置：expires_at = issued_at + ttl。"""
+        payload = _dispatch_payload(now=100.0, ttl=7.5)
+        assert payload["expires_at"] == pytest.approx(107.5)
+
+    def test_legacy_top_level_fields_kept(self) -> None:
+        """向后兼容：顶层 task_id/target/priority 必须原样保留。"""
+        payload = _dispatch_payload(priority=3)
+        for key in LEGACY_TOP_LEVEL_KEYS:
+            assert key in payload, f"向后兼容字段 {key} 丢失"
+        assert payload["task_id"] == "tsk_wp14b_0001"
+        assert payload["target"] == {"lng": 119.66, "lat": 26.39}
+        assert payload["priority"] == 3
+        # issued_at 顶层字段名保留（值按冻结信封为 epoch 秒，见 §3）
+        assert "issued_at" in payload
+        assert isinstance(payload["issued_at"], float)
+
+    def test_command_id_stable_per_task(self) -> None:
+        """command_id 必须稳定：同一任务重复下发复用同一命令 ID（幂等）。"""
+        first = _dispatch_payload(seq=1, now=1.0)
+        retry = _dispatch_payload(seq=2, now=2.0)  # 同一任务的再次下发
+        assert first["command_id"] == retry["command_id"]
+        assert first["command_id"] == command_id_for_task("tsk_wp14b_0001")
+        assert first["command_id"] == "cmd_tsk_wp14b_0001"
+
+    def test_field_types_match_frozen_contract(self) -> None:
+        """信封字段类型必须与 §3 冻结契约一致（可被 DeviceCommand 解析）。"""
+        payload = _dispatch_payload()
+        assert isinstance(payload["command_id"], str)
+        assert isinstance(payload["device_id"], str)
+        assert isinstance(payload["seq"], int)
+        assert isinstance(payload["issued_at"], float)
+        assert isinstance(payload["expires_at"], float)
+        assert isinstance(payload["action"], str)
+        assert isinstance(payload["params"], dict)
+
+    def test_payload_parseable_by_frozen_contract(self) -> None:
+        """★ 后端报文必须能直接被孪生 `DeviceCommand.from_dict` 解析。
+
+        与 edge/device_sim 的冻结契约做一次真实跨包比对；若该包不在
+        sys.path（单跑 backend/tests 时）则跳过，不做网络/MQTT 依赖。
+        """
+        payload = _dispatch_payload()
+        try:
+            from device_sim.protocol import DeviceCommand
+        except ImportError:
+            pytest.skip("edge/device_sim 未随本次运行收集，跳过跨包契约比对")
+        cmd = DeviceCommand.from_dict(payload)
+        assert cmd.device_id == "RBT-001"
+        assert cmd.action == "dispatch"
+        assert cmd.seq == 1
+        assert cmd.params["task_id"] == "tsk_wp14b_0001"
+        assert cmd.params["target"] == {"lng": 119.66, "lat": 26.39}
+
+
+class TestDispatchSeqAllocator:
+    """seq 必须同 device_id 进程内单调递增，且不同设备互相独立。"""
+
+    def test_monotonic_per_device(self) -> None:
+        alloc = SeqAllocator()
+        assert [alloc.next("RBT-001") for _ in range(5)] == [1, 2, 3, 4, 5]
+
+    def test_devices_independent(self) -> None:
+        """不同设备各自从 1 起计，互不干扰。"""
+        alloc = SeqAllocator()
+        assert alloc.next("RBT-001") == 1
+        assert alloc.next("RBT-002") == 1
+        assert alloc.next("RBT-001") == 2
+        assert alloc.next("RBT-002") == 2
+        assert alloc.next("RBT-003") == 1
+
+    def test_deterministic_no_randomness(self) -> None:
+        """两个独立分配器对同一设备产出完全相同的序列（不得依赖随机数）。"""
+        a, b = SeqAllocator(), SeqAllocator()
+        seq_a = [a.next("RBT-001") for _ in range(3)]
+        seq_b = [b.next("RBT-001") for _ in range(3)]
+        assert seq_a == seq_b == [1, 2, 3]
+
+    def test_concurrent_calls_do_not_collide(self) -> None:
+        """并发调用不重号：多线程抢占下每个序号仍只出现一次。"""
+        import threading
+
+        alloc = SeqAllocator()
+        results: list[int] = []
+        lock = threading.Lock()
+
+        def worker() -> None:
+            for _ in range(100):
+                with lock:
+                    results.append(alloc.next("RBT-001"))
+
+        threads = [threading.Thread(target=worker) for _ in range(8)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        assert sorted(results) == list(range(1, 801)), (
+            "并发分配出现重号或漏号：seq 必须严格单调"
+        )
+
+
+class TestPublishTaskIntegration:
+    """`publish_task` 集成行为：旧调用签名不变，报文带完整信封。"""
+
+    def _capture(self, monkeypatch: pytest.MonkeyPatch) -> tuple[MqttClient, list[dict], list[str]]:
+        """用假 publish 捕获 (topic, payload)，不触任何 MQTT/网络。"""
+        client = MqttClient()
+        payloads: list[dict] = []
+        topics: list[str] = []
+
+        async def fake_publish(
+            topic: str, payload: dict, *, qos: int = 1, retain: bool = False
+        ) -> bool:
+            topics.append(topic)
+            payloads.append(payload)
+            return True
+
+        monkeypatch.setattr(client, "publish", fake_publish)
+        return client, payloads, topics
+
+    def test_legacy_call_signature_unchanged(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """旧调用（positional + 原字段名）无需任何修改即可下发。"""
+        client, payloads, topics = self._capture(monkeypatch)
+        ok = asyncio.run(
+            client.publish_task("RBT-001", "tsk_legacy_001", 119.6, 26.3, 1)
+        )
+        assert ok is True
+        assert topics == [Topics.robot_task("RBT-001")]
+        assert len(payloads) == 1
+
+    def test_published_payload_is_envelope_compatible(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        client, payloads, _ = self._capture(monkeypatch)
+        asyncio.run(client.publish_task("RBT-001", "tsk_env_001", 119.6, 26.3, 2))
+        payload = payloads[0]
+        for key in ENVELOPE_KEYS:
+            assert key in payload, f"实际发布报文缺少信封字段 {key}"
+        assert payload["device_id"] == "RBT-001"
+        assert payload["action"] == "dispatch"
+        assert payload["params"]["priority"] == 2
+        assert payload["task_id"] == "tsk_env_001"
+        assert payload["priority"] == 2
+        assert payload["expires_at"] > payload["issued_at"]
+
+    def test_seq_monotonic_across_publish_calls(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """同一客户端对同一设备连续下发，seq 必须 1,2,3…。"""
+        client, payloads, _ = self._capture(monkeypatch)
+        for i in range(3):
+            asyncio.run(
+                client.publish_task("RBT-001", f"tsk_seq_{i}", 119.6, 26.3, 1)
+            )
+        assert [p["seq"] for p in payloads] == [1, 2, 3]
+
+    def test_seq_per_device_independent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """两台设备交替下发，seq 各自独立计数。"""
+        client, payloads, _ = self._capture(monkeypatch)
+        plan = [
+            ("RBT-001", "tsk_a1"),
+            ("RBT-002", "tsk_b1"),
+            ("RBT-001", "tsk_a2"),
+            ("RBT-002", "tsk_b2"),
+        ]
+        for robot_id, task_id in plan:
+            asyncio.run(client.publish_task(robot_id, task_id, 119.6, 26.3, 1))
+        seqs = [p["seq"] for p in payloads]
+        assert seqs == [1, 1, 2, 2]
+
+    def test_ttl_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """`publish_task(ttl=...)` 可覆盖默认 TTL。"""
+        client, payloads, _ = self._capture(monkeypatch)
+        asyncio.run(
+            client.publish_task("RBT-001", "tsk_ttl_001", 119.6, 26.3, 1, ttl=5.0)
+        )
+        payload = payloads[0]
+        assert payload["expires_at"] - payload["issued_at"] == pytest.approx(5.0)
 
 
 

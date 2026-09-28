@@ -1,0 +1,106 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic bottle",
+    "plastic waste",
+    "garbage",
+    "fishing net",
+    "foam debris",
+    "marine debris",
+    "discarded shoe"
+  ],
+  "confidence_threshold": 0.02,
+  "iou_threshold": 0.45,
+  "image_size": 1600,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\beach.jpg",
+      "name": "beach.jpg",
+      "width": 4896,
+      "height": 3264,
+      "count": 8,
+      "detections": [
+        {
+          "class": "plastic bottle",
+          "confidence": 0.123421,
+          "bbox": [
+            495.849,
+            2732.971,
+            677.2,
+            3044.206
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.074989,
+          "bbox": [
+            2867.332,
+            3023.85,
+            2929.198,
+            3084.775
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.05693,
+          "bbox": [
+            1038.527,
+            2858.583,
+            1107.363,
+            2930.946
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.053032,
+          "bbox": [
+            3363.355,
+            486.185,
+            3838.631,
+            936.973
+          ]
+        },
+        {
+          "class": "foam debris",
+          "confidence": 0.030961,
+          "bbox": [
+            174.942,
+            1953.407,
+            419.925,
+            2150.368
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.021311,
+          "bbox": [
+            1639.882,
+            2813.067,
+            1797.381,
+            3057.169
+          ]
+        },
+        {
+          "class": "discarded shoe",
+          "confidence": 0.021216,
+          "bbox": [
+            3016.643,
+            2511.143,
+            3097.474,
+            2578.415
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.020644,
+          "bbox": [
+            890.555,
+            258.763,
+            947.05,
+            359.18
+          ]
+        }
+      ]
+    }
+  ]
+}

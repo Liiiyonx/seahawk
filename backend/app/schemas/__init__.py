@@ -200,6 +200,30 @@ class TaskOut(BaseModel):
     remark: str | None
 
 
+class TaskAckOut(BaseModel):
+    """任务 ACK 审计行（WP-14D）。
+
+    ★ 隐私边界：**不回传** ``raw_payload`` / ``last_payload`` ——
+    首次规范回执原文只留在审计账本里，查询接口只暴露判定结论
+    （outcome/accepted/reason/mode）与时间线（received_at /
+    received_wall_at）及重复次数。
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    command_id: str
+    task_id: str
+    device_id: str
+    seq: int
+    outcome: str                       # new/duplicate/late/out_of_order
+    accepted: bool
+    reason: str | None = None
+    mode: str | None = None
+    received_at: datetime              # 设备回执时间
+    received_wall_at: datetime         # 平台首次落库时间
+    duplicate_count: int = 0
+
+
 # ============================================================
 # 设备 / 机器人
 # ============================================================
@@ -250,6 +274,38 @@ class RobotTelemetry(BaseModel):
 
 
 # ============================================================
+# Agent 运行 API
+# ============================================================
+from app.schemas.agent import (  # noqa: E402
+    AgentApprovalDecision,
+    AgentApprovalOut,
+    AgentDecisionOut,
+    AgentEvalOut,
+    AgentLessonOut,
+    AgentRunCancel,
+    AgentRunCreate,
+    AgentRunOut,
+    AgentRuntimeStatusOut,
+    AgentStepOut,
+    AgentToolOut,
+)
+
+__all__ = [
+    "AgentApprovalDecision",
+    "AgentApprovalOut",
+    "AgentDecisionOut",
+    "AgentEvalOut",
+    "AgentLessonOut",
+    "AgentRunCancel",
+    "AgentRunCreate",
+    "AgentRunOut",
+    "AgentRuntimeStatusOut",
+    "AgentStepOut",
+    "AgentToolOut",
+]
+
+
+# ============================================================
 # 热力图
 # ============================================================
 class HeatmapCell(BaseModel):
@@ -274,6 +330,8 @@ class HeatmapQuery(BaseModel):
 # 报表
 # ============================================================
 class ReportDailyOut(BaseModel):
+    """日报表响应体（WP-07：coverage_area 可空，未统计=null 而非 0）。"""
+
     model_config = ConfigDict(from_attributes=True)
 
     stat_date: str
@@ -284,11 +342,19 @@ class ReportDailyOut(BaseModel):
     task_count: int
     done_count: int
     collected_kg: Decimal
-    coverage_area: Decimal
+    # WP-07：NULL=未统计（not_available），与「真实 0」结构区分；不转 0
+    coverage_area: Decimal | None = None
+    # 三态：available / partial / not_available（判定见 app.services.report）
+    coverage_availability: str = "not_available"
 
 
 class DashboardStats(BaseModel):
-    """大屏顶部指标卡。"""
+    """大屏顶部指标卡。
+
+    WP-07：每个指标的口径/分母/时间窗/来源见 `metrics_meta`；
+    `robots_online_rate` 在分母（robots_total）为 0 时为 null（not_available），
+    不以 0 冒充实测，null 透传不转 0。
+    """
 
     event_count_24h: int = 0
     pending_tasks: int = 0
@@ -296,9 +362,11 @@ class DashboardStats(BaseModel):
     done_tasks_24h: int = 0
     robots_online: int = 0
     robots_total: int = 0
+    robots_online_rate: float | None = None
     collected_kg_total: float = 0.0
     devices_online: int = 0
     devices_total: int = 0
+    metrics_meta: dict[str, dict[str, str]] = Field(default_factory=dict)
 
 
 # ============================================================
@@ -338,3 +406,79 @@ class WsMessage(BaseModel):
     type: str
     data: dict[str, Any] = Field(default_factory=dict)
     ts: datetime = Field(default_factory=datetime.now)
+
+
+# ============================================================
+# 知识资产、动态本体与决策证据
+# ============================================================
+from app.schemas.knowledge import (  # noqa: E402
+    DecisionCreate,
+    DecisionEvidenceIn,
+    DecisionEvidenceOut,
+    DecisionTraceOut,
+    DecisionTracePageOut,
+    KnowledgeAssetCreate,
+    KnowledgeAssetDetailOut,
+    KnowledgeAssetOut,
+    KnowledgeAssetPageOut,
+    KnowledgeAssetVersionCreate,
+    KnowledgeAssetVersionOut,
+    KnowledgePathStep,
+    KnowledgeSearchHit,
+    KnowledgeSearchOut,
+    KnowledgeSearchRequest,
+    OntologyExtractRequest,
+    OntologyExtractResult,
+    OntologyNodeOut,
+    OntologyPublishResult,
+    OntologyRelationOut,
+    OntologyReviewRequest,
+    OntologyVersionCreate,
+    OntologyVersionOut,
+)
+
+__all__ += [
+    "DecisionCreate",
+    "DecisionEvidenceIn",
+    "DecisionEvidenceOut",
+    "DecisionTraceOut",
+    "DecisionTracePageOut",
+    "KnowledgeAssetCreate",
+    "KnowledgeAssetDetailOut",
+    "KnowledgeAssetOut",
+    "KnowledgeAssetPageOut",
+    "KnowledgeAssetVersionCreate",
+    "KnowledgeAssetVersionOut",
+    "KnowledgePathStep",
+    "KnowledgeSearchHit",
+    "KnowledgeSearchOut",
+    "KnowledgeSearchRequest",
+    "OntologyExtractRequest",
+    "OntologyExtractResult",
+    "OntologyNodeOut",
+    "OntologyPublishResult",
+    "OntologyRelationOut",
+    "OntologyReviewRequest",
+    "OntologyVersionCreate",
+    "OntologyVersionOut",
+]
+
+
+# ============================================================
+# 对话助手
+# ============================================================
+from app.schemas.chat import (  # noqa: E402
+    AssistantReplyOut,
+    ChatBlock,
+    ChatMessageOut,
+    ChatSessionCreate,
+    ChatSessionOut,
+)
+
+__all__ += [
+    "AssistantReplyOut",
+    "ChatBlock",
+    "ChatMessageOut",
+    "ChatSessionCreate",
+    "ChatSessionOut",
+]

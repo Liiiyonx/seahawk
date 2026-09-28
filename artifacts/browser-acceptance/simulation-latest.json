@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-09-22T16:37:10.097Z",
+  "frontend": "http://127.0.0.1:5174",
+  "backend": "http://127.0.0.1:8001",
+  "task_id": "task_2738e9b15d1a",
+  "history_task_id": "tsk_demo_0001",
+  "passed": true,
+  "runtime_errors": [],
+  "results": [
+    {
+      "name": "admin 工单卡入口与完整控制闭环",
+      "passed": true,
+      "task_id": "task_2738e9b15d1a",
+      "final_state": "done",
+      "route_points": 21,
+      "log_entries": 37,
+      "desktop_audit": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "document_width": 1440,
+        "horizontalOverflow": [],
+        "outsideViewport": [],
+        "clippedText": []
+      },
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\13-simulation-admin-desktop.png"
+    },
+    {
+      "name": "历史轨迹只读且控制禁用",
+      "passed": true,
+      "task_id": "tsk_demo_0001",
+      "audit": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "document_width": 1440,
+        "horizontalOverflow": [],
+        "outsideViewport": [],
+        "clippedText": []
+      },
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\14-simulation-history-readonly.png"
+    },
+    {
+      "name": "移动端无横向溢出且核心区域可见",
+      "passed": true,
+      "audit": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_width": 390,
+        "horizontalOverflow": [],
+        "outsideViewport": [],
+        "clippedText": []
+      },
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\15-simulation-mobile.png"
+    },
+    {
+      "name": "viewer 权限下仿真控制按钮全部禁用",
+      "passed": true,
+      "audit": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "document_width": 1440,
+        "horizontalOverflow": [],
+        "outsideViewport": [],
+        "clippedText": []
+      },
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\16-simulation-viewer-readonly.png"
+    }
+  ]
+}

@@ -51,6 +51,7 @@ import asyncio
 import ast
 import struct
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -60,7 +61,7 @@ if str(BACKEND) not in sys.path:
     sys.path.insert(0, str(BACKEND))
 
 from app.models.task import Task  # noqa: E402
-from app.services.dispatch import _parse_point  # noqa: E402
+from app.services.dispatch import DispatchEngine, _parse_point  # noqa: E402
 
 APP_DIR = BACKEND / "app"
 
@@ -387,3 +388,33 @@ class TestReassignResetsAssignedAt:
             "transition() 只在 assigned_at 为空时赋值，沿用旧时间戳会让任务\n"
             "下一轮立刻又被判成 ACK 超时，陷入 30 秒一次的空转重派。"
         )
+
+
+# ======================================================================
+# 六、ACK 超时必须同时兼容 aware / naive 数据库时间
+# ======================================================================
+class TestAckTimeoutTimezoneSafety:
+    """TIMESTAMPTZ 读回 aware datetime，不能与 naive ``datetime.now()`` 相减。
+
+    真实故障：补派线程每轮在 ``handle_ack_timeout`` 抛 TypeError，
+    然后在 rollback 后读取已过期 ORM 属性，再抛 MissingGreenlet。
+    结果是任务既不会回退，也没有可用的告警日志。
+    """
+
+    @staticmethod
+    def _timed_out(assigned_at: datetime) -> bool:
+        engine = DispatchEngine(session=None)  # type: ignore[arg-type]
+        task = make_task(
+            event_id=None,
+            assigned_at=assigned_at,
+            status="assigned",
+        )
+        return asyncio.run(engine.handle_ack_timeout(task))
+
+    def test_aware_timestamp_does_not_crash(self) -> None:
+        assigned_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+        assert self._timed_out(assigned_at) is True
+
+    def test_naive_legacy_timestamp_is_normalized(self) -> None:
+        assigned_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(minutes=1)
+        assert self._timed_out(assigned_at) is True

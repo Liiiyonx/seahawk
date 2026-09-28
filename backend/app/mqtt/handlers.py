@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 import asyncio
+import math
 from datetime import datetime
 from typing import Any
 
 from loguru import logger
 
+from app.db.partitions import ensure_track_partitions_around
 from app.db.session import get_session_factory
 from app.models.event import EventStatus, WasteClass
 from app.models.task import Task
@@ -135,7 +137,12 @@ async def _try_dispatch(event_id: str) -> Task | None:
         return task
 
 
-async def handle_telemetry(topic: str, payload: dict[str, Any]) -> None:
+async def handle_telemetry(
+    topic: str,
+    payload: dict[str, Any],
+    *,
+    session_factory: Any | None = None,
+) -> None:
     """处理设备遥测（心跳、电量、仓容）。
 
     主题：marine/{site_id}/{device_id}/telemetry
@@ -145,7 +152,17 @@ async def handle_telemetry(topic: str, payload: dict[str, Any]) -> None:
     if not device_id:
         return
 
-    async with get_session_factory()() as session:
+    if session_factory is None:
+        session_factory = get_session_factory
+
+    loc = payload.get("location")
+    if not isinstance(loc, dict):
+        loc = {}
+    bins = payload.get("bins")
+    if not isinstance(bins, dict):
+        bins = {}
+
+    async with session_factory()() as session:
         from app.repositories import DeviceRepository
 
         repo = DeviceRepository(session)
@@ -153,22 +170,9 @@ async def handle_telemetry(topic: str, payload: dict[str, Any]) -> None:
 
         # 机器人遥测额外记录轨迹与仓容
         if payload.get("device_type") == "robot" or device_id.startswith("RBT"):
-            from sqlalchemy import func, select
             from app.models.misc import Track
 
-            loc = payload.get("location", {})
-            bins = payload.get("bins", {}) or {}
-            track = Track(
-                robot_id=device_id,
-                task_id=payload.get("task_id"),
-                location=f"SRID=4326;POINT({loc.get('lng', 0)} {loc.get('lat', 0)})",
-                battery=payload.get("battery"),
-                bin_foam=bins.get("foam"),
-                bin_plastic=bins.get("plastic"),
-                bin_mixed=bins.get("mixed"),
-                speed=payload.get("speed"),
-            )
-            session.add(track)
+            lng, lat = _valid_lnglat(loc)
 
             # 更新设备 meta 中的电量与仓容（供派单引擎读取）
             device = await repo.get_by_device_id(device_id)
@@ -179,6 +183,32 @@ async def handle_telemetry(topic: str, payload: dict[str, Any]) -> None:
                     meta["bins"] = bins
                 device.meta = meta
 
+                # 无有效坐标时不得写 POINT(0 0)：那会在几内亚湾生成
+                # 一条看似合法、实际完全错误的机器人轨迹。
+                if lng is not None and lat is not None:
+                    # ★ 先保证 t_track 当天分区存在，再插轨迹。
+                    #   t_track 是按日分区表，缺分区时 Postgres 会直接拒绝 INSERT
+                    #   （CheckViolationError: no partition of relation "t_track" found），
+                    #   而分区只在数据库首次初始化时建了一批、之后没人补 ——
+                    #   一旦日期滚出窗口，所有机器人轨迹都写不进去，
+                    #   表现是「新建工单点仿真 → 红色异常」。
+                    #   放在这里自愈而不是依赖 cron：写入路径自己保证前置条件。
+                    await ensure_track_partitions_around(session)
+
+                    device.location = f"SRID=4326;POINT({lng} {lat})"
+                    session.add(
+                        Track(
+                            robot_id=device_id,
+                            task_id=payload.get("task_id"),
+                            location=f"SRID=4326;POINT({lng} {lat})",
+                            battery=_safe_int(payload.get("battery")),
+                            bin_foam=_safe_float(bins.get("foam")),
+                            bin_plastic=_safe_float(bins.get("plastic")),
+                            bin_mixed=_safe_float(bins.get("mixed")),
+                            speed=_safe_float(payload.get("speed")),
+                        )
+                    )
+
         await session.commit()
 
     await ws_manager.push_robot_status(
@@ -186,8 +216,12 @@ async def handle_telemetry(topic: str, payload: dict[str, Any]) -> None:
             "robot_id": device_id,
             "battery": payload.get("battery"),
             "status": payload.get("status", "idle"),
-            "lng": payload.get("location", {}).get("lng"),
-            "lat": payload.get("location", {}).get("lat"),
+            "lng": loc.get("lng"),
+            "lat": loc.get("lat"),
+            "task_id": payload.get("task_id"),
+            "bins": bins,
+            "heading": payload.get("heading"),
+            "speed": payload.get("speed"),
         }
     )
 
@@ -232,7 +266,12 @@ ROBOT_STATUS_MAP: dict[str, str] = {
 }
 
 
-async def handle_robot_progress(topic: str, payload: dict[str, Any]) -> None:
+async def handle_robot_progress(
+    topic: str,
+    payload: dict[str, Any],
+    *,
+    session_factory: Any | None = None,
+) -> None:
     """处理机器人作业进度回传。
 
     主题：robot/{robot_id}/task/progress
@@ -266,7 +305,10 @@ async def handle_robot_progress(topic: str, payload: dict[str, Any]) -> None:
         )
         return
 
-    async with get_session_factory()() as session:
+    if session_factory is None:
+        session_factory = get_session_factory
+
+    async with session_factory()() as session:
         from app.repositories import TaskRepository
 
         task = await TaskRepository(session).get_by_task_id(task_id)
@@ -352,30 +394,213 @@ def _backfill_task_outcome(task: Any, payload: dict[str, Any]) -> bool:
     return changed
 
 
-async def handle_robot_ack(topic: str, payload: dict[str, Any]) -> None:
-    """处理机器人任务确认（ACK）。
+async def handle_robot_ack(
+    topic: str,
+    payload: dict[str, Any],
+    *,
+    tracker: Any | None = None,
+    session_factory: Any | None = None,
+) -> str | None:
+    """处理机器人任务确认（ACK），消费冻结回执信封（WP-14C）+ 落审计账本（WP-14D）。
 
     主题：robot/{robot_id}/cmd/ack
-    收到 ACK → 任务从 assigned 推进到 navigating。
+
+    ★ 修复的断链：旧实现只认顶层 ``task_id``，而冻结回执信封
+    （docs/device-interface.md §5）没有顶层 ``task_id``，于是所有冻结
+    ACK 都被静默丢弃，任务永远停在 assigned。
+
+    冻结接口（WP-14C 条款 1~7，WP-14D 条款 2~3）：
+    - 解析优先冻结信封（ack_id/command_id/device_id/seq/received_at/
+      accepted/reason/mode），兼容旧字段（task_id/robot_id/accepted/ts）；
+      字段缺失或类型错误只记 warning 并丢弃，绝不让 MQTT 主循环抛异常。
+    - task_id 优先顶层兼容字段，否则仅接受 command_id=cmd_{task_id} 反推；
+      两者不一致整条拒绝。
+    - payload.device_id（旧 robot_id）、topic robot_id、task.robot_id
+      三者必须一致，否则整条拒绝、不得推进（内存判重为 duplicate 时跳过
+      身份校验 —— 首次拒绝回执已清空 robot_id，重复回执重走校验必然失配）。
+    - 判定优先级 duplicate > late > out_of_order > new（AckTracker）。
+    - **账本写入与状态推进同一事务**（WP-14D §3）：先校验与判定，再写
+      t_task_ack 行，最后提交；写库异常整体回滚，不留下「已推进但无回执
+      证据」的状态。账本以 ``command_id`` 为准：首次建规范行，重复只累计
+      （含内存漏判的进程重启场景 —— record_arrival 返回 duplicate 时
+      不推进状态）。
+    - accepted=true：仅当任务仍为 assigned 时推进 navigating；
+      其他状态不重复推进。
+    - accepted=false：首次回执且任务仍 assigned 时，记录原因、清空
+      robot_id 并 assigned -> pending，交给现有补派轮处理；本 handler
+      **不递归重派**；重复拒绝不重复回退。
+
+    ★ 账本能力探测：会话具备 ``execute``（真实 AsyncSession）才写账本；
+    测试替身会话不具备时，显式回落 WP-14C 内存跟踪并记 warning ——
+    不伪装持久化（与 ack.py 的回落策略一致）。生产路径必然走账本。
+
+    返回判定结果（new/duplicate/late/out_of_order），未受理返回 None。
+    依赖可注入（tracker / session_factory），测试不触真实 MQTT/DB。
     """
-    from app.models.task import TaskStatus
+    try:
+        from datetime import datetime, timezone as _tz
 
-    task_id = payload.get("task_id")
-    if not task_id:
-        return
+        from app.mqtt.ack import AckResult, AckEnvelope, parse_ack_envelope
 
-    async with get_session_factory()() as session:
-        from app.repositories import TaskRepository
+        envelope: AckEnvelope | None = parse_ack_envelope(payload)
+        if envelope is None:
+            return None
 
-        task = await TaskRepository(session).get_by_task_id(task_id)
-        if task is None:
-            return
+        if tracker is None:
+            from app.mqtt.client import mqtt_client
 
-        engine = DispatchEngine(session)
-        if task.status == TaskStatus.ASSIGNED:
-            await engine.transition(task, TaskStatus.NAVIGATING)
+            tracker = mqtt_client.ack_tracker
+
+        topic_robot = _robot_from_topic(topic)
+        if topic_robot is None:
+            logger.warning(f"[MQTT-ACK] 主题无法解析 robot_id：{topic}")
+            return None
+
+        if session_factory is None:
+            from app.db.session import get_session_factory as _factory
+
+            session_factory = _factory
+
+        from app.models.task import TaskStatus
+
+        # 先做幂等判定：重复回执直接返回首次规范回执，不再校验身份、
+        # 不再推进状态 —— 只把重复到达累计进账本（QoS1 幂等，WP-14C 条款 5）。
+        outcome = tracker.classify(envelope)
+        if outcome == AckResult.DUPLICATE:
+            first = tracker.ack_for(envelope.command_id)
+            logger.info(
+                f"[MQTT-ACK] 重复回执 {envelope.command_id}，返回首次规范回执"
+                f"（首次判定={first.outcome if first else '?'}），不重复推进"
+            )
+            # 只累计账本重复次数（不覆盖首次规范回执）；会话不支持账本时
+            # （测试替身）静默跳过 —— 判定与幂等已由内存 tracker 完成。
+            async with session_factory()() as session:
+                if callable(getattr(session, "execute", None)):
+                    from app.repositories import TaskAckRepository
+
+                    await TaskAckRepository(session).record_arrival(
+                        command_id=envelope.command_id,
+                        task_id=envelope.task_id,
+                        device_id=envelope.device_id,
+                        seq=envelope.seq,
+                        outcome=outcome,
+                        accepted=envelope.accepted,
+                        reason=envelope.reason,
+                        mode=envelope.mode,
+                        received_at=datetime.fromtimestamp(
+                            envelope.received_at, tz=_tz.utc
+                        ),
+                        raw_payload=payload,
+                    )
+                    await session.commit()
+            return outcome
+
+        # 非重复回执：同一事务内「校验 → 写账本 → 推进状态 → 提交」。
+        async with session_factory()() as session:
+            from app.repositories import TaskAckRepository, TaskRepository
+
+            task = await TaskRepository(session).get_by_task_id(envelope.task_id)
+            if task is None:
+                logger.warning(
+                    f"[MQTT-ACK] 找不到任务（回执已丢弃，不登记）："
+                    f"task={envelope.task_id} command={envelope.command_id}"
+                )
+                return None
+
+            if (
+                envelope.device_id != topic_robot
+                or topic_robot != task.robot_id
+            ):
+                logger.warning(
+                    f"[MQTT-ACK] 设备身份不一致，整条拒绝（不登记不推进）："
+                    f"payload.device_id={envelope.device_id} "
+                    f"topic.robot_id={topic_robot} "
+                    f"task.robot_id={task.robot_id} task={task.task_id}"
+                )
+                return None
+
+            # 账本登记（与状态推进同一事务）：首次建规范行；已存在（内存
+            # 漏判，如进程重启后同一 command_id 再达）→ 返回 duplicate，
+            # 只累计、不推进 —— 状态推进绝不会发生在无回执证据之后。
+            ledger_supported = callable(getattr(session, "execute", None))
+            if ledger_supported:
+                recorded = await TaskAckRepository(session).record_arrival(
+                    command_id=envelope.command_id,
+                    task_id=envelope.task_id,
+                    device_id=envelope.device_id,
+                    seq=envelope.seq,
+                    outcome=outcome,
+                    accepted=envelope.accepted,
+                    reason=envelope.reason,
+                    mode=envelope.mode,
+                    received_at=datetime.fromtimestamp(
+                        envelope.received_at, tz=_tz.utc
+                    ),
+                    raw_payload=payload,
+                )
+            else:
+                # 测试替身 / 非 ORM 会话：显式回落 WP-14C 内存跟踪，
+                # 不伪装持久化（生产 AsyncSession 必然走账本路径）。
+                recorded = outcome
+                logger.warning(
+                    f"[MQTT-ACK] 会话不支持账本写入，本次仅内存跟踪："
+                    f"command={envelope.command_id}"
+                )
+
+            if recorded == AckResult.DUPLICATE:
+                # 账本已有该 command_id 的规范回执（内存漏判 / 并发冲突）
+                # → 只累计重复次数，不推进状态。
+                if ledger_supported:
+                    await session.commit()
+                logger.info(
+                    f"[MQTT-ACK] 账本判定 {envelope.command_id} 为重复回执，"
+                    f"仅累计不推进"
+                )
+                return AckResult.DUPLICATE
+
+            engine = DispatchEngine(session)
+            if envelope.accepted:
+                # accepted=true：仅当任务仍为 assigned 时推进 navigating
+                if task.status == TaskStatus.ASSIGNED:
+                    await engine.transition(task, TaskStatus.NAVIGATING)
+                    logger.info(
+                        f"[MQTT-ACK] 任务 {task.task_id} 已确认（{recorded}），"
+                        f"进入导航状态（机器人 {topic_robot}）"
+                    )
+                else:
+                    logger.warning(
+                        f"[MQTT-ACK] 任务 {task.task_id} 已不在 assigned"
+                        f"（当前 {task.status}），不再重复推进（outcome={recorded}）"
+                    )
+            else:
+                # accepted=false：首次回执时，任务仍 assigned → 记录原因并回退 pending
+                if task.status == TaskStatus.ASSIGNED:
+                    reason = envelope.reason or "device_rejected"
+                    await engine.transition(
+                        task, TaskStatus.PENDING, remark=f"设备拒绝：{reason}"
+                    )
+                    task.robot_id = None
+                    logger.warning(
+                        f"[MQTT-ACK] 任务 {task.task_id} 被设备拒绝"
+                        f"（{recorded}，reason={reason}），回退待派单，"
+                        f"交由现有补派轮处理（本 handler 不递归重派）"
+                    )
+                else:
+                    logger.warning(
+                        f"[MQTT-ACK] 任务 {task.task_id} 拒绝回执重复到达"
+                        f"（当前 {task.status}），不再重复回退"
+                    )
+
+            # 账本行 + 状态推进同事务提交：任一步失败整体回滚。
             await session.commit()
-            logger.info(f"[MQTT] 任务 {task_id} 已确认，进入导航状态")
+
+        # 落库成功后才登记首次规范回执（DB 是权威，跟踪表是去重/审计）
+        tracker.record(envelope, outcome=recorded)
+        return recorded
+    except Exception as exc:   # noqa: BLE001
+        # 任何异常都隔离为 warning，绝不打断 MQTT 主循环
+        logger.warning(f"[MQTT-ACK] 处理回执异常（已隔离）：{exc}")
+        return None
 
 
 # ----------------------------------------------------------------------
@@ -391,6 +616,32 @@ def _parse_ts(value: Any) -> datetime:
         except ValueError:
             pass
     return datetime.now()
+
+
+def _valid_lnglat(value: Any) -> tuple[float | None, float | None]:
+    """校验遥测坐标；缺失、非数值或越界一律返回 ``(None, None)``。"""
+    if not isinstance(value, dict):
+        return None, None
+    lng = _safe_float(value.get("lng"))
+    lat = _safe_float(value.get("lat"))
+    if lng is None or lat is None:
+        return None, None
+    if not (-180 <= lng <= 180 and -90 <= lat <= 90):
+        return None, None
+    return lng, lat
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def _safe_int(value: Any) -> int | None:
+    number = _safe_float(value)
+    return int(number) if number is not None else None
 
 
 def _device_from_topic(topic: str) -> str | None:

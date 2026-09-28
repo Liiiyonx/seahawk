@@ -37,20 +37,29 @@ const props = defineProps({
 const cards = computed(() => {
   const s = props.stats || {}
   return [
-    { key: 'events', label: '24 小时事件', numeric: s.event_count_24h || 0, digits: 0, unit: '条', color: '#f5a623', sub: '' },
-    { key: 'pending', label: '待派单工单', numeric: s.pending_tasks || 0, digits: 0, unit: '单', color: '#eaf2fb', sub: (s.pending_tasks || 0) > 0 ? '需要关注' : '全部已派发' },
-    { key: 'collecting', label: '作业中', numeric: s.collecting_tasks || 0, digits: 0, unit: '单', color: '#18e0c8', sub: '' },
-    { key: 'done', label: '今日完成', numeric: s.done_tasks_24h || 0, digits: 0, unit: '单', color: '#3ddc84', sub: '' },
-    { key: 'robots', label: '机器人在线', text: `${s.robots_online || 0}/${s.robots_total || 0}`, unit: '台', color: (s.robots_online || 0) > 0 ? '#4a9eff' : '#f2564c', sub: '' },
-    { key: 'weight', label: '累计清理', numeric: s.collected_kg_total || 0, digits: 1, unit: 'kg', color: '#3ddc84', sub: '' },
+    { key: 'events', label: '24 小时事件', numeric: s.event_count_24h || 0, digits: 0, unit: '条', color: '#ff9500', sub: '按发现时间统计' },
+    { key: 'pending', label: '待派单工单', numeric: s.pending_tasks || 0, digits: 0, unit: '单', color: '#8e8e93', sub: (s.pending_tasks || 0) > 0 ? '需要关注' : '全部已派发' },
+    // 口径：后端 collecting_tasks 统计的是 collecting 或 navigating，
+    // 也就是「机器人已经在路上/在作业」的合计，不等于仅有打捞动作的那些。
+    { key: 'collecting', label: '作业中', numeric: s.collecting_tasks || 0, digits: 0, unit: '单', color: '#007aff', sub: '含前往中与作业中' },
+    { key: 'done', label: '今日完成', numeric: s.done_tasks_24h || 0, digits: 0, unit: '单', color: '#34c759', sub: '近 24 小时' },
+    { key: 'robots', label: '机器人在线', text: `${s.robots_online || 0}/${s.robots_total || 0}`, unit: '台', color: (s.robots_online || 0) > 0 ? '#007aff' : '#ff3b30', sub: '在线 / 总数' },
+    // ★ 口径必须写出来：这里是全表合计（含人工建单）；
+    //   「治理报表」的清理总量只统计关联了事件的工单，
+    //   两个数字天然不同，不写脚注会被当成算错。
+    { key: 'weight', label: '累计清理', numeric: s.collected_kg_total || 0, digits: 1, unit: 'kg', color: '#34c759', sub: '全表工单累计（含人工建单）' },
   ]
 })
 
 // 每个数字卡片的当前动画值（count-up 过程中的中间值）
 const display = reactive({})
-const rafs = new Set()
+// 按卡片 key 记录进行中的动画帧。同一张卡的目标值刷新时，先 cancel 掉旧动画
+// 再起新的——否则两个 step() 同时往 display[key] 写值，数字会来回打架
+const rafs = new Map()
 
 function animate(key, target, duration = 750) {
+  const prev = rafs.get(key)
+  if (prev != null) cancelAnimationFrame(prev)
   const start = display[key] ?? 0
   const t0 = performance.now()
   function step(now) {
@@ -58,12 +67,12 @@ function animate(key, target, duration = 750) {
     const eased = 1 - Math.pow(1 - p, 3) // ease-out cubic
     display[key] = start + (target - start) * eased
     if (p < 1) {
-      const raf = requestAnimationFrame(step)
-      rafs.add(raf)
+      rafs.set(key, requestAnimationFrame(step))
+    } else {
+      rafs.delete(key)
     }
   }
-  const raf = requestAnimationFrame(step)
-  rafs.add(raf)
+  rafs.set(key, requestAnimationFrame(step))
 }
 
 watch(
@@ -76,7 +85,10 @@ watch(
   { immediate: true, deep: true },
 )
 
-onUnmounted(() => rafs.forEach((r) => cancelAnimationFrame(r)))
+onUnmounted(() => {
+  rafs.forEach((r) => cancelAnimationFrame(r))
+  rafs.clear()
+})
 </script>
 
 <style scoped>
@@ -163,5 +175,65 @@ onUnmounted(() => rafs.forEach((r) => cancelAnimationFrame(r)))
 
 @media (max-width: 1400px) {
   .stat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- iOS 风格覆写 ---------- */
+.stat-grid {
+  gap: 12px;
+}
+
+.stat-card {
+  min-width: 0;
+  padding: 15px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card:hover {
+  transform: none;
+  border-color: var(--panel-border);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card::before,
+.stat-card__glow {
+  display: none;
+}
+
+.stat-card__label {
+  margin-bottom: 7px;
+  color: var(--text-sub);
+  letter-spacing: 0;
+}
+
+.stat-card__num {
+  color: var(--text-main);
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.stat-card__sub {
+  margin-top: 5px;
+  color: var(--text-dim);
+}
+
+@media (max-width: 760px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stat-card {
+    padding: 13px 12px;
+  }
+
+  .stat-card__num {
+    font-size: 22px;
+  }
 }
 </style>

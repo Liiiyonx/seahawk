@@ -812,7 +812,7 @@ waste_class_enum:    foam / plastic / fishing_gear / other
 event_status_enum:   new / dispatched / resolved / ignored
 task_status_enum:    pending / assigned / navigating / collecting / done / cancelled
 review_result_enum:  confirmed / not_found / recheck / pending
-user_role_enum:      admin / operator / viewer
+user_role_enum:      admin / operator / approver / viewer
 ```
 
 > **类别顺序不可改**。`foam/plastic/fishing_gear/other` 的顺序即模型输出的类别索引，改了要重训模型。所以 `WasteClass` 常量类与 `seasight.yaml` 的 `names` 映射必须严格一致。
@@ -968,7 +968,7 @@ user_role_enum:      admin / operator / viewer
 | 传输 | 生产全站 HTTPS/WSS；MQTT over TLS 8883 |
 | 密码 | bcrypt cost=12，不存明文 |
 | 令牌 | HMAC-SHA256 签名载荷，含 `exp` |
-| 权限 | admin / operator（乡镇辖区）/ viewer 三层 |
+| 权限 | admin / operator（乡镇辖区）/ approver（仅审批）/ viewer（只读） |
 | 设备隔离 | EMQX ACL 按 clientid 前缀授权 |
 | 前端隔离 | **前端绝不直连 MQTT**，只连后端 WebSocket |
 | 敏感配置 | 全走环境变量，`.env` 在 `.gitignore` 排除 |
@@ -1062,7 +1062,7 @@ user_role_enum:      admin / operator / viewer
 | WebSocket | `ws/manager.py` | ✅ |
 | HTTP 接口 | `api/v1/`（8 个路由模块，22 个端点） | ✅ |
 | 数据库脚本 | `db/init/{01_schema,02_seed}.sql` | ✅ |
-| 数据库迁移 | `backend/{pyproject.toml,alembic/}`（双轨制，见 ADR-007/008） | ✅ |
+| 数据库迁移 | `backend/{alembic.ini,alembic/}`（双轨制，见 ADR-007/008） | ✅ |
 | 容器编排 | `docker-compose.yml`、`Dockerfile*` | ✅ |
 | 部署配置 | `deploy/{emqx,go2rtc,nginx}/` | ✅ |
 | 前端全部 | `frontend/src/`（20 个文件） | ✅ |
@@ -1083,7 +1083,7 @@ user_role_enum:      admin / operator / viewer
 | 命令 | 层 | 依赖基础设施 |
 | --- | --- | --- |
 | `make test-edge` | 算法逻辑 + 参数真源 | 否 |
-| `make test` | 后端契约 + MQTT 层 + WS 负载 + 上报响应 + 派单引擎 + 静态守卫 | 否 |
+| `make test` | 仓库全量：后端契约 + MQTT 层 + WS 负载 + 上报响应 + 派单引擎 + 静态守卫 + edge/ml | 否 |
 | `make check` | 静态检查（接口一致性 + 仓库卫生 + 契约漂移） | 否 |
 | `make check-contract-selftest` | 守卫自证（注入 12 种 MQTT/WS 缺陷验证） | 否 |
 | `make check-events-selftest` | 守卫自证（注入 4 种上报契约缺陷验证） | 否 |

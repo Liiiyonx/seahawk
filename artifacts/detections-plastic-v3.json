@@ -1,0 +1,95 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "trash",
+    "waste",
+    "litter",
+    "debris",
+    "plastic pollution",
+    "discarded object"
+  ],
+  "confidence_threshold": 0.005,
+  "iou_threshold": 0.45,
+  "image_size": 1600,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\plastic.jpg",
+      "name": "plastic.jpg",
+      "width": 5184,
+      "height": 3434,
+      "count": 7,
+      "detections": [
+        {
+          "class": "discarded object",
+          "confidence": 0.01708,
+          "bbox": [
+            4808.543,
+            2256.569,
+            5183.889,
+            2494.195
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.012704,
+          "bbox": [
+            1529.953,
+            2890.678,
+            2039.726,
+            3318.4
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.010549,
+          "bbox": [
+            2975.221,
+            778.09,
+            3371.591,
+            1507.602
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.00632,
+          "bbox": [
+            722.805,
+            1919.311,
+            837.31,
+            2013.287
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.005899,
+          "bbox": [
+            2969.667,
+            1182.813,
+            3345.829,
+            1506.159
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.005308,
+          "bbox": [
+            1595.936,
+            2388.432,
+            1961.974,
+            2473.234
+          ]
+        },
+        {
+          "class": "discarded object",
+          "confidence": 0.005042,
+          "bbox": [
+            2994.529,
+            1488.849,
+            3112.306,
+            1594.519
+          ]
+        }
+      ]
+    }
+  ]
+}

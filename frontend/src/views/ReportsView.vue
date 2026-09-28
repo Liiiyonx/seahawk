@@ -22,9 +22,11 @@
       </div>
       <div class="summary__card">
         <span class="summary__label">治理面积</span>
-        <span class="summary__value">
+        <span class="summary__value" v-if="totals.areaAvailable">
           {{ (totals.area / 10000).toFixed(2) }}<span class="summary__unit">万 m²</span>
+          <span v-if="totals.areaPartial" class="text-dim" style="font-size: 12px">（部分）</span>
         </span>
+        <span class="summary__value text-dim" v-else>未统计</span>
       </div>
 
       <div class="summary__spacer"></div>
@@ -40,6 +42,15 @@
         <button class="btn" @click="exportCsv">导出 CSV</button>
       </div>
     </div>
+
+    <!-- 口径声明：这几个数字和大屏不是同一套统计范围，
+         不写清楚会被当成算错（大屏「累计清理」是全表合计，
+         这里只统计关联了事件的工单，且有天数窗口）。 -->
+    <p class="summary__note">
+      口径：本页按<strong>发现时间</strong>取近 {{ days }} 天，且只统计
+      <strong>关联了事件的工单</strong>（按乡镇 × 类别聚合）。人工建单没有事件类别，
+      因此不计入「清理总量」。大屏的「累计清理」是全表合计，两者数值不同属正常。
+    </p>
 
     <!-- 图表区 -->
     <div class="chart-row">
@@ -81,7 +92,16 @@
             <td class="num">{{ r.task_count }}</td>
             <td class="num text-primary">{{ r.done_count }}</td>
             <td class="num">{{ Number(r.collected_kg).toFixed(2) }}</td>
-            <td class="num">{{ fmtNumber(r.coverage_area) }}</td>
+            <td class="num">
+              <!-- WP-07：coverage_area 为 null = 未统计（不是 0），与真实 0 区分 -->
+              <template v-if="r.coverage_area == null">
+                <span class="text-dim">未统计</span>
+              </template>
+              <template v-else>
+                {{ fmtNumber(r.coverage_area) }}
+                <span v-if="r.coverage_availability === 'partial'" class="text-dim" style="font-size: 11px">（部分）</span>
+              </template>
+            </td>
             <td>
               <div class="rate">
                 <div class="rate__track">
@@ -121,12 +141,17 @@ const summary = ref([])
 const loading = ref(false)
 
 const totals = computed(() => {
-  const t = { events: 0, done: 0, kg: 0, area: 0 }
+  // WP-07：coverage_area 只累加非 null（实测）值；全 null 时 areaAvailable=false → 显示「未统计」
+  const t = { events: 0, done: 0, kg: 0, area: 0, areaAvailable: false, areaPartial: false }
   for (const s of summary.value) {
     t.events += s.event_count || 0
     t.done += s.done_count || 0
     t.kg += s.collected_kg || 0
-    t.area += s.coverage_area || 0
+    if (s.coverage_area != null) {
+      t.area += s.coverage_area
+      t.areaAvailable = true
+    }
+    if (s.coverage_availability === 'partial') t.areaPartial = true
   }
   return t
 })
@@ -151,13 +176,13 @@ const townshipOption = computed(() => {
     },
     xAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: '#141f2b' } },
+      splitLine: { lineStyle: { color: 'rgba(142, 142, 147, 0.18)' } },
       axisLabel: { color: '#8b96a8', fontSize: 11 },
     },
     yAxis: {
       type: 'category',
       data: names,
-      axisLine: { lineStyle: { color: '#1c2a3a' } },
+      axisLine: { lineStyle: { color: 'rgba(142, 142, 147, 0.32)' } },
       axisLabel: { color: '#8b96a8', fontSize: 11 },
     },
     series: [
@@ -165,14 +190,14 @@ const townshipOption = computed(() => {
         name: '发现事件',
         type: 'bar',
         data: summary.value.map((s) => s.event_count),
-        itemStyle: { color: '#f5a623', borderRadius: [0, 3, 3, 0] },
+        itemStyle: { color: '#ff9500', borderRadius: [0, 3, 3, 0] },
         barWidth: 9,
       },
       {
         name: '完成工单',
         type: 'bar',
         data: summary.value.map((s) => s.done_count),
-        itemStyle: { color: '#18e0c8', borderRadius: [0, 3, 3, 0] },
+        itemStyle: { color: '#007aff', borderRadius: [0, 3, 3, 0] },
         barWidth: 9,
       },
     ],
@@ -200,7 +225,7 @@ const classOption = computed(() => {
         type: 'pie',
         radius: ['42%', '68%'],
         center: ['50%', '44%'],
-        itemStyle: { borderColor: '#0d1620', borderWidth: 2 },
+        itemStyle: { borderColor: 'rgba(142, 142, 147, 0.2)', borderWidth: 1 },
         label: {
           color: '#8b96a8',
           fontSize: 11,
@@ -258,6 +283,23 @@ onMounted(load)
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+
+/* 口径说明：常驻但压低视觉权重，不抢数字的注意力 */
+.summary__note {
+  margin: 0;
+  padding: 7px 11px;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.summary__note strong {
+  color: var(--text-sub);
+  font-weight: 600;
 }
 
 .summary__card {
@@ -345,5 +387,73 @@ onMounted(load)
 @media (max-width: 1400px) {
   .summary { flex-wrap: wrap; }
   .chart-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .page {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .summary__card {
+    min-width: 0;
+    padding: 10px 12px;
+  }
+
+  .summary__value {
+    font-size: 18px;
+  }
+
+  .summary__spacer {
+    display: none;
+  }
+
+  .summary__actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .summary__actions select,
+  .summary__actions .btn {
+    width: 100%;
+  }
+
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel {
+    flex: none;
+    min-height: 420px;
+    max-width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-panel .data-table {
+    min-width: 1040px;
+  }
+}
+
+@media (max-width: 520px) {
+  .summary__card {
+    min-height: 74px;
+  }
+
+  .summary__actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary__actions select {
+    grid-column: 1 / -1;
+  }
 }
 </style>

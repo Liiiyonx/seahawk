@@ -62,6 +62,43 @@ export const tasksApi = {
   },
 }
 
+// ---------- 工单执行仿真 ----------
+export const simulationApi = {
+  /** 当前运行快照；无运行会话且有历史轨迹时返回 state=history */
+  status(taskId) {
+    return http.get(`/simulations/${taskId}`)
+  },
+
+  /** 已落库的 t_track 轨迹 */
+  trajectory(taskId) {
+    return http.get(`/simulations/${taskId}/trajectory`)
+  },
+
+  start(taskId, payload = { speed: 1 }) {
+    return http.post(`/simulations/${taskId}/start`, payload)
+  },
+
+  pause(taskId) {
+    return http.post(`/simulations/${taskId}/pause`)
+  },
+
+  resume(taskId) {
+    return http.post(`/simulations/${taskId}/resume`)
+  },
+
+  step(taskId) {
+    return http.post(`/simulations/${taskId}/step`)
+  },
+
+  speed(taskId, speed) {
+    return http.post(`/simulations/${taskId}/speed`, { speed })
+  },
+
+  stop(taskId, payload = {}) {
+    return http.post(`/simulations/${taskId}/stop`, payload)
+  },
+}
+
 // ---------- 设备 ----------
 export const devicesApi = {
   list(params = {}) {
@@ -141,7 +178,7 @@ export const authApi = {
 
 // ---------- AI（智能体 + 图片分析） ----------
 export const aiApi = {
-  /** 智能体列表 */
+  /** 智能体列表（能力定义 + 真实运行状态 idle/unavailable/running） */
   agents() {
     return http.get('/ai/agents')
   },
@@ -153,6 +190,184 @@ export const aiApi = {
     return http.post('/ai/analyze-image', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+  },
+}
+
+// ---------- Agent（智能体运行时控制台，契约见 Harness 手册 3.8） ----------
+// 所有接口均返回 ApiResponse 信封（code=0 成功），错误码 6001-6009，
+// 前端按 code 映射提示，不得把非 0 code 当成功渲染。
+export const agentsApi = {
+  /** 运行时状态：{ state: idle|running|... } */
+  runtimeStatus() {
+    return http.get('/agents/runtime/status')
+  },
+
+  /** 运行列表：PageResult{ items: AgentRunOut[], meta{ total,page,page_size } }，按创建时间倒序 */
+  listRuns(params = {}) {
+    return http.get('/agents/runs', { params })
+  },
+
+  /** 运行详情（含真实 status，如 waiting_approval） */
+  runDetail(runId) {
+    return http.get(`/agents/runs/${runId}`)
+  },
+
+  /** 步骤轨迹（step_type/status/error_code/decision_summary 等） */
+  runSteps(runId) {
+    return http.get(`/agents/runs/${runId}/steps`)
+  },
+
+  /** 启动事件处置运行（body 含 idempotency_key；重复提交返回既有 run 且 idempotent_replay=true） */
+  createRun(payload) {
+    return http.post('/agents/runs', payload)
+  },
+
+  /** 取消运行（终态 run 返回 6004） */
+  cancelRun(runId, payload = {}) {
+    return http.post(`/agents/runs/${runId}/cancel`, payload)
+  },
+
+  /** 工具目录（name/version/risk_level/idempotent/allowed_roles） */
+  tools() {
+    return http.get('/agents/tools')
+  },
+
+  /** 审批队列 */
+  approvals() {
+    return http.get('/agents/approvals')
+  },
+
+  /** 审批决定（decision: approved|rejected；approver/admin 角色，否则 403） */
+  decideApproval(approvalId, payload) {
+    return http.post(`/agents/approvals/${approvalId}/decide`, payload)
+  },
+
+  /** 最新评测产物（文件缺失返回 6008，data 为空态） */
+  latestEval() {
+    return http.get('/agents/evals/latest')
+  },
+}
+
+// ---------- 对话助手（自由对话问答 + 拖图/粘贴即分析，与 /agents 派单控制台并行） ----------
+// 全部返回 ApiResponse 信封（code=0 成功）；错误码 8xxx 对话段 + 复用 5001 组件不可用。
+// 工具全只读：派单不在此写库，仅生成建议卡，确认仍走 agentsApi.createRun（含审批）。
+export const assistantApi = {
+  /**
+   * 一轮对话：文字 + 0..n 张图片（multipart/form-data）。
+   * images 为 File 数组；后端逐张做 OpenCV 检测，返回 AssistantReplyOut
+   * { message_id, session_id, text, blocks[], model_used, fallback }。
+   */
+  chat({ text = '', sessionId = '', images = [] } = {}) {
+    const fd = new FormData()
+    if (text) fd.append('text', text)
+    if (sessionId) fd.append('session_id', sessionId)
+    for (const file of images) fd.append('images', file)
+    return http.post('/assistant/chat', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  /** 当前用户会话列表（按最近更新排序） */
+  listSessions() {
+    return http.get('/assistant/sessions')
+  },
+
+  /** 新建空会话（title 可空，服务端给默认值） */
+  createSession(payload = {}) {
+    return http.post('/assistant/sessions', payload)
+  },
+
+  /** 会话历史消息（按时间正序分页）：{ items, total, page, page_size } */
+  listMessages(sessionId, params = {}) {
+    return http.get(`/assistant/sessions/${sessionId}/messages`, { params })
+  },
+
+  /** 删除会话（级联删消息，仅属主） */
+  deleteSession(sessionId) {
+    return http.delete(`/assistant/sessions/${sessionId}`)
+  },
+}
+
+// ---------- 领域知识智能体（资产 / 本体 / 多跳检索 / 决策证据） ----------
+export const knowledgeApi = {
+  /** 知识资产分页列表 */
+  listAssets(params = {}) {
+    return http.get('/knowledge/assets', { params })
+  },
+
+  /** 资产详情与不可变版本 */
+  assetDetail(assetId) {
+    return http.get(`/knowledge/assets/${assetId}`)
+  },
+
+  /** 登记多模态知识资产 */
+  createAsset(payload) {
+    return http.post('/knowledge/assets', payload)
+  },
+
+  /** 追加资产版本 */
+  appendAssetVersion(assetId, payload) {
+    return http.post(`/knowledge/assets/${assetId}/versions`, payload)
+  },
+
+  /** 本体版本列表 */
+  listOntologyVersions() {
+    return http.get('/knowledge/ontology/versions')
+  },
+
+  /** 创建本体版本 */
+  createOntologyVersion(payload) {
+    return http.post('/knowledge/ontology/versions', payload)
+  },
+
+  /** 本体节点 */
+  ontologyNodes(versionId) {
+    return http.get(`/knowledge/ontology/versions/${versionId}/nodes`)
+  },
+
+  /** 本体关系 */
+  ontologyRelations(versionId) {
+    return http.get(`/knowledge/ontology/versions/${versionId}/relations`)
+  },
+
+  /** 半自动抽取候选节点与关系 */
+  extractOntology(payload) {
+    return http.post('/knowledge/ontology/extract', payload)
+  },
+
+  /** 审核节点 */
+  reviewNode(nodeId, payload) {
+    return http.post(`/knowledge/ontology/nodes/${nodeId}/review`, payload)
+  },
+
+  /** 审核关系 */
+  reviewRelation(relationId, payload) {
+    return http.post(`/knowledge/ontology/relations/${relationId}/review`, payload)
+  },
+
+  /** 发布已审核本体 */
+  publishOntology(versionId) {
+    return http.post(`/knowledge/ontology/versions/${versionId}/publish`)
+  },
+
+  /** 跨文档多跳检索 */
+  search(payload) {
+    return http.post('/knowledge/search', payload)
+  },
+
+  /** 创建可追溯决策轨迹；未显式传证据时由后端自动检索 */
+  createDecision(payload) {
+    return http.post('/knowledge/decisions', payload)
+  },
+
+  /** 决策轨迹分页列表 */
+  listDecisions(params = {}) {
+    return http.get('/knowledge/decisions', { params })
+  },
+
+  /** 决策证据链 */
+  decisionEvidence(traceId) {
+    return http.get(`/knowledge/decisions/${traceId}/evidence`)
   },
 }
 

@@ -7,10 +7,10 @@
 
 // ---------- 垃圾类别 ----------
 export const WASTE_CLASSES = {
-  foam: { label: '泡沫类', color: '#f5a623', desc: 'EPS 泡沫浮球及碎片' },
-  plastic: { label: '塑胶类', color: '#4a9eff', desc: '塑胶浮球、塑料瓶、塑料袋' },
-  fishing_gear: { label: '渔具类', color: '#f2564c', desc: '废旧渔网、绳索、饵料袋' },
-  other: { label: '其他', color: '#8b96a8', desc: '木板、生活杂物、藻类聚集' },
+  foam: { label: '泡沫类', color: '#ff9500', desc: 'EPS 泡沫浮球及碎片' },
+  plastic: { label: '塑胶类', color: '#007aff', desc: '塑胶浮球、塑料瓶、塑料袋' },
+  fishing_gear: { label: '渔具类', color: '#ff3b30', desc: '废旧渔网、绳索、饵料袋' },
+  other: { label: '其他', color: '#8e8e93', desc: '木板、生活杂物、藻类聚集' },
 }
 
 export const CLASS_ORDER = ['foam', 'plastic', 'fishing_gear', 'other']
@@ -20,7 +20,7 @@ export function classLabel(code) {
 }
 
 export function classColor(code) {
-  return WASTE_CLASSES[code]?.color || '#8b96a8'
+  return WASTE_CLASSES[code]?.color || '#8e8e93'
 }
 
 // ---------- 事件状态 ----------

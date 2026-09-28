@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-09-19T04:40:25.781004+00:00",
+  "evidence_level": "E1",
+  "runner": "scripts/fault_acceptance.py",
+  "python": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe",
+  "groups": [
+    {
+      "name": "health-degradation",
+      "command": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe -m pytest -p no:cacheprovider -o addopts= --tb=short --junitxml C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\fault-acceptance\\tmp\\group1.xml backend/tests/test_health_degradation.py",
+      "cwd": "C:\\Users\\Liii\\Desktop\\seahawk",
+      "returncode": 0,
+      "parsed_summary": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failed_names": [],
+        "passed": 7
+      },
+      "passed": true
+    },
+    {
+      "name": "ack-startup-recovery",
+      "command": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe -m pytest -p no:cacheprovider -o addopts= --tb=short --junitxml C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\fault-acceptance\\tmp\\group2.xml backend/tests/test_ack_startup_recovery.py",
+      "cwd": "C:\\Users\\Liii\\Desktop\\seahawk",
+      "returncode": 0,
+      "parsed_summary": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failed_names": [],
+        "passed": 9
+      },
+      "passed": true
+    },
+    {
+      "name": "ack-twin-loopback",
+      "command": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe -m pytest -p no:cacheprovider -o addopts= --tb=short --junitxml C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\fault-acceptance\\tmp\\group3.xml backend/tests/test_ack_twin_loopback.py",
+      "cwd": "C:\\Users\\Liii\\Desktop\\seahawk",
+      "returncode": 0,
+      "parsed_summary": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failed_names": [],
+        "passed": 5
+      },
+      "passed": true
+    },
+    {
+      "name": "ack-persistence-api-idempotency",
+      "command": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe -m pytest -p no:cacheprovider -o addopts= --tb=short --junitxml C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\fault-acceptance\\tmp\\group4.xml backend/tests/test_mqtt_ack.py backend/tests/test_task_ack_api.py backend/tests/test_task_ack_persistence.py",
+      "cwd": "C:\\Users\\Liii\\Desktop\\seahawk",
+      "returncode": 0,
+      "parsed_summary": {
+        "tests": 106,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failed_names": [],
+        "passed": 106
+      },
+      "passed": true
+    }
+  ],
+  "live_probe": null,
+  "scope_note": "受控故障注入/确定性恢复测试（E1）：逐组复跑既有确定性用例，全部为进程内注入 / 内存 transport / scratch PostgreSQL，不代表真实 broker、公网、硬件或现场故障；live_probe 仅为当前运行实例 /health 的只读观测。",
+  "summary": {
+    "groups_total": 4,
+    "groups_passed": 4,
+    "tests_total": 127,
+    "tests_passed": 127,
+    "tests_skipped": 0
+  }
+}

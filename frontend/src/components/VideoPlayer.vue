@@ -1,5 +1,5 @@
 <template>
-  <div class="player" :class="{ 'player--offline': !playing }">
+  <div class="player" ref="rootEl" :class="{ 'player--offline': !playing }">
     <!-- 视频层 -->
     <video
       ref="videoEl"
@@ -11,6 +11,7 @@
       @pause="playing = false"
       @waiting="buffering = true"
       @canplay="buffering = false"
+      @loadedmetadata="onLoadedMetadata"
     ></video>
 
     <!-- 未播放时的占位 -->
@@ -63,9 +64,17 @@
  * 选 HTTP-FLV 而不是 HLS：HLS 延迟 6~30 秒，大屏看告警会有明显滞后；
  * FLV 延迟可压到 1~2 秒。
  */
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, watch, onMounted, onUnmounted, computed } from 'vue'
 import mpegts from 'mpegts.js'
 import { classColor, classLabel } from '@/utils/constants'
+
+// Stream failures are expected when a camera or go2rtc is offline. Keep them
+// in the player state, but do not let the library turn an expected retry path
+// into console.error noise that looks like an application crash.
+mpegts.LoggingControl.applyConfig({
+  ...mpegts.LoggingControl.getConfig(),
+  enableError: false,
+})
 
 const props = defineProps({
   deviceId: { type: String, required: true },
@@ -77,11 +86,17 @@ const props = defineProps({
 })
 
 const videoEl = ref(null)
+const rootEl = ref(null)
 const playing = ref(false)
 const buffering = ref(false)
 const errorMsg = ref('')
+// 检测框归一化需要的两个尺寸：视频原始分辨率（loadedmetadata 拿到）
+// 与容器实际大小（ResizeObserver 跟踪）；不再假设流固定 1920×1080
+const videoSize = reactive({ w: 0, h: 0 })
+const boxArea = reactive({ w: 0, h: 0 })
 
 let player = null
+let resizeObserver = null
 
 const boxes = computed(() => props.detections || [])
 const detectionCount = computed(() => boxes.value.length)
@@ -92,15 +107,29 @@ const statusText = computed(() => {
   return '等待视频流…'
 })
 
+function onLoadedMetadata() {
+  const v = videoEl.value
+  if (!v) return
+  videoSize.w = v.videoWidth || 0
+  videoSize.h = v.videoHeight || 0
+}
+
 function boxStyle(box) {
-  // bbox 为 [x1,y1,x2,y2] 像素坐标，按 1920×1080 归一到百分比
+  // bbox 是视频原始像素坐标；object-fit: contain 下要先算出视频在容器里的
+  // 实际绘制区（含 letterbox 黑边偏移），再把框等比映射过去
   const [x1, y1, x2, y2] = box.bbox || [0, 0, 0, 0]
   const color = classColor(box.class)
+  const { w: vw, h: vh } = videoSize
+  const { w: cw, h: ch } = boxArea
+  if (!vw || !vh || !cw || !ch) return { display: 'none', borderColor: color }
+  const scale = Math.min(cw / vw, ch / vh)
+  const offX = (cw - vw * scale) / 2
+  const offY = (ch - vh * scale) / 2
   return {
-    left: `${(x1 / 1920) * 100}%`,
-    top: `${(y1 / 1080) * 100}%`,
-    width: `${((x2 - x1) / 1920) * 100}%`,
-    height: `${((y2 - y1) / 1080) * 100}%`,
+    left: `${offX + x1 * scale}px`,
+    top: `${offY + y1 * scale}px`,
+    width: `${Math.max(0, (x2 - x1) * scale)}px`,
+    height: `${Math.max(0, (y2 - y1) * scale)}px`,
     borderColor: color,
   }
 }
@@ -156,6 +185,15 @@ function play() {
       },
     )
 
+    // mpegts.js emits network/demux failures as an "error" event. EventEmitter
+    // treats an unhandled "error" event as fatal, so subscribe before load().
+    player.on(mpegts.Events.ERROR, (errorType, errorDetail) => {
+      const detail = [errorType, errorDetail].filter(Boolean).join(' / ')
+      errorMsg.value = detail ? `视频流连接失败：${detail}` : '视频流连接失败'
+      playing.value = false
+      buffering.value = false
+    })
+
     player.attachMediaElement(videoEl.value)
     player.load()
 
@@ -173,11 +211,32 @@ function play() {
   }
 }
 
-watch(() => props.streamUrl, play)
-watch(() => props.deviceId, play)
+// 流地址或设备任一变化都要重连；合并成一个 watcher 避免两处各挂一份
+watch([() => props.streamUrl, () => props.deviceId], play)
 
-onMounted(play)
-onUnmounted(destroy)
+onMounted(() => {
+  play()
+  // 容器尺寸决定检测框落位：宫格切换、侧栏开合、窗口缩放都会改它
+  if (rootEl.value && typeof ResizeObserver !== 'undefined') {
+    boxArea.w = rootEl.value.clientWidth || 0
+    boxArea.h = rootEl.value.clientHeight || 0
+    resizeObserver = new ResizeObserver((entries) => {
+      const rect = entries[0]?.contentRect
+      if (!rect) return
+      boxArea.w = rect.width
+      boxArea.h = rect.height
+    })
+    resizeObserver.observe(rootEl.value)
+  }
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+  destroy()
+})
 
 defineExpose({ play, destroy })
 </script>
@@ -189,7 +248,7 @@ defineExpose({ play, destroy })
   height: 100%;
   background: #05090e;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -209,6 +268,8 @@ defineExpose({ play, destroy })
   justify-content: center;
   gap: 8px;
   background: rgba(5, 9, 14, 0.86);
+  padding: 16px;
+  text-align: center;
 }
 
 .player__mask-icon {
@@ -219,21 +280,24 @@ defineExpose({ play, destroy })
 .player__mask-text {
   font-size: 12px;
   color: var(--text-sub);
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .player__retry {
   margin-top: 4px;
-  padding: 3px 12px;
-  font-size: 12px;
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 13px;
   color: var(--c-primary);
-  background: transparent;
-  border: 1px solid var(--c-primary-dim);
-  border-radius: 3px;
+  background: rgba(0, 122, 255, 0.1);
+  border: 0;
+  border-radius: 10px;
   cursor: pointer;
 }
 
 .player__retry:hover {
-  background: rgba(18, 216, 196, 0.1);
+  background: rgba(0, 122, 255, 0.18);
 }
 
 .player__top,
@@ -260,14 +324,22 @@ defineExpose({ play, destroy })
 }
 
 .player__name {
+  min-width: 0;
+  overflow: hidden;
   color: var(--text-main);
   font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player__id {
+  min-width: 0;
+  overflow: hidden;
   color: var(--text-dim);
   font-family: 'SF Mono', Consolas, monospace;
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player__live {
@@ -332,5 +404,20 @@ defineExpose({ play, destroy })
   color: #fff;
   white-space: nowrap;
   background: rgba(5, 9, 14, 0.8);
+}
+
+@media (max-width: 480px) {
+  .player__top,
+  .player__bottom {
+    padding-inline: 7px;
+  }
+
+  .player__name {
+    max-width: 54%;
+  }
+
+  .player__id {
+    max-width: 58%;
+  }
 }
 </style>

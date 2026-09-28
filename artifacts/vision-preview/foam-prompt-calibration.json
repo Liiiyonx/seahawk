@@ -1,0 +1,93 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "foam",
+    "styrofoam",
+    "plastic pellet",
+    "nurdle"
+  ],
+  "confidence_threshold": 0.004,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\frontend\\public\\demo\\foam-pellets-4k.webp",
+      "name": "foam-pellets-4k.webp",
+      "width": 3840,
+      "height": 2560,
+      "count": 7,
+      "detections": [
+        {
+          "class": "foam",
+          "confidence": 0.066643,
+          "bbox": [
+            1748.533,
+            1350.606,
+            1799.302,
+            1407.223
+          ]
+        },
+        {
+          "class": "foam",
+          "confidence": 0.026357,
+          "bbox": [
+            255.028,
+            1747.255,
+            336.62,
+            1858.062
+          ]
+        },
+        {
+          "class": "foam",
+          "confidence": 0.011678,
+          "bbox": [
+            286.454,
+            1749.089,
+            333.253,
+            1791.215
+          ]
+        },
+        {
+          "class": "foam",
+          "confidence": 0.011381,
+          "bbox": [
+            3759.568,
+            1471.01,
+            3796.411,
+            1505.463
+          ]
+        },
+        {
+          "class": "foam",
+          "confidence": 0.009762,
+          "bbox": [
+            2655.832,
+            1208.459,
+            2739.719,
+            1243.937
+          ]
+        },
+        {
+          "class": "styrofoam",
+          "confidence": 0.005439,
+          "bbox": [
+            1747.884,
+            1350.253,
+            1801.381,
+            1407.679
+          ]
+        },
+        {
+          "class": "foam",
+          "confidence": 0.004184,
+          "bbox": [
+            2573.093,
+            1017.558,
+            2677.499,
+            1139.964
+          ]
+        }
+      ]
+    }
+  ]
+}

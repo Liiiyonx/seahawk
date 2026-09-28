@@ -8,10 +8,18 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
 import pytest
+
+# Unit tests must not inherit approval or persistence switches from a production
+# .env file. Individual tests that exercise approvals inject their own runtime.
+os.environ["AGENT_REQUIRE_APPROVAL_FOR_WRITE"] = "false"
+os.environ["AGENT_PERSISTENT_REPOSITORY_ENABLED"] = "false"
+os.environ["AGENT_MODEL_ADAPTER_ENABLED"] = "false"
+os.environ["BACKGROUND_WORKERS_ENABLED"] = "false"
 
 # 把 backend/ 加进 sys.path，使 `import app.*` 可用
 BACKEND_ROOT = Path(__file__).resolve().parent.parent

@@ -39,8 +39,9 @@
         class="col-map"
         :heatmap="store.heatmap"
         :devices="store.devices"
-        :robots="store.robots"
-        :events="store.recentEvents.slice(0, 60)"
+        :robots="mapRobots"
+        :events="mapEvents"
+        :decision="agentDecision"
       />
 
       <!-- 实时事件流 -->
@@ -140,10 +141,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import StatCards from '@/components/StatCards.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
-import MapPanel from '@/components/MapPanel.vue'
+import MapPanel from '@/components/MapPanelPrecision.vue'
 import ChartPanel from '@/components/ChartPanel.vue'
 import { useRealtimeStore } from '@/stores/realtime'
-import { statsApi } from '@/api'
+import { statsApi, agentsApi } from '@/api'
 import {
   classLabel,
   classColor,
@@ -154,6 +155,61 @@ import { fmtRelative, fmtConfidence, fmtUsage, batteryColor } from '@/utils/form
 
 const store = useRealtimeStore()
 const gridSize = ref(4)
+
+// 传给地图的事件必须是稳定引用：模板里直接 slice() 每次渲染都产生新数组，
+// 会触发 MapPanel 的 watch 重画覆盖物（哪怕内容一个字没变）
+const mapEvents = computed(() => store.recentEvents.slice(0, 60))
+
+// ---------- 派单决策联动 ----------
+// 取最近一条"带决策快照"的 agent run，把候选/选中/理由标到地图上。
+// 两条纪律：
+//  1) 失败静默：大屏的主线是实时态势，不能因为 agent 接口不可用就空掉地图；
+//  2) 不造点：只有决策里出现的机器人在 store 的设备列表里真实存在时才上色，
+//     否则宁可不标 —— 地图上多一个来路不明的点比少标一个更糟。
+const agentDecision = ref(null)
+let decisionTimer = null
+
+const mapRobots = computed(() => {
+  const base = store.robots || []
+  const decision = agentDecision.value
+  if (!decision?.selected_robot_id) return base
+
+  const candidates = Array.isArray(decision.candidates) ? decision.candidates : []
+  const overlays = new Map()
+  for (const candidate of candidates) {
+    if (candidate?.robot_id) overlays.set(candidate.robot_id, candidate)
+  }
+  const selectedId = decision.selected_robot_id
+  if (!overlays.has(selectedId)) {
+    overlays.set(selectedId, { robot_id: selectedId })
+  }
+
+  return base.map((robot) => {
+    const overlay = overlays.get(robot.robot_id)
+    if (!overlay) return robot
+    const isSelected = robot.robot_id === selectedId
+    return {
+      ...robot,
+      decision_role: isSelected ? 'selected' : 'candidate',
+      decision_reason: isSelected ? decision.reason || '' : '',
+      decision_distance_m: isSelected
+        ? decision.distance_m ?? overlay.distance_m
+        : overlay.distance_m,
+      decision_same_category: !!overlay.same_category_active,
+    }
+  })
+})
+
+async function loadAgentDecision() {
+  try {
+    const page = await agentsApi.listRuns({ page: 1, page_size: 20 })
+    const items = page?.items || []
+    const found = items.find((item) => item?.decision?.selected_robot_id)
+    agentDecision.value = found?.decision || null
+  } catch {
+    /* 决策联动是增强项：取不到就退回纯态势地图，不打断大屏 */
+  }
+}
 
 const STATUS_LABEL = {
   online: '在线',
@@ -215,12 +271,12 @@ const trendOption = computed(() => ({
       const dt = new Date(d.time)
       return `${String(dt.getHours()).padStart(2, '0')}:00`
     }),
-    axisLine: { lineStyle: { color: '#1c2a3a' } },
+    axisLine: { lineStyle: { color: 'rgba(142, 142, 147, 0.32)' } },
     axisLabel: { color: '#8b96a8', fontSize: 11 },
   },
   yAxis: {
     type: 'value',
-    splitLine: { lineStyle: { color: '#141f2b' } },
+    splitLine: { lineStyle: { color: 'rgba(142, 142, 147, 0.18)' } },
     axisLabel: { color: '#8b96a8', fontSize: 11 },
   },
   series: [
@@ -231,25 +287,10 @@ const trendOption = computed(() => ({
       data: trend.value.map((d) => d.count),
       lineStyle: {
         width: 2,
-        color: {
-          type: 'linear',
-          x: 0, y: 0, x2: 1, y2: 0,
-          colorStops: [
-            { offset: 0, color: '#18e0c8' },
-            { offset: 1, color: '#4a9eff' },
-          ],
-        },
+        color: '#007aff',
       },
       areaStyle: {
-        color: {
-          type: 'linear',
-          x: 0, y: 0, x2: 0, y2: 1,
-          colorStops: [
-            { offset: 0, color: 'rgba(24,224,200,0.36)' },
-            { offset: 0.5, color: 'rgba(24,224,200,0.10)' },
-            { offset: 1, color: 'rgba(24,224,200,0.02)' },
-          ],
-        },
+        color: 'rgba(0, 122, 255, 0.14)',
       },
     },
   ],
@@ -271,7 +312,7 @@ const classOption = computed(() => ({
       radius: ['48%', '72%'],
       center: ['36%', '50%'],
       avoidLabelOverlap: true,
-      itemStyle: { borderColor: '#0d1620', borderWidth: 2 },
+      itemStyle: { borderColor: 'rgba(142, 142, 147, 0.2)', borderWidth: 1 },
       label: { show: false },
       data: CLASS_ORDER.map((k) => {
         const found = classes.value.find((c) => c.main_class === k)
@@ -291,9 +332,17 @@ let chartTimer = null
 onMounted(async () => {
   await loadCharts()
   chartTimer = setInterval(loadCharts, 60000)
+  // 派单决策 20 秒一刷：比图表快，因为它是"刚刚发生了什么"；
+  // 比实时告警慢，因为它是叠加在态势上的标注，不需要毫秒级跟随。
+  await loadAgentDecision()
+  decisionTimer = setInterval(loadAgentDecision, 20000)
 })
 
-onUnmounted(() => clearInterval(chartTimer))
+onUnmounted(() => {
+  clearInterval(chartTimer)
+  if (decisionTimer) clearInterval(decisionTimer)
+  decisionTimer = null
+})
 </script>
 
 <style scoped>
@@ -333,19 +382,19 @@ onUnmounted(() => clearInterval(chartTimer))
 }
 
 .video-switch button {
-  padding: 2px 9px;
+  min-height: 32px;
+  padding: 5px 11px;
   font-size: 12px;
   color: var(--text-sub);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  background: var(--bg-panel-2);
+  border: 0;
+  border-radius: 9px;
   cursor: pointer;
 }
 
 .video-switch button.on {
   color: var(--c-primary);
-  border-color: var(--c-primary-dim);
-  background: rgba(18, 216, 196, 0.09);
+  background: var(--bg-active);
 }
 
 .video-grid {
@@ -373,7 +422,7 @@ onUnmounted(() => clearInterval(chartTimer))
 
 .feed__item {
   padding: 7px 9px;
-  border-radius: 4px;
+  border-radius: 9px;
   border-left: 2px solid transparent;
   transition: background 0.15s;
 }
@@ -384,7 +433,7 @@ onUnmounted(() => clearInterval(chartTimer))
 
 .feed__item--new {
   border-left-color: var(--c-warn);
-  background: rgba(245, 166, 35, 0.09);
+  background: rgba(255, 149, 0, 0.1);
 }
 
 .feed__head {
@@ -438,7 +487,7 @@ onUnmounted(() => clearInterval(chartTimer))
 
 .robot-item {
   padding: 7px 0;
-  border-bottom: 1px solid rgba(28, 42, 58, 0.5);
+  border-bottom: 1px solid var(--separator);
 }
 
 .robot-item:last-child {
@@ -498,9 +547,81 @@ onUnmounted(() => clearInterval(chartTimer))
   font-family: 'SF Mono', Consolas, monospace;
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 1180px) {
+  .dashboard {
+    height: auto;
+    min-height: 100%;
+  }
+
   .dashboard__grid { grid-template-columns: 1fr 1.3fr; }
+  .col-map { min-height: 368px; }
   .col-feed { grid-column: span 2; max-height: 220px; }
-  .dashboard__bottom { grid-template-columns: 1fr 1fr; }
+  .robot-panel { max-height: 230px; }
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .dashboard__grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col-video,
+  .col-map,
+  .col-feed {
+    overflow: visible;
+  }
+
+  .video-grid {
+    flex: none;
+    min-height: 250px;
+    padding: 10px;
+  }
+
+  .video-grid--4 {
+    min-height: 400px;
+    grid-template-rows: repeat(2, minmax(180px, 1fr));
+  }
+
+  .col-map {
+    min-height: 360px;
+  }
+
+  .col-feed {
+    max-height: 340px;
+    overflow: hidden;
+  }
+
+  .dashboard__bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .robot-panel {
+    max-height: 360px;
+  }
+}
+
+@media (max-width: 560px) {
+  .video-switch button {
+    min-height: 36px;
+    padding: 7px 10px;
+  }
+
+  .video-grid--4 {
+    min-height: 340px;
+    grid-template-rows: repeat(2, minmax(150px, 1fr));
+  }
+
+  .col-map {
+    min-height: 330px;
+  }
+
+  .bar {
+    grid-template-columns: 44px minmax(0, 1fr) 36px;
+  }
 }
 </style>

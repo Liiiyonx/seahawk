@@ -9,6 +9,7 @@ ProactorEventLoop 不支持 → MQTT 永远连不上。
 本脚本在 import uvicorn 之前设置 Selector 事件循环策略，确保生效。
 """
 
+import argparse
 import asyncio
 import sys
 
@@ -18,6 +19,18 @@ if sys.platform == "win32":
 import uvicorn
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the SeaSight backend.")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--reload", action="store_true")
+    args = parser.parse_args()
+
     # loop="none" 让 uvicorn 用 asyncio 默认策略（即上面设的 Selector 策略），
     # 而不是 uvicorn 在 Windows 上硬编码的 ProactorEventLoop。
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, loop="none")
+    uvicorn.run(
+        "app.main:app",
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+        loop="none",
+    )

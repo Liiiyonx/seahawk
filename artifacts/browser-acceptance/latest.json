@@ -1,0 +1,656 @@
+{
+  "generated_at": "2026-09-19T11:54:42.406Z",
+  "frontend_url": "http://127.0.0.1:5174",
+  "backend_url": "http://127.0.0.1:8001",
+  "evidence_level": "E1",
+  "scope_note": "真实登录（登录页表单 + 真实 POST /api/v1/auth/login）、真实业务读取链路、真实 CSV 导出、真实 /health 降级探针；仅 Agent 页交互场景使用 page.route 拦截以稳定构造「活跃运行 / waiting_approval」状态（逐项标注 mocked: true 与原因）。本包是 E1 集成验收：代表本机代码 + 真实后端服务的联调结果，不代表真实用户试点、真实设备、真实海域或真实网络压测。",
+  "results": [
+    {
+      "name": "环境预检：前端与后端可达",
+      "passed": true,
+      "elapsed_ms": 171,
+      "mocked": false,
+      "evidence": {
+        "frontend_http": 200,
+        "backend_health_http": 200
+      }
+    },
+    {
+      "name": "未登录访问 /dashboard 跳转 /login 且登录表单可见",
+      "passed": true,
+      "elapsed_ms": 727,
+      "mocked": false,
+      "evidence": {
+        "started_route": "/dashboard",
+        "final_pathname": "/login",
+        "login_form_visible": true,
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\00-unauthenticated-dashboard-redirect.png"
+      }
+    },
+    {
+      "name": "admin 真实登录（登录页表单 + 真实 POST /auth/login）",
+      "passed": true,
+      "elapsed_ms": 664,
+      "mocked": false,
+      "evidence": {
+        "login": {
+          "http_status": 200,
+          "code": 0,
+          "role": "admin"
+        },
+        "storage_state_saved": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\admin-storage.json",
+        "redirect_to": "/dashboard"
+      }
+    },
+    {
+      "name": "真实访问 /dashboard（监测大屏）",
+      "passed": true,
+      "elapsed_ms": 639,
+      "mocked": false,
+      "evidence": {
+        "route": "/dashboard",
+        "page_title": "监测大屏 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/stats/dashboard": 200,
+          "/api/v1/devices": 200,
+          "/api/v1/robots": 200,
+          "/api/v1/events": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          },
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/trend",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/classes",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [
+          "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        ],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\02-dashboard.png"
+      }
+    },
+    {
+      "name": "真实访问 /events（事件中心）",
+      "passed": true,
+      "elapsed_ms": 474,
+      "mocked": false,
+      "evidence": {
+        "route": "/events",
+        "page_title": "事件中心 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/events": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/tasks",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\03-events.png"
+      }
+    },
+    {
+      "name": "真实访问 /tasks（工单看板）",
+      "passed": true,
+      "elapsed_ms": 497,
+      "mocked": false,
+      "evidence": {
+        "route": "/tasks",
+        "page_title": "工单看板 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/tasks": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/tasks",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\04-tasks.png"
+      }
+    },
+    {
+      "name": "真实访问 /devices（设备态势）",
+      "passed": true,
+      "elapsed_ms": 508,
+      "mocked": false,
+      "evidence": {
+        "route": "/devices",
+        "page_title": "设备态势 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/devices": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\05-devices.png"
+      }
+    },
+    {
+      "name": "真实访问 /reports（治理报表）",
+      "passed": true,
+      "elapsed_ms": 611,
+      "mocked": false,
+      "evidence": {
+        "route": "/reports",
+        "page_title": "治理报表 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/reports/daily": 200,
+          "/api/v1/reports/summary": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/reports/daily",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/reports/summary",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\06-reports.png"
+      }
+    },
+    {
+      "name": "真实访问 /agents（智能体）",
+      "passed": true,
+      "elapsed_ms": 522,
+      "mocked": false,
+      "evidence": {
+        "route": "/agents",
+        "page_title": "智能体 · 探海灵眸 SeaSight",
+        "root_visible": true,
+        "key_apis": {
+          "/api/v1/agents/runtime/status": 200,
+          "/api/v1/agents/runs": 200,
+          "/api/v1/agents/approvals": 200,
+          "/api/v1/agents/tools": 200,
+          "/api/v1/agents/evals/latest": 200,
+          "/api/v1/ai/agents": 200
+        },
+        "empty_checks": [
+          {
+            "checked": true,
+            "list_empty": false,
+            "content_visible": true
+          }
+        ],
+        "api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/agents/runtime/status",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/ai/agents",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/agents/evals/latest",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/agents/approvals",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/agents/tools",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/agents/runs",
+            "status": 200
+          }
+        ],
+        "page_errors": [],
+        "console_errors": [],
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\07-agents.png"
+      }
+    },
+    {
+      "name": "真实 CSV 导出：工单与日报（BOM/表头/字节数/SHA256）",
+      "passed": true,
+      "elapsed_ms": 379,
+      "mocked": false,
+      "evidence": {
+        "tasks": {
+          "endpoint": "/api/v1/tasks/export",
+          "http_status": 200,
+          "content_type": "text/csv; charset=utf-8",
+          "bytes": 1572,
+          "sha256": "80a0cd842d6ecc393af7299d82c202c6eb2cec15ab4c11f53f12c4cca0cfd2fc",
+          "utf8_bom": true,
+          "stable_header": "任务编号",
+          "saved_as": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\tasks-export.csv"
+        },
+        "reports": {
+          "endpoint": "/api/v1/reports/export",
+          "http_status": 200,
+          "content_type": "text/csv; charset=utf-8",
+          "bytes": 1045,
+          "sha256": "7a960c2caf3464299f40a4ab0ce1324180dd0df911dfe13d585eabbf944a9775",
+          "utf8_bom": true,
+          "stable_header": "统计日期",
+          "saved_as": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\reports-export.csv"
+        }
+      }
+    },
+    {
+      "name": "viewer 真实登录：界面不暴露写操作且写接口真实 403",
+      "passed": true,
+      "elapsed_ms": 750,
+      "mocked": false,
+      "evidence": {
+        "login": {
+          "http_status": 200,
+          "code": 0,
+          "role": "viewer"
+        },
+        "tasks_write_buttons_hidden": {
+          "manual_create": true,
+          "dispatch_pending": true
+        },
+        "write_probe": {
+          "endpoint": "/api/v1/tasks/tsk_wp17_viewer_403_probe",
+          "method": "PATCH",
+          "http_status": 403,
+          "note": "权限依赖在 handler 之前拦截，未修改业务数据"
+        },
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\08-viewer-readonly.png"
+      }
+    },
+    {
+      "name": "MQTT 降级时只读平台仍可用（真实 /health）",
+      "passed": true,
+      "elapsed_ms": 643,
+      "mocked": false,
+      "evidence": {
+        "health": {
+          "status": "degraded",
+          "app": "SeaSight",
+          "dependencies": {
+            "redis": "ok",
+            "mqtt": "down",
+            "database": "ok"
+          },
+          "ack_recovery": null
+        },
+        "degraded": {
+          "probe": "mqtt 真实断开：status 必须非 ok",
+          "mqtt": "down",
+          "status": "degraded"
+        },
+        "dashboard_key_apis": {
+          "/api/v1/stats/dashboard": 200,
+          "/api/v1/devices": 200,
+          "/api/v1/robots": 200,
+          "/api/v1/events": 200
+        },
+        "dashboard_api_log": [
+          {
+            "method": "GET",
+            "path": "/api/v1/events/heatmap",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/notifications",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/dashboard",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/robots",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/devices",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/events",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/trend",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/stats/classes",
+            "status": 200
+          }
+        ],
+        "conclusion": "MQTT 真实断开时只读能力可用；这不等于真实设备或网络压测。",
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\09-mqtt-degraded-dashboard.png"
+      }
+    },
+    {
+      "name": "活跃运行二次确认后才取消",
+      "passed": true,
+      "elapsed_ms": 736,
+      "mocked": true,
+      "mock_reason": "page.route 拦截 /api/v1/agents/** 构造「活跃运行 / waiting_approval」等当前数据库难以稳定生成的状态（要求 4 允许的受控拦截）",
+      "evidence": {
+        "cancel_calls": 1,
+        "confirmation_visible": true,
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\10-active-run-cancel-confirm.png"
+      }
+    },
+    {
+      "name": "viewer 审批按钮禁用并显示权限提示",
+      "passed": true,
+      "elapsed_ms": 476,
+      "mocked": true,
+      "mock_reason": "page.route 拦截 /api/v1/agents/** 构造「活跃运行 / waiting_approval」等当前数据库难以稳定生成的状态（要求 4 允许的受控拦截）",
+      "evidence": {
+        "approve_disabled": true,
+        "reject_disabled": true,
+        "permission_hint": true,
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\11-viewer-approval-disabled.png"
+      }
+    },
+    {
+      "name": "运行详情关闭后刷新仍保持关闭",
+      "passed": true,
+      "elapsed_ms": 929,
+      "mocked": true,
+      "mock_reason": "page.route 拦截 /api/v1/agents/** 构造「活跃运行 / waiting_approval」等当前数据库难以稳定生成的状态（要求 4 允许的受控拦截）",
+      "evidence": {
+        "closed_before_reload": true,
+        "closed_after_reload": true,
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\browser-acceptance\\12-detail-closed-after-reload.png"
+      }
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  },
+  "observation": {
+    "api_paths": [
+      "/api/v1/agents/approvals",
+      "/api/v1/agents/evals/latest",
+      "/api/v1/agents/runs",
+      "/api/v1/agents/runs/run_browser_active",
+      "/api/v1/agents/runs/run_browser_active/cancel",
+      "/api/v1/agents/runs/run_browser_active/steps",
+      "/api/v1/agents/runtime/status",
+      "/api/v1/agents/tools",
+      "/api/v1/ai/agents",
+      "/api/v1/auth/login",
+      "/api/v1/devices",
+      "/api/v1/events",
+      "/api/v1/events/heatmap",
+      "/api/v1/reports/daily",
+      "/api/v1/reports/summary",
+      "/api/v1/robots",
+      "/api/v1/stats/classes",
+      "/api/v1/stats/dashboard",
+      "/api/v1/stats/notifications",
+      "/api/v1/stats/trend",
+      "/api/v1/tasks"
+    ]
+  }
+}

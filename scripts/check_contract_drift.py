@@ -26,6 +26,13 @@ import re
 import sys
 from pathlib import Path
 
+# Windows 控制台默认 GBK：✅ / ⚠️ 等字符直接 print 会抛 UnicodeEncodeError 并中断
+# 校验输出。统一把 stdout/stderr 重配置为 UTF-8（errors='replace' 兜底），
+# 只修输出编码，不改变任何契约校验语义；管道 / 文件重定向下同样生效。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 BACKEND = ROOT / "backend"
 DOCS = ROOT / "docs"

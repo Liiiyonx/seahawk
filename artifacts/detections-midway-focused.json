@@ -1,0 +1,143 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "shoe",
+    "sneaker",
+    "boot",
+    "sandal"
+  ],
+  "confidence_threshold": 0.015,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\midway.jpg",
+      "name": "midway.jpg",
+      "width": 6000,
+      "height": 4000,
+      "count": 12,
+      "detections": [
+        {
+          "class": "shoe",
+          "confidence": 0.372337,
+          "bbox": [
+            3087.328,
+            184.237,
+            5273.295,
+            2247.997
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.277936,
+          "bbox": [
+            561.415,
+            897.837,
+            2335.315,
+            2901.101
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.17246,
+          "bbox": [
+            3857.829,
+            2307.351,
+            5753.123,
+            3998.016
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.133099,
+          "bbox": [
+            3726.775,
+            486.064,
+            5741.572,
+            2849.291
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.123187,
+          "bbox": [
+            2136.028,
+            188.426,
+            4226.553,
+            1683.11
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.084992,
+          "bbox": [
+            5063.053,
+            3132.354,
+            5772.636,
+            3725.046
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.044234,
+          "bbox": [
+            4026.398,
+            0.922,
+            5993.625,
+            2057.041
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.035238,
+          "bbox": [
+            0.0,
+            273.394,
+            2267.427,
+            2358.968
+          ]
+        },
+        {
+          "class": "sneaker",
+          "confidence": 0.032058,
+          "bbox": [
+            3231.361,
+            222.433,
+            5239.537,
+            1996.011
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.030374,
+          "bbox": [
+            4373.862,
+            3122.372,
+            5762.269,
+            4000.0
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.022539,
+          "bbox": [
+            2440.029,
+            1747.726,
+            5132.228,
+            3799.552
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.017868,
+          "bbox": [
+            4973.156,
+            3569.625,
+            5605.769,
+            3999.874
+          ]
+        }
+      ]
+    }
+  ]
+}

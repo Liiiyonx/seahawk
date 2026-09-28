@@ -1,0 +1,163 @@
+你是 SeaSight（探海灵眸）项目的 WP-17 独立实施代理。工作目录：
+C:\Users\Liii\Desktop\seahawk
+
+先阅读并遵守：
+1. 项目文档/Harness_分工执行手册.md
+2. docs/evidence-claim-policy.md
+3. docs/architecture.md
+4. docs/api.md
+5. docs/device-interface.md
+6. frontend/src/router/index.js、frontend/src/App.vue 和各业务 View
+7. scripts/browser_acceptance.mjs
+8. backend/tests/test_health_degradation.py、test_ack_startup_recovery.py、test_ack_twin_loopback.py
+
+工作树中有大量尚未提交的既有增量。不要运行 git reset、git checkout、git clean，不要删除或覆盖与本工作包无关的文件。手工编辑使用 apply_patch。最终只报告你真实执行的命令和真实结果。
+
+目标：
+把现有仅覆盖 Agent 页面、且用 API 拦截构造状态的浏览器验收，升级为可复核的 WP-17 集成验收包，包含：
+A. 真实登录 + 主业务链路浏览器 E2E；
+B. 可重复执行、明确标注为 E1 受控故障注入的降级/ACK 恢复演练；
+C. 与现有工程门禁、证据口径和 Harness 执行手册接线。
+
+==================================================
+一、浏览器 E2E 的硬要求
+==================================================
+
+以 scripts/browser_acceptance.mjs 为主入口改造，保留原有 3 个 Agent 交互场景，但整个脚本必须按下面要求增强：
+
+1. 登录必须走真实登录页与真实 POST /api/v1/auth/login，不允许用 localStorage 直接注入 token 伪造登录成功。登录后可以保存 storageState 供同一管理员上下文的业务页面复用。
+2. 增加“未登录访问 /dashboard 必须跳转 /login”场景；不得只检查 URL，必须确认登录表单可见。
+3. 登录 admin/admin123456 后，真实访问并检查以下页面：
+   - /dashboard
+   - /events
+   - /tasks
+   - /devices
+   - /reports
+   - /agents
+   每页要求：
+   - 页面根节点或稳定业务标识可见；
+   - 至少等待其关键 API 请求完成并检查响应；
+   - 关键 API 无 4xx/5xx（允许空列表，但页面必须正确显示空态而非崩溃）；
+   - 捕获 pageerror/console error，出现真实运行时错误即失败；
+   - 保存对应全页截图到 artifacts/browser-acceptance/，文件名稳定可找；
+   - 原始 JSON 记录页面、路径、耗时、观察到的主要 API、业务可见证据。
+4. 尽可能使用真实后端数据。只有以下情况允许 `page.route` 受控拦截，并必须在报告结果里标明 `mocked: true` 和原因：
+   - 构造 Agent 活跃运行 / waiting_approval 这类当前数据库难以稳定生成的状态；
+   - 构造特定前端异常态；
+   - 不得拦截 Dashboard、Events、Tasks、Devices、Reports 的正常读取链路。
+5. 增加真实 CSV 导出场景：
+   - 工单 CSV：GET /api/v1/tasks/export；
+   - 报表 CSV：GET /api/v1/reports/export；
+   - 断言 HTTP 2xx、Content-Type 含 text/csv、文件非空、正文带 UTF-8 BOM、至少包含一个稳定表头；
+   - 将两个导出文件保存到 artifacts/browser-acceptance/，报告记录字节数与 SHA256。
+6. 增加 viewer 权限场景：
+   - 真实登录 viewer/viewer123456；
+   - 验证界面不暴露 admin/operator 写操作，或写按钮被禁用且有无权限提示；
+   - 直接访问写接口应收到 403（选一个稳定写接口进行真实请求，不要修改业务数据）。
+7. 增加 MQTT 降级但只读平台仍可用的场景：
+   - 直接请求真实后端 GET /health，不用拦截；
+   - 断言 dependencies 包含 redis/mqtt/database；
+   - 当前无 broker 时，真实断言 mqtt 不是 ok、status 不是 ok；
+   - 同时真实打开 /dashboard，确认页面仍可加载和读取业务 API；
+   - 报告必须写明“MQTT 真实断开时只读能力可用；这不等于真实设备或网络压测”。
+8. 报告结构至少包含：
+   - generated_at
+   - frontend_url / backend_url
+   - evidence_level: "E1"
+   - scope_note：明确真实做了什么、拦截了什么、不代表真实用户/设备/海域
+   - results：每项含 name、passed、elapsed_ms、mocked、evidence
+   - summary：total/passed/failed
+   - observation：页面扫描到的 API 路径去重列表
+9. 任一场景失败，进程退出码必须为 1；全部通过为 0。
+10. 脚本应从 `PLAYWRIGHT_CORE_PATH` 加载 playwright-core；缺依赖时给出明确命令，不允许静默跳过关键场景。
+
+运行环境信息：
+- 前端：http://127.0.0.1:5174
+- 后端：http://127.0.0.1:8001
+- 系统 Chrome：C:\Program Files\Google\Chrome\Application\chrome.exe
+- 已确认全局 Playwright Core 可用：
+  C:\Users\Liii\AppData\Roaming\npm\node_modules\@playwright\mcp\node_modules\playwright-core
+不要下载 Playwright 浏览器。
+
+==================================================
+二、受控故障演练包
+==================================================
+
+新增 scripts/fault_acceptance.py。它不是新的“真实故障”证据，而是把现有已实现的确定性故障恢复用例做成一键可复现的 E1 证据包。
+
+1. 用 Python subprocess 调 pytest，逐组执行并解析结果，不得用字符串猜测成功：
+   - 健康检查真实降级语义：backend/tests/test_health_degradation.py
+   - ACK 启动恢复：backend/tests/test_ack_startup_recovery.py
+   - 设备孪生 ACK 闭环与重复回放幂等：backend/tests/test_ack_twin_loopback.py
+   - ACK 持久化/API 幂等（至少覆盖 backend/tests/test_mqtt_ack.py、test_task_ack_api.py、test_task_ack_persistence.py 中稳定子集）
+   如果某组在仓库根目录无法工作，修正命令，不得直接删除该组。
+2. 可选 live probe：
+   - 若设置 `SEASIGHT_BACKEND_URL`，请求 GET /health；
+   - 记录真实 status、dependencies、ack_recovery（字段可能因旧进程缺失，缺失要如实记录而不是伪造）；
+   - live probe 结果与内部测试分组分开，不能混为同一证据等级。
+3. 输出 artifacts/fault-acceptance/latest.json，包含：
+   - generated_at
+   - evidence_level: "E1"
+   - runner
+   - groups，每项含 name、command、returncode、parsed_summary、passed
+   - live_probe（未配置时为 null）
+   - scope_note：说明是受控测试，不代表真实 broker、公网、硬件或现场故障
+   - summary
+4. 所有内部测试组通过才返回 0；任一失败返回 1。
+5. 终端输出要适合答辩现场展示：逐组 PASS/FAIL、通过数、证据文件路径。
+
+==================================================
+三、工程接线与文档
+==================================================
+
+1. 在 Makefile 增加：
+   - `test-browser`：按环境变量运行 scripts/browser_acceptance.mjs；
+   - `fault-acceptance`：运行 scripts/fault_acceptance.py。
+   必须保持现有目标不变。
+2. 在 docs/development.md 增加“WP-17 集成验收”章节，写清前置服务、命令、产物、证据上限。
+3. 在 README 的验证章节增加两条命令，不夸大结果。
+4. 完成后在你实际复跑后更新 项目文档/Harness_分工执行手册.md：
+   - 新增 WP-17 条目；
+   - 只有实际通过才写数字；
+   - 明确浏览器 E2E 最多是 E1，仍不是真实用户试点；
+   - 明确故障包是受控注入测试，仍不是真实 broker / 硬件 / 公网故障。
+
+==================================================
+四、实现约束
+==================================================
+
+- 不要引入大型 E2E 框架或下载浏览器。沿用 Node + 全局 playwright-core。
+- 不要修改业务 API 契约来迁就测试。
+- 不要为了测试全绿而吞掉异常、删除断言或把关键场景标 skip。
+- 不要破坏原有 1010 项 pytest 基线。
+- 不要触碰 `.wp14b-tmp/`、`.wp14d-tmp/`、`wp14c-tmp/`、`wp14d-basetemp/`、`wp14d-bt2`。
+- 手工改动必须使用 apply_patch。
+
+==================================================
+五、必须执行的验收
+==================================================
+
+1. 前端生产构建：
+   cd frontend; npm run build
+2. 完整浏览器验收：
+   $env:PLAYWRIGHT_CORE_PATH='C:\Users\Liii\AppData\Roaming\npm\node_modules\@playwright\mcp\node_modules\playwright-core'
+   node scripts/browser_acceptance.mjs
+3. 故障演练：
+   .\.venv-analysis\Scripts\python.exe scripts/fault_acceptance.py
+4. 相关 pytest：
+   backend/tests/test_health_degradation.py
+   backend/tests/test_ack_startup_recovery.py
+   backend/tests/test_ack_twin_loopback.py
+   backend/tests/test_mqtt_ack.py
+   backend/tests/test_task_ack_api.py
+   backend/tests/test_task_ack_persistence.py
+5. 契约与证据门禁：
+   .\.venv-analysis\Scripts\python.exe scripts/check_contract_drift.py
+   .\.venv-analysis\Scripts\python.exe scripts/check_claims.py --root .
+
+如果现有 5174 前端或 8001 后端不可达，不要停止已有服务，也不要伪报；修复脚本或报告 blocker。最后给出：
+- 修改文件清单
+- 实际执行命令
+- 每项原始结果摘要
+- 产物绝对路径
+- 没做到的项和原因

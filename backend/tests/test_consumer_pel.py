@@ -164,3 +164,81 @@ class TestReclaimIsWired:
         assert "xreadgroup" in self._called_names(node), (
             "扫描器连 xreadgroup 都扫不到，说明它已经失效。"
         )
+
+
+# ======================================================================
+# 三、补派循环：先快照标量 ID，再逐条使用独立 session
+# ======================================================================
+class TestPendingDispatcherResilience:
+    """锁住真实故障的两层根因。
+
+    1. ``EventStatus.NEW`` 只在循环内引用；漏导入时不会在启动阶段暴露，
+       而是每条事件都失败，把可用事件全部留在原地。
+    2. ``rollback`` 会过期 ORM 对象。若循环继续从上一轮的 Task/Event
+       读取 ID，首个异常会升级成整轮 ``MissingGreenlet``，后续事件不再处理。
+    """
+
+    @staticmethod
+    def _function_node(name: str) -> ast.AsyncFunctionDef:
+        tree = ast.parse(CONSUMER_PY.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.AsyncFunctionDef) and node.name == name:
+                return node
+        raise AssertionError(
+            f"consumer.py 里找不到异步函数 {name} —— 守卫自身失效，必须修测试锚点"
+        )
+
+    def test_event_status_is_imported_inside_dispatcher(self) -> None:
+        node = self._function_node("pending_dispatcher")
+        imported = {
+            alias.name
+            for sub in ast.walk(node)
+            if isinstance(sub, ast.ImportFrom) and sub.module == "app.models.event"
+            for alias in sub.names
+        }
+        assert "EventStatus" in imported, (
+            "pending_dispatcher 使用了 EventStatus.NEW，但没有导入 EventStatus。\n"
+            "该错误只会在每轮补派处理事件时出现，导致所有可派事件持续失败。"
+        )
+
+    def test_snapshots_scalar_ids_before_per_item_sessions(self) -> None:
+        node = self._function_node("pending_dispatcher")
+        expected_attrs = {
+            "assigned_ids": "task_id",
+            "pending_ids": "task_id",
+            "event_ids": "event_id",
+        }
+        snapshot_lines: dict[str, int] = {}
+
+        for sub in ast.walk(node):
+            if not isinstance(sub, (ast.Assign, ast.AnnAssign)):
+                continue
+            target = sub.targets[0] if isinstance(sub, ast.Assign) else sub.target
+            if not isinstance(target, ast.Name) or target.id not in expected_attrs:
+                continue
+            value = sub.value
+            if not isinstance(value, ast.ListComp) or not isinstance(value.elt, ast.Attribute):
+                continue
+            if value.elt.attr == expected_attrs[target.id]:
+                snapshot_lines[target.id] = sub.lineno
+
+        assert set(snapshot_lines) == set(expected_attrs), (
+            "pending_dispatcher 必须先把 assigned/pending/event ID 快照成标量列表。\n"
+            "直接把 ORM 对象留给逐条 session：一次 rollback 就会过期对象属性，\n"
+            "后续读取触发 MissingGreenlet，并中断整轮补派。"
+        )
+
+        loop_lines: dict[str, int] = {}
+        for sub in ast.walk(node):
+            if not isinstance(sub, ast.For) or not isinstance(sub.iter, ast.Name):
+                continue
+            if sub.iter.id in expected_attrs:
+                loop_lines[sub.iter.id] = sub.lineno
+
+        assert set(loop_lines) == set(expected_attrs), (
+            "补派循环必须遍历快照后的 ID 列表，不能重新遍历 ORM 对象。"
+        )
+        for name in expected_attrs:
+            assert snapshot_lines[name] < loop_lines[name], (
+                f"{name} 的快照必须发生在对应循环之前。"
+            )

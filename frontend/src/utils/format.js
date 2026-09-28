@@ -65,7 +65,7 @@ export function fmtUsage(value) {
 /** 电量颜色（低电量告警） */
 export function batteryColor(pct) {
   const n = Number(pct ?? 100)
-  if (n < 20) return '#f2564c'
-  if (n < 40) return '#f5a623'
-  return '#3ddc84'
+  if (n < 20) return '#ff3b30'
+  if (n < 40) return '#ff9500'
+  return '#34c759'
 }

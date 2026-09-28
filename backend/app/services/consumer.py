@@ -29,6 +29,19 @@ from app.db.session import get_session_factory
 PEL_MIN_IDLE_MS = 60_000
 
 
+def _stream_feature_unsupported(exc: BaseException) -> bool:
+    """判断 Redis 是否缺少 Streams 消费组/认领能力。
+
+    开发机上可能误连旧版 Redis（没有 XGROUP/XAUTOCLAIM）。这不是业务
+    处理失败，不能让后台任务每 3 秒刷一次同样的错误；应明确降级到
+    数据库补派（pending_dispatcher）。
+    """
+    message = str(exc).lower()
+    return "unknown command" in message and (
+        "xgroup" in message or "xautoclaim" in message or "xreadgroup" in message
+    )
+
+
 async def _reclaim_pending(
     redis,
     stream: str,
@@ -101,6 +114,12 @@ async def dispatch_consumer() -> None:
         await redis.xgroup_create(stream, group, id="0", mkstream=True)
         logger.info(f"[消费者] 创建消费者组 {group} on {stream}")
     except Exception as exc:   # noqa: BLE001
+        if _stream_feature_unsupported(exc):
+            logger.warning(
+                "[消费者] 当前 Redis 不支持消费组/XAUTOCLAIM，"
+                "已切换为数据库定时补派；Redis Streams 消费未启用"
+            )
+            return
         if "BUSYGROUP" not in str(exc):
             logger.warning(f"[消费者] 创建消费者组失败：{exc}")
 
@@ -140,6 +159,12 @@ async def dispatch_consumer() -> None:
             logger.info("[消费者] 派单消费者收到取消信号，退出")
             break
         except Exception as exc:   # noqa: BLE001
+            if _stream_feature_unsupported(exc):
+                logger.warning(
+                    "[消费者] 当前 Redis 不支持 Streams 消费组，"
+                    "已切换为数据库定时补派；Redis Streams 消费未启用"
+                )
+                return
             logger.error(f"[消费者] 循环异常：{exc}")
             await asyncio.sleep(3)
 
@@ -207,6 +232,7 @@ async def pending_dispatcher() -> None:
     每 30 秒扫描一次，把新事件派给新上线的机器人。
     """
     from app.core.exceptions import NoRobotAvailableError
+    from app.models.event import EventStatus
     from app.models.task import TaskStatus
     from app.repositories import EventRepository, TaskRepository
     from app.services.dispatch import DispatchEngine, finalize_dispatch
@@ -217,37 +243,67 @@ async def pending_dispatcher() -> None:
 
     while True:
         try:
-            async with get_session_factory()() as session:
-                engine = DispatchEngine(session)
-                tasks = TaskRepository(session)
+            session_factory = get_session_factory()
 
-                # ---------- 第一步：ACK 超时回退（五步筛选的第五步）----------
-                # ★ `handle_ack_timeout` 过去没有任何调用点：机器人掉线后
-                #   任务会永久停在 assigned，不报错也不打日志。
-                for task in await tasks.list_by_status(TaskStatus.ASSIGNED, limit=50):
-                    try:
+            # 先只快照标量 ID。ORM rollback 会过期对象属性，若在失败后
+            # 继续从上一轮的 Task/Event 上读 ID，会抛 MissingGreenlet，
+            # 把单条失败升级为整轮循环失败。
+            async with session_factory() as session:
+                assigned_ids = [
+                    task.task_id
+                    for task in await TaskRepository(session).list_by_status(
+                        TaskStatus.ASSIGNED, limit=50
+                    )
+                ]
+                pending_ids = [
+                    task.task_id
+                    for task in await TaskRepository(session).list_by_status(
+                        TaskStatus.PENDING, limit=50
+                    )
+                ]
+                event_ids = [
+                    event.event_id
+                    for event in await EventRepository(session).recent_for_dispatch(limit=20)
+                ]
+
+            # ---------- 第一步：ACK 超时回退（五步筛选的第五步）----------
+            # ★ `handle_ack_timeout` 过去没有任何调用点：机器人掉线后
+            #   任务会永久停在 assigned，不报错也不打日志。
+            for task_id in assigned_ids:
+                try:
+                    async with session_factory() as session:
+                        task = await TaskRepository(session).get_by_task_id(task_id)
+                        if task is None:
+                            continue
+                        engine = DispatchEngine(session)
                         if await engine.handle_ack_timeout(task):
                             await session.commit()
-                    except Exception as exc:   # noqa: BLE001
-                        await session.rollback()
-                        logger.warning(f"[补派] 任务 {task.task_id} 超时回退失败：{exc}")
+                except Exception as exc:   # noqa: BLE001
+                    logger.warning(f"[补派] 任务 {task_id} 超时回退失败：{exc}")
 
-                # ---------- 第二步：换车重派 ----------
-                # 回退成 pending 的任务若不重新派出去，只是换个状态继续卡着。
-                for task in await tasks.list_by_status(TaskStatus.PENDING, limit=50):
-                    try:
+            # ---------- 第二步：换车重派 ----------
+            # 回退成 pending 的任务若不重新派出去，只是换个状态继续卡着。
+            for task_id in pending_ids:
+                try:
+                    async with session_factory() as session:
+                        task = await TaskRepository(session).get_by_task_id(task_id)
+                        if task is None:
+                            continue
+                        engine = DispatchEngine(session)
                         if await engine.reassign_task(task):
                             await session.commit()
-                    except Exception as exc:   # noqa: BLE001
-                        await session.rollback()
-                        logger.warning(f"[补派] 任务 {task.task_id} 换车重派失败：{exc}")
+                except Exception as exc:   # noqa: BLE001
+                    logger.warning(f"[补派] 任务 {task_id} 换车重派失败：{exc}")
 
-                # ---------- 第三步：为尚未派单的事件补派 ----------
-                events = await EventRepository(session).recent_for_dispatch(limit=20)
-
-                dispatched = 0
-                for event in events:
-                    try:
+            # ---------- 第三步：为尚未派单的事件补派 ----------
+            dispatched = 0
+            for event_id in event_ids:
+                try:
+                    async with session_factory() as session:
+                        event = await EventRepository(session).get_by_event_id(event_id)
+                        if event is None or event.status != EventStatus.NEW:
+                            continue
+                        engine = DispatchEngine(session)
                         task = await engine.dispatch_for_event(event)
                         if task is None:
                             continue
@@ -256,21 +312,19 @@ async def pending_dispatcher() -> None:
                         #   于是「日志说补派成功」而机器人一动不动。
                         await finalize_dispatch(task)
                         dispatched += 1
-                    except NoRobotAvailableError:
-                        await session.rollback()
-                        continue   # 暂无可用机器人，下一轮再试
-                    except Exception as exc:   # noqa: BLE001
-                        await session.rollback()
-                        logger.warning(f"[补派] 事件 {event.event_id} 处理失败：{exc}")
-                        continue
+                except NoRobotAvailableError:
+                    continue   # 暂无可用机器人，下一轮再试
+                except Exception as exc:   # noqa: BLE001
+                    logger.warning(f"[补派] 事件 {event_id} 处理失败：{exc}")
+                    continue
 
-                if dispatched:
-                    logger.info(f"[补派] 本轮补派 {dispatched} 个任务")
+            if dispatched:
+                logger.info(f"[补派] 本轮补派 {dispatched} 个任务")
 
         except asyncio.CancelledError:
             logger.info("[补派] 定时任务收到取消信号，退出")
             break
         except Exception as exc:   # noqa: BLE001
-            logger.error(f"[补派] 循环异常：{exc}")
+            logger.opt(exception=exc).error(f"[补派] 循环异常：{exc}")
 
         await asyncio.sleep(30)

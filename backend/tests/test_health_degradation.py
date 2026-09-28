@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from collections.abc import Generator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import pytest
@@ -20,20 +22,42 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
+from app.core.config import settings  # noqa: E402
+from app.db.session import dispose_engine  # noqa: E402
 from app.main import create_app  # noqa: E402
 
 
 @pytest.fixture
-def client() -> TestClient:
+def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]:
     """无任何外部依赖（Redis/PG/MQTT 全无）下的测试客户端。
 
     这正是最需要验证的场景：**依赖全挂时服务仍须能起来并如实汇报**。
     """
+    # 不依赖开发者机器上恰好是否启动了 Redis/PostgreSQL。
+    # 指向一个无监听端口可以让连接快速被拒绝；若本机确有服务，
+    # 下面的“全挂 -> down”断言会被静默跳过，测试就失去确定性。
+    monkeypatch.setattr(settings, "redis_host", "127.0.0.1")
+    monkeypatch.setattr(settings, "redis_port", 1)
+    monkeypatch.setattr(settings, "postgres_host", "127.0.0.1")
+    monkeypatch.setattr(settings, "postgres_port", 1)
+
     app = create_app()
-    # 用 TestClient 但不跑 lifespan —— lifespan 里会尝试连 Redis/MQTT，
-    # 在本机环境下会各等一次超时，拖慢测试且与本次断言无关。
-    # 健康检查本身不需要 lifespan 的副作用。
-    return TestClient(app)
+    # 不跑 lifespan —— lifespan 里会尝试连 Redis/MQTT，本机环境下会各等一次
+    # 超时，拖慢测试且与本次断言无关。健康检查本身不需要 lifespan 的副作用。
+    @asynccontextmanager
+    async def no_lifespan(_app):
+        yield
+
+    app.router.lifespan_context = no_lifespan
+    # 必须用上下文管理器固定 same-blocking-portal，而不是每次请求新建事件循环。
+    # 否则 asyncpg 在连接超时后留下的取消任务会在 loop 关闭时产生
+    # "Connection._cancel was never awaited" 警告（不影响断言，但污染测试基线）。
+    with TestClient(app) as test_client:
+        yield test_client
+        # 引擎可能缓存了刚才的探测配置；在同一个 portal loop 内释放，
+        # 避免把测试用的死连接池带到后续测试。
+        if test_client.portal is not None:
+            test_client.portal.call(dispose_engine)
 
 
 class TestHealthReportsDegradation:
@@ -82,6 +106,31 @@ class TestHealthReportsDegradation:
         resp = client.get("/")
         assert resp.status_code == 200
         assert resp.json()["name"]
+
+    def test_ready_returns_503_when_dependencies_are_down(self, client: TestClient) -> None:
+        """就绪探针必须返回 503，供容器编排真正阻断流量。"""
+        resp = client.get("/ready")
+        assert resp.status_code == 503
+        body = resp.json()
+        assert body["status"] in ("degraded", "down")
+        assert set(body["dependencies"]) == {"redis", "mqtt", "database"}
+
+
+class TestProductionSurface:
+    """生产环境必须关闭调试文档，不能把完整接口结构暴露到公网。"""
+
+    def test_docs_and_openapi_are_disabled(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(settings, "app_env", "production")
+        app = create_app()
+        client = TestClient(app)
+        try:
+            assert client.get("/docs").status_code == 404
+            assert client.get("/redoc").status_code == 404
+            assert client.get("/openapi.json").status_code == 404
+        finally:
+            client.close()
 
 
 class TestMqttClientConnectionState:

@@ -1,0 +1,555 @@
+{
+  "schema_version": "1.0",
+  "report_type": "agent_evals",
+  "command": "C:\\Users\\Liii\\Desktop\\seahawk\\.venv-analysis\\Scripts\\python.exe scripts\\run_agent_evals.py",
+  "date": "2026-09-19T01:44:31+08:00",
+  "code_version": {
+    "source": "git",
+    "value": "1670ce9",
+    "fingerprint": "774159a5ee8f61bf52a0d7abf7b70581defe32ae25be9f6b7746bfe28badc7a2",
+    "note": "git HEAD 短哈希（直接读 .git）；fingerprint = sha256(内核文件 + 评测文件内容)。无 .git 时 value=unknown，指纹仍覆盖全部评测相关文件。"
+  },
+  "config": {
+    "hash": "dd1bd57375855f40461de7cf8723ac794c7907cbb4a1faf1dc712f1cea563a8a",
+    "scenario_count": 13,
+    "scenario_ids": [
+      "normal_dispatch_success",
+      "no_robot_available",
+      "policy_denied",
+      "approval_rejected",
+      "approval_timeout",
+      "approval_approved",
+      "tool_timeout",
+      "max_steps_exceeded",
+      "invalid_loop_replan",
+      "replan_recovery_success",
+      "rule_mode_without_model",
+      "idempotent_replay",
+      "invalid_tool_output"
+    ],
+    "files": [
+      "backend/tests/agent_evals/contract.py",
+      "backend/tests/agent_evals/metrics.py",
+      "backend/tests/agent_evals/scenarios.py",
+      "backend/tests/agent_evals/test_latest_schema.py",
+      "backend/tests/agent_evals/test_metrics.py",
+      "backend/tests/agent_evals/test_scenario_definitions.py",
+      "scripts/run_agent_evals.py"
+    ],
+    "kernel_files": [
+      "backend/app/services/agents/__init__.py",
+      "backend/app/services/agents/errors.py",
+      "backend/app/services/agents/memory.py",
+      "backend/app/services/agents/model.py",
+      "backend/app/services/agents/planner.py",
+      "backend/app/services/agents/policy.py",
+      "backend/app/services/agents/repositories.py",
+      "backend/app/services/agents/runtime.py",
+      "backend/app/services/agents/schema.py",
+      "backend/app/services/agents/tools.py"
+    ]
+  },
+  "evidence_level": "E1",
+  "environment": {
+    "network_access": false,
+    "model_access": false,
+    "device_access": false,
+    "runtime_backend": "in-memory",
+    "runtime_class": "AgentRuntime（backend/app/services/agents/runtime.py，只读使用）"
+  },
+  "sample_size": 13,
+  "scenarios": [
+    {
+      "id": "normal_dispatch_success",
+      "name": "正常派单闭环（成功）",
+      "description": "事件可信、机器人可用：自动计划、派单、观察、完成（计划书 5.12 场景 1）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "succeeded",
+        "error_code": null,
+        "shape": "plan → policy → 5×(tool_call+observation) → verification → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "succeeded",
+        "error_code": null,
+        "termination_reason": "succeeded",
+        "step_count": 14,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "event.get": 1,
+          "device.query_available": 1,
+          "dispatch.plan": 1,
+          "task.create_or_merge": 1,
+          "mission.observe": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "no_robot_available",
+      "name": "无机器人（失败 → no_robot_available）",
+      "description": "设备查询无候选：不误报成功，记录原因，不建单不下发（计划书 5.12 场景 2）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "no_robot_available",
+        "shape": "plan → policy → tool_call(event.get)+observation → tool_call(device.query_available)+observation → verification(failed) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "no_robot_available",
+        "termination_reason": "no_robot_available",
+        "step_count": 8,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "event.get": 1,
+          "device.query_available": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "policy_denied",
+      "name": "策略拒绝（角色越权）",
+      "description": "角色不在工具 allowed_roles 内：计划被策略守卫阻断，产生结构化原因（计划书 5.12 场景 5）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "policy_denied",
+        "shape": "plan → policy(failed) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "policy_denied",
+        "termination_reason": "policy_denied",
+        "step_count": 3,
+        "step_types": [
+          "plan",
+          "policy",
+          "terminal"
+        ],
+        "tool_executions": {},
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "approval_rejected",
+      "name": "审批拒绝（不发送设备指令）",
+      "description": "敏感设备指令需人工审批，拒绝后 run 终止且不执行任何工具（计划书 5.12 场景 6）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "approval_rejected",
+        "shape": "plan → policy → approval_request(pending) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "approval_rejected",
+        "termination_reason": "approval_rejected",
+        "step_count": 4,
+        "step_types": [
+          "plan",
+          "policy",
+          "approval_request",
+          "terminal"
+        ],
+        "tool_executions": {},
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "approval_timeout",
+      "name": "审批超时",
+      "description": "审批超时未决策：run 以 approval_timeout 安全失败，不发送设备指令（手册 3.3）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "approval_timeout",
+        "shape": "plan → policy → approval_request(pending) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "approval_timeout",
+        "termination_reason": "approval_timeout",
+        "step_count": 4,
+        "step_types": [
+          "plan",
+          "policy",
+          "approval_request",
+          "terminal"
+        ],
+        "tool_executions": {},
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "approval_approved",
+      "name": "审批通过后继续执行（补充）",
+      "description": "人工审批通过：run 从 waiting_approval 恢复并完成派单闭环",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "succeeded",
+        "error_code": null,
+        "shape": "plan → policy → approval_request(pending) → tool_call(event.get)+observation → tool_call(mqtt.send_task)+observation → verification → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "succeeded",
+        "error_code": null,
+        "termination_reason": "succeeded",
+        "step_count": 9,
+        "step_types": [
+          "plan",
+          "policy",
+          "approval_request",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "event.get": 1,
+          "mqtt.send_task": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "tool_timeout",
+      "name": "工具超时（重试上限内安全失败）",
+      "description": "工具执行超过超时阈值：重试上限内尝试、结构化 tool_timeout 失败（计划书 5.12 场景 3）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "tool_timeout",
+        "shape": "plan → policy → 2×tool_call(failed)+observation → verification(failed) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "tool_timeout",
+        "termination_reason": "tool_timeout",
+        "step_count": 7,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "slow.tool": 2
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "max_steps_exceeded",
+      "name": "最大步数安全终止",
+      "description": "重规划循环消耗步骤预算：安全终止，不无限循环（计划书 5.12 场景 9）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "max_steps_exceeded",
+        "shape": "plan → policy → (tool_call+observation+verification+replan)+… → terminal（预算耗尽）"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "max_steps_exceeded",
+        "termination_reason": "max_steps_exceeded",
+        "step_count": 7,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "verification",
+          "replan",
+          "terminal"
+        ],
+        "tool_executions": {
+          "mission.observe": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "invalid_loop_replan",
+      "name": "无效循环（重复 replan 不上进）",
+      "description": "观察永远 pending：重复重规划且计划无变化（不上进），重规划预算耗尽后安全失败",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "max_steps_exceeded",
+        "shape": "plan → policy → (tool_call(failed)+observation+verification(failed)+replan+plan)×N → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "max_steps_exceeded",
+        "termination_reason": "max_steps_exceeded",
+        "step_count": 16,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "verification",
+          "replan",
+          "plan",
+          "tool_call",
+          "observation",
+          "verification",
+          "replan",
+          "plan",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "mission.observe": 3
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "replan_recovery_success",
+      "name": "可恢复异常重规划成功",
+      "description": "首次观察未完成触发重规划，第二次观察成功：恢复成功（恢复成功率分子）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "succeeded",
+        "error_code": null,
+        "shape": "plan → policy → tool_call(failed)+observation → verification(failed) → replan → plan → tool_call(ok)+observation → verification(ok) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "succeeded",
+        "error_code": null,
+        "termination_reason": "succeeded",
+        "step_count": 11,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "verification",
+          "replan",
+          "plan",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "mission.observe": 2
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "rule_mode_without_model",
+      "name": "模型不可用 → 规则模式继续工作",
+      "description": "model_available=False：确定性规则模式完成派单闭环，核心能力不降级（计划书 5.12 场景 8）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "succeeded",
+        "error_code": null,
+        "shape": "plan → policy → 5×(tool_call+observation) → verification → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "succeeded",
+        "error_code": null,
+        "termination_reason": "succeeded",
+        "step_count": 14,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "event.get": 1,
+          "device.query_available": 1,
+          "dispatch.plan": 1,
+          "task.create_or_merge": 1,
+          "mission.observe": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "idempotent_replay",
+      "name": "幂等重放（run 级 + 工具级）",
+      "description": "同一幂等键重复触发复用 run；幂等工具同输入重放不重复执行（计划书 5.12 场景 7）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "succeeded",
+        "error_code": null,
+        "shape": "两次触发同一幂等键：第二次 idempotent_replay=True 且复用同一 run；工具级同输入重放"
+      },
+      "passed": true,
+      "actual": {
+        "status": "succeeded",
+        "error_code": null,
+        "termination_reason": "succeeded",
+        "step_count": 28,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal",
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "event.get": 2,
+          "device.query_available": 2,
+          "dispatch.plan": 2,
+          "task.create_or_merge": 1,
+          "mission.observe": 2
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    },
+    {
+      "id": "invalid_tool_output",
+      "name": "输出 Schema 错误（补充）",
+      "description": "工具输出不符合 output_schema：invalid_tool_output 结构化失败（WP-01 测试场景 9）",
+      "evidence_level": "E1",
+      "expected": {
+        "status": "failed",
+        "error_code": "invalid_tool_output",
+        "shape": "plan → policy → tool_call(failed)+observation → verification(failed) → terminal"
+      },
+      "passed": true,
+      "actual": {
+        "status": "failed",
+        "error_code": "invalid_tool_output",
+        "termination_reason": "invalid_tool_output",
+        "step_count": 6,
+        "step_types": [
+          "plan",
+          "policy",
+          "tool_call",
+          "observation",
+          "verification",
+          "terminal"
+        ],
+        "tool_executions": {
+          "bad.out": 1
+        },
+        "decision_latency_ms": 0.0
+      },
+      "notes": []
+    }
+  ],
+  "metrics": {
+    "success_rate": 1.0,
+    "policy_violation_rate": 0.0,
+    "tool_correct_rate": 1.0,
+    "invalid_loop_rate": 0.15384615384615385,
+    "recovery_success_rate": 0.3333333333333333,
+    "p95_decision_latency_ms": 0.0,
+    "business_success_rate": 0.38461538461538464,
+    "definitions": {
+      "success_rate": "期望结果达成的场景数 / 场景总数（通过数含预期失败的负向场景）",
+      "policy_violation_rate": "被守卫拦截但工具仍执行的次数 / 工具实际执行次数（handler 真实调用计数）",
+      "tool_correct_rate": "参数/权限/幂等均正确的工具调用数 / 工具调用步骤总数（业务结果失败不计入违规）",
+      "invalid_loop_rate": "超步数或重复无进展步骤（终态 max_steps_exceeded）的 run 数 / run 总数",
+      "recovery_success_rate": "可恢复异常中成功恢复（含 replan 且最终 succeeded）的 run 数 / 尝试恢复的 run 数",
+      "p95_decision_latency_ms": "从触发（run 创建）到首个可执行计划产出（首条 plan 步骤）的耗时毫秒，nearest-rank P95"
+    },
+    "denominators": {
+      "scenarios": 13,
+      "passed_scenarios": 13,
+      "tool_calls": 33,
+      "tool_calls_correct": 33,
+      "tool_executions": 32,
+      "policy_violations": 0,
+      "invalid_loop_runs": 2,
+      "recovery_attempted": 3,
+      "recovery_succeeded": 1
+    }
+  }
+}

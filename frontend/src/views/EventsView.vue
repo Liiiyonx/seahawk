@@ -9,6 +9,10 @@
           <option :value="24">近 24 小时</option>
           <option :value="72">近 3 天</option>
           <option :value="168">近 7 天</option>
+          <!-- ★ 后端 hours 上限是 720（30 天，见 events.py 的 Query(le=720)）。
+               以前这里最大只到 7 天，而演示库的事件往往是更早的种子数据，
+               结果就是四个选项全试一遍都是空表、且用户不知道为什么。 -->
+          <option :value="720">近 30 天</option>
         </select>
       </div>
 
@@ -66,7 +70,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(e, i) in items" :key="e.event_id">
+          <tr
+            v-for="(e, i) in items"
+            :key="e.event_id"
+            :ref="(el) => setRowRef(e.event_id, el)"
+            :class="{ 'is-highlighted': highlightEventId === e.event_id }"
+          >
             <td class="num text-dim">{{ (page - 1) * pageSize + i + 1 }}</td>
             <td class="num">{{ fmtShortTime(e.event_time) }}</td>
             <td class="text-sub">{{ e.device_id }}</td>
@@ -89,9 +98,10 @@
               <button
                 v-if="e.status === 'new'"
                 class="link-btn"
+                :class="{ 'link-btn--armed': confirmIgnoreId === e.event_id }"
                 @click="ignoreEvent(e)"
               >
-                忽略
+                {{ confirmIgnoreId === e.event_id ? '确认忽略？' : '忽略' }}
               </button>
               <span v-else>—</span>
             </td>
@@ -100,7 +110,22 @@
       </table>
 
       <div v-if="!items.length" class="empty">
-        {{ loading ? '加载中…' : '没有符合条件的事件' }}
+        <template v-if="loading">加载中…</template>
+        <template v-else>
+          <p class="empty__title">没有符合条件的事件</p>
+          <!-- 空表最常见的原因不是"真没事件"，而是时间窗太窄（演示库里的
+               事件常常是若干天前的种子数据）。这里必须把下一步说清楚，
+               否则用户只会以为系统坏了。 -->
+          <p class="empty__hint">
+            当前时间范围：近{{ hoursLabel }}，共 0 条。
+            <template v-if="filters.hours < 720">
+              可把上方「时间范围」放宽到「近 30 天」再看。
+            </template>
+            <template v-else>
+              请确认该时段内边缘设备确实有上报。
+            </template>
+          </p>
+        </template>
       </div>
 
       <!-- 分页 -->
@@ -122,7 +147,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { eventsApi, tasksApi } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import { CLASS_ORDER, EVENT_STATUS, classLabel, classColor } from '@/utils/constants'
@@ -130,6 +156,7 @@ import { canWrite } from '@/utils/auth'
 import { fmtShortTime, fmtConfidence, fmtCoord } from '@/utils/format'
 
 const store = useRealtimeStore()
+const route = useRoute()
 
 // viewer / 匿名只读：隐藏「忽略」操作（后端 require_operator 才是最终裁决）
 const canWriteOps = canWrite()
@@ -140,6 +167,13 @@ const page = ref(1)
 const pageSize = ref(30)
 const loading = ref(false)
 const taskMap = ref({})
+const highlightEventId = ref('')
+const rowRefs = new Map()
+let highlightTimer = null
+
+// 「忽略」两段确认：记住已进入确认态的事件，3 秒无操作自动撤回
+const confirmIgnoreId = ref('')
+let confirmIgnoreTimer = null
 
 const filters = reactive({
   hours: 24,
@@ -147,6 +181,10 @@ const filters = reactive({
   status: '',
   deviceId: '',
 })
+
+// 空态提示里要回显"当前到底是多大的时间窗"，否则用户不知道还能往哪调
+const HOURS_LABEL = { 6: '6 小时', 24: '24 小时', 72: '3 天', 168: '7 天', 720: '30 天' }
+const hoursLabel = computed(() => HOURS_LABEL[filters.hours] || `${filters.hours} 小时`)
 
 async function load() {
   loading.value = true
@@ -192,6 +230,20 @@ function goto(p) {
 }
 
 async function ignoreEvent(e) {
+  // ★ 两段确认。忽略是不可逆的：后端 events.py 只允许 new → ignored/resolved，
+  //   没有任何反向入口，点错了只能进库改。以前单击即写库，
+  //   与「智能助手」里删除会话的两段确认也不一致 —— 这里对齐。
+  if (confirmIgnoreId.value !== e.event_id) {
+    confirmIgnoreId.value = e.event_id
+    clearTimeout(confirmIgnoreTimer)
+    confirmIgnoreTimer = setTimeout(() => {
+      if (confirmIgnoreId.value === e.event_id) confirmIgnoreId.value = ''
+    }, 3000)
+    return
+  }
+
+  clearTimeout(confirmIgnoreTimer)
+  confirmIgnoreId.value = ''
   try {
     await eventsApi.updateStatus(e.event_id, { status: 'ignored' })
     await load()
@@ -200,10 +252,84 @@ async function ignoreEvent(e) {
   }
 }
 
-onMounted(load)
+function setRowRef(eventId, element) {
+  if (element) rowRefs.set(eventId, element)
+  else rowRefs.delete(eventId)
+}
+
+async function focusQueryEvent() {
+  const eventId = typeof route.query.event === 'string' ? route.query.event : ''
+  clearTimeout(highlightTimer)
+  highlightEventId.value = ''
+  if (!eventId) return
+
+  let matched = items.value.some((item) => item.event_id === eventId)
+  if (!matched) {
+    try {
+      const detail = await eventsApi.detail(eventId)
+      if (detail?.event_id) {
+        items.value = [detail, ...items.value]
+        total.value = Math.max(total.value, items.value.length)
+        matched = true
+      }
+    } catch (err) {
+      store.error = err.message
+      return
+    }
+  }
+  if (!matched) return
+
+  await nextTick()
+  rowRefs.get(eventId)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+  highlightEventId.value = eventId
+  highlightTimer = setTimeout(() => {
+    if (highlightEventId.value === eventId) highlightEventId.value = ''
+  }, 4000)
+}
+
+onMounted(async () => {
+  await load()
+  await focusQueryEvent()
+})
+
+watch(
+  () => route.query.event,
+  async () => {
+    await focusQueryEvent()
+  },
+)
+
+onUnmounted(() => {
+  clearTimeout(highlightTimer)
+  clearTimeout(confirmIgnoreTimer)
+})
 </script>
 
 <style scoped>
+/* 空态要竖排：全局 .empty 是 flex 居中（横排），
+   多行文案会挤在一行。 */
+.empty {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.empty__title {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.empty__hint {
+  max-width: 520px;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .page {
   display: flex;
   flex-direction: column;
@@ -247,6 +373,14 @@ onMounted(load)
   padding: 0;
 }
 
+:deep(tr.is-highlighted td) {
+  background: rgba(255, 149, 0, 0.14);
+}
+
+:deep(tr.is-highlighted td:first-child) {
+  box-shadow: inset 3px 0 0 var(--c-warn);
+}
+
 .pager {
   display: flex;
   align-items: center;
@@ -273,5 +407,79 @@ onMounted(load)
 
 .link-btn:hover {
   background: rgba(242, 86, 76, 0.12);
+}
+
+/* 进入「确认忽略？」状态：实心告警色，跟普通态在视觉上必须拉开，
+   否则用户点完一下看不出自己已经在确认流程里。 */
+.link-btn--armed {
+  color: #ffffff;
+  background: var(--c-danger);
+  border-color: var(--c-danger);
+  white-space: nowrap;
+}
+
+.link-btn--armed:hover {
+  background: var(--c-danger);
+  filter: brightness(1.08);
+}
+
+@media (max-width: 900px) {
+  .page {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .toolbar__group {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 150px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .toolbar__group select {
+    width: 100%;
+  }
+
+  .toolbar__spacer {
+    display: none;
+  }
+
+  .toolbar__count {
+    margin-left: auto;
+  }
+
+  .table-panel {
+    flex: none;
+    min-height: 420px;
+    max-width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-panel .data-table {
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 520px) {
+  .toolbar__group {
+    flex-basis: 100%;
+  }
+
+  .toolbar > .btn {
+    flex: 1 1 0;
+  }
+
+  .pager {
+    gap: 8px;
+    padding: 10px;
+  }
 }
 </style>

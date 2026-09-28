@@ -19,7 +19,7 @@ from __future__ import annotations
 import re
 import struct
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from loguru import logger
@@ -37,6 +37,16 @@ from app.repositories import DeviceRepository, EventRepository, TaskRepository
 def _gen_task_id() -> str:
     """生成任务编号：tsk_YYYYMMDD_xxxx。"""
     return f"tsk_{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:6]}"
+
+
+def _utcnow() -> datetime:
+    """任务生命周期统一使用 UTC aware 时间。"""
+    return datetime.now(timezone.utc)
+
+
+def _as_utc(value: datetime) -> datetime:
+    """兼容历史库里可能出现的 naive 时间戳。"""
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
 
 
 # ----------------------------------------------------------------------
@@ -230,16 +240,61 @@ class DispatchEngine:
             lng=lng,
             lat=lat,
             window_minutes=settings.dispatch_merge_window_minutes,
-            radius_m=200,
+            radius_m=settings.dispatch_merge_radius_meters,
         )
 
     async def _select_robot(self, event: Event) -> Device | None:
-        """五步筛选的前三步：可用性过滤 → 距离排序 → 类别匹配加权。"""
-        candidates = await self.devices.find_nearest_available_robots(
-            event.event_id,
-            max_distance_m=settings.dispatch_range_meters,
-            limit=5,
+        """五步筛选的前三步：可用性过滤 → 距离排序 → 类别匹配加权。
+
+        锚点是**事件**坐标 —— `find_nearest_available_robots` 用 event_id
+        反查 `t_event.location`。
+        """
+        return await self._select_robot_at_point(
+            event_id=event.event_id,
+            event=event,
         )
+
+    async def _select_robot_at_point(
+        self,
+        *,
+        event_id: str | None = None,
+        lng: float | None = None,
+        lat: float | None = None,
+        event: Event | None = None,
+        exclude_robot_ids: set[str] | None = None,
+    ) -> Device | None:
+        """选机器人的**唯一实现**：从候选池挑一台。
+
+        两种入参二选一：
+
+            - `event_id` + `event`：事件派单，锚点是事件坐标；
+            - `lng` / `lat`：**人工建单**的工单（`event_id IS NULL`），
+              锚点直接来自 `t_task.target_location`。
+
+        ★ 为什么要把「候选要怎么筛、怎么加权、怎么排序」收在一处：
+            这段规则（电量阈值、仓容阈值、类别加权、距离兜底）只有一份时，
+            改策略才不会出现「事件派单按新规则、人工补派按旧规则」的静默分叉。
+            两条入参路径的差别仅在「锚点从哪来」这一步。
+        """
+        if event_id is not None:
+            candidates = await self.devices.find_nearest_available_robots(
+                event_id,
+                max_distance_m=settings.dispatch_range_meters,
+                limit=5,
+                exclude_robot_ids=exclude_robot_ids,
+            )
+        else:
+            if lng is None or lat is None:
+                logger.error("[派单] 选机器人时既没有 event_id 也没有坐标，跳过")
+                return None
+            candidates = await self.devices.find_nearest_available_robots_at(
+                lng,
+                lat,
+                max_distance_m=settings.dispatch_range_meters,
+                limit=5,
+                exclude_robot_ids=exclude_robot_ids,
+            )
+
         if not candidates:
             return None
 
@@ -258,8 +313,10 @@ class DispatchEngine:
                 logger.debug(f"[派单] {device.device_id} 仓容 {total_usage:.0%} 已满，跳过")
                 continue
 
-            # 类别匹配加权：正在处理**同类别**任务的机器人优先（顺路复用）
-            weight = await self._class_match_weight(event, device.device_id)
+            # 类别匹配加权：正在处理**同类别**任务的机器人优先（顺路复用）。
+            # 人工建单的工单没有 event（也就没有 main_class），无从配对，
+            # 一律给普通权重 1 —— 排序退化为「按距离最近」，是合理缺省。
+            weight = await self._class_match_weight(event, device.device_id) if event else 1
 
             usable.append((device, distance, weight))
 
@@ -299,7 +356,7 @@ class DispatchEngine:
     async def _create_and_assign(self, event: Event, robot: Device) -> Task:
         """第四步：创建任务记录并下发（MQTT 下发由 mqtt 层订阅后执行）。"""
         lng, lat = await self._event_lnglat(event)
-        now = datetime.now()
+        now = _utcnow()
 
         # ★ 优先级取自单一真源 TaskPriority，不在此写 `1 if ... else 3`
         priority = TaskPriority.for_waste_class(event.main_class)
@@ -329,16 +386,10 @@ class DispatchEngine:
 
     async def _event_lnglat(self, event: Event) -> tuple[float | None, float | None]:
         """读取事件坐标（PostGIS geometry → 经纬度）。"""
-        from sqlalchemy import func, select
-
-        stmt = select(
-            func.ST_X(event.location), func.ST_Y(event.location)
-        )
-        row = (await self.session.execute(stmt)).first()
-        if row is None:
+        point = _parse_point(event.location)
+        if point is None:
             return None, None
-        return (float(row[0]) if row[0] is not None else None,
-                float(row[1]) if row[1] is not None else None)
+        return point
 
     # ------------------------------------------------------------------
     # 状态机流转
@@ -363,7 +414,7 @@ class DispatchEngine:
         if not TaskStatus.can_transition(current, target_status):
             raise InvalidStateTransitionError(current, target_status)
 
-        now = datetime.now()
+        now = _utcnow()
         task.status = target_status
 
         if robot_id is not None:
@@ -407,7 +458,7 @@ class DispatchEngine:
         if task.assigned_at is None:
             return False
 
-        elapsed = datetime.now() - task.assigned_at
+        elapsed = _utcnow() - _as_utc(task.assigned_at)
         if elapsed < timedelta(seconds=settings.dispatch_ack_timeout_seconds):
             return False
 
@@ -416,9 +467,23 @@ class DispatchEngine:
         return True
 
     async def assign_pending_tasks(self, limit: int = 10) -> list[Task]:
-        """扫描待派单事件并尝试重新派单（补派 API 与定时任务调用）。
+        """扫描待派单对象并尝试补派（补派 API 与定时任务调用）。
 
-        场景：无可用机器人时事件保持 new；机器人上线后由本方法补派。
+        扫描**两类**对象，两类都要覆盖：
+
+            1. `t_event` 中状态仍为 `new` 的高优先级事件 ——
+               当初无可用机器人，事件保持 new；机器人上线后由
+               `dispatch_for_event` 建一条**新**任务派出去；
+            2. `t_task` 中 `status='pending' AND robot_id IS NULL` 的工单 ——
+               **人工建单**（`POST /tasks` 不指定机器人）产生的工单。
+               它们 `event_id` 为 NULL，没有任何事件可扫，第一类永远扫不到。
+
+        ★ 第二类是 2026-09-27 线上验收发现的缺陷（报告 P1-3）：
+            人工建单 → 点「触发补派」→ 接口回 `{"dispatched": 0}` 且提示
+            「完成补派 0 个任务」，工单永远停在待派单，既不报错也不留日志。
+            根因就是这里只扫了事件表。
+
+        两类共用同一处收尾（见下方注释），调用方无需区分来源。
         """
         created: list[Task] = []
         events = await self.events.recent_for_dispatch(limit=limit)
@@ -432,12 +497,74 @@ class DispatchEngine:
             except NoRobotAvailableError:
                 continue   # 暂无可用机器人，等下一轮
 
+        # ★ 第二类：人工建单产生的「无事件待派单工单」。
+        #   放在第一类之后，让事件派单优先占用机器人 —— 事件由摄像头自动
+        #   发现、有明确的时空证据；人工建单是平台判读后的补充指令。
+        created.extend(await self._assign_unassigned_pending(limit=limit))
+
         # ★ 收尾（下发 + 推送）必须在循环**之后**统一做：
         #   放在循环内的话，一旦后面的事件抛异常触发 rollback，
         #   前面已经下发过的任务会与数据库状态不一致。
         for task in created:
             await finalize_dispatch(task)
         return created
+
+    async def _assign_unassigned_pending(self, limit: int = 10) -> list[Task]:
+        """把 `status='pending' AND robot_id IS NULL` 的工单派出去。
+
+        ★ 为什么不复用 `dispatch_for_event`：
+            那个入口以 **event** 为中心 —— 防抖合并（`_try_merge`）、
+            事件状态回写（`_mark_event`）都挂在它上面。人工建单的工单
+            `event_id` 就是空的，走那条路要么被跳过、要么得先伪造一条事件。
+            本方法直接改**已有**工单的 robot_id / status，不新建任务。
+
+        与 `_create_and_assign` 保持等价的赋值口径（robot_id、
+        `assigned_at` 重置、机器人 `meta.current_task_id`），
+        确保工单无论是自动派还是补派出去的，字段状态都一致。
+        """
+        tasks = await self.tasks.list_unassigned_pending(limit=limit)
+        if not tasks:
+            return []
+
+        assigned: list[Task] = []
+        taken: set[str] = set()   # 本轮已派出去的机器人，见下
+        for task in tasks:
+            point = _parse_point(task.target_location)
+            if point is None:
+                # ★ 坐标取不到必须留痕。`target_location` 是 NOT NULL 列，
+                #   走到这里说明几何值解析失败（异常写入 / 新几何类型），
+                #   静默 continue 会让人以为「补派功能又坏了」。
+                logger.error(
+                    f"[补派] 工单 {task.task_id} 的目标坐标无法解析"
+                    f"（类型 {type(task.target_location).__name__}），跳过"
+                )
+                continue
+            lng, lat = point
+
+            robot = await self._select_robot_at_point(
+                lng=lng, lat=lat, exclude_robot_ids=taken
+            )
+            if robot is None:
+                logger.info(
+                    f"[补派] 工单 {task.task_id} 附近无可用机器人"
+                    f"（{lng:.5f},{lat:.5f}），保持待派单"
+                )
+                continue
+
+            await self.transition(task, TaskStatus.ASSIGNED, robot_id=robot.device_id)
+            # ★ 与 `reassign_task` 同理：`transition` 只在 `assigned_at`
+            #   为空时才赋值，这里显式写成本轮时间，ACK 超时判定才有起点。
+            task.assigned_at = _utcnow()
+
+            meta: dict[str, Any] = dict(robot.meta or {})
+            meta["current_task_id"] = task.task_id
+            robot.meta = meta
+
+            taken.add(robot.device_id)
+            assigned.append(task)
+            logger.info(f"[补派] 工单 {task.task_id} → 机器人 {robot.device_id}")
+
+        return assigned
 
     async def reassign_task(self, task: Task) -> bool:
         """把 PENDING 任务重新派给一台可用机器人（「换车重派」）。
@@ -465,7 +592,7 @@ class DispatchEngine:
         # ★ 必须重置计时起点：`transition` 只在 `assigned_at` 为空时才赋值，
         #   沿用旧值会让这个任务下一轮立刻又被判成超时，
         #   于是每 30 秒空转重派一次，永远收敛不了。
-        task.assigned_at = datetime.now()
+        task.assigned_at = _utcnow()
 
         await finalize_dispatch(task)
         return True

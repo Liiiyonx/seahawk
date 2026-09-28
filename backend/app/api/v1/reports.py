@@ -2,14 +2,21 @@
 
 数据源为预聚合宽表 t_report_daily —— 由定时任务每日凌晨生成，
 报表页只读宽表，即使事件量到百万级仍毫秒响应。
+
+数据完整性（WP-07）契约：
+- `coverage_area` 可空：NULL = 未统计（not_available），**不转成 0**；
+  真实 0（available/partial 且合计为 0）与未统计在结构上不同。
+- 每个对外指标携带 `coverage_availability` 三态
+  （available / partial / not_available，判定见 app.services.report）。
+- CSV 导出把 NULL 留空（""），不得写成 0。
 """
 
 from __future__ import annotations
 
-from datetime import date, date as _date, datetime, timedelta
-
 import csv
 import io
+from datetime import date, date as _date, datetime, timedelta
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
@@ -17,12 +24,26 @@ from pydantic import BaseModel
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import get_session
+from app.core.downloads import attachment_header
 from app.core.exceptions import ApiResponse
+from app.db.session import get_session
 from app.models.event import WasteClass
 from app.models.misc import ReportDaily
+from app.services.report import coverage_summary_availability
 
 router = APIRouter()
+
+
+def coverage_area_out(value: Decimal | float | None) -> float | None:
+    """报表响应层 coverage_area 的空值透传：None → None（不转 0）。"""
+    return None if value is None else float(value)
+
+
+def coverage_csv_cell(value: Decimal | float | None) -> str:
+    """CSV 导出单元格：NULL → ""（留空，不写 0）；有值 → 两位小数。"""
+    if value is None:
+        return ""
+    return f"{float(value):.2f}"
 
 
 class AggregateRequest(BaseModel):
@@ -65,7 +86,9 @@ async def daily_report(
             "task_count": r.task_count,
             "done_count": r.done_count,
             "collected_kg": float(r.collected_kg),
-            "coverage_area": float(r.coverage_area),
+            # WP-07：未统计(None) 透传为 null，不转 0；可用性三态随行输出
+            "coverage_area": coverage_area_out(r.coverage_area),
+            "coverage_availability": r.coverage_availability or "not_available",
         }
         for r in rows.scalars().all()
     ]
@@ -77,7 +100,11 @@ async def report_summary(
     days: int = Query(7, ge=1, le=90),
     session: AsyncSession = Depends(get_session),
 ):
-    """按乡镇聚合的治理成果汇总（报表页顶部卡片）。"""
+    """按乡镇聚合的治理成果汇总（报表页顶部卡片）。
+
+    覆盖面积只对非 NULL 行求和；可用性按「有实测行数 / 总行数」判定
+    （available / partial / not_available，见 coverage_summary_availability）。
+    """
     since = _date.today() - timedelta(days=days)
     stmt = (
         select(
@@ -86,6 +113,8 @@ async def report_summary(
             func.sum(ReportDaily.done_count).label("done"),
             func.sum(ReportDaily.collected_kg).label("kg"),
             func.sum(ReportDaily.coverage_area).label("area"),
+            func.count(ReportDaily.coverage_area).label("measured_rows"),
+            func.count().label("total_rows"),
         )
         .where(ReportDaily.stat_date >= since)
         .group_by(ReportDaily.township)
@@ -99,7 +128,11 @@ async def report_summary(
             "event_count": int(r.events or 0),
             "done_count": int(r.done or 0),
             "collected_kg": round(float(r.kg or 0), 2),
-            "coverage_area": round(float(r.area or 0), 2),
+            # WP-07：全 NULL 时 area 为 None → 透传 null，不转 0
+            "coverage_area": coverage_area_out(r.area),
+            "coverage_availability": coverage_summary_availability(
+                int(r.measured_rows or 0), int(r.total_rows or 0)
+            ),
         }
         for r in rows.all()
     ]
@@ -139,7 +172,10 @@ async def export_report(
     township: str | None = Query(None),
     session: AsyncSession = Depends(get_session),
 ):
-    """导出治理日报表为 CSV（带 UTF-8 BOM，Excel 打开中文不乱码）。"""
+    """导出治理日报表为 CSV（带 UTF-8 BOM，Excel 打开中文不乱码）。
+
+    WP-07：覆盖面积为 NULL（未统计）时导出**留空**，不写成 0。
+    """
     since = date.today() - timedelta(days=days)
     conditions = [ReportDaily.stat_date >= since]
     if township:
@@ -154,7 +190,7 @@ async def export_report(
 
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow(["统计日期", "乡镇", "垃圾类别", "事件数", "工单数", "完成数", "清理量(kg)", "覆盖面积(㎡)"])
+    w.writerow(["统计日期", "乡镇", "垃圾类别", "事件数", "工单数", "完成数", "清理量(kg)", "覆盖面积(㎡)", "覆盖可用性"])
     for r in rows:
         w.writerow([
             str(r.stat_date),
@@ -164,13 +200,20 @@ async def export_report(
             r.task_count,
             r.done_count,
             f"{float(r.collected_kg):.2f}",
-            f"{float(r.coverage_area):.2f}",
+            coverage_csv_cell(r.coverage_area),
+            r.coverage_availability or "not_available",
         ])
 
     content = "\ufeff" + buf.getvalue()   # UTF-8 BOM，否则 Excel 中文乱码
-    filename = f"治理日报_{date.today().isoformat()}.csv"
+    stamp = date.today().isoformat()
+    filename = f"治理日报_{stamp}.csv"
     return Response(
         content=content,
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={
+            "Content-Disposition": attachment_header(
+                filename,
+                ascii_fallback=f"seasight_report_{stamp}.csv",
+            )
+        },
     )

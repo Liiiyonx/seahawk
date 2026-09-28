@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "transport": "streamable-http",
+  "run_at": "2026-09-28T09:42:13+0800",
+  "acceptance_script": "scripts/nexent_acceptance.py",
+  "authentication": {
+    "missing_token_fails_closed": true,
+    "unauthenticated_request_status": 401,
+    "authenticated_initialize": true
+  },
+  "skills": [
+    {
+      "name": "cross-document-decision",
+      "path": "integrations\\nexent\\skills\\cross-document-decision\\SKILL.md"
+    },
+    {
+      "name": "decision-trace-audit",
+      "path": "integrations\\nexent\\skills\\decision-trace-audit\\SKILL.md"
+    },
+    {
+      "name": "dispatch-work-order-orchestration",
+      "path": "integrations\\nexent\\skills\\dispatch-work-order-orchestration\\SKILL.md"
+    },
+    {
+      "name": "marine-event-assessment",
+      "path": "integrations\\nexent\\skills\\marine-event-assessment\\SKILL.md"
+    },
+    {
+      "name": "policy-evidence-qa",
+      "path": "integrations\\nexent\\skills\\policy-evidence-qa\\SKILL.md"
+    }
+  ],
+  "mcp": {
+    "server_name": "SeaSight Domain Cognition MCP",
+    "server_version": "1.30.0",
+    "tool_count": 32,
+    "read_tools_present": [
+      "knowledge_asset_detail",
+      "knowledge_decision_evidence",
+      "knowledge_list_assets",
+      "knowledge_list_decisions",
+      "knowledge_list_ontology_nodes",
+      "knowledge_list_ontology_relations",
+      "knowledge_list_ontology_versions",
+      "knowledge_ontology_version_detail",
+      "knowledge_search"
+    ],
+    "write_tools_present": [
+      "knowledge_append_asset_version",
+      "knowledge_create_asset",
+      "knowledge_create_decision",
+      "knowledge_create_ontology_version",
+      "knowledge_extract_ontology",
+      "knowledge_publish_ontology",
+      "knowledge_review_node",
+      "knowledge_review_relation"
+    ],
+    "live_api_check": null
+  },
+  "outbound_token_refresh": {
+    "login_count": 3,
+    "protected_api_call_count": 3,
+    "http_401_retry_verified": true,
+    "token_refreshed_after_expiry": true
+  }
+}

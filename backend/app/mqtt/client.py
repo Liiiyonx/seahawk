@@ -8,14 +8,101 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime
+import threading
+import time
+from datetime import datetime, timezone
 from typing import Any
 
 import aiomqtt
 from loguru import logger
 
 from app.core.config import settings
+from app.mqtt.ack import AckTracker
 from app.mqtt.topics import SUBSCRIBE_PLAN, Topics
+
+#: 派单命令默认有效期（秒）。与孪生侧默认 TTL（edge/device_sim/faults.py
+#: `DEFAULT_COMMAND_TTL = 30.0`）对齐；可通过 `publish_task(ttl=...)` 覆盖，
+#: 不引入全局配置项（docs/device-interface.md §3 / §9）。
+DISPATCH_TTL_SECONDS = 30.0
+
+
+def _iso_utc(epoch: float) -> str:
+    """epoch 秒 → UTC ISO-8601 字符串（冻结信封的 `*_iso` 伴随字段）。"""
+    return datetime.fromtimestamp(epoch, tz=timezone.utc).isoformat(timespec="seconds")
+
+
+def command_id_for_task(task_id: str) -> str:
+    """派单命令幂等键：稳定派生自 task_id。
+
+    同一任务重复下发（MQTT QoS1 重投、ACK 超时换车重派同一任务等）会复用
+    同一个 command_id —— 设备侧按 command_id 幂等去重，重复命令只执行一次。
+    """
+    return f"cmd_{task_id}"
+
+
+def build_dispatch_payload(
+    *,
+    robot_id: str,
+    task_id: str,
+    lng: float,
+    lat: float,
+    priority: int,
+    seq: int,
+    now: float | None = None,
+    ttl: float = DISPATCH_TTL_SECONDS,
+) -> dict[str, Any]:
+    """构造冻结命令信封兼容的派单报文（纯函数，时钟可注入）。
+
+    报文同时携带：
+      - 冻结信封字段（docs/device-interface.md §3）：``command_id`` /
+        ``device_id`` / ``seq`` / ``issued_at`` / ``expires_at`` /
+        ``action`` / ``params``（params 内含 task_id / target / priority）；
+      - 向后兼容顶层字段：``task_id`` / ``target`` / ``priority`` 与
+        ``issued_at``（信封字段，epoch 秒；``issued_at_iso`` 为 ISO 副本）。
+
+    ``now`` 可注入（测试用确定性时钟，不用随机数）；``expires_at = issued_at + ttl``。
+    """
+    issued = now if now is not None else time.time()
+    expires = issued + ttl
+    params = {
+        "task_id": task_id,
+        "target": {"lng": float(lng), "lat": float(lat)},
+        "priority": int(priority),
+    }
+    return {
+        "command_id": command_id_for_task(task_id),
+        "device_id": robot_id,
+        "seq": int(seq),
+        "action": "dispatch",
+        "issued_at": issued,
+        "issued_at_iso": _iso_utc(issued),
+        "expires_at": expires,
+        "expires_at_iso": _iso_utc(expires),
+        "params": params,
+        # ---- 向后兼容顶层字段（既有消费者可继续按原字段名读取）----
+        "task_id": task_id,
+        "target": params["target"],
+        "priority": int(priority),
+    }
+
+
+class SeqAllocator:
+    """进程内按 device_id 维护单调递增的命令序号（并发安全）。
+
+    序号是派单报文 ``seq`` 的唯一真源：同设备必须严格递增（冻结信封要求
+    平台侧单调），不同设备各自独立计数。分配在锁内同步完成，多个并发
+    派单任务不会互相覆盖；不使用随机数，测试可复现。
+    """
+
+    def __init__(self) -> None:
+        self._counters: dict[str, int] = {}
+        self._lock = threading.Lock()
+
+    def next(self, device_id: str) -> int:
+        with self._lock:
+            seq = self._counters.get(device_id, 0) + 1
+            self._counters[device_id] = seq
+            return seq
 
 
 class MqttClient:
@@ -27,6 +114,15 @@ class MqttClient:
         self._running = False
         self._connected = False
         self._handlers: dict[str, Any] = {}
+        self._seq_allocator = SeqAllocator()
+        #: ACK 幂等跟踪（WP-14C）：publish_task 发布成功后登记命令，
+        #: handle_robot_ack 消费时按 command_id 去重 / late / 乱序判定。
+        self._ack_tracker = AckTracker()
+
+    @property
+    def ack_tracker(self) -> AckTracker:
+        """进程内 ACK 跟踪表（与 publish_task 共用同一实例）。"""
+        return self._ack_tracker
 
     @property
     def is_connected(self) -> bool:
@@ -206,19 +302,49 @@ class MqttClient:
             return False
 
     async def publish_task(
-        self, robot_id: str, task_id: str, lng: float, lat: float, priority: int
+        self,
+        robot_id: str,
+        task_id: str,
+        lng: float,
+        lat: float,
+        priority: int,
+        *,
+        ttl: float = DISPATCH_TTL_SECONDS,
     ) -> bool:
-        """下发派单任务。"""
-        return await self.publish(
-            Topics.robot_task(robot_id),
-            {
-                "task_id": task_id,
-                "target": {"lng": lng, "lat": lat},
-                "priority": priority,
-                "issued_at": datetime.now().isoformat(),
-            },
-            qos=1,
+        """下发派单任务（冻结命令信封兼容报文，docs/device-interface.md §3）。
+
+        信封字段：``command_id``（= cmd_{task_id}，稳定幂等）、``device_id``、
+        ``seq``（同设备进程内单调递增）、``issued_at``（epoch 秒）、
+        ``expires_at``（默认 issued_at + 30s，可经 ``ttl`` 覆盖）、
+        ``action="dispatch"``、``params{task_id,target,priority}``。
+        顶层同时保留向后兼容字段 ``task_id`` / ``target`` / ``priority``。
+        旧调用方签名不变，无需修改。
+
+        WP-14C：**仅在 MQTT 发布成功后**把
+        ``command_id / device_id / seq / expires_at`` 登记到 AckTracker，
+        供 ACK 的 late（超时）判定。登记表是进程内内存：发布失败、进程
+        重启后未登记的命令仍可正常接收，但不会伪判 late（见
+        ``app.mqtt.ack.AckTracker`` 的回落策略）。
+        """
+        seq = self._seq_allocator.next(robot_id)
+        payload = build_dispatch_payload(
+            robot_id=robot_id,
+            task_id=task_id,
+            lng=lng,
+            lat=lat,
+            priority=priority,
+            seq=seq,
+            ttl=ttl,
         )
+        ok = await self.publish(Topics.robot_task(robot_id), payload, qos=1)
+        if ok:
+            self._ack_tracker.register_command(
+                command_id=payload["command_id"],
+                device_id=payload["device_id"],
+                seq=payload["seq"],
+                expires_at=payload["expires_at"],
+            )
+        return ok
 
 
 # 全局单例

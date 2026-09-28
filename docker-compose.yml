@@ -19,6 +19,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # 首次启动自动执行建表脚本（按文件名顺序）
       - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+      # 运维 SQL（只读）：make ensure-partitions 用它补建 t_track 按日分区。
+      # 分区要随日期持续补，initdb.d 只在首次初始化跑一次，不能替代。
+      - ./deploy/postgres:/sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -159,7 +162,7 @@ services:
       REDIS_PORT: 6379
       MQTT_HOST: emqx
       MQTT_PORT: 1883
-      MQTT_USERNAME: ${MQTT_USERNAME:-seasight}
+      MQTT_USERNAME: ${MQTT_USERNAME:-backend_service}
       MQTT_PASSWORD: ${MQTT_PASSWORD}
       MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-marine}
       MINIO_ENDPOINT: minio:9000
@@ -169,9 +172,32 @@ services:
       STREAM_BASE_URL: http://go2rtc:1984
       AI_SERVICE_URL: http://ai-service:8081
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      # ---- Agent / 对话助手（容器内不读仓库根 .env，必须在此透传） ----
+      # 默认值与 app/core/config.py 完全一致，透传后行为不变；
+      # 演示层 docker-compose.demo.yml 覆盖 AGENT_REQUIRE_APPROVAL_FOR_WRITE=true。
+      AGENT_REQUIRE_APPROVAL_FOR_WRITE: ${AGENT_REQUIRE_APPROVAL_FOR_WRITE:-false}
+      AGENT_PERSISTENT_REPOSITORY_ENABLED: ${AGENT_PERSISTENT_REPOSITORY_ENABLED:-false}
+      AGENT_MODEL_ADAPTER_ENABLED: ${AGENT_MODEL_ADAPTER_ENABLED:-false}
+      AGENT_MODEL_BASE_URL: ${AGENT_MODEL_BASE_URL:-}
+      AGENT_MODEL_API_KEY: ${AGENT_MODEL_API_KEY:-}
+      AGENT_MODEL_NAME: ${AGENT_MODEL_NAME:-}
+      ASSISTANT_ENABLED: ${ASSISTANT_ENABLED:-true}
+      ASSISTANT_MODEL_BASE_URL: ${ASSISTANT_MODEL_BASE_URL:-}
+      ASSISTANT_MODEL_API_KEY: ${ASSISTANT_MODEL_API_KEY:-}
+      ASSISTANT_MODEL_NAME: ${ASSISTANT_MODEL_NAME:-}
       TZ: Asia/Shanghai
     volumes:
       - ./backend:/app
+      # 评测产物挂进容器根目录：后端用 `Path(__file__).parents[4] / "artifacts" / ...`
+      # 定位它，在容器里就是 /artifacts/agent_evals/latest_v2.json。
+      # 没有这条挂载，/api/v1/agents/evals/latest 会永远返回 6008（评测不可用），
+      # 前端的质量雷达也就一直是空态。只读挂载，容器内改不了。
+      - ./artifacts/agent_evals:/artifacts/agent_evals:ro
+      # edge 检测器（只读）：与 docker-compose.prod.yml 保持同一口径。
+      # 后端有 3 处 `from edge.detector.detector import CvDetector`，
+      # 而 backend 的构建上下文只有 ./backend，镜像里没有 edge/。
+      # 它们靠 `Path(__file__).parents[4]` 反推仓库根，容器内即 `/`，故挂到 /edge。
+      - ./edge:/edge:ro
     ports:
       - "8000:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

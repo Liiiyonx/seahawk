@@ -1,0 +1,131 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic beverage bottle",
+    "small plastic bottle"
+  ],
+  "confidence_threshold": 0.012,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\beach.jpg",
+      "name": "beach.jpg",
+      "width": 4896,
+      "height": 3264,
+      "count": 11,
+      "detections": [
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.443064,
+          "bbox": [
+            496.528,
+            2735.968,
+            675.846,
+            3044.073
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.023091,
+          "bbox": [
+            1854.101,
+            2351.544,
+            2099.913,
+            2486.107
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.022937,
+          "bbox": [
+            4072.177,
+            2662.281,
+            4386.487,
+            2935.451
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.018606,
+          "bbox": [
+            6.748,
+            274.69,
+            165.443,
+            332.277
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.018476,
+          "bbox": [
+            2470.034,
+            1101.251,
+            2592.875,
+            1205.277
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.017973,
+          "bbox": [
+            3364.429,
+            486.108,
+            3841.211,
+            938.435
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.016861,
+          "bbox": [
+            2741.018,
+            1662.265,
+            3045.104,
+            1775.505
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.016284,
+          "bbox": [
+            1640.62,
+            2808.063,
+            1802.077,
+            3055.988
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.015,
+          "bbox": [
+            2306.385,
+            2546.388,
+            2569.526,
+            2905.647
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.014429,
+          "bbox": [
+            599.722,
+            2648.1,
+            873.232,
+            2916.465
+          ]
+        },
+        {
+          "class": "small plastic bottle",
+          "confidence": 0.012296,
+          "bbox": [
+            2485.227,
+            1271.218,
+            2710.705,
+            1385.636
+          ]
+        }
+      ]
+    }
+  ]
+}

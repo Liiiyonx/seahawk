@@ -1,0 +1,116 @@
+【工作包】WP-14D ACK 持久化、迁移与审计查询
+
+【上位文件】项目文档/探海灵眸_项目计划书.md
+【执行手册】项目文档/Harness_分工执行手册.md （必读第 5 节 WP-14D，以手册为准）
+
+【背景】WP-14C 已让平台侧真正消费 `robot/{robot_id}/cmd/ack`：新增
+`backend/app/mqtt/ack.py`（AckEnvelope 解析 + AckTracker），四类判定
+`new/duplicate/late/out_of_order`，优先级 `duplicate > late > out_of_order > new`，
+`classify()` 为纯判定、`record()` 登记首次规范回执；`handle_robot_ack()` 已做
+payload/topic/task 三重身份校验，`accepted=false` 首次且任务仍 assigned 时回退
+pending 并写拒绝原因，只在 `publish_task` 发布成功后登记 deadline。当前判定与回执
+只在内存里，进程重启即丢失。本工作包把它落成可恢复、可查询的审计账本。
+
+【目标】
+把 WP-14C 的内存 ACK 判定落成可恢复、可查询的 ACK 审计账本；保留每个
+`command_id` 的首次规范回执，并统计后续重复次数，使重启后仍能解释“平台是否
+收到过回执、何时收到、设备是否接受、为什么拒绝”。
+
+【允许新增】
+backend/app/models/task_ack.py
+backend/alembic/versions/20260919_1700_task_ack.py
+backend/tests/test_task_ack_persistence.py
+backend/tests/test_task_ack_api.py
+
+【允许修改】
+backend/app/models/__init__.py
+backend/alembic/env.py
+backend/db/init/01_schema.sql
+backend/app/repositories/__init__.py
+backend/app/mqtt/handlers.py
+backend/app/api/v1/tasks.py
+backend/app/schemas/__init__.py
+docs/api.md
+docs/mqtt-topics.md
+docs/device-interface.md
+
+【禁止修改】
+edge/device_sim/**
+frontend/**
+backend/app/services/dispatch.py
+
+【冻结表契约】t_task_ack
+id               BIGSERIAL PRIMARY KEY
+command_id       VARCHAR(96) NOT NULL UNIQUE       -- 一命令一条规范回执
+task_id          VARCHAR(64) NOT NULL FK t_task(task_id) ON DELETE CASCADE
+device_id        VARCHAR(64) NOT NULL
+seq              BIGINT      NOT NULL
+outcome          VARCHAR(16) NOT NULL              -- new/duplicate/late/out_of_order
+accepted         BOOLEAN     NOT NULL
+reason           VARCHAR(128)
+mode             VARCHAR(32)
+received_at      TIMESTAMPTZ NOT NULL              -- 设备回执时间
+received_wall_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 平台首次落库时间
+duplicate_count  INTEGER     NOT NULL DEFAULT 0
+last_duplicate_at TIMESTAMPTZ
+raw_payload      JSONB       NOT NULL               -- 首次规范回执原文
+last_payload     JSONB                              -- 最近一次重复回执原文
+created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+
+索引至少包含：
+idx_task_ack_task        (task_id, received_wall_at DESC)
+idx_task_ack_device_seq  (device_id, seq DESC)
+idx_task_ack_outcome     (outcome, received_wall_at DESC)
+
+【实现要求】
+1. 新环境 `01_schema.sql` 幂等建表；存量环境 Alembic 从
+   `20260919_1600_agent_state` 线性升级，revision id 不超过 32 字符。
+2. `TaskAckRepository.record_arrival(...)`：
+   - 首次 `command_id` 创建规范行，`outcome` 取 WP-14C 判定结果；
+   - 已存在时 `duplicate_count += 1`、更新 `last_duplicate_at` /
+     `last_payload`，不得覆盖首次规范回执；
+   - 并发唯一冲突必须可重试或转为 duplicate，不得产生第二条规范行。
+3. WP-14C 的状态推进与 WP-14D 的账本写入必须在同一数据库事务内：先校验与判定，
+   再写 ACK 行，最后提交；写库异常不得留下已推进但无回执证据的状态。若只能分两
+   事务，必须在回执中明确并给出补偿方案，不得静默接受。
+4. `GET /api/v1/tasks/{task_id}/acks`：
+   - 使用现有 `ApiResponse` 信封；
+   - 仅登录用户可读，operator 只能查询本辖区任务；
+   - 支持 `page` / `page_size`，默认按 `received_wall_at DESC`；
+   - 返回 `command_id/task_id/device_id/seq/outcome/accepted/reason/mode/
+     received_at/received_wall_at/duplicate_count`，不回传原始隐私字段
+     （即不返回 `raw_payload` / `last_payload`）。
+5. 重启恢复：`AckTracker` 能从 `t_task_ack` 重建已有命令的规范回执与设备 ACK
+   水位；没有该能力时必须把持久化覆盖标记为“仅审计，非判重恢复”。
+6. `docs/api.md` 增加 ACK 查询接口；文档示例不得使用真实用户、真实设备或
+   虚构成交数据。
+
+【工程约束】
+- 工作区很脏，包含大量他人未提交改动。只改本工作包允许的文件；严禁
+  `git reset --hard`、`git checkout --`、`git clean`、严禁删除 artifacts/ 下任何文件。
+- 手工编辑一律用 `apply_patch`。
+- 不得删除、跳过或弱化既有测试；不得新增无断言的占位测试。
+- 不得宣称真实成交、签约、回款、真实部署或真实设备接入。
+- 本机可能没有可用 PostgreSQL/PostGIS。若确实不可用，必须执行 ORM、SQL 与迁移
+  AST 静态验证，并在回执中明确写“未执行真实数据库迁移”；不得把静态检查冒充
+  实库验证。若数据库可用，请执行真实迁移并给出原始输出。
+
+【验收命令】
+$env:PYTHONIOENCODING='utf-8'
+.\.venv-analysis\Scripts\python.exe -m pytest backend\tests\test_task_ack_persistence.py backend\tests\test_task_ack_api.py backend\tests\test_mqtt_ack.py -q
+.\.venv-analysis\Scripts\python.exe -m pytest backend\tests -q
+.\.venv-analysis\Scripts\python.exe -m compileall -q backend\app backend\alembic
+.\.venv-analysis\Scripts\python.exe scripts\check_contract_drift.py
+.\.venv-analysis\Scripts\python.exe scripts\check_claims.py --root .
+
+【输出格式】严格按下列字段回执：
+状态：完成 / 部分完成 / 阻塞
+修改文件：
+实现内容：
+关键设计：
+执行的测试：
+测试结果：
+未完成事项：
+风险与假设：
+需要总控决策：

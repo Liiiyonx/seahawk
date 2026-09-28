@@ -1,14 +1,14 @@
 /**
- * 主题管理：深色（默认）与浅色切换，localStorage 持久化。
+ * 主题管理：浅色（默认）与深色切换，localStorage 持久化。
  *
  * 实现：给 <html> 设 data-theme 属性（'dark' / 'light'），
- * CSS 用 `html[data-theme='light']` 覆盖浅色变量，默认（:root）即深色。
+ * CSS 默认变量即浅色；`html[data-theme='dark']` 覆盖深色变量。
  */
 
 const THEME_KEY = 'seasight_theme'
 
 export function getTheme() {
-  return localStorage.getItem(THEME_KEY) || 'dark'
+  return localStorage.getItem(THEME_KEY) || 'light'
 }
 
 export function applyTheme(theme) {

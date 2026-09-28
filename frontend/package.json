@@ -12,8 +12,10 @@
   "dependencies": {
     "axios": "^1.7.9",
     "echarts": "^5.5.1",
+    "leaflet": "^1.9.4",
     "mpegts.js": "^1.7.3",
     "pinia": "^2.2.6",
+    "three": "^0.186.0",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },

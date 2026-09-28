@@ -10,6 +10,7 @@ dist/
 .eggs/
 .venv/
 .venv-analysis/
+.venv-nexent/
 venv/
 env/
 .pytest_cache/
@@ -20,11 +21,14 @@ htmlcov/
 
 # ===== 环境变量与密钥（核心！绝不提交） =====
 .env
+.env.production
+.env.staging
 .env.local
 .env.*.local
 *.pem
 *.key
 secrets/
+deploy/emqx/bootstrap.production.csv
 D:/VeriCall_data/
 
 # ===== Node / 前端 =====
@@ -40,6 +44,10 @@ pnpm-debug.log*
 # ===== 数据集与模型权重（体积大，不入库） =====
 ml/datasets/**
 !ml/datasets/.gitkeep
+# WP-06：数据集清单（manifest）是版本化交付物，必须入库
+# （须先否定目录本身，否则被忽略的父目录内无法重新包含文件）
+!ml/datasets/manifests/
+!ml/datasets/manifests/**
 *.pt
 *.onnx
 *.engine
@@ -57,6 +65,18 @@ data/
 minio_data/
 postgres_data/
 redis_data/
+
+# 文档渲染中间产物：转换链路会把整页 PNG、草稿 JSON、中间 docx 写在这里，
+# 每次渲染整目录重写，属于产物而不是源文件。
+# ★ 刻意只忽略这一个子目录，**不要图省事写成 `artifacts/`**：
+#   artifacts/agent_evals/latest_v2.json 是 /api/v1/agents/evals/latest 的在线消费源，
+#   把整个 artifacts/ 忽略掉会让这份评测产物从版本控制里消失。
+artifacts/docx-build/
+
+# 部署包与校验清单：deploy_manifest.py 的输出（10MB 级 tar.gz），
+# 是「上传给服务器的产物」而不是源文件；上传后即可删，留着只会撑大仓库。
+artifacts/deploy/
+
 
 # ===== IDE =====
 .idea/

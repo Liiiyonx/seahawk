@@ -1,0 +1,154 @@
+{
+  "base_url": "https://8.153.151.13/seasight",
+  "tls_verification": "skipped（自签名证书，未校验）",
+  "accounts": [
+    "admin",
+    "operator",
+    "approver",
+    "viewer"
+  ],
+  "account_notes": [
+    "账号清单来源：LoginDemoPanel.vue（4 个）",
+    "账号清单与 bootstrap_demo_users.py 一致（admin, operator, approver, viewer）"
+  ],
+  "layouts": [
+    {
+      "viewport_width": 1440,
+      "document_client_width": 1440,
+      "document_scroll_width": 1440,
+      "body_scroll_width": 1440,
+      "horizontal_overflow": false,
+      "card": {
+        "left": 829.2,
+        "right": 1273.2,
+        "width": 444
+      },
+      "clipped_controls": [],
+      "name": "desktop",
+      "status": 200,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\desktop-login.png"
+    },
+    {
+      "viewport_width": 390,
+      "document_client_width": 390,
+      "document_scroll_width": 390,
+      "body_scroll_width": 390,
+      "horizontal_overflow": false,
+      "card": {
+        "left": 12,
+        "right": 378,
+        "width": 366
+      },
+      "clipped_controls": [],
+      "name": "mobile",
+      "status": 200,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\mobile-login.png"
+    },
+    {
+      "viewport_width": 320,
+      "document_client_width": 320,
+      "document_scroll_width": 320,
+      "body_scroll_width": 320,
+      "horizontal_overflow": false,
+      "card": {
+        "left": 12,
+        "right": 308,
+        "width": 296
+      },
+      "clipped_controls": [],
+      "name": "mobile-small",
+      "status": 200,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\mobile-small-login.png"
+    }
+  ],
+  "logins": [
+    {
+      "username": "admin",
+      "login_status": 200,
+      "final_url": "https://8.153.151.13/seasight/dashboard",
+      "dashboard_visible": true,
+      "login_error": null,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\dashboard-admin.png"
+    },
+    {
+      "username": "operator",
+      "login_status": 200,
+      "final_url": "https://8.153.151.13/seasight/dashboard",
+      "dashboard_visible": true,
+      "login_error": null,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\dashboard-operator.png"
+    },
+    {
+      "username": "approver",
+      "login_status": null,
+      "final_url": "https://8.153.151.13/seasight/login",
+      "dashboard_visible": false,
+      "login_error": "page.waitForURL: Timeout 20000ms exceeded.",
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\dashboard-approver.png"
+    },
+    {
+      "username": "viewer",
+      "login_status": 200,
+      "final_url": "https://8.153.151.13/seasight/dashboard",
+      "dashboard_visible": true,
+      "login_error": null,
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\prod-login-verification\\dashboard-viewer.png"
+    }
+  ],
+  "resources": {
+    "favicon.svg": {
+      "status": 200,
+      "content_type": "image/svg+xml"
+    },
+    "apple-touch-icon.png": {
+      "status": 200,
+      "content_type": "image/png"
+    }
+  },
+  "fill_checks": [
+    {
+      "index": 0,
+      "username": "admin",
+      "password": "admin123456",
+      "focused": true
+    },
+    {
+      "index": 1,
+      "username": "operator",
+      "password": "operator123456",
+      "focused": true
+    },
+    {
+      "index": 2,
+      "username": "approver",
+      "password": "approver123456",
+      "focused": true
+    },
+    {
+      "index": 3,
+      "username": "viewer",
+      "password": "viewer123456",
+      "focused": true
+    }
+  ],
+  "failures": [
+    "approver: 登录失败 —— page.waitForURL: Timeout 20000ms exceeded."
+  ],
+  "passed": false
+}

@@ -60,6 +60,9 @@ class ErrorCode:
     AI_SERVICE_UNAVAILABLE = 5001
     AI_INFERENCE_FAILED = 5002
 
+    # Agent 6xxx 与知识智能体 7xxx 的公开错误码分别由
+    # app.api.v1.agents 和 app.services.knowledge 冻结，避免在此处重复真源。
+
 
 class AppException(Exception):
     """业务异常基类。抛出后由全局处理器转为统一响应。"""

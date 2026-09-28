@@ -197,7 +197,8 @@ CONSTRAINT uq_event_device_seq UNIQUE (device_id, seq)
   "battery": 87,
   "bins": { "foam": 0.42, "plastic": 0.18, "mixed": 0.09 },
   "task_id": "tsk_20260918_a3f2c9",
-  "speed": 0.8
+  "speed": 0.8,
+  "heading": 84.2
 }
 ```
 
@@ -207,10 +208,14 @@ CONSTRAINT uq_event_device_seq UNIQUE (device_id, seq)
 | `battery` | 0~100 整数百分比 |
 | `bins` | 三仓占用率，各 0~1 浮点 |
 | `speed` | m/s，可选 |
+| `heading` | 航向角，正北为 0°，顺时针 0~360，可选 |
 
 **平台对遥测做两件额外的事**：
 1. 更新 `t_device.meta` 里的 `battery` 与 `bins` —— **派单引擎直接读这里判断可用性**
 2. 写一条 `t_track` 轨迹点
+
+`heading` 会随 `robot_status` WebSocket 消息透传给地图；真实设备不上报时为
+`null`，前端按 0° 或隐藏朝向处理。工单仿真是该字段的当前主要来源。
 
 > **为什么 `bins` 这么重要**：产品设计里机器人是"打捞即粗分三仓"。如果遥测不带仓容，平台上三仓就是三个永远为 0 的进度条——概念验证时会直接被问倒。所以仓容遥测是**功能**，不是"锦上添花的监控"。
 
@@ -247,19 +252,111 @@ CONSTRAINT uq_event_device_seq UNIQUE (device_id, seq)
 
 ### 5.5 任务 ACK `robot/{robot_id}/cmd/ack`
 
-**QoS1**。机器人收到派单后**立即**回 ACK。
+**QoS1**。机器人收到派单后**立即**回 ACK。平台侧消费端：
+`backend/app/mqtt/handlers.py::handle_robot_ack`（WP-14C）。
+
+**冻结回执信封（主，docs/device-interface.md §5）**：
 
 ```json
 {
-  "task_id": "tsk_20260918_a3f2c9",
-  "robot_id": "RBT-001",
+  "ack_id": "ack_0001",
+  "command_id": "cmd_tsk_20260918_a3f2c9",
+  "device_id": "RBT-001",
+  "seq": 1,
+  "received_at": 1758230401.0,
   "accepted": true,
-  "eta_seconds": 240,
-  "ts": "2026-09-18T01:23:48+08:00"
+  "reason": "dispatched",
+  "mode": "navigating"
 }
 ```
 
-平台收到后把任务从 `assigned` 推进到 `navigating`。
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `ack_id` | string | 可选 | 设备侧回执序号（冻结信封字段） |
+| `command_id` | string | 必须 | 被确认的命令 ID；平台派单恒为 `cmd_{task_id}`（稳定幂等） |
+| `device_id` | string | 必须 | 确认设备的 ID（旧字段为 `robot_id`） |
+| `seq` | int(≥0) | 必须 | 该设备的命令序号（冻结信封必填） |
+| `received_at` | float/ISO | 必须 | 设备收到命令的时间（epoch 秒或 ISO-8601；旧字段为 `ts`） |
+| `accepted` | bool | 必须 | 是否接受任务 |
+| `reason` | string | 可选 | `accepted=false` 时的拒绝原因 |
+| `mode` | string | 可选 | 设备模式（冻结信封字段） |
+
+**受控仿真扩展（仅平台内部仿真使用）**：
+
+```json
+{
+  "ack_id": "ack_sim_a3f2c9d1e8b7",
+  "task_id": "tsk_20260918_a3f2c9",
+  "command_id": "cmd_tsk_20260918_a3f2c9:sim_a3f2c9d1e8b7",
+  "device_id": "RBT-001",
+  "seq": 0,
+  "received_at": 1758230401.0,
+  "accepted": true,
+  "reason": "",
+  "mode": "simulation"
+}
+```
+
+平台只在以下条件同时满足时接受该扩展：`mode="simulation"`、顶层
+`task_id` 存在、且 `command_id` 精确等于
+`cmd_{task_id}:sim_{run_id}`（`run_id` 非空）。缺少任一条件整条拒绝。
+真实设备仍使用标准 `command_id=cmd_{task_id}` 与普通设备模式值；仿真扩展
+不会放宽真实设备契约。仿真结束后设备上报的末次遥测使用正式枚举
+`status="idle"`，任务完成仍由 `task/progress.status="done"` 表达。
+
+**旧字段兼容关系**（WP-14C 冻结接口条款 1~2）：
+
+| 冻结字段 | 旧字段 | 解析优先级 |
+| --- | --- | --- |
+| `command_id` | —（旧格式无） | 冻结字段缺失且无顶层 `task_id` 时丢弃；仅有旧 `task_id` 时平台派生 `command_id = cmd_{task_id}` 作为去重键 |
+| `device_id` | `robot_id` | 冻结字段优先，冲突时记 warning |
+| `received_at` | `ts` | 冻结字段优先 |
+| `accepted` | `accepted` | 同名 |
+| `task_id`（反推） | `task_id`（顶层） | 顶层兼容字段优先；否则仅接受 `command_id=cmd_{task_id}` 反推；两者不一致整条拒绝 |
+| `seq` | —（旧格式无） | 缺失整体兜底为 0（旧格式）；存在但类型错误则丢弃 |
+
+**平台侧处理（WP-14C）**：
+
+1. 解析失败（字段缺失 / 类型错误 / task_id 与 command_id 不一致）只记
+   warning 并丢弃，不打断 MQTT 主循环。
+2. 身份三重校验：`payload.device_id`（旧 `robot_id`）、topic 中的
+   `robot_id`、`task.robot_id` 必须一致，否则整条拒绝、不得推进。
+3. 判定优先级 `duplicate > late > out_of_order > new`（平台侧
+   `backend/app/mqtt/ack.py::AckTracker`）：
+   - `duplicate`：同 `command_id` 再次到达（QoS1 重投 / 设备重复上报）
+     → 返回首次规范回执，不重复推进；
+   - `late`：`received_at > expires_at`（仅对发布成功并登记的
+     `command_id` 判定）→ 仍记录并允许推进；
+   - `out_of_order`：新回执 `seq` 小于该设备已 ACK 水位 → 仍记录，
+     `accepted=true` 且任务仍 `assigned` 时允许推进；
+   - `new`：首次按序到达。
+4. `accepted=true`：仅当任务仍为 `assigned` 时经状态机推进
+   `navigating`；其他状态不重复推进。
+5. `accepted=false`：首次回执且任务仍 `assigned` 时，记录拒绝原因、
+   清空 `robot_id` 并 `assigned -> pending`，交由现有补派轮处理；
+   handler 内不递归重派；重复拒绝不重复回退。
+
+> **持久化边界（WP-14D + WP-14E）**：每次受理的回执都会与任务状态推进在**同一数据库
+> 事务**内写入 ACK 审计账本 `t_task_ack`（一 `command_id` 一条规范回执，
+> 重复到达只累计 `duplicate_count` 并更新 `last_duplicate_at` /
+> `last_payload`，不覆盖首次规范回执；写库异常整体回滚，不留下「已推进但
+> 无回执证据」的状态）。`AckTracker` 判定表本身仍是进程内内存：
+> - 发布侧登记（`command_id/device_id/seq/expires_at`，供 `late` 判定）只在
+>   MQTT 发布成功后写入内存 —— 进程重启后未登记命令仍可正常接收（按
+>   `new` / `out_of_order` 处理），但**不得伪判 `late`**；
+> - 已受理命令的规范回执与设备 ACK 水位可从 `t_task_ack` 重建
+>   （`TaskAckRepository.rebuild_ack_tracker`）：**WP-14E 已把该重建接入
+>   应用启动流程**（lifespan 启动阶段、MQTT 客户端可用后自动执行，见
+>   `backend/app/main.py::recover_ack_tracker`）—— 重启后 `duplicate` /
+>   `out_of_order` 判定自动恢复；恢复具备降级不失败（数据库不可用/表缺失/
+>   查询异常 → warning 继续启动）、幂等（重复启动不叠加不报错）、耗时上界
+>   （默认 5s 超时，超时降级）、可观测（`/health` 顶层 `ack_recovery` 字段
+>   + 日志）四项保证；
+> - **`late` 判定对「发布后未 ACK」的命令重启后仍不可恢复**（依赖发布时
+>   登记的 `expires_at`，t_task_ack 不存）—— 这是内存登记表的固有边界，
+>   如实写明，不宣称完整恢复；
+> - 即使不重建：账本以 `command_id` 为准，重复回执会被识别为
+>   `duplicate` 而不重复推进，任务状态推进另有数据库状态机守卫兜底。
 
 **为什么必须有 ACK**：MQTT 的 QoS1 只保证「送达 broker」，**不保证「设备收到并处理」**。如果没有应用层 ACK，平台无法区分「机器人正在赶来」与「派单石沉大海」。ACK 超时（默认 15 秒）会触发任务回退重派——这是避免工单永久卡死的唯一手段。
 
@@ -336,7 +433,19 @@ retain  = true
 
 ### 7.1 认证
 
-EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端必须提供用户名/密码，通过 `deploy/emqx/bootstrap.csv` 在启动时导入。
+EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端必须提供
+用户名/密码和对应 ACL。
+
+- 本地开发使用 `deploy/emqx/bootstrap.csv`，它由 Docker Compose 在首次启动时
+  导入；默认后端账号是 `backend_service`，密码与 `.env` 中
+  `MQTT_PASSWORD` 保持一致。
+- 生产环境先填写 `.env.production`，再执行 `make prod-mqtt-bootstrap`。
+  脚本读取 `MQTT_BACKEND_PASSWORD`、`MQTT_EDGE_PASSWORD`、
+  `MQTT_VIEWER_PASSWORD` 和 `MQTT_DASHBOARD_PASSWORD`，校验非占位值后生成
+  `deploy/emqx/bootstrap.production.csv`；该文件含密码哈希且已被 gitignore。
+- EMQX 的内置认证数据在数据卷首次初始化时导入。生产环境修改账号密码后，
+  不能只改 `.env.production`：必须同步旋转凭据并重建或更新 EMQX 认证数据，
+  同时按计划通知并重启设备，避免现场批量掉线。
 
 ### 7.2 授权（ACL）
 
@@ -383,20 +492,20 @@ EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端�
 ```bash
 # 订阅所有上行主题（看设备到底发了什么）
 mosquitto_sub -h localhost -p 1883 \
-  -u seasight -P <password> \
+  -u backend_service -P "$MQTT_PASSWORD" \
   -t 'marine/+/+/event' -t 'marine/+/+/telemetry' -t 'robot/+/#' -v
 
 # 手动发一条事件（触发平台派单）
 mosquitto_pub -h localhost -p 1883 \
-  -u seasight -P <password> \
+  -u backend_service -P "$MQTT_PASSWORD" \
   -t 'marine/lianjiang/CAM-MABI-01/event' -q 1 \
   -m '{"event_id":"evt_manual_001","device_id":"CAM-MABI-01","device_type":"shore_camera","timestamp":"2026-09-18T01:00:00+08:00","location":{"lng":119.6531,"lat":26.3867},"detections":[{"class":"foam","confidence":0.9,"bbox":[400,280,470,340]}],"aggregate":{"main_class":"foam","count":1,"max_confidence":0.9},"seq":888001}'
 
 # 模拟机器人 ACK
 mosquitto_pub -h localhost -p 1883 \
-  -u seasight -P <password> \
+  -u backend_service -P "$MQTT_PASSWORD" \
   -t 'robot/RBT-001/cmd/ack' -q 1 \
-  -m '{"task_id":"tsk_xxx","robot_id":"RBT-001","accepted":true}'
+  -m '{"ack_id":"ack_debug_1","command_id":"cmd_tsk_xxx","device_id":"RBT-001","seq":1,"received_at":1758230401.0,"accepted":true,"mode":"navigating"}'
 
 # EMQX Dashboard
 open http://localhost:18083    # 默认 admin / 见 .env

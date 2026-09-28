@@ -1,0 +1,6389 @@
+{
+  "generated_at": "2026-09-19T17:23:05.155Z",
+  "frontend": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-login.png"
+    },
+    {
+      "route": "/login",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": null,
+        "nav": null,
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-login.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 2260
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -61,
+            "right": 829,
+            "width": 890,
+            "viewport_width": 768
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 2250
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -106,
+            "right": -84,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -99,
+            "right": -91,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": 414,
+            "right": 436,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": 421,
+            "right": 429,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -108,
+            "right": -78,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -103,
+            "right": -83,
+            "width": 19,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -99,
+            "right": -87,
+            "width": 12,
+            "viewport_width": 414
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -26,
+            "right": 440,
+            "width": 466,
+            "viewport_width": 414
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 2250
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -118,
+            "right": -96,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -111,
+            "right": -103,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": 402,
+            "right": 424,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": 409,
+            "right": 417,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -120,
+            "right": -90,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -115,
+            "right": -95,
+            "width": 19,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -111,
+            "right": -99,
+            "width": 12,
+            "viewport_width": 390
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -23,
+            "right": 414,
+            "width": 437,
+            "viewport_width": 390
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 2197
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -133,
+            "right": -111,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -126,
+            "right": -118,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": 387,
+            "right": 409,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": 394,
+            "right": 402,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -135,
+            "right": -105,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -130,
+            "right": -110,
+            "width": 19,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -126,
+            "right": -114,
+            "width": 12,
+            "viewport_width": 360
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -20,
+            "right": 381,
+            "width": 401,
+            "viewport_width": 360
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 2197
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -153,
+            "right": -131,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -146,
+            "right": -138,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": 367,
+            "right": 389,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": 374,
+            "right": 382,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -155,
+            "right": -125,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -150,
+            "right": -130,
+            "width": 19,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -146,
+            "right": -134,
+            "width": 12,
+            "viewport_width": 320
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -16,
+            "right": 337,
+            "width": 353,
+            "viewport_width": 320
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-dashboard.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 929
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [
+          {
+            "element": "div.panel.table-panel",
+            "client_width": 742,
+            "scroll_width": 980,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 842
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.panel.table-panel",
+            "client_width": 388,
+            "scroll_width": 980,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 842
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.panel.table-panel",
+            "client_width": 364,
+            "scroll_width": 980,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 842
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.panel.table-panel",
+            "client_width": 334,
+            "scroll_width": 980,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-events.png"
+    },
+    {
+      "route": "/events",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 842
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.panel.table-panel",
+            "client_width": 294,
+            "scroll_width": 980,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-events.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 929
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [
+          {
+            "element": "div.kanban",
+            "client_width": 744,
+            "scroll_width": 1740,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 864
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.kanban",
+            "client_width": 390,
+            "scroll_width": 1820,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 864
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.kanban",
+            "client_width": 366,
+            "scroll_width": 1717,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 864
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.kanban",
+            "client_width": 336,
+            "scroll_width": 1588,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-tasks.png"
+    },
+    {
+      "route": "/tasks",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 864
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.kanban",
+            "client_width": 296,
+            "scroll_width": 1416,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-tasks.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": 655,
+            "right": 2017,
+            "width": 1362,
+            "viewport_width": 1920
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": 495,
+            "right": 1508,
+            "width": 1013,
+            "viewport_width": 1440
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 825
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1179,
+            "right": 1435,
+            "width": 256,
+            "viewport_width": 1280
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -108,
+            "right": 1387,
+            "width": 1495,
+            "viewport_width": 1280
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 1204
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -61,
+            "right": 829,
+            "width": 890,
+            "viewport_width": 768
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 1145
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -106,
+            "right": -84,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -99,
+            "right": -91,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": 414,
+            "right": 436,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": 421,
+            "right": 429,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -108,
+            "right": -78,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -103,
+            "right": -83,
+            "width": 19,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -99,
+            "right": -87,
+            "width": 12,
+            "viewport_width": 414
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -26,
+            "right": 440,
+            "width": 466,
+            "viewport_width": 414
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 1145
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -118,
+            "right": -96,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -111,
+            "right": -103,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": 402,
+            "right": 424,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": 409,
+            "right": 417,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -120,
+            "right": -90,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -115,
+            "right": -95,
+            "width": 19,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -111,
+            "right": -99,
+            "width": 12,
+            "viewport_width": 390
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -23,
+            "right": 414,
+            "width": 437,
+            "viewport_width": 390
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 1115
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -133,
+            "right": -111,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -126,
+            "right": -118,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": 387,
+            "right": 409,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": 394,
+            "right": 402,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -135,
+            "right": -105,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -130,
+            "right": -110,
+            "width": 19,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -126,
+            "right": -114,
+            "width": 12,
+            "viewport_width": 360
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -20,
+            "right": 381,
+            "width": 401,
+            "viewport_width": 360
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": false,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 1115
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -153,
+            "right": -131,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -146,
+            "right": -138,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": 367,
+            "right": 389,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": 374,
+            "right": 382,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -155,
+            "right": -125,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -150,
+            "right": -130,
+            "width": 19,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -146,
+            "right": -134,
+            "width": 12,
+            "viewport_width": 320
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -16,
+            "right": 337,
+            "width": 353,
+            "viewport_width": 320
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-devices.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 1788
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [
+          {
+            "element": "section.panel.table-panel",
+            "client_width": 742,
+            "scroll_width": 1040,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 1851
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "section.panel.table-panel",
+            "client_width": 388,
+            "scroll_width": 1040,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 1851
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "section.panel.table-panel",
+            "client_width": 364,
+            "scroll_width": 1040,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 1851
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "section.panel.table-panel",
+            "client_width": 334,
+            "scroll_width": 1040,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-reports.png"
+    },
+    {
+      "route": "/reports",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 1851
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "section.panel.table-panel",
+            "client_width": 294,
+            "scroll_width": 1040,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-reports.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 3253
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 3868
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 388,
+            "scroll_width": 720,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 388,
+            "scroll_width": 700,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 3921
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 364,
+            "scroll_width": 720,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 364,
+            "scroll_width": 700,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 4047
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 334,
+            "scroll_width": 720,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 334,
+            "scroll_width": 700,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-agents.png"
+    },
+    {
+      "route": "/agents",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 4177
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 294,
+            "scroll_width": 720,
+            "scrollable": true
+          },
+          {
+            "element": "div.table-scroll",
+            "client_width": 294,
+            "scroll_width": 700,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-agents.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 929
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 824
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 824
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 824
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-knowledge.png"
+    },
+    {
+      "route": "/knowledge",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 824
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-knowledge.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 736
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 929
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 799
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 747
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 665
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-analyze.png"
+    },
+    {
+      "route": "/analyze",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "passed": true,
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": true,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 665
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-analyze.png"
+    },
+    {
+      "drawer": {
+        "layout": {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "document_scroll_width": 390,
+          "body_scroll_width": 390,
+          "main": {
+            "client_width": 390,
+            "scroll_width": 390,
+            "client_height": 747,
+            "scroll_height": 864
+          },
+          "nav": {
+            "client_width": 390,
+            "scroll_width": 758
+          },
+          "scroll_containers": [
+            {
+              "element": "nav.nav",
+              "client_width": 390,
+              "scroll_width": 758,
+              "scrollable": true
+            },
+            {
+              "element": "div.kanban",
+              "client_width": 366,
+              "scroll_width": 1717,
+              "scrollable": true
+            }
+          ],
+          "clipped_panels": [],
+          "clipped_controls": [],
+          "offscreen_text": []
+        },
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks-drawer.png"
+      },
+      "notifications": {
+        "layout": {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "document_scroll_width": 390,
+          "body_scroll_width": 390,
+          "main": {
+            "client_width": 390,
+            "scroll_width": 390,
+            "client_height": 747,
+            "scroll_height": 864
+          },
+          "nav": {
+            "client_width": 390,
+            "scroll_width": 758
+          },
+          "scroll_containers": [
+            {
+              "element": "nav.nav",
+              "client_width": 390,
+              "scroll_width": 758,
+              "scrollable": true
+            },
+            {
+              "element": "div.kanban",
+              "client_width": 366,
+              "scroll_width": 1717,
+              "scrollable": true
+            }
+          ],
+          "clipped_panels": [],
+          "clipped_controls": [],
+          "offscreen_text": []
+        },
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-notifications.png"
+      }
+    }
+  ],
+  "summary": {
+    "checks": 73,
+    "failures": 13,
+    "routes": 8,
+    "viewports": 8
+  },
+  "failures": [
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 2260
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -101,
+            "right": 155,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 667,
+            "right": 923,
+            "width": 256,
+            "viewport_width": 768
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -61,
+            "right": 829,
+            "width": 890,
+            "viewport_width": 768
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 2250
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -106,
+            "right": -84,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -99,
+            "right": -91,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": 414,
+            "right": 436,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": 421,
+            "right": 429,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -108,
+            "right": -78,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -103,
+            "right": -83,
+            "width": 19,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -99,
+            "right": -87,
+            "width": 12,
+            "viewport_width": 414
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -26,
+            "right": 440,
+            "width": 466,
+            "viewport_width": 414
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 2250
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -118,
+            "right": -96,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -111,
+            "right": -103,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": 402,
+            "right": 424,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": 409,
+            "right": 417,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -120,
+            "right": -90,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -115,
+            "right": -95,
+            "width": 19,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -111,
+            "right": -99,
+            "width": 12,
+            "viewport_width": 390
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -23,
+            "right": 414,
+            "width": 437,
+            "viewport_width": 390
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 2197
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -133,
+            "right": -111,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -126,
+            "right": -118,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": 387,
+            "right": 409,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": 394,
+            "right": 402,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -135,
+            "right": -105,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -130,
+            "right": -110,
+            "width": 19,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -126,
+            "right": -114,
+            "width": 12,
+            "viewport_width": 360
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -20,
+            "right": 381,
+            "width": 401,
+            "viewport_width": 360
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-dashboard.png"
+    },
+    {
+      "route": "/dashboard",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 2197
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -153,
+            "right": -131,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -146,
+            "right": -138,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": 367,
+            "right": 389,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": 374,
+            "right": 382,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -155,
+            "right": -125,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -150,
+            "right": -130,
+            "width": 19,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -146,
+            "right": -134,
+            "width": 12,
+            "viewport_width": 320
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -16,
+            "right": 337,
+            "width": 353,
+            "viewport_width": 320
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-dashboard.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "desktop-wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document_scroll_width": 1920,
+        "body_scroll_width": 1920,
+        "main": {
+          "client_width": 1920,
+          "scroll_width": 1920,
+          "client_height": 1016,
+          "scroll_height": 1016
+        },
+        "nav": {
+          "client_width": 1139,
+          "scroll_width": 1139
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1874,
+            "right": 2130,
+            "width": 256,
+            "viewport_width": 1920
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": 655,
+            "right": 2017,
+            "width": 1362,
+            "viewport_width": 1920
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document_scroll_width": 1440,
+        "body_scroll_width": 1440,
+        "main": {
+          "client_width": 1440,
+          "scroll_width": 1440,
+          "client_height": 836,
+          "scroll_height": 836
+        },
+        "nav": {
+          "client_width": 659,
+          "scroll_width": 696
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1284,
+            "right": 1540,
+            "width": 256,
+            "viewport_width": 1440
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": 495,
+            "right": 1508,
+            "width": 1013,
+            "viewport_width": 1440
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 800
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document_scroll_width": 1280,
+        "body_scroll_width": 1280,
+        "main": {
+          "client_width": 1280,
+          "scroll_width": 1280,
+          "client_height": 736,
+          "scroll_height": 825
+        },
+        "nav": {
+          "client_width": 633,
+          "scroll_width": 702
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 633,
+            "scroll_width": 702,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 1179,
+            "right": 1435,
+            "width": 256,
+            "viewport_width": 1280
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -108,
+            "right": 1387,
+            "width": 1495,
+            "viewport_width": 1280
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "document_scroll_width": 768,
+        "body_scroll_width": 768,
+        "main": {
+          "client_width": 768,
+          "scroll_width": 768,
+          "client_height": 929,
+          "scroll_height": 1204
+        },
+        "nav": {
+          "client_width": 768,
+          "scroll_width": 768
+        },
+        "scroll_containers": [],
+        "clipped_panels": [
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -61,
+            "right": 829,
+            "width": 890,
+            "viewport_width": 768
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-large",
+        "width": 414,
+        "height": 896
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 414,
+          "height": 896
+        },
+        "document_scroll_width": 414,
+        "body_scroll_width": 414,
+        "main": {
+          "client_width": 414,
+          "scroll_width": 414,
+          "client_height": 799,
+          "scroll_height": 1145
+        },
+        "nav": {
+          "client_width": 414,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 414,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -22,
+            "right": 234,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 234,
+            "right": 490,
+            "width": 256,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -80,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -106,
+            "right": -84,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -99,
+            "right": -91,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": 410,
+            "right": 440,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": 414,
+            "right": 436,
+            "width": 23,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": 421,
+            "right": 429,
+            "width": 8,
+            "viewport_width": 414
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "svg",
+            "left": -110,
+            "right": -76,
+            "width": 34,
+            "viewport_width": 414
+          },
+          {
+            "element": "circle",
+            "left": -108,
+            "right": -78,
+            "width": 30,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -103,
+            "right": -83,
+            "width": 19,
+            "viewport_width": 414
+          },
+          {
+            "element": "path",
+            "left": -99,
+            "right": -87,
+            "width": 12,
+            "viewport_width": 414
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -26,
+            "right": 440,
+            "width": 466,
+            "viewport_width": 414
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document_scroll_width": 390,
+        "body_scroll_width": 390,
+        "main": {
+          "client_width": 390,
+          "scroll_width": 390,
+          "client_height": 747,
+          "scroll_height": 1145
+        },
+        "nav": {
+          "client_width": 390,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 390,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -34,
+            "right": 222,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 222,
+            "right": 478,
+            "width": 256,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -92,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -118,
+            "right": -96,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -111,
+            "right": -103,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": 398,
+            "right": 428,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": 402,
+            "right": 424,
+            "width": 23,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": 409,
+            "right": 417,
+            "width": 8,
+            "viewport_width": 390
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "svg",
+            "left": -122,
+            "right": -88,
+            "width": 34,
+            "viewport_width": 390
+          },
+          {
+            "element": "circle",
+            "left": -120,
+            "right": -90,
+            "width": 30,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -115,
+            "right": -95,
+            "width": 19,
+            "viewport_width": 390
+          },
+          {
+            "element": "path",
+            "left": -111,
+            "right": -99,
+            "width": 12,
+            "viewport_width": 390
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -23,
+            "right": 414,
+            "width": 437,
+            "viewport_width": 390
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-narrow",
+        "width": 360,
+        "height": 740
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 360,
+          "height": 740
+        },
+        "document_scroll_width": 360,
+        "body_scroll_width": 360,
+        "main": {
+          "client_width": 360,
+          "scroll_width": 360,
+          "client_height": 643,
+          "scroll_height": 1115
+        },
+        "nav": {
+          "client_width": 360,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 360,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -49,
+            "right": 207,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 207,
+            "right": 463,
+            "width": 256,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -107,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -133,
+            "right": -111,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -126,
+            "right": -118,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": 383,
+            "right": 413,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": 387,
+            "right": 409,
+            "width": 23,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": 394,
+            "right": 402,
+            "width": 8,
+            "viewport_width": 360
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "svg",
+            "left": -137,
+            "right": -103,
+            "width": 34,
+            "viewport_width": 360
+          },
+          {
+            "element": "circle",
+            "left": -135,
+            "right": -105,
+            "width": 30,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -130,
+            "right": -110,
+            "width": 19,
+            "viewport_width": 360
+          },
+          {
+            "element": "path",
+            "left": -126,
+            "right": -114,
+            "width": 12,
+            "viewport_width": 360
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -20,
+            "right": 381,
+            "width": 401,
+            "viewport_width": 360
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-devices.png"
+    },
+    {
+      "route": "/devices",
+      "viewport": {
+        "name": "mobile-small",
+        "width": 320,
+        "height": 568
+      },
+      "checks": {
+        "document_width": true,
+        "body_width": true,
+        "no_clipped_panels": false,
+        "no_page_errors": true,
+        "no_console_errors": true
+      },
+      "layout": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "document_scroll_width": 320,
+        "body_scroll_width": 320,
+        "main": {
+          "client_width": 320,
+          "scroll_width": 320,
+          "client_height": 471,
+          "scroll_height": 1115
+        },
+        "nav": {
+          "client_width": 320,
+          "scroll_width": 758
+        },
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 320,
+            "scroll_width": 758,
+            "scrollable": true
+          }
+        ],
+        "clipped_panels": [
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": -69,
+            "right": 187,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "img.leaflet-tile.leaflet-tile-loaded",
+            "left": 187,
+            "right": 443,
+            "width": 256,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -127,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -153,
+            "right": -131,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -146,
+            "right": -138,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": 363,
+            "right": 393,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": 367,
+            "right": 389,
+            "width": 23,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": 374,
+            "right": 382,
+            "width": 8,
+            "viewport_width": 320
+          },
+          {
+            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "svg",
+            "left": -157,
+            "right": -123,
+            "width": 34,
+            "viewport_width": 320
+          },
+          {
+            "element": "circle",
+            "left": -155,
+            "right": -125,
+            "width": 30,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -150,
+            "right": -130,
+            "width": 19,
+            "viewport_width": 320
+          },
+          {
+            "element": "path",
+            "left": -146,
+            "right": -134,
+            "width": 12,
+            "viewport_width": 320
+          },
+          {
+            "element": "canvas.leaflet-zoom-animated",
+            "left": -16,
+            "right": 337,
+            "width": 353,
+            "viewport_width": 320
+          }
+        ],
+        "clipped_controls": [],
+        "offscreen_text": []
+      },
+      "page_errors": [],
+      "console_errors": [],
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-devices.png"
+    }
+  ]
+}

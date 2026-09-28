@@ -1,0 +1,22 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:5174",
+      "localStorage": [
+        {
+          "name": "seasight_theme",
+          "value": "light"
+        },
+        {
+          "name": "seasight_token",
+          "value": "eyJzdWIiOiAiYWRtaW4iLCAicm9sZSI6ICJhZG1pbiIsICJzY29wZSI6IG51bGwsICJleHAiOiAxNzg5OTA1Mjc0fQ.2e704217d51b3562e3dd3871826a1b52"
+        },
+        {
+          "name": "seasight_user",
+          "value": "{\"username\":\"admin\",\"role\":\"admin\",\"full_name\":\"系统管理员\",\"township_scope\":null}"
+        }
+      ]
+    }
+  ]
+}

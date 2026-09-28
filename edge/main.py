@@ -1,12 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""真实边缘感知程序：取流 → OpenCV 检测 → 时序校验 → MQTT 上报。
+"""真实边缘感知程序：取流 → 检测 → 时序校验 → MQTT 上报。
 
 与 `simulator/` 的区别
 ---------------------
 `simulator/simulator.py` **自己造假检测框**（用于没有摄像头时驱动平台联调）；
-本程序跑**真实检测**：从 RTSP / 视频文件 / 摄像头取帧，交给
-`detector.CvDetector` 做 OpenCV 检测，再走同一套时序校验与上报节流。
+本程序跑**真实检测**：从 RTSP / 视频文件 / 摄像头取帧，交给检测器
+做检测，再走同一套时序校验与上报节流。
+
+检测通道（`detector.backend`，默认 `cv`）
+----------------------------------------
+- `cv`    —— `detector.CvDetector`，OpenCV 传统视觉，零数据依赖，**主通道**；
+- `world` —— `detector.world_detector.WorldDetector`，开放词汇零样本通道，
+  用于演示与对照（现场可加词），**默认不进主告警链路**。
+
+两个通道的**输出契约完全一致**，所以时序校验、上报节流、MQTT 报文的代码一行都不用改；
+但它们的**置信度尺度不同**，时序门限必须各用各的（见 `_effective_min_confidence`），
+否则 world 通道的检测会在时序环节被静默丢掉。
 
 两者产出的 MQTT 报文**结构完全一致**，平台侧无法区分。
 
@@ -23,6 +33,10 @@
 
     # 4) 调试时把检测框画出来看
     python main.py --source synthetic --show
+
+    # 5) 开放词汇通道 + 现场加词（演示用）
+    python main.py --source synthetic --backend world --show \
+        --world-prompt "foam buoy" --world-prompt "plastic bag"
 """
 
 from __future__ import annotations
@@ -176,16 +190,17 @@ class EdgeRuntime:
     def __init__(self, cfg: dict[str, Any], args: argparse.Namespace) -> None:
         self.cfg = cfg
         self.args = args
-        self.detector = CvDetector(
-            config=cfg.get("detector"), roi=cfg.get("roi") or []
-        )
+        self.detector = self._build_detector(cfg, args)
+        self.backend_name = str(getattr(self.detector, "backend_name", "cv"))
 
         t = cfg.get("temporal", {})
+        # ★ 时序门限按通道取，两个通道各用各的（原因见 _effective_min_confidence）
+        self.min_confidence = self._effective_min_confidence(cfg)
         self.validator = TemporalValidator(
             window_frames=int(t.get("window_frames", 15)),
             min_hits=int(t.get("min_hits", 3)),
             grid_size=int(t.get("grid_size", 64)),
-            min_confidence=float(t.get("min_confidence", 0.45)),
+            min_confidence=self.min_confidence,
             match_distance=float(t.get("match_distance", 60.0)),
             max_misses=int(t.get("max_misses", 5)),
             min_iou=float(t.get("min_iou", 0.25)),
@@ -312,7 +327,82 @@ class EdgeRuntime:
         self._last_any = now
         return True
 
+    # ------------------------------------------------------------------
+    # 检测通道选择
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _build_detector(cfg: dict[str, Any], args: argparse.Namespace) -> Any:
+        """按 `detector.backend` 实例化检测器（命令行 `--backend` 优先）。
+
+        ★ 设计约束：只在这里加分支，**不碰任何检测器内部的实现**。
+        `CvDetector` 的代码路径（主通道、线上只读挂载、后端 3 处 import）
+        必须保持一次都没被改过 —— 这样本改动对现网是零影响。
+        """
+        detector_cfg = cfg.get("detector") or {}
+        backend = str(
+            getattr(args, "backend", None) or detector_cfg.get("backend") or "cv"
+        ).strip().lower()
+
+        if backend == "cv":
+            return CvDetector(config=detector_cfg, roi=cfg.get("roi") or [])
+
+        if backend != "world":
+            raise SystemExit(f"[配置错误] 未知的检测通道 {backend!r}（可选：cv / world）")
+
+        # 延迟导入：cv 通道的代码路径不因 world 通道的存在而多一个导入点
+        from world_detector import WorldDetector  # noqa: PLC0415
+
+        world_cfg = dict(detector_cfg.get("world") or {})
+        extra_prompts = [str(p) for p in (getattr(args, "world_prompt", None) or [])]
+        if extra_prompts:
+            world_cfg["prompt_classes"] = list(
+                world_cfg.get("prompt_classes") or []
+            ) + extra_prompts
+        return WorldDetector(config=world_cfg, roi=cfg.get("roi") or [])
+
+    def _effective_min_confidence(self, cfg: dict[str, Any]) -> float:
+        """当前通道应当使用的时序门限。
+
+        ★ 这是接入开放词汇通道时最容易埋雷的一处：
+        `temporal.min_confidence` 的 0.45 是给 cv 通道的**伪置信度**
+        （范围 0.30~0.95）标定的；开放词汇模型的输出分数低一个量级
+        （本仓库历史实测最高 0.184）。若共用 0.45，
+        world 通道的检测会在时序环节被**全部丢掉**，而且不报任何错。
+
+        做法：谁有自己标定值就用谁的（`WorldDetector.temporal_min_confidence`），
+        否则回落配置里的 temporal 门限 —— 也就是 cv 通道的现网行为。
+        """
+        world_gate = getattr(self.detector, "temporal_min_confidence", None)
+        if world_gate is not None:
+            return float(world_gate)
+        return float(cfg.get("temporal", {}).get("min_confidence", 0.45))
+
     def run(self) -> int:
+        # ★ 先确认检测通道真的能跑，再连 Broker。
+        #   不可用时**必须明确失败**：本通道不可用的现象与"画面里没有垃圾"
+        #   完全一样（都是零检测），静默继续会让人以为系统在正常工作。
+        #
+        #   两步都要问，缺一不可：
+        #   1) available —— 依赖与权重在不在（便宜的存在性探测，不加载模型）；
+        #   2) load()    —— 模型真的建得起来吗。
+        #   只问第 1 步会漏掉"依赖齐、权重在，但模型加载失败"这一类
+        #   （实测案例：torch<2.6 时 ultralytics 拒载 .pt，此时 available 为 True）。
+        if not bool(getattr(self.detector, "available", True)):
+            print(f"[启动失败] 检测通道 {self.backend_name} 不可用："
+                  f"{getattr(self.detector, 'last_error', '未知原因')}")
+            print("           这不是「画面里没有垃圾」，而是这一路根本没跑起来。")
+            print("           请补齐依赖/权重，或把 detector.backend 改回 cv。")
+            return 3
+
+        loader = getattr(self.detector, "load", None)
+        if callable(loader) and not loader():
+            print(f"[启动失败] 检测通道 {self.backend_name} 的模型加载失败："
+                  f"{getattr(self.detector, 'last_error', '未知原因')}")
+            print("           依赖与权重都在，但模型本身没能建起来 —— "
+                  "这同样不是「画面里没有垃圾」。")
+            print("           请按上面的原因修运行时，或把 detector.backend 改回 cv。")
+            return 3
+
         src_cfg = self.cfg.get("source", {})
         log_every = int(src_cfg.get("log_every", 100))
         source = open_source(self.cfg, self.args)
@@ -320,7 +410,7 @@ class EdgeRuntime:
 
         print(f"[启动] 设备={self.cfg.get('device', {}).get('device_id')} "
               f"源={self.args.source or src_cfg.get('type')} "
-              f"检测器=OpenCV 后端={getattr(self.detector, '_bg', None) is not None}")
+              f"检测器={self.backend_name} 时序门限={self.min_confidence}")
         try:
             while True:
                 if self.args.max_frames and self.counters["frames"] >= self.args.max_frames:
@@ -336,8 +426,7 @@ class EdgeRuntime:
                 if self.validator is None:
                     confirmed = [
                         d for d in detections
-                        if d["confidence"] >= float(
-                            self.cfg.get("temporal", {}).get("min_confidence", 0.45))
+                        if d["confidence"] >= self.min_confidence
                     ]
                 else:
                     confirmed = self.validator.push(detections)
@@ -390,11 +479,21 @@ class EdgeRuntime:
         print(f"  已发布     : {self.counters['published']}")
         if fed:
             print(f"  误报抑制率 : {suppressed / fed:.1%}")
+        # 开放词汇通道的可解释计数：把"为什么少了检测框"一次说清。
+        # 没有这组数字，'提示词没归宿'与'门限太高'的现象一模一样（某类恒为 0）。
+        if hasattr(self.detector, "stats"):
+            ds = self.detector.stats()
+            print(f"  [{self.backend_name} 通道] 调用={ds['calls']} 原始={ds['raw']} "
+                  f"保留={ds['kept']} 低置信丢弃={ds['dropped_low_conf']} "
+                  f"ROI丢弃={ds['dropped_roi']} 非法框={ds['dropped_bad_box']} "
+                  f"回落other={ds['fallback_other']}")
+            if ds.get("unmapped_prompts"):
+                print(f"  [注意] 这些提示词没有归宿、会回落 other：{ds['unmapped_prompts']}")
         return 0
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="探海灵眸边缘感知程序（OpenCV 真实检测）")
+    parser = argparse.ArgumentParser(description="探海灵眸边缘感知程序（真实检测：cv / world 双通道）")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="配置文件路径")
     parser.add_argument("--source", choices=["rtsp", "file", "camera", "synthetic"],
                         help="覆盖配置里的视频源类型")
@@ -408,6 +507,10 @@ def main() -> int:
                         help="覆盖任意两次上报的最小间隔秒数（默认读配置 2）")
     parser.add_argument("--dry-run", action="store_true", help="不连 Broker，只打印报文")
     parser.add_argument("--show", action="store_true", help="弹窗显示检测框（调试用）")
+    parser.add_argument("--backend", choices=["cv", "world"],
+                        help="覆盖检测通道（默认读 detector.backend，现网为 cv）")
+    parser.add_argument("--world-prompt", action="append", metavar="PROMPT",
+                        help="给开放词汇通道追加提示词（可重复），现场加词演示用")
     args = parser.parse_args()
 
     cfg = _load_config(Path(args.config))

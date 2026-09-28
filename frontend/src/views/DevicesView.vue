@@ -118,13 +118,15 @@
                   :key="selected.device_id"
                   :device-id="selected.device_id"
                   :name="selected.name"
-                  :stream-url="selected.stream_url || ''"
+                  :stream-url="streamUrl"
                 />
               </div>
               <div class="kv">
                 <span class="kv__k">视频流</span>
                 <span class="kv__v">
-                  <span v-if="selected.stream_url" class="text-primary">已配置</span>
+                  <span v-if="streamLoading" class="text-dim">连接中…</span>
+                  <span v-else-if="streamError" class="text-danger">{{ streamError }}</span>
+                  <span v-else-if="streamUrl" class="text-primary">已配置</span>
                   <span v-else class="text-dim">未配置</span>
                 </span>
               </div>
@@ -145,8 +147,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import MapPanel from '@/components/MapPanel.vue'
+import MapPanel from '@/components/MapPanelPrecision.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
+import { devicesApi } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import { DEVICE_STATUS, DEVICE_TYPE } from '@/utils/constants'
 import { fmtCoord, fmtRelative, fmtTime, fmtUsage, batteryColor } from '@/utils/format'
@@ -155,6 +158,10 @@ const store = useRealtimeStore()
 
 const selected = ref(null)
 const filterType = ref('')
+const streamUrl = ref('')
+const streamLoading = ref(false)
+const streamError = ref('')
+let streamRequestId = 0
 
 const typeFilters = [
   { key: '', label: '全部' },
@@ -171,8 +178,36 @@ const filteredDevices = computed(() =>
     : store.devices,
 )
 
-function select(device) {
+async function select(device) {
   selected.value = device
+  streamError.value = ''
+  streamLoading.value = false
+
+  if (device.device_type !== 'shore_camera') {
+    streamUrl.value = ''
+    return
+  }
+
+  // 摄像头一律以 /devices/{id}/stream 拿到的 flv_url 为准。
+  // 列表里的 device.stream_url 可能是建库时的旧地址（go2rtc 重启后失效），
+  // 先清空再拉新地址，避免播放器拿着过期 URL 反复重连
+  streamUrl.value = ''
+  const requestId = ++streamRequestId
+  streamLoading.value = true
+  try {
+    const data = await devicesApi.stream(device.device_id)
+    if (requestId === streamRequestId) {
+      streamUrl.value = data?.flv_url || ''
+    }
+  } catch (err) {
+    if (requestId === streamRequestId && !streamUrl.value) {
+      streamError.value = err.message || '视频流地址获取失败'
+    }
+  } finally {
+    if (requestId === streamRequestId) {
+      streamLoading.value = false
+    }
+  }
 }
 
 onMounted(() => {
@@ -238,19 +273,19 @@ onMounted(() => {
 }
 
 .dev-filter button {
-  padding: 2px 9px;
+  min-height: 32px;
+  padding: 5px 10px;
   font-size: 12px;
   color: var(--text-sub);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  background: var(--bg-panel-2);
+  border: 0;
+  border-radius: 9px;
   cursor: pointer;
 }
 
 .dev-filter button.on {
   color: var(--c-primary);
-  border-color: var(--c-primary-dim);
-  background: rgba(18, 216, 196, 0.09);
+  background: var(--bg-active);
 }
 
 .dev-list {
@@ -267,7 +302,7 @@ onMounted(() => {
   padding: 8px 11px;
   background: var(--bg-panel-2);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -278,7 +313,7 @@ onMounted(() => {
 
 .dev-item--on {
   border-color: var(--c-primary-dim);
-  background: rgba(18, 216, 196, 0.07);
+  background: rgba(0, 122, 255, 0.08);
 }
 
 .dev-item__head {
@@ -335,7 +370,7 @@ onMounted(() => {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(28, 42, 58, 0.5);
+  border-bottom: 1px solid var(--separator);
   font-size: 13px;
 }
 
@@ -361,7 +396,7 @@ onMounted(() => {
 .dev-meta pre {
   background: var(--bg-page);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 10px;
   padding: 9px;
   overflow-x: auto;
   color: var(--text-sub);
@@ -373,5 +408,101 @@ onMounted(() => {
 @media (max-width: 1400px) {
   .dev-layout { grid-template-columns: 1fr; }
   .dev-right { grid-template-rows: 320px 1fr; }
+}
+
+@media (max-width: 900px) {
+  .page {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .dev-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dev-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dev-layout > .panel {
+    flex: none;
+    max-height: 430px;
+  }
+
+  .dev-list {
+    min-height: 180px;
+  }
+
+  .dev-right {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .dev-map {
+    min-height: 360px;
+  }
+
+  .robot-detail {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .robot-detail .panel-body {
+    overflow: visible;
+  }
+
+  .dev-video {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    min-height: 180px;
+    max-height: 280px;
+  }
+}
+
+@media (max-width: 560px) {
+  .dev-stats {
+    gap: 8px;
+  }
+
+  .dev-stat {
+    padding: 10px 12px;
+  }
+
+  .dev-stat__value {
+    font-size: 19px;
+  }
+
+  .dev-layout > .panel .panel-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dev-filter {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dev-filter::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dev-filter button {
+    min-height: 38px;
+    flex: 0 0 auto;
+  }
+
+  .dev-item__meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dev-map {
+    min-height: 330px;
+  }
 }
 </style>

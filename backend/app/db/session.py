@@ -44,6 +44,11 @@ def get_engine() -> AsyncEngine:
             max_overflow=20,
             pool_pre_ping=True,   # 连接健康检查，防止长连接被数据库断开
             pool_recycle=3600,
+            # 让 asyncpg 自己执行连接超时，而不是由 asyncio.wait_for 从外部取消。
+            # 否则连接失败时 asyncpg 会留下未 await 的取消协程，
+            # 表现为测试/关闭阶段出现 "coroutine 'Connection._cancel' was never awaited"。
+            # 不设置全局 command_timeout：那会误杀报表聚合等正常长查询。
+            connect_args={"timeout": settings.postgres_connect_timeout_seconds},
         )
     return _engine
 

@@ -1,0 +1,61 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "fishing net",
+    "ghost net"
+  ],
+  "confidence_threshold": 0.015,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\net.jpg",
+      "name": "net.jpg",
+      "width": 4608,
+      "height": 3456,
+      "count": 4,
+      "detections": [
+        {
+          "class": "fishing net",
+          "confidence": 0.025909,
+          "bbox": [
+            1679.329,
+            1709.987,
+            1977.401,
+            2181.685
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.021959,
+          "bbox": [
+            2107.126,
+            1955.607,
+            2361.539,
+            2356.023
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.021459,
+          "bbox": [
+            1106.02,
+            2109.979,
+            1596.998,
+            2816.238
+          ]
+        },
+        {
+          "class": "fishing net",
+          "confidence": 0.01834,
+          "bbox": [
+            2194.183,
+            2023.702,
+            2411.843,
+            2399.285
+          ]
+        }
+      ]
+    }
+  ]
+}

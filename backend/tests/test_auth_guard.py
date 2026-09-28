@@ -21,9 +21,14 @@ from pathlib import Path
 import pytest
 
 from app.core.config import settings
-from app.core.deps import CurrentUser, get_current_user, require_operator
+from app.core.deps import (
+    CurrentUser,
+    decode_access_token,
+    get_current_user,
+    require_operator,
+)
 from app.core.exceptions import AppException
-from app.api.v1.auth import _issue_token
+from app.api.v1 import auth as auth_module
 
 
 def _auth(token: str | None) -> CurrentUser:
@@ -34,11 +39,18 @@ def _auth(token: str | None) -> CurrentUser:
 
 class TestTokenAuth:
     def test_roundtrip(self) -> None:
-        token = _issue_token("operator", "operator", "马鼻镇")
+        token = auth_module._issue_token("operator", "operator", "马鼻镇")
         u = _auth(token)
         assert u.username == "operator"
         assert u.role == "operator"
         assert u.township_scope == "马鼻镇"
+
+    def test_approver_roundtrip(self) -> None:
+        token = auth_module._issue_token("approver", "approver", None)
+        u = _auth(token)
+        assert u.username == "approver"
+        assert u.role == "approver"
+        assert u.can_write is False
 
     def test_no_token_is_anonymous_readonly(self) -> None:
         u = _auth(None)
@@ -51,7 +63,7 @@ class TestTokenAuth:
 
         这是「真权限」的核心：角色来自服务端签名，前端改不了。
         """
-        token = _issue_token("viewer", "viewer", None)
+        token = auth_module._issue_token("viewer", "viewer", None)
         body, sig = token.rsplit(".", 1)
         padded = body + "=" * (-len(body) % 4)
         payload = json.loads(base64.urlsafe_b64decode(padded))
@@ -70,6 +82,39 @@ class TestTokenAuth:
         u = _auth(f"{body}.{sig}")
         assert u.role == "viewer", "过期令牌必须被拒绝"
 
+    def test_unknown_role_rejected(self) -> None:
+        payload = {
+            "sub": "attacker",
+            "role": "superadmin",
+            "scope": None,
+            "exp": int(time.time()) + 3600,
+        }
+        body = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        sig = hashlib.sha256(f"{body}.{settings.secret_key}".encode()).hexdigest()[:32]
+        assert decode_access_token(f"{body}.{sig}") is None
+
+
+class TestProductionPasswordFallback:
+    def test_bcrypt_failure_does_not_enable_demo_password(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        malformed_demo_hash = (
+            "$2b$12$LQv3c1yqBWVHxkd0LHAkCO"
+            "this-is-intentionally-not-a-valid-bcrypt-hash"
+        )
+        monkeypatch.setattr(auth_module.settings, "app_env", "production")
+        assert auth_module._verify_password("admin123456", malformed_demo_hash) is False
+
+    def test_development_keeps_demo_fallback(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        malformed_demo_hash = (
+            "$2b$12$LQv3c1yqBWVHxkd0LHAkCO"
+            "this-is-intentionally-not-a-valid-bcrypt-hash"
+        )
+        monkeypatch.setattr(auth_module.settings, "app_env", "development")
+        assert auth_module._verify_password("admin123456", malformed_demo_hash) is True
+
 
 class TestRequireOperator:
     def test_rejects_viewer(self) -> None:
@@ -79,6 +124,10 @@ class TestRequireOperator:
     def test_rejects_anonymous(self) -> None:
         with pytest.raises(AppException):
             asyncio.run(require_operator(CurrentUser("anonymous", "viewer", None)))
+
+    def test_rejects_approver(self) -> None:
+        with pytest.raises(AppException):
+            asyncio.run(require_operator(CurrentUser("approver", "approver", None)))
 
     def test_allows_operator(self) -> None:
         u = asyncio.run(require_operator(CurrentUser("op", "operator", "马鼻镇")))

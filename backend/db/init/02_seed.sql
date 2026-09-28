@@ -22,22 +22,33 @@ TRUNCATE TABLE t_user CASCADE;
 -- ---------- 用户（密码明文见下方注释，首次登录后请立即修改） ----------
 -- admin    / admin123456
 -- operator / operator123456
+-- approver / approver123456   ← 审批员独立账号（见下）
 -- viewer   / viewer123456
+--
+-- ★ approver 必须单独存在，不能拿 admin 兼职：
+--   Agent 的 WRITE 工具（task.create_or_merge）在演示环境需要人工审批，
+--   「高风险动作由第二个自然人放行」这句话只有在拉起两个不同账号时才成立。
+--   这里补上这一行，是为了让 `make db-init` 自己就能把四个账号备齐 ——
+--   否则只跑 db-init 的人会拿不到 approver（本文件曾是三个账号的版本），
+--   演示现场才发现审批队列永远空着。
+--   bootstrap_demo_users.py 仍是权威重播脚本：它用的哈希由 passlib 现算，
+--   本行的哈希同样是 passlib bcrypt 现算并自验过的，两者结果等价。
 INSERT INTO t_user (username, hashed_password, full_name, role, township_scope) VALUES
-('admin',    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqUoJqxHGm', '系统管理员', 'admin',    NULL),
-('operator', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '乡镇操作员', 'operator', '马鼻镇'),
-('viewer',   '$2b$12$Vc6V8u7BqC5rP7p3mLjXtuzWZJvBXKZQNHV6ZgT8vJqRZ8YQxZqIu', '访客账号',   'viewer',   NULL)
+('admin',    '$2b$12$LQv3c1yqBWVHxkd0LHAkCO.U6bDAa4EBUbumwcycDzQl2ZqIdY7lq', '系统管理员', 'admin',    NULL),
+('operator', '$2b$12$EixZaYVK1fsbw1ZfbX3OXeTxCsjZtpnZVxtFMV8DXtj28NthlR7f6', '乡镇操作员', 'operator', '马鼻镇'),
+('approver', '$2b$12$shvgOfXHARMvu4UFVF.MFeTTRkX2SkaLHi2AnytHvzkSiHcud/JJO', '值班审批员', 'approver', '马鼻镇'),
+('viewer',   '$2b$12$Vc6V8u7BqC5rP7p3mLjXtu9xgYs2cbcAO9bhUzXKdBTc.i9LUGizi', '访客账号',   'viewer',   NULL)
 ON CONFLICT (username) DO NOTHING;
 
 -- ---------- 设备 ----------
 -- 岸基摄像头（6 个连江沿海点位）
 INSERT INTO t_device (device_id, device_type, name, location, status, last_heartbeat, stream_url, meta) VALUES
-('CAM-MABI-01',  'shore_camera', '马鼻码头摄像头',   ST_SetSRID(ST_MakePoint(119.6521, 26.3864), 4326), 'online', now(), 'http://localhost:1984/api/stream.mp4?src=cam01', '{"model":"HK-DS2CD","resolution":"1920x1080"}'),
-('CAM-HUANGQI-01','shore_camera','黄岐渔港摄像头',   ST_SetSRID(ST_MakePoint(119.9042, 26.3158), 4326), 'online', now(), 'http://localhost:1984/api/stream.mp4?src=cam02', '{"model":"HK-DS2CD","resolution":"1920x1080"}'),
-('CAM-XIAOCHENG-01','shore_camera','筱埕养殖区摄像头',ST_SetSRID(ST_MakePoint(119.8362, 26.3517), 4326), 'online', now(), 'http://localhost:1984/api/stream.mp4?src=cam03', '{"model":"DH-IPC","resolution":"2560x1440"}'),
-('CAM-TAILU-01', 'shore_camera', '苔菉航道摄像头',   ST_SetSRID(ST_MakePoint(120.0098, 26.2931), 4326), 'online', now(), NULL, '{"model":"DH-IPC","resolution":"1920x1080"}'),
-('CAM-ANKAI-01', 'shore_camera', '安凯渔排区摄像头', ST_SetSRID(ST_MakePoint(119.7605, 26.4198), 4326), 'online', now(), NULL, '{"model":"HK-DS2CD","resolution":"1920x1080"}'),
-('CAM-XIAGONG-01','shore_camera','下宫回收点摄像头', ST_SetSRID(ST_MakePoint(119.8871, 26.3742), 4326), 'online', now(), NULL, '{"model":"HK-DS2CD","resolution":"1920x1080"}')
+('CAM-MABI-01',  'shore_camera', '马鼻码头摄像头',   ST_SetSRID(ST_MakePoint(119.6521, 26.3864), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-MABI-01', '{"model":"HK-DS2CD","resolution":"1920x1080","stream_key":"CAM-MABI-01"}'),
+('CAM-HUANGQI-01','shore_camera','黄岐渔港摄像头',   ST_SetSRID(ST_MakePoint(119.9042, 26.3158), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-HUANGQI-01', '{"model":"HK-DS2CD","resolution":"1920x1080","stream_key":"CAM-HUANGQI-01"}'),
+('CAM-XIAOCHENG-01','shore_camera','筱埕养殖区摄像头',ST_SetSRID(ST_MakePoint(119.8362, 26.3517), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-XIAOCHENG-01', '{"model":"DH-IPC","resolution":"2560x1440","stream_key":"CAM-XIAOCHENG-01"}'),
+('CAM-TAILU-01', 'shore_camera', '苔菉航道摄像头',   ST_SetSRID(ST_MakePoint(120.0098, 26.2931), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-TAILU-01', '{"model":"DH-IPC","resolution":"1920x1080","stream_key":"CAM-TAILU-01"}'),
+('CAM-ANKAI-01', 'shore_camera', '安凯渔排区摄像头', ST_SetSRID(ST_MakePoint(119.7605, 26.4198), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-ANKAI-01', '{"model":"HK-DS2CD","resolution":"1920x1080","stream_key":"CAM-ANKAI-01"}'),
+('CAM-XIAGONG-01','shore_camera','下宫回收点摄像头', ST_SetSRID(ST_MakePoint(119.8871, 26.3742), 4326), 'online', now(), '/stream/api/stream.flv?src=CAM-XIAGONG-01', '{"model":"HK-DS2CD","resolution":"1920x1080","stream_key":"CAM-XIAGONG-01"}')
 ON CONFLICT (device_id) DO NOTHING;
 
 -- 无人机
@@ -119,14 +130,18 @@ SELECT
 FROM generate_series(1, 20) AS i;
 
 -- ---------- 统计宽表（预聚合最近 3 天） ----------
-INSERT INTO t_report_daily (stat_date, township, main_class, event_count, task_count, done_count, collected_kg, coverage_area)
+-- WP-07 数据完整性：coverage_area 没有可靠真实数据源（机器人清扫面积上报
+-- 链路未实现），种子一律 NULL + not_available —— 禁止用编造面积冒充实测。
+-- 结构区分：NULL=未统计；「真实 0」只有在有记录但合计为 0 时才出现（届时
+-- availability 应为 available/partial 且值为 0.00）。
+INSERT INTO t_report_daily (stat_date, township, main_class, event_count, task_count, done_count, collected_kg, coverage_area, coverage_availability)
 VALUES
-(CURRENT_DATE - 2, '马鼻镇', 'foam',         12, 3, 3, 28.500, 15000.00),
-(CURRENT_DATE - 2, '马鼻镇', 'plastic',       5, 1, 1,  6.200,  5000.00),
-(CURRENT_DATE - 1, '马鼻镇', 'foam',          9, 2, 2, 21.000, 12000.00),
-(CURRENT_DATE - 1, '黄岐镇', 'foam',          7, 2, 1, 15.500,  9000.00),
-(CURRENT_DATE,     '马鼻镇', 'foam',          5, 1, 1, 12.500,  8000.00),
-(CURRENT_DATE,     '黄岐镇', 'fishing_gear',  4, 1, 0,  0.000,     0.00)
+(CURRENT_DATE - 2, '马鼻镇', 'foam',         12, 3, 3, 28.500, NULL, 'not_available'),
+(CURRENT_DATE - 2, '马鼻镇', 'plastic',       5, 1, 1,  6.200, NULL, 'not_available'),
+(CURRENT_DATE - 1, '马鼻镇', 'foam',          9, 2, 2, 21.000, NULL, 'not_available'),
+(CURRENT_DATE - 1, '黄岐镇', 'foam',          7, 2, 1, 15.500, NULL, 'not_available'),
+(CURRENT_DATE,     '马鼻镇', 'foam',          5, 1, 1, 12.500, NULL, 'not_available'),
+(CURRENT_DATE,     '黄岐镇', 'fishing_gear',  4, 1, 0,  0.000, NULL, 'not_available')
 ON CONFLICT (stat_date, township, main_class) DO NOTHING;
 
 -- ---------- 校验输出 ----------

@@ -1,0 +1,24 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic bottle",
+    "plastic waste",
+    "plastic bag",
+    "fishing net",
+    "foam debris",
+    "marine debris"
+  ],
+  "confidence_threshold": 0.01,
+  "iou_threshold": 0.45,
+  "image_size": 1600,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\plastic.jpg",
+      "name": "plastic.jpg",
+      "width": 5184,
+      "height": 3434,
+      "count": 0,
+      "detections": []
+    }
+  ]
+}

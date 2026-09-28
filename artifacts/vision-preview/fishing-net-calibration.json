@@ -1,0 +1,42 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "net",
+    "rope",
+    "fishing gear"
+  ],
+  "confidence_threshold": 0.012,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\frontend\\public\\demo\\fishing-net-4k.webp",
+      "name": "fishing-net-4k.webp",
+      "width": 3840,
+      "height": 2880,
+      "count": 2,
+      "detections": [
+        {
+          "class": "fishing gear",
+          "confidence": 0.094929,
+          "bbox": [
+            1758.311,
+            1554.88,
+            2032.154,
+            1999.152
+          ]
+        },
+        {
+          "class": "fishing gear",
+          "confidence": 0.012345,
+          "bbox": [
+            1396.859,
+            1424.902,
+            1647.481,
+            1817.074
+          ]
+        }
+      ]
+    }
+  ]
+}

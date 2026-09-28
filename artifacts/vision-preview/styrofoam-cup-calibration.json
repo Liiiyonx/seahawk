@@ -1,0 +1,63 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "styrofoam cup",
+    "foam cup",
+    "plastic cup",
+    "foam debris"
+  ],
+  "confidence_threshold": 0.01,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-candidates2\\styrofoam-cup.jpg",
+      "name": "styrofoam-cup.jpg",
+      "width": 4016,
+      "height": 3008,
+      "count": 4,
+      "detections": [
+        {
+          "class": "foam cup",
+          "confidence": 0.183603,
+          "bbox": [
+            685.122,
+            423.747,
+            771.268,
+            509.501
+          ]
+        },
+        {
+          "class": "foam cup",
+          "confidence": 0.020117,
+          "bbox": [
+            1659.539,
+            441.58,
+            1771.707,
+            506.714
+          ]
+        },
+        {
+          "class": "foam cup",
+          "confidence": 0.018083,
+          "bbox": [
+            1610.081,
+            1179.574,
+            2814.719,
+            2420.997
+          ]
+        },
+        {
+          "class": "plastic cup",
+          "confidence": 0.014573,
+          "bbox": [
+            1598.587,
+            1175.332,
+            2737.381,
+            2488.608
+          ]
+        }
+      ]
+    }
+  ]
+}

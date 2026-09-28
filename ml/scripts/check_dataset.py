@@ -10,7 +10,15 @@
     python ml/scripts/check_dataset.py --strict     # 有任何问题即返回 1
     python ml/scripts/check_dataset.py --write-stats  # 把统计写回 data yaml
 
-退出码：0 = 无阻断性问题；1 = 有（缺标签、类别越界、格式错等）。
+退出码：0 = 无阻断性问题；1 = 有（缺标签、类别越界、格式错等）或数据集为空；
+        2 = 配置文件不可读。
+
+★ 空数据集语义（WP-06 冻结）
+──────────────────────────
+没有任何图片（train/val/test 全空）时：
+  - 输出明确状态 not_evaluated，**不生成精度/召回/F1 等任何虚假指标**；
+  - 拒绝 --write-stats 写回（避免以空数据冒充已采集统计）；
+  - 视为阻断性问题返回 1，防止下游误以为"数据健康、可以出指标"。
 
 ★ 关于 --write-stats
 ────────────────────
@@ -68,6 +76,55 @@ def label_path_for(img: Path, root: Path) -> Path:
             break
     parts[-1] = Path(parts[-1]).stem + ".txt"
     return root.joinpath(*parts)
+
+
+def _load_protocol_validator():
+    """懒加载 WP-13 数据协议校验核心（convert_annotations.validate_dataset）。
+
+    与 evaluate_opencv.py 同目录，通过 importlib 加载，避免依赖 sys.path 顺序。
+    """
+    import importlib.util
+
+    here = Path(__file__).resolve().parent
+    spec = importlib.util.spec_from_file_location(
+        "seasight_convert_annotations", here / "convert_annotations.py"
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def check_protocol_json(path: Path, protocol) -> int:
+    """校验 SeaSight COCO-like JSON（WP-13 数据协议）；返回阻断问题数。
+
+    复用 convert_annotations.validate_dataset（冻结校验核心），不重复实现；
+    check_files/check_checksums 关闭（数据体检不要求图片与校验和就位）。
+    证据纪律由校验核心强制：合成最高 E2、real 需真实来源+复核、E4 需凭证。
+    """
+    problems = 0
+    try:
+        data, _ = protocol.load_json(str(path))
+    except protocol.ConfigError as e:
+        print(f"  ✗ {path}：{e}")
+        return 1
+    rep = protocol.validate_dataset(
+        data, source_path=str(path), check_files=False, check_checksums=False
+    )
+    print(
+        f"  {path}：dataset_id={rep.get('dataset_id')} "
+        f"evidence={rep.get('evidence_level')} "
+        f"images={rep.get('sample_count', {}).get('images')} "
+        f"annotations={rep.get('sample_count', {}).get('annotations')}"
+    )
+    for w in rep.get("warnings", [])[:5]:
+        print(f"    ⚠ {w}")
+    if rep["status"] == "invalid":
+        for p in rep.get("problems", [])[:8]:
+            print(f"    ✗ {p}")
+        problems += 1
+    else:
+        print(f"    ✓ 协议校验通过（evaluation_status={rep.get('evaluation_status')}）")
+    return problems
 
 
 def write_stats(path: Path, stats: dict, names: list[str]) -> bool:
@@ -160,7 +217,7 @@ def write_stats(path: Path, stats: dict, names: list[str]) -> bool:
     return True
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="数据集配对与格式体检")
     ap.add_argument("--data", default="ml/configs/seasight.yaml", help="data yaml 路径")
     ap.add_argument("--strict", action="store_true", help="有非阻断问题也返回 1")
@@ -169,7 +226,14 @@ def main() -> int:
         action="store_true",
         help="把统计数字写回 data yaml 的 stats 段（供训练脚本做负样本/均衡检查）",
     )
-    args = ap.parse_args()
+    ap.add_argument(
+        "--data-protocol-json",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="SeaSight COCO-like JSON 路径（WP-13 数据协议），可多次指定；逐一做协议级校验，无效计为阻断问题",
+    )
+    args = ap.parse_args(argv)
 
     data_path = Path(args.data)
     if not data_path.exists():
@@ -275,22 +339,36 @@ def main() -> int:
                 warnings += len(zero)
         print()
 
+    # ★ WP-06：空数据集 = not_evaluated，视为阻断性问题，绝不产出虚假指标
+    total_images = sum(collected.values())
+    empty_dataset = total_images == 0
+    if empty_dataset:
+        problems += 1
+
     if args.write_stats:
         print("=" * 50)
-        stats = {
-            "train_images": collected.get("train", 0),
-            "val_images": collected.get("val", 0),
-            "background_images": 0,   # 负样本要靠空标签文件统计，见下方说明
-            "instances": {nm: total_instances.get(i, 0) for i, nm in enumerate(names)},
-        }
-        if write_stats(data_path, stats, names):
-            print(f"  ✓ 统计已写回 {data_path}")
-            print(f"    train={stats['train_images']} val={stats['val_images']}")
-            print(f"    instances={stats['instances']}")
-            print("  ⚠ background_images 未自动写（需要按空标签文件数另算）")
+        if empty_dataset:
+            print("  ✗ 空数据集：拒绝写回 stats（避免以空数据冒充已采集统计）")
+        else:
+            stats = {
+                "train_images": collected.get("train", 0),
+                "val_images": collected.get("val", 0),
+                "background_images": 0,   # 负样本要靠空标签文件统计，见下方说明
+                "instances": {nm: total_instances.get(i, 0) for i, nm in enumerate(names)},
+            }
+            if write_stats(data_path, stats, names):
+                print(f"  ✓ 统计已写回 {data_path}")
+                print(f"    train={stats['train_images']} val={stats['val_images']}")
+                print(f"    instances={stats['instances']}")
+                print("  ⚠ background_images 未自动写（需要按空标签文件数另算）")
         print()
 
     print("=" * 50)
+    if empty_dataset:
+        print("✗ 空数据集：没有任何图片 → 评测状态 not_evaluated")
+        print("  禁止以空数据生成精度 / 召回 / F1 等任何指标（不产出虚假精度）。")
+        print("  请先完成 采集 → 标注 → 加入清单 ml/datasets/manifests/，再运行评测。")
+        return 1
     if problems:
         print(f"✗ 阻断性问题 {problems} 处，警告 {warnings} 处 → 建议先修再训练")
         return 1

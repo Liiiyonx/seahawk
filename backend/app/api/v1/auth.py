@@ -1,8 +1,9 @@
 """认证与用户接口。
 
-三层角色：
+四类角色：
     admin    系统管理员 —— 全部权限
     operator 乡镇操作员 —— 本辖区写权限
+    approver 审批员 —— 仅可决定 Agent 人工审批
     viewer   访客 —— 只读大屏
 
 说明：种子数据的密码为演示用，首次部署后应立即修改。
@@ -18,10 +19,10 @@ from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.deps import CurrentUser, get_current_user
-from app.core.exceptions import AppException, ErrorCode
+from app.core.exceptions import ApiResponse, AppException, ErrorCode
 from app.db.session import get_session
-from app.core.exceptions import ApiResponse
 from app.models.misc import User, UserRole
 from app.schemas import LoginRequest
 
@@ -35,8 +36,8 @@ async def login(
 ):
     """账号密码登录，返回访问令牌。
 
-    令牌为签名后的载荷，前端放在 Authorization 头；
-    业务接口通过 X-User / X-Role 头识别身份（演示阶段简化实现）。
+    令牌为服务端签名载荷，前端放在 ``Authorization: Bearer <token>``；
+    业务接口只信任该令牌中的身份与角色，不接受客户端自报请求头。
     """
     user = (
         await session.execute(select(User).where(User.username == payload.username))
@@ -56,8 +57,6 @@ async def login(
             message="账号已停用",
             http_status=403,
         )
-
-    from app.core.config import settings
 
     token = _issue_token(user.username, user.role, user.township_scope)
 
@@ -121,6 +120,7 @@ async def list_users(
                 "role_label": {
                     UserRole.ADMIN: "系统管理员",
                     UserRole.OPERATOR: "乡镇操作员",
+                    UserRole.APPROVER: "审批员",
                     UserRole.VIEWER: "访客",
                 }.get(r.role, r.role),
                 "township_scope": r.township_scope,
@@ -138,8 +138,8 @@ async def list_users(
 def _verify_password(plain: str, hashed: str) -> bool:
     """校验密码。
 
-    优先用 bcrypt（与种子数据一致）；passlib 不可用时退化为
-    明文比对（仅开发环境），保证工程在依赖缺失时仍可跑通。
+    开发环境允许在 bcrypt 依赖异常时回退到种子演示账号，便于无依赖启动；
+    生产环境绝不接受硬编码密码，以免依赖故障意外放大为认证绕过。
     """
     try:
         from passlib.context import CryptContext
@@ -147,6 +147,9 @@ def _verify_password(plain: str, hashed: str) -> bool:
         ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
         return ctx.verify(plain, hashed)
     except Exception:   # noqa: BLE001
+        if settings.app_env == "production":
+            logger.error("[认证] 密码校验组件不可用，生产环境拒绝降级")
+            return False
         # 降级：种子数据中的演示账号
         fallback = {
             "admin": "admin123456",
@@ -184,7 +187,6 @@ def _issue_token(username: str, role: str, township_scope: str | None = None) ->
     import base64
     import hashlib
     import json
-    from app.core.config import settings
 
     payload = {
         "sub": username,

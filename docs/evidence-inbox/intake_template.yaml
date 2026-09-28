@@ -1,0 +1,41 @@
+# 探海灵眸 SeaSight 证据入库登记模板（WP-15）
+#
+# 用法：
+#   1. 复制本文件为新文件 docs/evidence-inbox/YYYY-MM-DD-主题.yaml（不要直接改本模板）。
+#   2. 在 intake_entries 下按实际证据填写条目；8 个必填字段缺一不可。
+#   3. 本地校验：
+#        .\.venv-analysis\Scripts\python.exe scripts\evidence_registry.py --registry <文件> --validate
+#   4. 校验通过后提交总控复核，由总控并入 scripts/evidence_registry.py 登记表。
+#
+# 字段与 scripts/evidence_registry.py 的 EvidenceRecord 严格对齐：
+#   id / claim / evidence_level / source_type / source_ref / captured_at /
+#   review_status / owner 为必填；rule / matches / notes 为选填（扫描豁免锚点）。
+#   evidence_level 只允许 E0/E1/E2/E3/E4；source_type 只允许受控集合中的值。
+#   升级红线：E 级上调必须附真实证据（询价单/试点数据/合同回款凭证/官方原文）。
+
+schema_version: 1
+intake_entries:
+  # —— 示例条目：提交时删除或替换为真实证据 ——
+  - id: EV-0001
+    claim: "某供应商对边缘盒控制板的书面报价（示例条目，提交前请替换为真实证据）"
+    evidence_level: E0
+    source_type: inquiry
+    source_ref: "询价单原件扫描件，编号待填"
+    captured_at: "2026-09-19"
+    review_status: 待复核
+    owner: 待填
+    rule: null
+    matches: []
+    notes: "示例：真实报价须含日期、有效期与含税口径；升级 E3 需总控复核原件。"
+  # —— 复制下面的块填写真实证据，可重复多条 ——
+  # - id: F-09
+  #   claim: "（真实事实描述，含口径与边界）"
+  #   evidence_level: E1
+  #   source_type: public_fact
+  #   source_ref: "（官方原文链接或文件路径）"
+  #   captured_at: "YYYY-MM-DD"
+  #   review_status: 待复核
+  #   owner: （责任人）
+  #   rule: null
+  #   matches: []
+  #   notes: ""

@@ -1,0 +1,253 @@
+{
+  "model": "yolov8s-worldv2.pt",
+  "prompt_classes": [
+    "plastic bottle",
+    "plastic waste",
+    "foam debris",
+    "shoe"
+  ],
+  "confidence_threshold": 0.015,
+  "iou_threshold": 0.45,
+  "image_size": 1920,
+  "items": [
+    {
+      "path": "C:\\Users\\Liii\\Desktop\\seahawk\\.wp-demo-originals\\beach.jpg",
+      "name": "beach.jpg",
+      "width": 4896,
+      "height": 3264,
+      "count": 23,
+      "detections": [
+        {
+          "class": "plastic bottle",
+          "confidence": 0.242104,
+          "bbox": [
+            496.607,
+            2735.585,
+            675.512,
+            3044.109
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.148157,
+          "bbox": [
+            2387.198,
+            2207.41,
+            2699.958,
+            2385.77
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.122007,
+          "bbox": [
+            1112.763,
+            2716.168,
+            1179.834,
+            2817.564
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.050733,
+          "bbox": [
+            435.856,
+            2507.324,
+            535.594,
+            2625.297
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.024608,
+          "bbox": [
+            3249.064,
+            425.464,
+            3382.278,
+            524.159
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.024177,
+          "bbox": [
+            2858.476,
+            2369.043,
+            3041.081,
+            2623.156
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.023382,
+          "bbox": [
+            1093.994,
+            306.001,
+            1168.966,
+            347.52
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.023354,
+          "bbox": [
+            967.693,
+            1981.994,
+            1076.015,
+            2072.991
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.023168,
+          "bbox": [
+            3365.877,
+            485.721,
+            3839.267,
+            936.856
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.023028,
+          "bbox": [
+            2867.326,
+            3021.44,
+            2928.185,
+            3082.727
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.020828,
+          "bbox": [
+            1185.171,
+            2352.745,
+            1277.113,
+            2478.86
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.020473,
+          "bbox": [
+            2307.339,
+            2546.284,
+            2571.028,
+            2905.158
+          ]
+        },
+        {
+          "class": "foam debris",
+          "confidence": 0.020454,
+          "bbox": [
+            2742.466,
+            1661.751,
+            3043.989,
+            1775.343
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.020212,
+          "bbox": [
+            1879.547,
+            1376.823,
+            1955.806,
+            1417.75
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.019713,
+          "bbox": [
+            2380.702,
+            2404.359,
+            2635.939,
+            2755.619
+          ]
+        },
+        {
+          "class": "foam debris",
+          "confidence": 0.019457,
+          "bbox": [
+            176.107,
+            1951.097,
+            422.424,
+            2146.711
+          ]
+        },
+        {
+          "class": "plastic bottle",
+          "confidence": 0.018712,
+          "bbox": [
+            3361.336,
+            484.27,
+            3839.133,
+            936.587
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.017084,
+          "bbox": [
+            1114.896,
+            2624.9,
+            1213.683,
+            2795.382
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.017061,
+          "bbox": [
+            1613.92,
+            2738.979,
+            1724.971,
+            2821.947
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.015952,
+          "bbox": [
+            220.191,
+            2513.718,
+            495.767,
+            2777.582
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.015566,
+          "bbox": [
+            3227.948,
+            2743.912,
+            3463.627,
+            2892.818
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.015562,
+          "bbox": [
+            1640.554,
+            2807.244,
+            1802.046,
+            3055.156
+          ]
+        },
+        {
+          "class": "shoe",
+          "confidence": 0.015,
+          "bbox": [
+            2738.746,
+            1664.208,
+            3044.745,
+            1775.064
+          ]
+        }
+      ]
+    }
+  ]
+}
