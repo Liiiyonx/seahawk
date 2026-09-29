@@ -1,6 +1,6 @@
 # 华为 ICT 大赛 创新赛道三 · 评委视角逐项自评与提交材料缺口
 
-> 版本：1.7 ｜ 日期：2026-09-30
+> 版本：1.8 ｜ 日期：2026-09-30
 > 依据：赛道三官方赛题与评分表（初赛技术评分 100%，四项各 25%；
 > 决赛技术 60% + 答辩 40% + 附加分 10 分）
 > 上位口径：《docs/evidence-claim-policy.md》（证据分级与宣称纪律）、
@@ -241,8 +241,8 @@ VPC 内提供可达的 MCP endpoint；准备手册本身不构成验收证据，
 | # | 赛题要求 | 现状 | 结论 | 谁能做 |
 | --- | --- | --- | --- | --- |
 | 1 | 开发设计文档 Word（项目概述、整体方案设计、知识图谱构建方案、智能体构建方案、原始数据说明、数据处理说明） | 底稿已转 Word：`项目文档/华为ICT赛道三_开发设计文档.docx` | **已完成（排版待复核）** | 我排版复核 |
-| 2 | Nexent 平台智能体整体设计思路与详细说明（模型、工具、知识库、调用关系图、调试迭代经验、示例问答截图） | 工具/知识库/调用关系图/Agent 配置/调试经验已登记（R-NX-04）；本地完整 LLM Skill 问答与 Nexent 控制台截图已登记（R-NX-09：DeepSeek `deepseek-v4-pro`、21 工具、5 Skill、HTTP 200、8 步、31 次调用）；示例问答轨迹截图另见 R-KN-04；华为托管平台 MCP 注册与公网端点调用已登记（R-NX-05）；Agent 创建与模型配置已登记（R-NX-06）；私网环境与网关已建、Target 因欠费禁用（R-NX-07 blocked，Target 0/10） | **本地六项已齐；差托管平台内完整 Skill 问答截图（账号欠费未解）** | 充值后按 `huawei-agentarts-vpc-target-runbook.md` 建 Target + 绑 Agent + 补平台内截图并成册 |
-| 3 | 附送 json 文件、知识库和 MCP 文件说明 | `artifacts/nexent-mcp-openapi.json`、`integrations/nexent/`、平台验收证据目录已有，打包清单已整理 | **部分存在，已整理说明** | 我整理 |
+| 2 | Nexent 平台智能体整体设计思路与详细说明（模型、工具、知识库、调用关系图、调试迭代经验、示例问答截图） | **独立提交件已生成**：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章 / 114 blocks，六项逐节成册）；工具/知识库/调用关系图/Agent 配置/调试经验已登记（R-NX-04）；本地完整 LLM Skill 问答与 Nexent 控制台截图已登记（R-NX-09：DeepSeek `deepseek-v4-pro`、21 工具、5 Skill、HTTP 200、8 步、31 次调用）；示例问答轨迹截图另见 R-KN-04；华为托管平台 MCP 注册与公网端点调用已登记（R-NX-05）；Agent 创建与模型配置已登记（R-NX-06）；私网环境与网关已建、Target 因欠费禁用（R-NX-07 blocked，Target 0/10） | **本地六项已齐并已成册；差托管平台内完整 Skill 问答截图（账号欠费未解）** | 充值后按 `huawei-agentarts-vpc-target-runbook.md` 建 Target + 绑 Agent + 补平台内截图，并回填设计说明第八章 |
+| 3 | 附送 json 文件、知识库和 MCP 文件说明 | **独立提交件已生成**：`docs/competitions/huawei-ict-track3-attachment-guide.md`（打包为 `03_附送文件说明.md`），四类随附文件逐项说明 + 证据等级 + 适用边界 + 提交前自检；整包由 `scripts/package_huawei_track3_submission.py` 一键产出 | **已完成** | 托管平台完整问答补齐后刷新说明 §4.3 |
 | 7 | 本体抽取效率评测（算法创新性量化证据） | `scripts/ontology_eval.py` + `artifacts/ontology-eval/latest.json`，登记 R-KN-02 | **已完成（软件内部 E1）** | 我完成 |
 | 8 | 标准体系对齐映射表 | `docs/competitions/standard-code-mapping.md` | **已完成（真实条款待获取）** | 我完成 |
 | 4 | 答辩 PPT（决赛） | 无 | **决赛阶段再补** | 我先留底稿结构，不挤占连江 |
@@ -318,6 +318,7 @@ VPC 内提供可达的 MCP endpoint；准备手册本身不构成验收证据，
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-09-30 | 补齐【材料 2】与【材料 3】独立提交件（`huawei-ict-track3-agent-design.md`、`huawei-ict-track3-attachment-guide.md`）与一键打包脚本 `scripts/package_huawei_track3_submission.py`；三章材料缺口表对应两项改为已完成；总评区间维持 76-84（托管平台内完整问答仍为 R-NX-07 blocked） | WP-15 |
 | 2026-09-29 | 依据赛道三官方评分表建立评委视角逐项自评、材料缺口与行动表 | WP-15 |
 | 2026-09-29 | 登记本体抽取评测 R-KN-02、标准体系映射表、开发设计文档 Word，更新结论与逐项自评 | WP-15 |
 | 2026-09-29 | 登记 R-NX-04 Agent 配置/发布/调用关系/导出证据，更新 2.1 与材料缺口状态 | WP-15 |

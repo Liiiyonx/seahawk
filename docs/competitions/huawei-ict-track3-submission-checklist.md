@@ -1,6 +1,6 @@
 # 华为 ICT 大赛 创新赛道三 · 提交材料打包清单
 
-> 版本：1.7 ｜ 日期：2026-09-30
+> 版本：1.8 ｜ 日期：2026-09-30
 > 依据：赛道三初赛/决赛需提交材料清单
 > 上位口径：《docs/competitions/huawei-ict-track3-scoring-review.md》（评委自评）、
 > 《docs/competitions/huawei-ict-track3-design-doc.md》（开发设计文档底稿）、
@@ -13,7 +13,7 @@
 | --- | --- | --- | --- | --- |
 | 1 | 开发设计文档 Word | 项目概述、整体方案设计、知识图谱构建方案、智能体构建方案、原始数据说明、数据处理说明 | Word 已生成：`项目文档/华为ICT赛道三_开发设计文档.docx` | 排版复核 |
 | 2 | Nexent 平台智能体整体设计思路与详细说明 | 模型、工具、知识库、调用关系图、调试迭代经验、示例问答截图 | **独立提交件已生成**：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章 / 114 blocks）。模型与示例问答为 R-NX-09（本地官方源码部署，DeepSeek `deepseek-v4-pro`、21 工具 + 5 Skill、HTTP 200、8 步、31 次调用、2,777 字回答、Nexent 控制台截图）；工具/知识库/调用关系图为 R-NX-01/R-NX-04/R-KN-01；华为托管平台 MCP 注册、21 工具、公网端点调用与 5 Skill 导入已登记（R-NX-05/R-NX-07）；托管平台 Agent 创建与模型配置已登记（R-NX-06）；另有 R-KN-04 本地知识域前端轨迹 | 托管平台内完整 Skill 问答截图待账号欠费解除 + 私网 Target 绑定后补（R-NX-07 blocked）；补齐后同步更新该文档第八章 |
-| 3 | json / 知识库 / MCP 文件说明 | 随设计说明同步提交 | 文件已存在 | 按本文 §三 整理说明 |
+| 3 | json / 知识库 / MCP 文件说明 | 随设计说明同步提交 | **独立提交件已生成**：`docs/competitions/huawei-ict-track3-attachment-guide.md`（打包为 `03_附送文件说明.md`），四类随附文件逐项说明 + 证据等级 + 适用边界 + 提交前自检 | 托管平台完整问答补齐后刷新 §4.3 |
 | 4 | 答辩 PPT（决赛） | 项目设计、关键代码、知识库扩展、自定义工具、数据处理 | 未启动 | 决赛阶段再做 |
 | 5 | 附加分：多行业模板轻量化迁移适配验证 | 至少一个非海洋行业配置跑通 | 已完成 E1 演示级：`artifacts/skill-migration/`（R-MG-01，海洋/医疗/政务三领域，检索命中 3/3） | 决赛补真实行业配置 |
 | 6 | 附加分：真实脱敏行业数据集效果评测 | 真实脱敏数据 + 评测结果 | 公开开放数据替代评测已完成（R-OD-01，E1，非真实脱敏） | 真实脱敏数据仍待外部来源；提交材料明确标注替代边界 |
@@ -156,9 +156,11 @@
 
 ## 五、打包结构建议
 
-两个 Word 均可从 Markdown 底稿一键重建（`python scripts/build_huawei_track3_docx.py`、
-`python scripts/build_huawei_track3_agent_docx.py`）；证据文件均已入库，打包时按
-下列结构重命名归位即可。
+整包可一键重建：`python scripts/package_huawei_track3_submission.py`。该脚本会先重建
+两个 Word，再按下列结构把证据重命名归位到
+`dist/huawei-ict-track3-submission/`，对暂存内容跑密钥扫描，最后产出
+`dist/huawei-ict-track3-submission.zip`（构建产物，不入库）。缺任一源文件或密钥
+扫描命中时脚本非零退出，不会静默产出残缺包。
 
 ```text
 huawei-ict-track3-submission/
@@ -206,6 +208,7 @@ huawei-ict-track3-submission/
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-09-30 | 新增【材料 3】独立提交件 `docs/competitions/huawei-ict-track3-attachment-guide.md`（MCP / Skill / Agent 配置与平台验收 / 知识库与评测四类随附文件逐项说明、证据等级、适用边界、提交前自检）；新增 `scripts/package_huawei_track3_submission.py` 一键打包（重建两个 Word → 重命名归位证据 → 密钥扫描 → 产出 ZIP）；材料 3 状态改为“独立提交件已生成” | WP-15 |
 | 2026-09-30 | 新增【材料 2】独立提交件：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章），覆盖整体设计思路、Agent 配置完整细节（模型 / 工具 / 知识库 / 调用关系图）、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界；材料 2 状态由“成册”改为“独立提交件已生成”，打包章节补两个 Word 的重建命令 | WP-15 |
 | 2026-09-29 | 建立提交材料打包清单、随附文件说明与截图采集步骤 | WP-15 |
 | 2026-09-30 | 登记 R-NX-09 本地官方源码部署完整 LLM Skill 问答（版本 4、21 工具 / 5 Skill、HTTP 200、8 步、31 次调用）；第四章改为“本地已跑通、托管平台仍缺”口径，打包结构补入 R-NX-09 证据与 R-NX-07 blocked 登记 | WP-15 + liyongxiang |
