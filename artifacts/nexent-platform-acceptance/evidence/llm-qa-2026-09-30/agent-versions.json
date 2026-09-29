@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": 4,
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "agent_id": 1,
+      "version_no": 4,
+      "version_name": "v0.2.0-seasight-governance-llm",
+      "release_note": "接入 DeepSeek LLM 后的完整 Skill 问答版本：5 个 Skill + SeaSight Domain Cognition MCP 只读工具面，用于 Nexent 平台内完整问答验收。",
+      "source_version_no": null,
+      "source_type": "NORMAL",
+      "status": "RELEASED",
+      "create_time": "2026-09-29T18:13:30.525412Z",
+      "update_time": "2026-09-29T18:13:30.525412Z",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "delete_flag": "N"
+    },
+    {
+      "id": 3,
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "agent_id": 1,
+      "version_no": 3,
+      "version_name": "v0.2.0-seasight-governance-llm",
+      "release_note": "接入 DeepSeek LLM 后的完整 Skill 问答版本：5 个 Skill + SeaSight Domain Cognition MCP 只读工具面，用于 Nexent 平台内完整问答验收。",
+      "source_version_no": null,
+      "source_type": "NORMAL",
+      "status": "RELEASED",
+      "create_time": "2026-09-29T18:10:46.874709Z",
+      "update_time": "2026-09-29T18:10:46.874709Z",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "delete_flag": "N"
+    },
+    {
+      "id": 2,
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "agent_id": 1,
+      "version_no": 2,
+      "version_name": "v0.1.0-seasight-governance",
+      "release_note": "SeaSight 治理决策智能体初版：绑定 5 个 Skill 与 SeaSight Domain Cognition MCP 工具面。未配置 LLM 模型，完整问答与示例对话待模型端点接入后补验。",
+      "source_version_no": null,
+      "source_type": "NORMAL",
+      "status": "RELEASED",
+      "create_time": "2026-09-29T03:00:44.472881Z",
+      "update_time": "2026-09-29T03:00:44.472881Z",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "delete_flag": "N"
+    },
+    {
+      "id": 1,
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "agent_id": 1,
+      "version_no": 1,
+      "version_name": "v0.1.0-seasight-governance",
+      "release_note": "SeaSight 治理决策智能体初版：绑定 5 个 Skill 与 SeaSight Domain Cognition MCP 工具面。未配置 LLM 模型，完整问答与示例对话待模型端点接入后补验。",
+      "source_version_no": null,
+      "source_type": "NORMAL",
+      "status": "RELEASED",
+      "create_time": "2026-09-29T02:58:03.318528Z",
+      "update_time": "2026-09-29T02:58:03.318528Z",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "delete_flag": "N"
+    }
+  ],
+  "total": 4
+}

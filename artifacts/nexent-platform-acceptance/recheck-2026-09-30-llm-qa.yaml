@@ -1,0 +1,98 @@
+acceptance:
+  recheck_id: R-NX-09
+  date: 2026-09-30
+  platform: nexent-local-official-source
+  platform_version: Nexent v2.6.1
+  hosted_platform_acceptance: false
+  deployment: 本地官方源码部署（ModelEngine-Group/nexent，docker compose）
+  console_url: http://localhost:3000
+  management_api: http://127.0.0.1:5010
+  runtime_api: http://127.0.0.1:5014
+  operator_accounts:
+    - seasight.acceptance@nexent.com
+  agent:
+    agent_id: 1
+    name: seasight_governance_decision_agent
+    display_name: SeaSight 治理决策智能体
+    published_version_no: 4
+    version_name: v0.2.0-seasight-governance-llm
+    naming_note: >-
+      Nexent 要求 Agent 的 name 为合法 Python 标识符，含连字符的名字在运行时会
+      被拒绝（Error: must be a valid Python identifier）。因此平台内 identifier
+      使用下划线形式 seasight_governance_decision_agent，对外展示名仍为
+      “SeaSight 治理决策智能体”。
+  model:
+    model_id: 1
+    provider: DeepSeek
+    model_name: deepseek-v4-pro
+    base_url: https://api.deepseek.com/v1
+    credential_location: Nexent 平台内模型配置（密钥不随仓库提交）
+  bindings:
+    mcp_server: SeaSight Domain Cognition MCP
+    mcp_read_only_tools: 21
+    skills:
+      - policy-evidence-qa
+      - marine-event-assessment
+      - cross-document-decision
+      - dispatch-work-order-orchestration
+      - decision-trace-audit
+  skill_qa:
+    completed: true
+    transport: POST http://127.0.0.1:5014/agent/run (text/event-stream, is_debug=true)
+    question: >-
+      连江县海漂垃圾治理中，岸基监控发现疑似漏油事件，请按照现有政策给出评估与
+      处置建议，并给出证据链。
+    http_status: 200
+    run_error: null
+    event_count: 13204
+    step_count: 8
+    tool_call_count: 31
+    unique_tool_count: 13
+    unique_tools:
+      - parallel_executor
+      - read_skill_md
+      - event_list
+      - dashboard_get
+      - agent_runtime_status
+      - knowledge_list_assets
+      - knowledge_list_ontology_versions
+      - knowledge_list_decisions
+      - task_list
+      - knowledge_asset_detail
+      - knowledge_list_ontology_nodes
+      - knowledge_list_ontology_relations
+      - knowledge_search
+    skills_actually_loaded_via_read_skill_md:
+      - policy-evidence-qa
+      - marine-event-assessment
+      - dispatch-work-order-orchestration
+      - decision-trace-audit
+    agent_authored_code_blocks: 8
+    final_answer_chars: 2777
+    final_answer_headline: >-
+      现行资产库中不存在针对“漏油／油污／溢油”的适用政策条款，疑似漏油事件不可
+      套用海漂垃圾处置流程；应升级人工研判并转报环保／海事渠道，不得自动派单给
+      打捞机器人或机械臂。
+    final_answer_reported_gaps:
+      - 事件库近 168 小时无油污记录，main_class=oil 过滤两次返回 [1000] 服务器内部错误
+      - 全部事件 evidence_url=null，无影像可复核
+      - 政策资产 source_uri=null，属演示资产，无外部法规原文可溯源
+      - 无任何关联油污的工单或决策痕迹
+  evidence_files:
+    - evidence/llm-qa-2026-09-30/agent-run-sse.txt
+    - evidence/llm-qa-2026-09-30/agent-run-events.json
+    - evidence/llm-qa-2026-09-30/agent-run-tools.json
+    - evidence/llm-qa-2026-09-30/agent-run-summary.json
+    - evidence/llm-qa-2026-09-30/agent-update.json
+    - evidence/llm-qa-2026-09-30/agent-publish.json
+    - evidence/llm-qa-2026-09-30/agent-versions.json
+  probe_script: artifacts/nexent-platform-acceptance/probe-agent-llm-qa.cjs
+  reviewed_by: liyongxiang
+  honest_scope:
+    - 本记录只证明 SeaSight MCP 与已绑定 Skill 能在**本地官方源码部署的 Nexent**
+      内被真实 LLM 调用，并产出带证据链的完整问答；本 Agent 共绑定 5 个 Skill，
+      本次问题经 read_skill_md 实际加载 4 个，cross-document-decision 未被触发。
+    - 不是华为 AgentArts 托管平台验收（该验收仍为 R-NX-07 blocked / R-NX-08 未开始）。
+    - 不是海域部署验证，不代表现场治理效果。
+    - 感知精度仍为 not_evaluated；76% 只代表时序链路误报抑制率，不是识别准确率。
+    - 演示知识资产不等于真实脱敏行业数据。

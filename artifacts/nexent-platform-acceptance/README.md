@@ -1,6 +1,6 @@
 # Nexent 平台侧验收操作清单
 
-> 本目录存放真实 Nexent 平台注册、Skills 导入和一次工具调用的验收证据。
+> 本目录存放真实 Nexent 平台注册、Skills 导入、工具调用和完整 Skill 问答的验收证据。
 > 协议级验收（`artifacts/nexent-acceptance/latest.json`）不能替代本目录证据。
 
 ## 完成判据
@@ -71,8 +71,32 @@
   只读工具加载，并真实调用 `knowledge_list_assets`（total=4）、
   `dashboard_get`、`agent_runtime_status`；轨迹见
   `evidence/recheck-2026-09-30/`。本记录只代表**本地 MCP 端点复验**，
-  不是华为 AgentArts 托管平台验收，不是完整 Skill 问答，也不代表
-  海域验证或感知精度。
+  不是华为 AgentArts 托管平台验收，不代表海域验证或感知精度。
+- `recheck-2026-09-30-llm-qa.yaml`：2026-09-30 本地官方源码部署完整
+  Skill 问答（登记号 R-NX-09），详见下节。该记录不是华为托管平台
+  验收，也不是海域验证或感知精度证据。
+
+### 本地官方源码部署完整 Skill 问答（2026-09-30，登记号 R-NX-09）
+
+在本地官方源码部署的 Nexent v2.6.1 中，Agent
+`seasight_governance_decision_agent`（展示名“SeaSight 治理决策智能体”）
+已发布 `v0.2.0-seasight-governance-llm`（版本号 4），绑定 21 个 SeaSight
+MCP 只读工具与 5 个 Skill，并配置 DeepSeek 模型完成一次真实 LLM 问答。
+
+- 调用入口：`POST http://127.0.0.1:5014/agent/run`（SSE）；
+- 结果：HTTP 200、13,204 个事件、8 步、31 次工具调用、13 个唯一工具，
+  无 run error；最终回答 2,777 字；
+- 该次运行通过 `read_skill_md` 实际加载 4 个 Skill：
+  `policy-evidence-qa`、`marine-event-assessment`、
+  `dispatch-work-order-orchestration`、`decision-trace-audit`；
+- 完整 SSE、事件、工具轨迹、发布记录和控制台截图见
+  `evidence/llm-qa-2026-09-30/`；结构化登记见
+  `recheck-2026-09-30-llm-qa.yaml`。
+
+**如实边界**：本记录只证明 SeaSight MCP 与 Skills 能在**本地官方源码
+部署的 Nexent** 内被真实 LLM 调用，并产出带证据链的完整问答。它不是
+华为 AgentArts 托管平台完整 Skill 问答（R-NX-08 仍未开始），不是海域
+验证，也不代表感知精度；76% 仍只表示时序链路误报抑制率。
 
 ### 华为托管平台验收记录（2026-09-29，登记号 R-NX-05）
 
@@ -110,10 +134,10 @@ disabled，环境 `environment-ypflemxw` 标注公网访问），结构化记录
 Skill 问答需私网环境 + 私网可访问 MCP endpoint 后验收。**不是海域部署验证，
 不代表感知精度，也不代表托管平台已跑通完整 Skill 问答。**
 
-以上记录中，R-NX-02/R-NX-03/R-NX-03B/R-NX-04 代表**本地部署或本地 MCP
-端点复验**，R-NX-05 代表**华为托管平台（AgentArts）MCP 注册与公网端点
-调用**，R-NX-06 代表**华为托管平台 Agent 创建与模型配置**；均不等于
-海域验证或感知精度。
+以上记录中，R-NX-02/R-NX-03/R-NX-03B/R-NX-04/R-NX-09 代表**本地部署
+或本地 MCP 端点复验**，R-NX-05 代表**华为托管平台（AgentArts）MCP
+注册与公网端点调用**，R-NX-06 代表**华为托管平台 Agent 创建与模型
+配置**；均不等于海域验证或感知精度。
 
 ### 华为托管平台完整 Skill 问答（2026-09-30，登记号 R-NX-07：blocked）
 
@@ -157,5 +181,6 @@ R-NX-07 保持 `blocked`，作为历史阻断记录，不覆盖。欠费解除�
 内用 ECS + `docker-compose.prod.yml` 部署 `nexent-mcp`；以及平台内截图、失败排查
 和诚实边界清单。结构化模板见 `hosted-skill-qa.template.yaml`。
 
-完成前本目录仍维持以下结论：平台内完整 Skill 问答未跑通，`live_skill_qa_completed: false`；
-不得把本地 MCP 复验、公网隧道调用或准备材料写成华为托管平台完整问答验收。
+完成前本目录维持以下结论：**华为托管平台完整 Skill 问答未跑通**，
+`live_skill_qa_completed: false`；不得把本地完整 Skill 问答（R-NX-09）、
+本地 MCP 复验、公网隧道调用或准备材料写成华为托管平台完整问答验收。
