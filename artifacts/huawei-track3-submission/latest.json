@@ -1,0 +1,39 @@
+{
+  "artifact_type": "huawei_ict_track3_submission_package",
+  "generated_at": "2026-09-30T02:44:56+08:00",
+  "source": {
+    "branch": "huawei-ict-2026",
+    "head_commit": "be6a3d0",
+    "packager": "scripts/package_huawei_track3_submission.py"
+  },
+  "zip": {
+    "path": "dist/huawei-ict-track3-submission.zip",
+    "size_bytes": 730709,
+    "entry_count": 37,
+    "sha256": "bcb79f6759d65ffffde1adae2a9040c56dfb8db03f2c020401101de59559df2e"
+  },
+  "staging_dir": "dist/huawei-ict-track3-submission",
+  "documents": [
+    {
+      "path": "01_开发设计文档.docx",
+      "size_bytes": 60262,
+      "sha256": "09f4df883969aea0ce22a64ad214537932ef2a871a21d6eab7b0574d8a88aaa9"
+    },
+    {
+      "path": "02_Nexent智能体设计说明.docx",
+      "size_bytes": 56148,
+      "sha256": "e07826ba93bcd696c2bc9d1f5d514de650c7bfd2a6b7f42abe21610ee58cd2d4"
+    }
+  ],
+  "checks": {
+    "secret_scan": "clean",
+    "docx_payload_matches_head": true,
+    "zip_entry_count_expected": 37
+  },
+  "known_external_blocker": {
+    "id": "R-NX-07",
+    "status": "blocked",
+    "reason": "Huawei Cloud account arrears prevents creating the private VPC target; hosted AgentArts complete Skill QA cannot be evidenced."
+  },
+  "claim_boundary": "Package readiness does not imply hosted AgentArts Skill QA, field validation, perception accuracy, or real desensitized industry-data evaluation."
+}

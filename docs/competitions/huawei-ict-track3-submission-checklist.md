@@ -1,6 +1,6 @@
 # 华为 ICT 大赛 创新赛道三 · 提交材料打包清单
 
-> 版本：1.8 ｜ 日期：2026-09-30
+> 版本：1.9 ｜ 日期：2026-09-30
 > 依据：赛道三初赛/决赛需提交材料清单
 > 上位口径：《docs/competitions/huawei-ict-track3-scoring-review.md》（评委自评）、
 > 《docs/competitions/huawei-ict-track3-design-doc.md》（开发设计文档底稿）、
@@ -204,10 +204,21 @@ huawei-ict-track3-submission/
 - [ ] 若华为云账号欠费已解除，按 `huawei-agentarts-vpc-target-runbook.md` 完成 R-NX-08；
       完成前继续使用 R-NX-07 `blocked` 口径，完成后再改材料状态。
 
+### 5.1 最近一次构建档案
+
+- 构建时间：2026-09-30 02:44:56（Asia/Shanghai）
+- ZIP：`dist/huawei-ict-track3-submission.zip`（730,709 bytes / 37 entries）
+- SHA256：`bcb79f6759d65ffffde1adae2a9040c56dfb8db03f2c020401101de59559df2e`
+- 暂存目录：`dist/huawei-ict-track3-submission/`
+- 校验：密钥扫描 clean；两份 Word 的 `word/document.xml` 与 HEAD 一致，二进制差异仅来自重新打包时间戳
+- 构建档案：`artifacts/huawei-track3-submission/latest.json`
+- 边界：整包就绪不等于托管平台 Skill 问答完成；R-NX-07 仍为 `blocked`，必须按 runbook 完成 R-NX-08 后再刷新材料 2、附件说明 §4.3 与整包
+
 ## 六、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-09-30 | 一键打包复验成功：37 files、0.70 MB、密钥扫描 clean；新增构建档案 `artifacts/huawei-track3-submission/latest.json`（ZIP SHA256 `bcb79f…`）；托管平台完整 Skill 问答仍受账号欠费阻塞 | WP-15 |
 | 2026-09-30 | 新增【材料 3】独立提交件 `docs/competitions/huawei-ict-track3-attachment-guide.md`（MCP / Skill / Agent 配置与平台验收 / 知识库与评测四类随附文件逐项说明、证据等级、适用边界、提交前自检）；新增 `scripts/package_huawei_track3_submission.py` 一键打包（重建两个 Word → 重命名归位证据 → 密钥扫描 → 产出 ZIP）；材料 3 状态改为“独立提交件已生成” | WP-15 |
 | 2026-09-30 | 新增【材料 2】独立提交件：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章），覆盖整体设计思路、Agent 配置完整细节（模型 / 工具 / 知识库 / 调用关系图）、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界；材料 2 状态由“成册”改为“独立提交件已生成”，打包章节补两个 Word 的重建命令 | WP-15 |
 | 2026-09-29 | 建立提交材料打包清单、随附文件说明与截图采集步骤 | WP-15 |

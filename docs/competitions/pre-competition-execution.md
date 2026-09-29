@@ -77,3 +77,4 @@ MCP endpoint 后验收。
 | 2026-09-29 | Agent 配置/发布/调用关系/导出证据登记 R-NX-04（未配置 LLM） | liyongxiang + WP-15 |
 | 2026-09-30 | F-06 官方原文核验完成：连江县政府官网《连江县情简介》登记 E3（乙类核验） | WP-15 |
 | 2026-09-30 | 复核冻结状态：tag lianjiang-2026（8b56532）与 tag huawei-ict-track3-2026-09-29（bb877ea）已确认 | WP-15 |
+| 2026-09-30 | 华为赛道三提交包复验成功：37 files、0.70 MB、密钥扫描 clean；构建档案 `artifacts/huawei-track3-submission/latest.json`（ZIP SHA256 `bcb79f…`）；托管平台完整 Skill 问答仍因账号欠费为 R-NX-07 blocked | WP-15 |
