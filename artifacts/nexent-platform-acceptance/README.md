@@ -66,6 +66,13 @@
   `GET /api/agent/call_relationship/1` 返回 21 个 MCP 工具。探针执行记录与
   截图见 `evidence/agent-run-*`。未配置 LLM，未跑通完整问答；这是本地
   官方源码部署证据，不是华为托管平台验收，也不代表海域验证或感知精度。
+- `recheck-2026-09-30.yaml`：2026-09-30 本地 MCP 端点复验（登记号
+  R-NX-03B），在 `mcp 1.30.0` / 协议 `2025-11-25` 下完成初始化、21 个
+  只读工具加载，并真实调用 `knowledge_list_assets`（total=4）、
+  `dashboard_get`、`agent_runtime_status`；轨迹见
+  `evidence/recheck-2026-09-30/`。本记录只代表**本地 MCP 端点复验**，
+  不是华为 AgentArts 托管平台验收，不是完整 Skill 问答，也不代表
+  海域验证或感知精度。
 
 ### 华为托管平台验收记录（2026-09-29，登记号 R-NX-05）
 
@@ -103,9 +110,37 @@ disabled，环境 `environment-ypflemxw` 标注公网访问），结构化记录
 Skill 问答需私网环境 + 私网可访问 MCP endpoint 后验收。**不是海域部署验证，
 不代表感知精度，也不代表托管平台已跑通完整 Skill 问答。**
 
-三种记录中，R-NX-02/R-NX-03/R-NX-04 代表**本地官方源码部署**，R-NX-05 代表
-**华为托管平台（AgentArts）MCP 注册与公网端点调用**，R-NX-06 代表**华为托管
-平台 Agent 创建与模型配置**；均不等于海域验证或感知精度。
+以上记录中，R-NX-02/R-NX-03/R-NX-03B/R-NX-04 代表**本地部署或本地 MCP
+端点复验**，R-NX-05 代表**华为托管平台（AgentArts）MCP 注册与公网端点
+调用**，R-NX-06 代表**华为托管平台 Agent 创建与模型配置**；均不等于
+海域验证或感知精度。
 
+### 华为托管平台完整 Skill 问答（2026-09-30，登记号 R-NX-07：blocked）
 
+2026-09-30 复核华为 AgentArts（区域 `cn-southwest-2`，账号
+`hid_b7bcgi-i88yqw0x`）：Agent
+`seasight-governance-decision-agent`、MCP `SeaSight Domain Cognition MCP`
+（21 个只读工具）与 5 个 Skill 均已就绪，并新建了私网环境
+`environment-seasight-vpc-verify`（ID
+`8be4cf0c-1de3-46f9-a5cd-90224ca0a378`）与网关 `seasight-vpc-gateway`
+（ID `0fe1d7fc-776f-4292-bbc9-5b3b885d1423`）。
 
+**阻断原因**：华为云账号欠费（控制台提示“您的账号已欠费，无法正常购买和
+使用按需计费云服务”），私网网关“创建 Target”按钮为原生 disabled，当前
+Target 数 `0/10`。因此私网 Target 未建立、未与 Agent 绑定，Agent 启用 VPC
+网络模式时报 `AgentArts.03002206`（“配置 skill 时需要开启 VPC 网络模式”）。
+该错误码当前根因是 Target 未绑定，不是代码或协议失败。结构化记录与截图见
+`hosted-2026-09-30-target-blocked.yaml` 与
+`evidence/hosted-2026-09-30-private-gateway-target-blocked.png`。
+
+**如实边界**：托管平台完整 Skill 问答尚未跑通，`live_skill_qa_completed: false`，
+不得写成“托管平台已验收”。`127.0.0.1` 与已失效的临时隧道均不能被华为云
+端访问，MCP 服务端 Token 属敏感数据，写入第三方平台前需用户明确确认范围。
+
+**充值解除欠费后的五步**：
+
+1. 重新进入私网环境与网关页面，确认“创建 Target”恢复可用。
+2. 创建 Target，并把私网可访问的 SeaSight MCP endpoint 配为网络目标。
+3. 确认该 endpoint 可由华为云端环境实际访问（不得用 `127.0.0.1` 或临时隧道）。
+4. 将 Target 绑定到 `seasight-governance-decision-agent`，启用 VPC 网络模式。
+5. 保存并发布 Agent 新版本，运行一次完整 Skill 问答，保存平台内截图与调用轨迹。

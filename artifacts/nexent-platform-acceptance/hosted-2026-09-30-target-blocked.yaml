@@ -1,0 +1,56 @@
+acceptance:
+  recheck_id: R-NX-07
+  date: 2026-09-30
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: blocked
+  agent:
+    name: seasight-governance-decision-agent
+    agent_id: fdeccb8f-c35e-459b-8413-26f72a37edf3
+    edit_url: >-
+      https://console.huaweicloud.com/agentarts/?region=cn-southwest-2#/home/managed-agents/agent/edit?id=fdeccb8f-c35e-459b-8413-26f72a37edf3
+  mcp:
+    name: SeaSight Domain Cognition MCP
+    service_id: ef30db1926c748fab10f30f86c42e2b8
+    tools_loaded: 21
+  private_environment:
+    name: environment-seasight-vpc-verify
+    environment_id: 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+    gateway_name: seasight-vpc-gateway
+    gateway_id: 0fe1d7fc-776f-4292-bbc9-5b3b885d1423
+    target_count: 0
+    target_limit: 10
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  blocker:
+    type: huawei_cloud_account_arrears
+    console_message: >-
+      您的账号已欠费，无法正常购买和使用按需计费云服务，请您尽快充值。
+    ui_effect: create_target_button_disabled
+    error_code: AgentArts.03002206
+    error_context: >-
+      配置 Skill 时需要开启 VPC 网络模式；当前尚未完成私网环境 Target
+      与 Agent 绑定。
+  live_skill_qa_completed: false
+  next_steps_after_recharge:
+    - 重新进入私网环境与网关页面，确认“创建 Target”恢复可用。
+    - 创建 Target，并把私网可访问的 SeaSight MCP endpoint 配置为网络目标。
+    - 确认该 endpoint 可由华为云端环境实际访问；127.0.0.1 与已失效临时隧道均不可用。
+    - 将 Target 绑定到 seasight-governance-decision-agent，启用 VPC 网络模式。
+    - 保存并发布 Agent 新版本，运行一次完整 Skill 问答并保存平台内截图与调用轨迹。
+  security_notes:
+    - MCP 服务端 Token 属于敏感数据；写入第三方平台前必须由用户明确确认范围。
+    - 不把本地地址、临时公网隧道或本地复验写作华为托管平台验收。
+  evidence_files:
+    - evidence/hosted-2026-09-30-private-gateway-target-blocked.png
+    - recheck-2026-09-30.yaml
+  reviewed_by: liyongxiang
+  review_note: >-
+    华为 AgentArts 私网环境、网关、MCP、Agent 与 5 个 Skill 已创建或导入；
+    官方托管平台的 Target 创建因华为云账号欠费被禁用（目标数 0/10），完整
+    Skill 问答仍未跑通。本记录为 blocked，不得写成托管平台已验收。

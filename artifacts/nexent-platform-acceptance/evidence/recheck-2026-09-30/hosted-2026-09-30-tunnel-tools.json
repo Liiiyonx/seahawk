@@ -1,0 +1,26 @@
+{
+  "count": 21,
+  "names": [
+    "agent_list_approvals",
+    "agent_list_runs",
+    "agent_list_tools",
+    "agent_run_detail",
+    "agent_run_steps",
+    "agent_runtime_status",
+    "dashboard_get",
+    "event_get",
+    "event_list",
+    "knowledge_asset_detail",
+    "knowledge_decision_evidence",
+    "knowledge_list_assets",
+    "knowledge_list_decisions",
+    "knowledge_list_ontology_nodes",
+    "knowledge_list_ontology_relations",
+    "knowledge_list_ontology_versions",
+    "knowledge_ontology_version_detail",
+    "knowledge_search",
+    "task_ack_history",
+    "task_get",
+    "task_list"
+  ]
+}

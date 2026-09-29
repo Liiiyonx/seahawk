@@ -1,0 +1,68 @@
+{
+  "acceptance_id": "R-NX-03B",
+  "date": "2026-09-30",
+  "platform": "Seasight-local-mcp-endpoint",
+  "region": "cn-southwest-2",
+  "transport": "streamable-http",
+  "mcp_endpoint": "http://127.0.0.1:8100/mcp",
+  "mcp_registration_name": "SeaSight Domain Cognition MCP",
+  "initialize": {
+    "protocol_version": "2025-11-25",
+    "server_info": {
+      "name": "SeaSight Domain Cognition MCP",
+      "version": "1.30.0"
+    },
+    "capabilities": {
+      "experimental": {},
+      "logging": null,
+      "prompts": {
+        "listChanged": false
+      },
+      "resources": {
+        "subscribe": false,
+        "listChanged": false
+      },
+      "tools": {
+        "listChanged": false
+      },
+      "completions": null,
+      "tasks": null
+    }
+  },
+  "tools_catalog": {
+    "count": 21,
+    "names": [
+      "agent_list_approvals",
+      "agent_list_runs",
+      "agent_list_tools",
+      "agent_run_detail",
+      "agent_run_steps",
+      "agent_runtime_status",
+      "dashboard_get",
+      "event_get",
+      "event_list",
+      "knowledge_asset_detail",
+      "knowledge_decision_evidence",
+      "knowledge_list_assets",
+      "knowledge_list_decisions",
+      "knowledge_list_ontology_nodes",
+      "knowledge_list_ontology_relations",
+      "knowledge_list_ontology_versions",
+      "knowledge_ontology_version_detail",
+      "knowledge_search",
+      "task_ack_history",
+      "task_get",
+      "task_list"
+    ]
+  },
+  "tool_call": {
+    "tool": "knowledge_list_assets",
+    "inputs": {
+      "page": 1,
+      "page_size": 20
+    },
+    "is_error": false,
+    "response_text": "{\n  \"items\": [\n    {\n      \"asset_id\": \"EVO-20260929083427-b6268075-LEDGER\",\n      \"asset_type\": \"table\",\n      \"title\": \"连江重点区域海漂垃圾月度台账（演示）\",\n      \"description\": \"知识进化闭环演示用台账资产\",\n      \"source_uri\": null,\n      \"source_system\": null,\n      \"mime_type\": null,\n      \"region\": \"连江县\",\n      \"township\": \"马鼻镇\",\n      \"security_level\": \"internal\",\n      \"status\": \"active\",\n      \"current_version\": 2,\n      \"standard_codes\": [],\n      \"tags\": [\n        \"月度台账\",\n        \"闭环演示\"\n      ],\n      \"attributes\": {},\n      \"created_by\": \"admin\",\n      \"created_at\": \"2026-09-29T00:34:27.375850Z\",\n      \"updated_at\": \"2026-09-29T00:34:27.421236Z\"\n    },\n    {\n      \"asset_id\": \"EVO-20260929083427-b6268075-POLICY\",\n      \"asset_type\": \"document\",\n      \"title\": \"连江海漂垃圾治理工作方案（演示）\",\n      \"description\": \"知识进化闭环演示用治理方案资产\",\n      \"source_uri\": null,\n      \"source_system\": null,\n      \"mime_type\": null,\n      \"region\": \"连江县\",\n      \"township\": \"马鼻镇\",\n      \"security_level\": \"internal\",\n      \"status\": \"active\",\n      \"current_version\": 2,\n      \"standard_codes\": [],\n      \"tags\": [\n        \"治理方案\",\n        \"闭环演示\"\n      ],\n      \"attributes\": {},\n      \"created_by\": \"admin\",\n      \"created_at\": \"2026-09-29T00:34:27.333649Z\",\n      \"updated_at\": \"2026-09-29T00:34:27.388772Z\"\n    },\n    {\n      \"asset_id\": \"EVO-20260929083111-6369658a-LEDGER\",\n      \"asset_type\": \"table\",\n      \"title\": \"连江重点区域海漂垃圾月度台账（演示）\",\n      \"description\": \"知识进化闭环演示用台账资产\",\n      \"source_uri\": null,\n      \"source_system\": null,\n      \"mime_type\": null,\n      \"region\": \"连江县\",\n      \"township\": \"马鼻镇\",\n      \"security_level\": \"internal\",\n      \"status\": \"active\",\n      \"current_version\": 2,\n      \"standard_codes\": [],\n      \"tags\": [\n        \"月度台账\",\n        \"闭环演示\"\n      ],\n      \"attributes\": {},\n      \"created_by\": \"admin\",\n      \"created_at\": \"2026-09-29T00:31:12.406954Z\",\n      \"updated_at\": \"2026-09-29T00:31:12.484369Z\"\n    },\n    {\n      \"asset_id\": \"EVO-20260929083111-6369658a-POLICY\",\n      \"asset_type\": \"document\",\n      \"title\": \"连江海漂垃圾治理工作方案（演示）\",\n      \"description\": \"知识进化闭环演示用治理方案资产\",\n      \"source_uri\": null,\n      \"source_system\": null,\n      \"mime_type\": null,\n      \"region\": \"连江县\",\n      \"township\": \"马鼻镇\",\n      \"security_level\": \"internal\",\n      \"status\": \"active\",\n      \"current_version\": 2,\n      \"standard_codes\": [],\n      \"tags\": [\n        \"治理方案\",\n        \"闭环演示\"\n      ],\n      \"attributes\": {},\n      \"created_by\": \"admin\",\n      \"created_at\": \"2026-09-29T00:31:12.347935Z\",\n      \"updated_at\": \"2026-09-29T00:31:12.446083Z\"\n    }\n  ],\n  \"meta\": {\n    \"total\": 4,\n    \"page\": 1,\n    \"page_size\": 20\n  }\n}"
+  },
+  "note": "SeaSight 本地 MCP 端点真实调用；非托管平台验收；不是海域验证，不代表感知精度"
+}

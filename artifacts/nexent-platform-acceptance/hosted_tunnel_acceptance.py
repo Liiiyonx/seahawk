@@ -21,9 +21,11 @@ import asyncio
 import json
 import os
 import sys
+from datetime import date
 from pathlib import Path
 from typing import Any
 
+import httpx
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
@@ -60,16 +62,21 @@ def _text_content(content: Any) -> str:
 
 async def _accept(url: str, token: str) -> dict[str, Any]:
     headers = {"Authorization": f"Bearer {token}"}
-    async with streamable_http_client(url, headers=headers) as (read, write, _):
-        async with ClientSession(read, write) as session:
-            initialized = await session.initialize()
-            tools_result = await session.list_tools()
-            call_result = await session.call_tool(
-                "knowledge_list_assets",
-                {"page": 1, "page_size": 20},
-            )
-            dashboard_result = await session.call_tool("dashboard_get", {})
-            runtime_result = await session.call_tool("agent_runtime_status", {})
+    async with httpx.AsyncClient(headers=headers) as http_client:
+        async with streamable_http_client(url, http_client=http_client) as (
+            read,
+            write,
+            _,
+        ):
+            async with ClientSession(read, write) as session:
+                initialized = await session.initialize()
+                tools_result = await session.list_tools()
+                call_result = await session.call_tool(
+                    "knowledge_list_assets",
+                    {"page": 1, "page_size": 20},
+                )
+                dashboard_result = await session.call_tool("dashboard_get", {})
+                runtime_result = await session.call_tool("agent_runtime_status", {})
             return {
                 "initialize": {
                     "protocol_version": getattr(initialized, "protocolVersion", None),
@@ -113,6 +120,25 @@ async def main() -> int:
     parser.add_argument("--url", help="Public MCP endpoint URL")
     parser.add_argument("--token", help="Inbound Bearer token")
     parser.add_argument(
+        "--platform",
+        default="huawei-agentarts-hosted",
+        help="Platform label written into evidence",
+    )
+    parser.add_argument(
+        "--date",
+        default=date.today().isoformat(),
+        help="Acceptance date in YYYY-MM-DD (default: today)",
+    )
+    parser.add_argument(
+        "--acceptance-id",
+        default="R-NX-07",
+        help="Acceptance record id written into JSON evidence",
+    )
+    parser.add_argument(
+        "--evidence-prefix",
+        help="Output filename prefix (default: hosted-<date>)",
+    )
+    parser.add_argument(
         "--out-dir",
         type=Path,
         default=EVIDENCE_DIR,
@@ -130,9 +156,15 @@ async def main() -> int:
     result = await _accept(url, token)
     out_dir = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    tools_path = out_dir / "hosted-2026-09-29-tunnel-tools.json"
-    call_path = out_dir / "hosted-2026-09-29-tool-call.json"
-    dashboard_path = out_dir / "hosted-2026-09-29-tool-call-dashboard.json"
+    prefix = args.evidence_prefix or f"hosted-{args.date}"
+    endpoint_note = (
+        "华为托管平台（AgentArts）注册的 SeaSight MCP 端点真实调用；"
+        if args.platform == "huawei-agentarts-hosted"
+        else "SeaSight 本地 MCP 端点真实调用；非托管平台验收；"
+    )
+    tools_path = out_dir / f"{prefix}-tunnel-tools.json"
+    call_path = out_dir / f"{prefix}-tool-call.json"
+    dashboard_path = out_dir / f"{prefix}-tool-call-dashboard.json"
     tools_path.write_text(
         json.dumps(result["tools_catalog"], ensure_ascii=False, indent=2)
         + "\n",
@@ -141,9 +173,9 @@ async def main() -> int:
     call_path.write_text(
         json.dumps(
             {
-                "acceptance_id": "R-NX-05",
-                "date": "2026-09-29",
-                "platform": "huawei-agentarts-hosted",
+                "acceptance_id": args.acceptance_id,
+                "date": args.date,
+                "platform": args.platform,
                 "region": "cn-southwest-2",
                 "transport": "streamable-http",
                 "mcp_endpoint": url,
@@ -151,10 +183,7 @@ async def main() -> int:
                 "initialize": result["initialize"],
                 "tools_catalog": result["tools_catalog"],
                 "tool_call": result["tool_call"],
-                "note": (
-                    "华为托管平台（AgentArts）注册的 SeaSight MCP 公网端点真实调用；"
-                    "平台侧验收，不是海域验证，不代表感知精度"
-                ),
+                "note": endpoint_note + "不是海域验证，不代表感知精度",
             },
             ensure_ascii=False,
             indent=2,
@@ -165,9 +194,9 @@ async def main() -> int:
     dashboard_path.write_text(
         json.dumps(
             {
-                "acceptance_id": "R-NX-05",
-                "date": "2026-09-29",
-                "platform": "huawei-agentarts-hosted",
+                "acceptance_id": args.acceptance_id,
+                "date": args.date,
+                "platform": args.platform,
                 "region": "cn-southwest-2",
                 "transport": "streamable-http",
                 "mcp_endpoint": url,
@@ -176,9 +205,9 @@ async def main() -> int:
                 "tools_catalog": result["tools_catalog"],
                 "tool_calls": result["extended_tool_calls"],
                 "note": (
-                    "华为托管平台（AgentArts）注册的 SeaSight MCP 公网端点真实调用；"
-                    "dashboard_get 与 agent_runtime_status 均返回真实治理数据；"
-                    "平台侧验收，不是海域验证，不代表感知精度"
+                    endpoint_note
+                    + "dashboard_get 与 agent_runtime_status 均返回真实治理数据；"
+                    + "不是海域验证，不代表感知精度"
                 ),
             },
             ensure_ascii=False,

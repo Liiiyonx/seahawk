@@ -102,6 +102,18 @@ SeaSight 与华为技术的结合是**一实三虚**：
   见 `artifacts/nexent-platform-acceptance/hosted-agent-2026-09-29.yaml`）；
   公网环境不支持 Skill（平台 UI 明确提示），完整 Skill 问答需私网环境 +
   私网可访问 MCP endpoint 后验收。
+- **本地 MCP 端点复验（2026-09-30，登记号 R-NX-03B）**：在 `mcp 1.30.0` /
+  协议 `2025-11-25` 下完成初始化、21 个只读工具加载，并真实调用
+  `knowledge_list_assets`（total=4）、`dashboard_get`、`agent_runtime_status`；
+  轨迹见 `artifacts/nexent-platform-acceptance/evidence/recheck-2026-09-30/`。
+  本记录仅代表本地 MCP 端点复验，不是华为托管平台验收。
+- **托管平台完整 Skill 问答（2026-09-30，登记号 R-NX-07）：blocked**。
+  已在 AgentArts 建好私网环境 `environment-seasight-vpc-verify`（ID
+  `8be4cf0c-1de3-46f9-a5cd-90224ca0a378`）与网关 `seasight-vpc-gateway`
+  （ID `0fe1d7fc-776f-4292-bbc9-5b3b885d1423`），但华为云账号欠费导致
+  “创建 Target”按钮 disabled，Target 数 `0/10`，启用 VPC 网络模式时
+  报 `AgentArts.03002206`；完整 Skill 问答未跑通，不得写成“托管平台已验收”。
+  结构化记录见 `artifacts/nexent-platform-acceptance/hosted-2026-09-30-target-blocked.yaml`。
 
 ### 2. 昇腾 Atlas + CANN（虚线）
 

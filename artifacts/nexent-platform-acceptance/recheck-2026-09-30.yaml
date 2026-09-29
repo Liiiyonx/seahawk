@@ -1,0 +1,37 @@
+acceptance:
+  recheck_id: R-NX-03B
+  date: 2026-09-30
+  platform: Seasight-local-mcp-endpoint
+  region: cn-southwest-2
+  mcp_transport: streamable-http
+  endpoint: http://127.0.0.1:8100/mcp
+  mcp_registration_name: SeaSight Domain Cognition MCP
+  server_name: SeaSight Domain Cognition MCP
+  server_version: 1.30.0
+  protocol_version: 2025-11-25
+  tools_loaded: 21
+  invoked_tools:
+    - knowledge_list_assets
+    - dashboard_get
+    - agent_runtime_status
+  knowledge_list_assets_result:
+    http_status: 200
+    total: 4
+    non_empty: true
+  dashboard_get_result:
+    success: true
+    data_source: real backend governance service
+  agent_runtime_status_result:
+    success: true
+    data_source: real backend governance service
+  nexent_integration: false
+  evidence_files:
+    - evidence/recheck-2026-09-30/hosted-2026-09-30-tunnel-tools.json
+    - evidence/recheck-2026-09-30/hosted-2026-09-30-tool-call.json
+    - evidence/recheck-2026-09-30/hosted-2026-09-30-tool-call-dashboard.json
+  reviewed_by: liyongxiang
+  review_note: >-
+    2026-09-30 本地 MCP 端点真实复验，验证 mcp 1.30.0 / 协议 2025-11-25
+    兼容性；初始化、21 工具加载、知识资产列表、治理看板和 Agent 运行状态调用
+    均成功。本记录仅代表本地 MCP 端点复验，不是华为 AgentArts 托管平台验收，
+    不是完整 Nexent 控制台 Skill 问答，也不代表海域验证或感知精度。
