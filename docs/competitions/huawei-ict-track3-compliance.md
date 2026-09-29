@@ -1,8 +1,9 @@
 # 华为 ICT 大赛 创新赛道三 · 官方赛题对照与行动清单
 
-> 版本：1.1 ｜ 日期：2026-09-29
+> 版本：1.2 ｜ 日期：2026-09-30
 > 上位口径：《docs/evidence-claim-policy.md》（证据分级与宣称纪律）、
 > 《docs/competitions/huawei-nexent.md》（Nexent 赛题适配说明）
+> 恢复执行手册：《docs/competitions/huawei-agentarts-vpc-target-runbook.md》
 > 配套门禁：`python scripts/check_claims.py --root .`（必须退出码 0）
 
 ## 一、官方赛题要点（2026 赛道三）
@@ -112,6 +113,14 @@ MCP 详情页确认 `SeaSight Domain Cognition MCP` 状态“部署成功”，�
 需切换为私网环境 + 私网可访问 MCP endpoint 后方能验收。
 托管平台验收不代表海域验证，也不代表感知精度。
 
+**私网复验状态（2026-09-30，登记号 R-NX-07 blocked）**：私网环境
+`environment-seasight-vpc-verify` 与网关 `seasight-vpc-gateway` 已建立，MCP、Agent
+和 5 个 Skill 已就绪；华为云账号欠费使“创建 Target”按钮禁用（Target 0/10），
+完整 Skill 问答尚未跑通，`live_skill_qa_completed: false`。解除欠费后的 Target
+字段、VPC endpoint 方案、截图清单、失败排查和 R-NX-08 登记模板见
+`docs/competitions/huawei-agentarts-vpc-target-runbook.md` 与
+`artifacts/nexent-platform-acceptance/hosted-skill-qa.template.yaml`。手册本身不构成验收证据。
+
 ## 五、开源准备（入围总决赛前提）
 
 仓库已具备 MIT LICENSE 和 README。公开到 GitCode/GitHub 前完成以下检查：
@@ -164,3 +173,4 @@ MCP 详情页确认 `SeaSight Domain Cognition MCP` 状态“部署成功”，�
 | 2026-09-29 | 依据赛道三官方评分表建立评委自评、开发设计文档底稿与提交件打包清单 | WP-15 |
 | 2026-09-29 | 登记 R-NX-04 Agent 配置/发布/调用关系/导出证据（未配置 LLM） | liyongxiang + WP-15 |
 | 2026-09-29 | 登记 R-NX-06：华为托管平台 Agent 创建、DeepSeek 模型配置与公网环境不支持 Skill 的限制留证；完整 Skill 问答需私网环境 + 私网可访问 MCP endpoint | WP-15 + liyongxiang |
+| 2026-09-30 | 登记 R-NX-07 blocked；新增充值后 VPC Target runbook 与 R-NX-08 模板，保持平台侧与海域验证、感知精度分离 | WP-15 + liyongxiang |

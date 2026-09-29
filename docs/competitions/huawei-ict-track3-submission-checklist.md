@@ -1,10 +1,11 @@
 # 华为 ICT 大赛 创新赛道三 · 提交材料打包清单
 
-> 版本：1.4 ｜ 日期：2026-09-29
+> 版本：1.5 ｜ 日期：2026-09-30
 > 依据：赛道三初赛/决赛需提交材料清单
 > 上位口径：《docs/competitions/huawei-ict-track3-scoring-review.md》（评委自评）、
 > 《docs/competitions/huawei-ict-track3-design-doc.md》（开发设计文档底稿）、
 > 《docs/competitions/huawei-ict-track3-compliance.md》（官方赛题对照）
+> 恢复执行手册：《docs/competitions/huawei-agentarts-vpc-target-runbook.md》
 
 ## 一、材料总览
 
@@ -81,10 +82,14 @@
 | `artifacts/nexent-platform-acceptance/evidence/agent-run-*.json` | Agent 创建、绑定、发布、版本、调用关系接口真实返回 |
 | `artifacts/nexent-platform-acceptance/evidence/agent-run-export.zip` | Agent 配置与绑定 Skills 导出物 |
 | `artifacts/nexent-platform-acceptance/evidence/*.png` | MCP 注册、工具面、Skills 导入、审批墙截图 |
+| `docs/competitions/huawei-agentarts-vpc-target-runbook.md` | R-NX-08 充值后 VPC Target、Agent 绑定与完整 Skill 问答执行手册 |
+| `artifacts/nexent-platform-acceptance/hosted-skill-qa.template.yaml` | R-NX-08 完成后的结构化验收登记模板（不写真实令牌） |
 
 随附说明需注明：以上为本地官方源码部署复验证据与华为托管平台（AgentArts）
 MCP 注册/公网端点调用证据（R-NX-05，2026-09-29）；托管平台已创建 Agent 并配置 DeepSeek 模型（R-NX-06）；
 公网环境不支持 Skill（平台 UI 明确提示），完整 Skill 问答需私网环境 + 私网可访问 MCP endpoint。
+当前完整 Skill 问答因华为云账号欠费阻断（R-NX-07 blocked，Target 0/10）；
+解除欠费后按 runbook 执行，不把准备手册、本地复验或公网隧道写成平台验收。
 
 ### 3.4 标准体系映射
 
@@ -110,6 +115,9 @@ Skill 问答截图需私网环境 + 私网可访问 MCP endpoint 就绪后采集
   （见 R-NX-04）；
 - 后端已灌入知识域演示数据（total=4）；
 - 有可用的只读出站账号 `nexent_viewer`。
+- 华为托管平台私网环境、网关、MCP 与 5 个 Skill 已就绪（R-NX-07）；
+- 华为云账号欠费已解除，且存在 `vpc-seasight` 内可达的 `/mcp` endpoint；
+- 按 `docs/competitions/huawei-agentarts-vpc-target-runbook.md` 创建 Target 并绑定 Agent。
 
 采集步骤：
 
@@ -156,12 +164,15 @@ huawei-ict-track3-submission/
       Skill 问答待私网环境 + 私网可访问 MCP endpoint 就绪后补充”（公网
       环境不支持 Skill）。
 - [ ] 公开开放数据替代评测（R-OD-01）在材料中标注“非真实脱敏行业数据”。
+- [ ] 若华为云账号欠费已解除，按 `huawei-agentarts-vpc-target-runbook.md` 完成 R-NX-08；
+      完成前继续使用 R-NX-07 `blocked` 口径，完成后再改材料状态。
 
 ## 六、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
 | 2026-09-29 | 建立提交材料打包清单、随附文件说明与截图采集步骤 | WP-15 |
+| 2026-09-30 | 新增充值后 VPC Target runbook 与 R-NX-08 模板；材料 2/3.3/四/五增加私网完整 Skill 问答的恢复路径 | WP-15 + liyongxiang |
 | 2026-09-29 | 登记 R-KN-02 本体评测产物、标准映射表、开发设计文档 Word 路径 | WP-15 |
 | 2026-09-29 | 登记 R-NX-04 Agent 配置/发布/调用关系/导出证据，更新材料 2 状态为“缺问答截图” | WP-15 |
 | 2026-09-29 | 登记 R-NX-05 华为托管平台 MCP 注册、21 工具加载与公网端点真实只读调用证据 | WP-15 |

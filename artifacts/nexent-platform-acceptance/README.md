@@ -144,3 +144,18 @@ Target 数 `0/10`。因此私网 Target 未建立、未与 Agent 绑定，Agent 
 3. 确认该 endpoint 可由华为云端环境实际访问（不得用 `127.0.0.1` 或临时隧道）。
 4. 将 Target 绑定到 `seasight-governance-decision-agent`，启用 VPC 网络模式。
 5. 保存并发布 Agent 新版本，运行一次完整 Skill 问答，保存平台内截图与调用轨迹。
+
+### R-NX-08 准备：充值后的 VPC Target 与完整 Skill 问答 runbook
+
+R-NX-07 保持 `blocked`，作为历史阻断记录，不覆盖。欠费解除后按
+`docs/competitions/huawei-agentarts-vpc-target-runbook.md` 执行，完成 Target
+创建、VPC 网络模式绑定、Agent 发布和一次平台内完整 Skill 问答后，新建
+`hosted-skill-qa-YYYY-MM-DD.yaml`（登记 R-NX-08）。
+
+该 runbook 已固定：Target 的 MCP / Streamable HTTP / `/mcp` /
+`2025-03-26` / `Authorization: Bearer <token>` 字段；推荐在 `vpc-seasight`
+内用 ECS + `docker-compose.prod.yml` 部署 `nexent-mcp`；以及平台内截图、失败排查
+和诚实边界清单。结构化模板见 `hosted-skill-qa.template.yaml`。
+
+完成前本目录仍维持以下结论：平台内完整 Skill 问答未跑通，`live_skill_qa_completed: false`；
+不得把本地 MCP 复验、公网隧道调用或准备材料写成华为托管平台完整问答验收。

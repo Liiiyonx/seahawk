@@ -1,0 +1,74 @@
+# 华为 AgentArts 私网完整 Skill 问答验收登记模板
+# 复制为 hosted-skill-qa-YYYY-MM-DD.yaml 后填写。
+# 不要把真实令牌、密码、AK/SK 或未脱敏个人信息写入本文件。
+
+acceptance:
+  recheck_id: R-NX-08
+  date: "2026-XX-XX"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: success
+  replaces_blocked_record: R-NX-07
+  agent:
+    name: seasight-governance-decision-agent
+    agent_id: fdeccb8f-c35e-459b-8413-26f72a37edf3
+    published_version: "<填写新版本号>"
+    model: deepseek-provider/deepseek-chat
+  private_environment:
+    name: environment-seasight-vpc-verify
+    environment_id: 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+    gateway_name: seasight-vpc-gateway
+    gateway_id: 0fe1d7fc-776f-4292-bbc9-5b3b885d1423
+    target_name: seasight-mcp-vpc-target
+    target_id: "<填写 Target ID>"
+    target_status: online
+    target_transport: streamable-http
+    target_protocol: MCP
+    target_endpoint_class: huawei_vpc_private_endpoint
+    target_endpoint: "<填写私网地址；不要写令牌>"
+    mcp_version: "2025-03-26"
+    outbound_auth: API Key / Authorization / Bearer
+  mcp:
+    name: SeaSight Domain Cognition MCP
+    service_id: ef30db1926c748fab10f30f86c42e2b8
+    tools_loaded: 21
+    read_only: true
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  skill_qa:
+    skill_used: "<policy-evidence-qa 或 cross-document-decision>"
+    question: >-
+      连江县海漂垃圾治理中，岸基监控发现疑似漏油事件，请按照现有政策给出评估与处置建议，并给出证据链。
+    tool_calls_observed:
+      - "<填写平台轨迹中实际出现的 MCP 工具名>"
+    final_answer_has_citations: true
+    final_answer_marks_not_evaluated_if_insufficient: true
+    platform_qa_completed: true
+    live_skill_qa_completed: true
+    platform_run_id: "<填写平台任务运行 ID，若平台提供>"
+  evidence_files:
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-environment-online.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-target-detail.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-target-probe.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-agent-environment.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-agent-skills.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-agent-publish.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-skill-qa-question.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-skill-qa-trace.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-vpc-skill-qa-answer.png
+  boundaries:
+    - 平台侧可运行性验收，不是海域现场验证。
+    - 平台可运行不等于感知精度已评测；感知精度保持 not_evaluated。
+    - 76% 是时序链路误报抑制率，不是识别精度。
+    - 演示数据不等于真实脱敏行业数据。
+    - 私网 endpoint 不使用临时公网隧道。
+  reviewed_by: liyongxiang
+  review_note: >-
+    华为 AgentArts 私网环境已完成 Target 创建、Agent 绑定、VPC 网络模式启用、
+    Agent 新版本发布与一次完整 Skill 问答，并保存平台内截图与调用轨迹。
+    本记录是平台侧验收，不是海域验证，不代表感知精度。
