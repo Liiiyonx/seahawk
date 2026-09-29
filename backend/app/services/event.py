@@ -31,12 +31,18 @@ class EventService:
         self.events = EventRepository(session)
         self.devices = DeviceRepository(session)
 
-    async def ingest(self, payload: EventIngest) -> EventIngestResult:
+    async def ingest(
+        self, payload: EventIngest, *, enqueue_dispatch: bool = True
+    ) -> EventIngestResult:
         """接收一条事件上报。
 
         幂等保证：
             1. (device_id, seq) 唯一约束 —— 数据库层面兜底
             2. 此处先查一次 —— 快速返回，避免触发约束异常
+
+        enqueue_dispatch=False 表示调用方会自己执行同步派单（HTTP/MQTT
+        入口当前都是这个模式）：事件只落库，不再投 Redis Stream，避免
+        同一条事件被同步派单与后台消费者重复处理。
 
         QoS 1 会重复投递，所以判重是必需的，不是可选优化。
         """
@@ -92,7 +98,10 @@ class EventService:
         await self.session.flush()
 
         # ---------- 投递派单队列 ----------
-        await self._enqueue_dispatch(event)
+        # 只有调用方没有同步派单时才入队；同步派单入口必须传 False，
+        # 否则同一事件会被 dispatch_consumer 再派一次。
+        if enqueue_dispatch:
+            await self._enqueue_dispatch(event)
 
         logger.info(
             f"[事件] 入库 {event.event_id} 类别={WasteClass.LABELS.get(event.main_class, event.main_class)} "
@@ -107,12 +116,16 @@ class EventService:
         )
 
     async def _enqueue_dispatch(self, event: Event) -> None:
-        """把事件推入 Redis Stream，交给派单消费者处理。
+        """把事件推入 Redis Stream，交给派单消费者处理（显式异步通道）。
 
         为什么用 Redis Streams 而不是：
         - 数据库轮询：延迟高、空转耗资源
         - 同步调用派单：机器人离线会阻塞 HTTP 请求
         - Kafka/RabbitMQ：对小团队是过度设计，Redis 本来就要用
+
+        ★ 当前 HTTP/MQTT 两个入口都在提交后同步派单，调用 ingest 时
+          必须传 enqueue_dispatch=False，不要在这里重复入队。本方法
+          保留给「不需要同步 task_id 的异步入口」和批量补投使用。
         """
         if self.redis is None:
             return

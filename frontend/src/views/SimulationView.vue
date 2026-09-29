@@ -18,9 +18,6 @@
         <span class="sim-state" :class="`sim-state--${stateTone}`">
           {{ stateLabel }}
         </span>
-        <span v-if="replayVisible" class="sim-state sim-state--replay">
-          轨迹回放中
-        </span>
       </div>
 
       <div class="sim-head__facts">
@@ -61,11 +58,11 @@
             <button
               type="button"
               role="tab"
-              :aria-selected="viewMode === '3d'"
-              :class="{ 'is-active': viewMode === '3d' }"
-              @click="viewMode = '3d'"
+              :aria-selected="viewMode === 'console'"
+              :class="{ 'is-active': viewMode === 'console' }"
+              @click="viewMode = 'console'"
             >
-              3D 作业
+              仿真台
             </button>
           </div>
         </div>
@@ -82,22 +79,7 @@
             :phase="snapshot.phase || fallbackPhase"
             :state="state"
           />
-          <SimulationScene
-            v-else
-            ref="sceneRef"
-            :position="mapPosition"
-            :heading="Number(snapshot.heading || 0)"
-            :home="mapHome"
-            :target="mapTarget"
-            :route="snapshot.route || []"
-            :remaining="snapshot.remaining || []"
-            :phase="snapshot.phase || fallbackPhase"
-            :state="state"
-            :speed="Number(snapshot.speed || selectedSpeed || 1)"
-            :progress="progress"
-            :battery="battery"
-            :bins="snapshot.bins || {}"
-          />
+          <ArmSimConsole v-else />
         </div>
         <div v-if="loading" class="sim-map__loading">
           <span class="sim-map__spinner"></span>
@@ -111,11 +93,8 @@
             <strong>执行档案</strong>
             <span>{{ task?.event_id || run?.event_id || '未关联事件' }}</span>
           </div>
-          <span
-            class="sim-side__sync"
-            :class="{ 'is-live': hasActiveSession, 'is-replay': replayVisible }"
-          >
-            {{ hasActiveSession ? '实时同步' : replayVisible ? '轨迹回放' : '只读快照' }}
+          <span class="sim-side__sync" :class="{ 'is-live': hasActiveSession }">
+            {{ hasActiveSession ? '实时同步' : '只读快照' }}
           </span>
         </div>
 
@@ -301,24 +280,6 @@
       <span class="sim-controls__hint">{{ controlHint }}</span>
 
       <div class="sim-controls__secondary">
-        <button
-          v-if="replayVisible"
-          class="sim-control"
-          type="button"
-          @click="toggleReplay"
-        >
-          <span aria-hidden="true">{{ replayPlaying ? 'Ⅱ' : '▶' }}</span>
-          {{ replayPlaying ? '暂停回放' : '播放回放' }}
-        </button>
-        <button
-          v-if="replayVisible"
-          class="sim-control"
-          type="button"
-          @click="restartReplay"
-        >
-          <span aria-hidden="true">↺</span>
-          重播
-        </button>
         <!-- ★ busy 是字符串状态（''/'start'/'pause'…），不能裸绑 :disabled：
              Vue 判定布尔属性用 includeBooleanAttr(v) = !!v || v === ''，
              空字符串同样算 true —— 裸绑会让这个按钮永远处于禁用态，谁都点不动。 -->
@@ -326,7 +287,12 @@
           <span aria-hidden="true">↻</span>
           刷新
         </button>
-        <button class="sim-control" type="button" @click="fitMap">
+        <button
+          class="sim-control"
+          type="button"
+          :disabled="viewMode !== 'map'"
+          @click="fitMap"
+        >
           <span aria-hidden="true">⌖</span>
           全局视野
         </button>
@@ -358,7 +324,7 @@ import {
   fmtUsage,
 } from '@/utils/format'
 import SimulationMap from '@/components/SimulationMap.vue'
-import SimulationScene from '@/components/SimulationScene.vue'
+import ArmSimConsole from '@/components/ArmSimConsole.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -378,14 +344,10 @@ const busy = ref('')
 const selectedSpeed = ref(1)
 const streamMode = ref('telemetry')
 const mapRef = ref(null)
-const sceneRef = ref(null)
-const viewMode = ref('3d')
-const replayVisible = ref(false)
-const replayPlaying = ref(false)
+const viewMode = ref('console')
 const autoStartAttempted = ref(false)
 
 let pollTimer = null
-let replayPollTimer = null
 
 const snapshot = computed(() => run.value || {})
 const state = computed(() => snapshot.value.state || 'idle')
@@ -442,16 +404,6 @@ const canTogglePlayback = computed(() => {
   if (isRunning.value || state.value === 'paused') return canControl.value
   return canStart.value
 })
-
-function toggleReplay() {
-  sceneRef.value?.toggleReplay()
-  replayPlaying.value = !replayPlaying.value
-}
-
-function restartReplay() {
-  sceneRef.value?.restartReplay()
-  replayPlaying.value = true
-}
 
 const playbackLabel = computed(() => {
   if (isRunning.value) return '暂停'
@@ -573,19 +525,13 @@ const logItems = computed(() =>
 
 const controlHint = computed(() => {
   if (!WRITABLE) return '当前账号为只读权限，可查看轨迹但不能控制仿真'
-  // ★ 异常/已结束必须排在 replayVisible 之前。
-  //   这两种状态下回放通道往往也是 active，若先判 replay，
-  //   「异常」会被错报成「历史轨迹只读回放」，把真实故障藏起来。
   if (state.value === 'error') {
     return '仿真会话创建/执行失败，原因见右侧「失败原因」，修正后点刷新重试'
   }
   if (['done', 'stopped'].includes(state.value)) {
     return '本次仿真会话已结束，刷新页面可重新读取结果'
   }
-  if (replayVisible.value) {
-    return '历史轨迹只读回放，动画沿真实遥测轨迹复演，不写数据库'
-  }
-  if (state.value === 'history') return '历史轨迹只读；3D 视图可查看轨迹回放'
+  if (state.value === 'history') return '历史轨迹只读；地图视图可查看轨迹回放'
   if (!run.value && !task.value?.robot_id) return '工单未绑定机器人，无法启动仿真'
   if (!run.value && task.value?.status === 'pending') return '工单尚未派单，无法启动仿真'
   if (!run.value && task.value?.status === 'cancelled') return '已取消工单不可执行仿真'
@@ -659,7 +605,6 @@ async function loadState({ autoStart = false } = {}) {
     run.value = null
   } finally {
     loading.value = false
-    syncReplayPolling()
   }
 }
 
@@ -774,11 +719,7 @@ async function refreshAll() {
 }
 
 function fitMap() {
-  if (viewMode.value === '3d') {
-    sceneRef.value?.resetView()
-  } else {
-    mapRef.value?.fitToData(true)
-  }
+  mapRef.value?.fitToData(true)
 }
 
 function openEvent() {
@@ -794,28 +735,6 @@ function syncPolling() {
     refreshRun()
   }, 1000)
 }
-
-function syncReplayPolling() {
-  clearInterval(replayPollTimer)
-  replayPollTimer = null
-  if (viewMode.value !== '3d') return
-  const terminal = ['done', 'history', 'stopped', 'error'].includes(state.value)
-  if (!terminal || (snapshot.value.route || []).length < 2) return
-  replayVisible.value = true
-  replayPollTimer = setInterval(() => {
-    const replay = sceneRef.value?.replayState
-    if (!replay) return
-    replayVisible.value = replay.active
-    replayPlaying.value = replay.playing
-  }, 250)
-}
-
-watch(viewMode, syncReplayPolling)
-
-watch(
-  [state, () => snapshot.value.route?.length],
-  syncReplayPolling,
-)
 
 watch([state, () => snapshot.value.run_id], syncPolling)
 
@@ -840,10 +759,6 @@ watch(
 watch(taskId, async () => {
   clearInterval(pollTimer)
   pollTimer = null
-  clearInterval(replayPollTimer)
-  replayPollTimer = null
-  replayVisible.value = false
-  replayPlaying.value = false
   autoStartAttempted.value = false
   selectedSpeed.value = 1
   streamMode.value = 'telemetry'
@@ -855,12 +770,10 @@ watch(taskId, async () => {
 
 onMounted(() => {
   loadState({ autoStart: true })
-  syncReplayPolling()
 })
 
 onUnmounted(() => {
   clearInterval(pollTimer)
-  clearInterval(replayPollTimer)
 })
 </script>
 

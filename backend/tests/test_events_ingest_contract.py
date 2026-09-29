@@ -342,3 +342,67 @@ class TestUnpackSemantics:
         items, total = ([1, 2, 3], 3)
         assert items == [1, 2, 3]
         assert total == 3
+
+
+# ======================================================================
+# 五、同步派单入口不得重复入队 Redis Stream
+# ======================================================================
+class TestNoQueueForSynchronousDispatch:
+    """同步派单入口不能同时把事件投进 Redis Stream。
+
+    守的缺陷：HTTP 入口在 `ingest` 里投 Stream，提交后又同步
+    `_try_dispatch`；`dispatch_consumer` 再消费一次，同一条事件被
+    两个事务同时派单，撞 `uq_task_active_event` 唯一约束返回 500。
+    """
+
+    @staticmethod
+    def _call_has_enqueue_false(node: ast.Call) -> bool:
+        return any(
+            kw.arg == "enqueue_dispatch"
+            and isinstance(kw.value, ast.Constant)
+            and kw.value.value is False
+            for kw in node.keywords
+        )
+
+    def test_http_ingest_disables_stream_enqueue(self, project_root: Path) -> None:
+        ingest = _ingest_function(project_root)
+        calls = [
+            node
+            for node in ast.walk(ingest)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "ingest"
+        ]
+        assert calls, "ingest_event 里找不到 service.ingest 调用"
+        assert all(self._call_has_enqueue_false(c) for c in calls), (
+            "HTTP 同步派单入口的 ingest 必须传 enqueue_dispatch=False，"
+            "否则事件会同时进 Redis Stream 被消费者重复派单。"
+        )
+
+    def test_mqtt_ingest_disables_stream_enqueue(self, project_root: Path) -> None:
+        src = (project_root / "backend/app/mqtt/handlers.py").read_text(
+            encoding="utf-8"
+        )
+        tree = ast.parse(src)
+        fn = next(
+            (
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "handle_event"
+            ),
+            None,
+        )
+        assert fn is not None, "handlers.py 里找不到 handle_event"
+        calls = [
+            node
+            for node in ast.walk(fn)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "ingest"
+        ]
+        assert calls, "handle_event 里找不到 service.ingest 调用"
+        assert all(self._call_has_enqueue_false(c) for c in calls), (
+            "MQTT 同步派单入口的 ingest 必须传 enqueue_dispatch=False，"
+            "否则事件会同时进 Redis Stream 被消费者重复派单。"
+        )

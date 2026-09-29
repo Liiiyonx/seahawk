@@ -1,0 +1,18 @@
+{
+  "skill_id": 6,
+  "name": "policy-evidence-qa",
+  "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+  "description": "Answer questions from registered policy, standard, and governance assets with version-level citations. Use when the user asks what rule applies, which policy supports a decision, or what the authoritative source says.",
+  "tags": [],
+  "content": "\n# Policy Evidence QA\n\n## Goal\n\nProduce an evidence-bound answer rather than an unsupported model summary.\n\n## Workflow\n\n1. Clarify the jurisdiction, date, industry, and policy topic from the request.\n2. Call `knowledge_list_assets` with `asset_type=\"document\"` and the relevant\n   `region`, `query`, or standard code filter.\n3. Call `knowledge_search` with `hop_depth=2` and the same policy scope.\n4. For every candidate answer, call `knowledge_asset_detail` to verify the\n   immutable `asset_version_id`, validity dates, and source URI.\n5. If a published ontology exists, select it explicitly and repeat retrieval\n   with `ontology_version_id`.\n6. Return only claims supported by retrieved snippets.\n\n## Stop Conditions\n\n- If no source is retrieved, state that the current asset base has insufficient\n  evidence.\n- If two valid versions conflict, show both and identify their effective dates.\n- Do not infer a legal conclusion that is absent from the cited source.\n\n## Required Output\n\nReturn:\n\n- direct answer;\n- applicable conditions and exceptions;\n- citation list with `asset_id`, `asset_version_id`, title, and source URI;\n- evidence gaps and unresolved version conflicts.\n",
+  "source": "custom",
+  "group_ids": [
+    2
+  ],
+  "ingroup_permission": "EDIT",
+  "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+  "create_time": "2026-09-28T13:48:12.671779",
+  "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+  "update_time": "2026-09-28T13:48:12.671782",
+  "tool_ids": []
+}

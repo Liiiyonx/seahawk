@@ -354,6 +354,12 @@ $env:PYTHONIOENCODING='utf-8'
   启动恢复（降级 / 幂等 / 超时 / 可观测 / 真实 scratch 库重建）与孪生闭环
   端到端用例（孪生 ACK → `handle_robot_ack` → 推进 + 落账 → 重启重建 →
   重放不重复推进；身份不一致 / 未知任务 / 未登记 deadline 负例）。
+- `edge/arm_bridge/`：机械臂桥接层（E1/E2）—— 用 `ArmDriver` 隔离不同机械臂
+  SDK（HTTP / 串口 / CAN 都可实现），桥接层订阅 `robot/{device_id}/task` 与
+  `robot/{device_id}/cmd`，按本规范回 ACK、上报 progress，并把遥测发到
+  `marine/{site_id}/{device_id}/telemetry`。`--dry-run` 在无硬件下跑通
+  「派单 → ACK → collecting → done → 遥测」；自测只证明协议闭环，不构成
+  物理拾取或现场验收。
 - 以上为**后端侧消费接线 + 孪生本地闭环（E1/E2 证据等级）**，不代表真实
   设备接入完成；未做真实 MQTT / 网络 / 设备验证（验收全部为内存注入 +
   进程内调用，账本/迁移走真实 scratch PostgreSQL，见
@@ -411,4 +417,6 @@ $env:PYTHONIOENCODING='utf-8'
 - 内存 transport 不模拟 QoS 重传窗口与 broker 侧积压；重复投递由
   故障注入显式产生。
 - 未接入真实设备协议栈（无串口/Modbus/CAN/真实 MQTT 客户端）；所有
-  结论仅代表确定性孪生行为，证据等级 E1/E2。
+  结论仅代表确定性孪生行为，证据等级 E1/E2。`edge/arm_bridge` 已提供
+  驱动适配层与无硬件自测，真机械臂到货后的物理拾取结果仍只能标 E2
+  （受控实验），不得写成现场验收。

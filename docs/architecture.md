@@ -210,12 +210,18 @@
 2. 调 `EventService.ingest()`
 3. **幂等判重**：查 `(device_id, seq)`。QoS1 会重复投递，判重是必需而非可选
 4. 落库 `t_event`，状态 `new`
-5. 投 Redis Stream `stream:events`
+5. 调用方同步派单：高优先级事件提交后调 `_try_dispatch()`，
+   `ingest(enqueue_dispatch=False)` 不再投 Redis Stream
 6. WebSocket 广播 `new_event` → 大屏标红
+
+HTTP 备用通道 `POST /events` 走同一套：`ingest(enqueue_dispatch=False)` +
+提交后同步 `_try_dispatch()`，响应体里的 `task_id` 直接取本次派单产物。
 
 ### 第 3 步 · 派单决策（异步，百毫秒级）
 
-`app/services/consumer.py::dispatch_consumer` 从 Stream 消费，调 `DispatchEngine.dispatch_for_event()`：
+`app/services/consumer.py::dispatch_consumer` 消费**显式入队**的事件
+（`enqueue_dispatch=True` 的异步入口、批量补投），调
+`DispatchEngine.dispatch_for_event()`：
 
 ```
 ① 防重复派单 ── 该 event 是否已有在途任务？有 → 跳过
@@ -278,6 +284,13 @@
 | **Redis Streams** | ✅ 消费者组 + ACK + pending list，消息不丢；零新增组件 |
 
 Streams 相比 pub/sub 的关键优势：**有 ACK 与 pending list**。pub/sub 消息发出即忘，消费者崩了就永久丢；Streams 可以重投。
+
+当前 HTTP/MQTT 两个事件上报入口都需要在响应/上行路径里同步拿到派单
+结果，所以它们调用 `ingest(enqueue_dispatch=False)`，由提交后的
+`_try_dispatch()` 直接派单，不再重复入队。Redis Streams 消费保留为
+显式异步通道：未来新增「不需要同步 task_id」的入口、批量补投、或
+外部投递事件时使用；数据库唯一约束 `uq_task_active_event` 仍作为
+并发派单的最后兜底。
 
 ### 6.2 为什么对象存储用 MinIO
 

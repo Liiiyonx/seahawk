@@ -218,6 +218,9 @@ make test
 # 静态检查：接口契约 + 仓库卫生 + MQTT/枚举契约漂移（不需要基础设施）
 make check             # check-api + check-gitignore + check-contract
 
+# 开源前隐私/脱敏检查：只扫 git 已跟踪文件；私有仓库命中属预期，公开前必须退出码 0
+make check-public-repo-privacy
+
 # 自证：注入 12 种已知历史缺陷，确认上面的检查真的会红
 make check-contract-selftest
 
@@ -237,7 +240,7 @@ make check-pel-selftest
 make smoke
 
 # 浏览器集成验收（WP-17，E1：真实登录 + 主业务链路 E2E；需前端 5174 与后端 8001 在线）
-$env:PLAYWRIGHT_CORE_PATH='C:\Users\Liii\AppData\Roaming\npm\node_modules\@playwright\mcp\node_modules\playwright-core'
+$env:PLAYWRIGHT_CORE_PATH='<全局 playwright-core 安装路径>'
 node scripts/browser_acceptance.mjs
 
 # 受控故障演练（WP-17，E1：复跑健康降级 / ACK 启动恢复 / 孪生闭环确定性用例）
@@ -261,6 +264,7 @@ node scripts/browser_acceptance.mjs
 | `make test` | **仓库全量：契约 + 推理后处理 + 派单引擎 + 认证权限 + edge/ml** | 状态机非法迁移、schema 字段约束、推送负载漏字段、上报响应谎报派单成功、**派单优化静默失效**、`/health` 撒谎报 ok、模型输出格式换一种就崩、**前端伪造角色提权**、**写接口漏挂 require_operator** |
 | `make check-api` | **前后端接口一致性** | 前端调了后端不存在的路径（只在点某个页签时才 404） |
 | `make check-gitignore` | **仓库卫生** | 运行时状态文件/模型权重/密钥被误提交 |
+| `make check-public-repo-privacy` | **开源前隐私** | 本机路径、生产地址、验收证据目录被带入公开仓库 |
 | `make check-contract` | **MQTT/枚举契约漂移** | 订阅了却路由不到、状态映射漏一项、类别枚举五处不一致 |
 | `make check-data` | **训练数据完整性** | 图片缺标签（训练静默少用样本，指标对不上）、类别索引越界 |
 | `make test-cv-selftest` | **真实识别链路** | 检测器和时序校验器没接上、报文契约漂移、合成海面上检不出目标 |

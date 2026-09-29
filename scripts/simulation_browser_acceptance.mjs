@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 const require = createRequire(import.meta.url)
 const playwright = require(
   process.env.PLAYWRIGHT_CORE_PATH ||
-    'C:\\Users\\Liii\\AppData\\Roaming\\npm\\node_modules\\@playwright\\mcp\\node_modules\\playwright-core',
+    'playwright-core',
 )
 const { chromium } = playwright
 

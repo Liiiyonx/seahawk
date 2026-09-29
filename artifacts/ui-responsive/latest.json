@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-19T17:23:05.155Z",
-  "frontend": "http://127.0.0.1:5173",
+  "generated_at": "2026-09-28T03:41:03.085Z",
+  "frontend": "http://127.0.0.1:5174",
   "results": [
     {
       "route": "/login",
@@ -223,8 +223,8 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
@@ -232,8 +232,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-dashboard.png"
@@ -267,8 +274,8 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
@@ -276,8 +283,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-dashboard.png"
@@ -311,14 +325,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -327,8 +341,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-dashboard.png"
@@ -340,11 +361,11 @@
         "width": 768,
         "height": 1024
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -359,70 +380,34 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 2260
+          "scroll_height": 1980
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
-        "scroll_containers": [],
-        "clipped_panels": [
+        "scroll_containers": [
           {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -61,
-            "right": 829,
-            "width": 890,
-            "viewport_width": 768
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
           }
         ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-dashboard.png"
@@ -434,11 +419,11 @@
         "width": 414,
         "height": 896
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -453,168 +438,34 @@
           "client_width": 414,
           "scroll_width": 414,
           "client_height": 799,
-          "scroll_height": 2250
+          "scroll_height": 1957
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -106,
-            "right": -84,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -99,
-            "right": -91,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": 414,
-            "right": 436,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": 421,
-            "right": 429,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -108,
-            "right": -78,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -103,
-            "right": -83,
-            "width": 19,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -99,
-            "right": -87,
-            "width": 12,
-            "viewport_width": 414
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -26,
-            "right": 440,
-            "width": 466,
-            "viewport_width": 414
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-dashboard.png"
@@ -626,11 +477,11 @@
         "width": 390,
         "height": 844
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -645,168 +496,34 @@
           "client_width": 390,
           "scroll_width": 390,
           "client_height": 747,
-          "scroll_height": 2250
+          "scroll_height": 1957
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -118,
-            "right": -96,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -111,
-            "right": -103,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": 402,
-            "right": 424,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": 409,
-            "right": 417,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -120,
-            "right": -90,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -115,
-            "right": -95,
-            "width": 19,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -111,
-            "right": -99,
-            "width": 12,
-            "viewport_width": 390
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -23,
-            "right": 414,
-            "width": 437,
-            "viewport_width": 390
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-dashboard.png"
@@ -818,11 +535,11 @@
         "width": 360,
         "height": 740
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -837,154 +554,34 @@
           "client_width": 360,
           "scroll_width": 360,
           "client_height": 643,
-          "scroll_height": 2197
+          "scroll_height": 1921
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -133,
-            "right": -111,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -126,
-            "right": -118,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": 387,
-            "right": 409,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": 394,
-            "right": 402,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -135,
-            "right": -105,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -130,
-            "right": -110,
-            "width": 19,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -126,
-            "right": -114,
-            "width": 12,
-            "viewport_width": 360
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -20,
-            "right": 381,
-            "width": 401,
-            "viewport_width": 360
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-dashboard.png"
@@ -996,11 +593,11 @@
         "width": 320,
         "height": 568
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -1015,154 +612,34 @@
           "client_width": 320,
           "scroll_width": 320,
           "client_height": 471,
-          "scroll_height": 2197
+          "scroll_height": 1921
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -153,
-            "right": -131,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -146,
-            "right": -138,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": 367,
-            "right": 389,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": 374,
-            "right": 382,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -155,
-            "right": -125,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -150,
-            "right": -130,
-            "width": 19,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -146,
-            "right": -134,
-            "width": 12,
-            "viewport_width": 320
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -16,
-            "right": 337,
-            "width": 353,
-            "viewport_width": 320
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-dashboard.png"
@@ -1196,15 +673,23 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-events.png"
     },
@@ -1237,15 +722,23 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-events.png"
     },
@@ -1278,14 +771,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -1293,7 +786,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-events.png"
     },
@@ -1327,9 +828,15 @@
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
         "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          },
           {
             "element": "div.panel.table-panel",
             "client_width": 742,
@@ -1341,7 +848,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-events.png"
     },
@@ -1375,13 +890,13 @@
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1395,7 +910,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-events.png"
     },
@@ -1429,13 +952,13 @@
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1449,7 +972,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-events.png"
     },
@@ -1483,13 +1014,13 @@
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1503,7 +1034,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-events.png"
     },
@@ -1537,13 +1076,13 @@
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1557,7 +1096,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-events.png"
     },
@@ -1590,15 +1137,23 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-tasks.png"
     },
@@ -1631,15 +1186,23 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-tasks.png"
     },
@@ -1672,14 +1235,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -1687,7 +1250,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-tasks.png"
     },
@@ -1721,9 +1292,15 @@
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
         "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          },
           {
             "element": "div.kanban",
             "client_width": 744,
@@ -1735,7 +1312,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-tasks.png"
     },
@@ -1765,17 +1350,17 @@
           "client_width": 414,
           "scroll_width": 414,
           "client_height": 799,
-          "scroll_height": 864
+          "scroll_height": 799
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1789,7 +1374,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-tasks.png"
     },
@@ -1819,17 +1412,17 @@
           "client_width": 390,
           "scroll_width": 390,
           "client_height": 747,
-          "scroll_height": 864
+          "scroll_height": 747
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1843,7 +1436,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks.png"
     },
@@ -1873,17 +1474,17 @@
           "client_width": 360,
           "scroll_width": 360,
           "client_height": 643,
-          "scroll_height": 864
+          "scroll_height": 643
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1897,7 +1498,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-tasks.png"
     },
@@ -1927,17 +1536,17 @@
           "client_width": 320,
           "scroll_width": 320,
           "client_height": 471,
-          "scroll_height": 864
+          "scroll_height": 471
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -1951,7 +1560,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-tasks.png"
     },
@@ -1962,11 +1579,11 @@
         "width": 1920,
         "height": 1080
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -1984,44 +1601,25 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": 655,
-            "right": 2017,
-            "width": 1362,
-            "viewport_width": 1920
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-devices.png"
     },
@@ -2032,11 +1630,11 @@
         "width": 1440,
         "height": 900
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2054,44 +1652,25 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": 495,
-            "right": 1508,
-            "width": 1013,
-            "viewport_width": 1440
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-devices.png"
     },
@@ -2102,11 +1681,11 @@
         "width": 1280,
         "height": 800
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2121,40 +1700,35 @@
           "client_width": 1280,
           "scroll_width": 1280,
           "client_height": 736,
-          "scroll_height": 825
+          "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1179,
-            "right": 1435,
-            "width": 256,
-            "viewport_width": 1280
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -108,
-            "right": 1387,
-            "width": 1495,
-            "viewport_width": 1280
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-devices.png"
     },
@@ -2165,11 +1739,11 @@
         "width": 768,
         "height": 1024
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2184,26 +1758,35 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 1204
+          "scroll_height": 1009
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
-        "scroll_containers": [],
-        "clipped_panels": [
+        "scroll_containers": [
           {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -61,
-            "right": 829,
-            "width": 890,
-            "viewport_width": 768
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
           }
         ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-devices.png"
     },
@@ -2214,11 +1797,11 @@
         "width": 414,
         "height": 896
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2233,166 +1816,35 @@
           "client_width": 414,
           "scroll_width": 414,
           "client_height": 799,
-          "scroll_height": 1145
+          "scroll_height": 983
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -106,
-            "right": -84,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -99,
-            "right": -91,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": 414,
-            "right": 436,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": 421,
-            "right": 429,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -108,
-            "right": -78,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -103,
-            "right": -83,
-            "width": 19,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -99,
-            "right": -87,
-            "width": 12,
-            "viewport_width": 414
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -26,
-            "right": 440,
-            "width": 466,
-            "viewport_width": 414
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-devices.png"
     },
@@ -2403,11 +1855,11 @@
         "width": 390,
         "height": 844
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2422,166 +1874,35 @@
           "client_width": 390,
           "scroll_width": 390,
           "client_height": 747,
-          "scroll_height": 1145
+          "scroll_height": 983
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -118,
-            "right": -96,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -111,
-            "right": -103,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": 402,
-            "right": 424,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": 409,
-            "right": 417,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -120,
-            "right": -90,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -115,
-            "right": -95,
-            "width": 19,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -111,
-            "right": -99,
-            "width": 12,
-            "viewport_width": 390
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -23,
-            "right": 414,
-            "width": 437,
-            "viewport_width": 390
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-devices.png"
     },
@@ -2592,11 +1913,11 @@
         "width": 360,
         "height": 740
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2611,152 +1932,35 @@
           "client_width": 360,
           "scroll_width": 360,
           "client_height": 643,
-          "scroll_height": 1115
+          "scroll_height": 953
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -133,
-            "right": -111,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -126,
-            "right": -118,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": 387,
-            "right": 409,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": 394,
-            "right": 402,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -135,
-            "right": -105,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -130,
-            "right": -110,
-            "width": 19,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -126,
-            "right": -114,
-            "width": 12,
-            "viewport_width": 360
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -20,
-            "right": 381,
-            "width": 401,
-            "viewport_width": 360
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-devices.png"
     },
@@ -2767,11 +1971,11 @@
         "width": 320,
         "height": 568
       },
-      "passed": false,
+      "passed": true,
       "checks": {
         "document_width": true,
         "body_width": true,
-        "no_clipped_panels": false,
+        "no_clipped_panels": true,
         "no_page_errors": true,
         "no_console_errors": true
       },
@@ -2786,152 +1990,35 @@
           "client_width": 320,
           "scroll_width": 320,
           "client_height": 471,
-          "scroll_height": 1115
+          "scroll_height": 953
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -153,
-            "right": -131,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -146,
-            "right": -138,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": 367,
-            "right": 389,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": 374,
-            "right": 382,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -155,
-            "right": -125,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -150,
-            "right": -130,
-            "width": 19,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -146,
-            "right": -134,
-            "width": 12,
-            "viewport_width": 320
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -16,
-            "right": 337,
-            "width": 353,
-            "viewport_width": 320
-          }
-        ],
+        "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-devices.png"
     },
@@ -2964,15 +2051,24 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-reports.png"
     },
@@ -3005,15 +2101,24 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-reports.png"
     },
@@ -3043,17 +2148,17 @@
           "client_width": 1280,
           "scroll_width": 1280,
           "client_height": 736,
-          "scroll_height": 736
+          "scroll_height": 769
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -3061,7 +2166,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-reports.png"
     },
@@ -3091,13 +2205,19 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 1788
+          "scroll_height": 1420
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
         "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          },
           {
             "element": "section.panel.table-panel",
             "client_width": 742,
@@ -3109,7 +2229,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-reports.png"
     },
@@ -3139,17 +2268,17 @@
           "client_width": 414,
           "scroll_width": 414,
           "client_height": 799,
-          "scroll_height": 1851
+          "scroll_height": 1503
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3163,7 +2292,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-reports.png"
     },
@@ -3193,17 +2331,17 @@
           "client_width": 390,
           "scroll_width": 390,
           "client_height": 747,
-          "scroll_height": 1851
+          "scroll_height": 1503
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3217,7 +2355,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-reports.png"
     },
@@ -3247,17 +2394,17 @@
           "client_width": 360,
           "scroll_width": 360,
           "client_height": 643,
-          "scroll_height": 1851
+          "scroll_height": 1522
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3271,7 +2418,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-reports.png"
     },
@@ -3301,17 +2457,17 @@
           "client_width": 320,
           "scroll_width": 320,
           "client_height": 471,
-          "scroll_height": 1851
+          "scroll_height": 1522
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3325,7 +2481,16 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-reports.png"
     },
@@ -3358,15 +2523,23 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-agents.png"
     },
@@ -3399,15 +2572,23 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-agents.png"
     },
@@ -3440,14 +2621,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -3455,7 +2636,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-agents.png"
     },
@@ -3485,18 +2674,33 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 3253
+          "scroll_height": 4047
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-agents.png"
     },
@@ -3526,23 +2730,17 @@
           "client_width": 414,
           "scroll_width": 414,
           "client_height": 799,
-          "scroll_height": 3868
+          "scroll_height": 4828
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
-            "scrollable": true
-          },
-          {
-            "element": "div.table-scroll",
-            "client_width": 388,
-            "scroll_width": 720,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3556,7 +2754,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-agents.png"
     },
@@ -3586,23 +2792,17 @@
           "client_width": 390,
           "scroll_width": 390,
           "client_height": 747,
-          "scroll_height": 3921
+          "scroll_height": 4902
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
-            "scrollable": true
-          },
-          {
-            "element": "div.table-scroll",
-            "client_width": 364,
-            "scroll_width": 720,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3616,7 +2816,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-agents.png"
     },
@@ -3646,23 +2854,17 @@
           "client_width": 360,
           "scroll_width": 360,
           "client_height": 643,
-          "scroll_height": 4047
+          "scroll_height": 5077
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
-            "scrollable": true
-          },
-          {
-            "element": "div.table-scroll",
-            "client_width": 334,
-            "scroll_width": 720,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3676,7 +2878,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-agents.png"
     },
@@ -3706,23 +2916,17 @@
           "client_width": 320,
           "scroll_width": 320,
           "client_height": 471,
-          "scroll_height": 4177
+          "scroll_height": 5271
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
-            "scrollable": true
-          },
-          {
-            "element": "div.table-scroll",
-            "client_width": 294,
-            "scroll_width": 720,
+            "scroll_width": 907,
             "scrollable": true
           },
           {
@@ -3736,7 +2940,15 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-agents.png"
     },
@@ -3769,8 +2981,8 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
@@ -3778,9 +2990,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-knowledge.png"
@@ -3814,8 +3032,8 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
@@ -3823,9 +3041,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-knowledge.png"
@@ -3859,14 +3083,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -3875,9 +3099,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-knowledge.png"
@@ -3912,17 +3142,30 @@
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-knowledge.png"
@@ -3957,13 +3200,13 @@
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
@@ -3972,9 +3215,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-knowledge.png"
@@ -4009,13 +3258,13 @@
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
@@ -4024,9 +3273,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-knowledge.png"
@@ -4061,13 +3316,13 @@
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
@@ -4076,9 +3331,15 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-knowledge.png"
@@ -4113,13 +3374,13 @@
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
             "scrollable": true
           }
         ],
@@ -4128,15 +3389,21 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
       ],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-knowledge.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "desktop-wide",
         "width": 1920,
@@ -4164,20 +3431,28 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
+          "client_width": 1104,
+          "scroll_width": 1104
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "desktop",
         "width": 1440,
@@ -4205,20 +3480,28 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 659,
-          "scroll_width": 696
+          "client_width": 624,
+          "scroll_width": 754
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "laptop",
         "width": 1280,
@@ -4246,14 +3529,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 633,
-          "scroll_width": 702
+          "client_width": 599,
+          "scroll_width": 847
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
+            "client_width": 599,
+            "scroll_width": 847,
             "scrollable": true
           }
         ],
@@ -4261,12 +3544,20 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "tablet",
         "width": 768,
@@ -4295,19 +3586,34 @@
         },
         "nav": {
           "client_width": 768,
-          "scroll_width": 768
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 768,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "mobile-large",
         "width": 414,
@@ -4330,19 +3636,31 @@
         "body_scroll_width": 414,
         "main": {
           "client_width": 414,
-          "scroll_width": 414,
+          "scroll_width": 446,
           "client_height": 799,
           "scroll_height": 799
         },
         "nav": {
           "client_width": 414,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 414,
-            "scroll_width": 758,
+            "scroll_width": 907,
+            "scrollable": true
+          },
+          {
+            "element": "main.layout__main",
+            "client_width": 414,
+            "scroll_width": 446,
+            "scrollable": true
+          },
+          {
+            "element": "textarea.composer__input",
+            "client_width": 20,
+            "scroll_width": 24,
             "scrollable": true
           }
         ],
@@ -4350,12 +3668,20 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "mobile",
         "width": 390,
@@ -4378,19 +3704,31 @@
         "body_scroll_width": 390,
         "main": {
           "client_width": 390,
-          "scroll_width": 390,
+          "scroll_width": 446,
           "client_height": 747,
           "scroll_height": 747
         },
         "nav": {
           "client_width": 390,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 390,
-            "scroll_width": 758,
+            "scroll_width": 907,
+            "scrollable": true
+          },
+          {
+            "element": "main.layout__main",
+            "client_width": 390,
+            "scroll_width": 446,
+            "scrollable": true
+          },
+          {
+            "element": "textarea.composer__input",
+            "client_width": 20,
+            "scroll_width": 24,
             "scrollable": true
           }
         ],
@@ -4398,12 +3736,20 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "mobile-narrow",
         "width": 360,
@@ -4426,19 +3772,31 @@
         "body_scroll_width": 360,
         "main": {
           "client_width": 360,
-          "scroll_width": 360,
+          "scroll_width": 446,
           "client_height": 643,
-          "scroll_height": 665
+          "scroll_height": 643
         },
         "nav": {
           "client_width": 360,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 360,
-            "scroll_width": 758,
+            "scroll_width": 907,
+            "scrollable": true
+          },
+          {
+            "element": "main.layout__main",
+            "client_width": 360,
+            "scroll_width": 446,
+            "scrollable": true
+          },
+          {
+            "element": "textarea.composer__input",
+            "client_width": 20,
+            "scroll_width": 24,
             "scrollable": true
           }
         ],
@@ -4446,12 +3804,20 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-assistant.png"
     },
     {
-      "route": "/analyze",
+      "route": "/assistant",
       "viewport": {
         "name": "mobile-small",
         "width": 320,
@@ -4474,19 +3840,37 @@
         "body_scroll_width": 320,
         "main": {
           "client_width": 320,
-          "scroll_width": 320,
+          "scroll_width": 446,
           "client_height": 471,
-          "scroll_height": 665
+          "scroll_height": 535
         },
         "nav": {
           "client_width": 320,
-          "scroll_width": 758
+          "scroll_width": 907
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
             "client_width": 320,
-            "scroll_width": 758,
+            "scroll_width": 907,
+            "scrollable": true
+          },
+          {
+            "element": "main.layout__main",
+            "client_width": 320,
+            "scroll_width": 446,
+            "scrollable": true
+          },
+          {
+            "element": "div.chat__messages",
+            "client_width": 56,
+            "scroll_width": 63,
+            "scrollable": true
+          },
+          {
+            "element": "textarea.composer__input",
+            "client_width": 20,
+            "scroll_width": 24,
             "scrollable": true
           }
         ],
@@ -4494,49 +3878,22 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
       "page_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-analyze.png"
+      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-assistant.png"
     },
     {
-      "drawer": {
-        "layout": {
-          "viewport": {
-            "width": 390,
-            "height": 844
-          },
-          "document_scroll_width": 390,
-          "body_scroll_width": 390,
-          "main": {
-            "client_width": 390,
-            "scroll_width": 390,
-            "client_height": 747,
-            "scroll_height": 864
-          },
-          "nav": {
-            "client_width": 390,
-            "scroll_width": 758
-          },
-          "scroll_containers": [
-            {
-              "element": "nav.nav",
-              "client_width": 390,
-              "scroll_width": 758,
-              "scrollable": true
-            },
-            {
-              "element": "div.kanban",
-              "client_width": 366,
-              "scroll_width": 1717,
-              "scrollable": true
-            }
-          ],
-          "clipped_panels": [],
-          "clipped_controls": [],
-          "offscreen_text": []
-        },
-        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks-drawer.png"
-      },
+      "skipped": [
+        "task drawer: /tasks 未渲染任务卡片（后端未在线或无数据）"
+      ],
       "notifications": {
         "layout": {
           "viewport": {
@@ -4549,17 +3906,17 @@
             "client_width": 390,
             "scroll_width": 390,
             "client_height": 747,
-            "scroll_height": 864
+            "scroll_height": 747
           },
           "nav": {
             "client_width": 390,
-            "scroll_width": 758
+            "scroll_width": 907
           },
           "scroll_containers": [
             {
               "element": "nav.nav",
               "client_width": 390,
-              "scroll_width": 758,
+              "scroll_width": 907,
               "scrollable": true
             },
             {
@@ -4579,1811 +3936,9 @@
   ],
   "summary": {
     "checks": 73,
-    "failures": 13,
+    "failures": 0,
     "routes": 8,
     "viewports": 8
   },
-  "failures": [
-    {
-      "route": "/dashboard",
-      "viewport": {
-        "name": "tablet",
-        "width": 768,
-        "height": 1024
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 768,
-          "height": 1024
-        },
-        "document_scroll_width": 768,
-        "body_scroll_width": 768,
-        "main": {
-          "client_width": 768,
-          "scroll_width": 768,
-          "client_height": 929,
-          "scroll_height": 2260
-        },
-        "nav": {
-          "client_width": 768,
-          "scroll_width": 768
-        },
-        "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -101,
-            "right": 155,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 667,
-            "right": 923,
-            "width": 256,
-            "viewport_width": 768
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -61,
-            "right": 829,
-            "width": 890,
-            "viewport_width": 768
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      ],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-dashboard.png"
-    },
-    {
-      "route": "/dashboard",
-      "viewport": {
-        "name": "mobile-large",
-        "width": 414,
-        "height": 896
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 414,
-          "height": 896
-        },
-        "document_scroll_width": 414,
-        "body_scroll_width": 414,
-        "main": {
-          "client_width": 414,
-          "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 2250
-        },
-        "nav": {
-          "client_width": 414,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -106,
-            "right": -84,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -99,
-            "right": -91,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": 414,
-            "right": 436,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": 421,
-            "right": 429,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -108,
-            "right": -78,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -103,
-            "right": -83,
-            "width": 19,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -99,
-            "right": -87,
-            "width": 12,
-            "viewport_width": 414
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -26,
-            "right": 440,
-            "width": 466,
-            "viewport_width": 414
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      ],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-dashboard.png"
-    },
-    {
-      "route": "/dashboard",
-      "viewport": {
-        "name": "mobile",
-        "width": 390,
-        "height": 844
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 390,
-          "height": 844
-        },
-        "document_scroll_width": 390,
-        "body_scroll_width": 390,
-        "main": {
-          "client_width": 390,
-          "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 2250
-        },
-        "nav": {
-          "client_width": 390,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -118,
-            "right": -96,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -111,
-            "right": -103,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": 402,
-            "right": 424,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": 409,
-            "right": 417,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -120,
-            "right": -90,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -115,
-            "right": -95,
-            "width": 19,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -111,
-            "right": -99,
-            "width": 12,
-            "viewport_width": 390
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -23,
-            "right": 414,
-            "width": 437,
-            "viewport_width": 390
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      ],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-dashboard.png"
-    },
-    {
-      "route": "/dashboard",
-      "viewport": {
-        "name": "mobile-narrow",
-        "width": 360,
-        "height": 740
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 360,
-          "height": 740
-        },
-        "document_scroll_width": 360,
-        "body_scroll_width": 360,
-        "main": {
-          "client_width": 360,
-          "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 2197
-        },
-        "nav": {
-          "client_width": 360,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -133,
-            "right": -111,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -126,
-            "right": -118,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": 387,
-            "right": 409,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": 394,
-            "right": 402,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -135,
-            "right": -105,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -130,
-            "right": -110,
-            "width": 19,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -126,
-            "right": -114,
-            "width": 12,
-            "viewport_width": 360
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -20,
-            "right": 381,
-            "width": 401,
-            "viewport_width": 360
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      ],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-dashboard.png"
-    },
-    {
-      "route": "/dashboard",
-      "viewport": {
-        "name": "mobile-small",
-        "width": 320,
-        "height": 568
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 320,
-          "height": 568
-        },
-        "document_scroll_width": 320,
-        "body_scroll_width": 320,
-        "main": {
-          "client_width": 320,
-          "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 2197
-        },
-        "nav": {
-          "client_width": 320,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -153,
-            "right": -131,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -146,
-            "right": -138,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": 367,
-            "right": 389,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": 374,
-            "right": 382,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -155,
-            "right": -125,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -150,
-            "right": -130,
-            "width": 19,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -146,
-            "right": -134,
-            "width": 12,
-            "viewport_width": 320
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -16,
-            "right": 337,
-            "width": 353,
-            "viewport_width": 320
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
-        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      ],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-dashboard.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "desktop-wide",
-        "width": 1920,
-        "height": 1080
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 1920,
-          "height": 1080
-        },
-        "document_scroll_width": 1920,
-        "body_scroll_width": 1920,
-        "main": {
-          "client_width": 1920,
-          "scroll_width": 1920,
-          "client_height": 1016,
-          "scroll_height": 1016
-        },
-        "nav": {
-          "client_width": 1139,
-          "scroll_width": 1139
-        },
-        "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1874,
-            "right": 2130,
-            "width": 256,
-            "viewport_width": 1920
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": 655,
-            "right": 2017,
-            "width": 1362,
-            "viewport_width": 1920
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "desktop",
-        "width": 1440,
-        "height": 900
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 1440,
-          "height": 900
-        },
-        "document_scroll_width": 1440,
-        "body_scroll_width": 1440,
-        "main": {
-          "client_width": 1440,
-          "scroll_width": 1440,
-          "client_height": 836,
-          "scroll_height": 836
-        },
-        "nav": {
-          "client_width": 659,
-          "scroll_width": 696
-        },
-        "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1284,
-            "right": 1540,
-            "width": 256,
-            "viewport_width": 1440
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": 495,
-            "right": 1508,
-            "width": 1013,
-            "viewport_width": 1440
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "laptop",
-        "width": 1280,
-        "height": 800
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 1280,
-          "height": 800
-        },
-        "document_scroll_width": 1280,
-        "body_scroll_width": 1280,
-        "main": {
-          "client_width": 1280,
-          "scroll_width": 1280,
-          "client_height": 736,
-          "scroll_height": 825
-        },
-        "nav": {
-          "client_width": 633,
-          "scroll_width": 702
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 633,
-            "scroll_width": 702,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 1179,
-            "right": 1435,
-            "width": 256,
-            "viewport_width": 1280
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -108,
-            "right": 1387,
-            "width": 1495,
-            "viewport_width": 1280
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "tablet",
-        "width": 768,
-        "height": 1024
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 768,
-          "height": 1024
-        },
-        "document_scroll_width": 768,
-        "body_scroll_width": 768,
-        "main": {
-          "client_width": 768,
-          "scroll_width": 768,
-          "client_height": 929,
-          "scroll_height": 1204
-        },
-        "nav": {
-          "client_width": 768,
-          "scroll_width": 768
-        },
-        "scroll_containers": [],
-        "clipped_panels": [
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -61,
-            "right": 829,
-            "width": 890,
-            "viewport_width": 768
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "mobile-large",
-        "width": 414,
-        "height": 896
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 414,
-          "height": 896
-        },
-        "document_scroll_width": 414,
-        "body_scroll_width": 414,
-        "main": {
-          "client_width": 414,
-          "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 1145
-        },
-        "nav": {
-          "client_width": 414,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -22,
-            "right": 234,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 234,
-            "right": 490,
-            "width": 256,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -80,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -106,
-            "right": -84,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -99,
-            "right": -91,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": 410,
-            "right": 440,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": 414,
-            "right": 436,
-            "width": 23,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": 421,
-            "right": 429,
-            "width": 8,
-            "viewport_width": 414
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "svg",
-            "left": -110,
-            "right": -76,
-            "width": 34,
-            "viewport_width": 414
-          },
-          {
-            "element": "circle",
-            "left": -108,
-            "right": -78,
-            "width": 30,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -103,
-            "right": -83,
-            "width": 19,
-            "viewport_width": 414
-          },
-          {
-            "element": "path",
-            "left": -99,
-            "right": -87,
-            "width": 12,
-            "viewport_width": 414
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -26,
-            "right": 440,
-            "width": 466,
-            "viewport_width": 414
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "mobile",
-        "width": 390,
-        "height": 844
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 390,
-          "height": 844
-        },
-        "document_scroll_width": 390,
-        "body_scroll_width": 390,
-        "main": {
-          "client_width": 390,
-          "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 1145
-        },
-        "nav": {
-          "client_width": 390,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -34,
-            "right": 222,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 222,
-            "right": 478,
-            "width": 256,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -92,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -118,
-            "right": -96,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -111,
-            "right": -103,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": 398,
-            "right": 428,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": 402,
-            "right": 424,
-            "width": 23,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": 409,
-            "right": 417,
-            "width": 8,
-            "viewport_width": 390
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "svg",
-            "left": -122,
-            "right": -88,
-            "width": 34,
-            "viewport_width": 390
-          },
-          {
-            "element": "circle",
-            "left": -120,
-            "right": -90,
-            "width": 30,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -115,
-            "right": -95,
-            "width": 19,
-            "viewport_width": 390
-          },
-          {
-            "element": "path",
-            "left": -111,
-            "right": -99,
-            "width": 12,
-            "viewport_width": 390
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -23,
-            "right": 414,
-            "width": 437,
-            "viewport_width": 390
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "mobile-narrow",
-        "width": 360,
-        "height": 740
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 360,
-          "height": 740
-        },
-        "document_scroll_width": 360,
-        "body_scroll_width": 360,
-        "main": {
-          "client_width": 360,
-          "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 1115
-        },
-        "nav": {
-          "client_width": 360,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -49,
-            "right": 207,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 207,
-            "right": 463,
-            "width": 256,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -107,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -133,
-            "right": -111,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -126,
-            "right": -118,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": 383,
-            "right": 413,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": 387,
-            "right": 409,
-            "width": 23,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": 394,
-            "right": 402,
-            "width": 8,
-            "viewport_width": 360
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "svg",
-            "left": -137,
-            "right": -103,
-            "width": 34,
-            "viewport_width": 360
-          },
-          {
-            "element": "circle",
-            "left": -135,
-            "right": -105,
-            "width": 30,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -130,
-            "right": -110,
-            "width": 19,
-            "viewport_width": 360
-          },
-          {
-            "element": "path",
-            "left": -126,
-            "right": -114,
-            "width": 12,
-            "viewport_width": 360
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -20,
-            "right": 381,
-            "width": 401,
-            "viewport_width": 360
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-devices.png"
-    },
-    {
-      "route": "/devices",
-      "viewport": {
-        "name": "mobile-small",
-        "width": 320,
-        "height": 568
-      },
-      "checks": {
-        "document_width": true,
-        "body_width": true,
-        "no_clipped_panels": false,
-        "no_page_errors": true,
-        "no_console_errors": true
-      },
-      "layout": {
-        "viewport": {
-          "width": 320,
-          "height": 568
-        },
-        "document_scroll_width": 320,
-        "body_scroll_width": 320,
-        "main": {
-          "client_width": 320,
-          "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 1115
-        },
-        "nav": {
-          "client_width": 320,
-          "scroll_width": 758
-        },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 758,
-            "scrollable": true
-          }
-        ],
-        "clipped_panels": [
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": -69,
-            "right": 187,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "img.leaflet-tile.leaflet-tile-loaded",
-            "left": 187,
-            "right": 443,
-            "width": 256,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -127,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -153,
-            "right": -131,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -146,
-            "right": -138,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--camera.leaflet-zoom-animated",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": 363,
-            "right": 393,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": 367,
-            "right": 389,
-            "width": 23,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": 374,
-            "right": 382,
-            "width": 8,
-            "viewport_width": 320
-          },
-          {
-            "element": "div.leaflet-marker-icon.seasight-marker.seasight-marker--robot.leaflet-zoom-animated",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "svg",
-            "left": -157,
-            "right": -123,
-            "width": 34,
-            "viewport_width": 320
-          },
-          {
-            "element": "circle",
-            "left": -155,
-            "right": -125,
-            "width": 30,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -150,
-            "right": -130,
-            "width": 19,
-            "viewport_width": 320
-          },
-          {
-            "element": "path",
-            "left": -146,
-            "right": -134,
-            "width": 12,
-            "viewport_width": 320
-          },
-          {
-            "element": "canvas.leaflet-zoom-animated",
-            "left": -16,
-            "right": 337,
-            "width": 353,
-            "viewport_width": 320
-          }
-        ],
-        "clipped_controls": [],
-        "offscreen_text": []
-      },
-      "page_errors": [],
-      "console_errors": [],
-      "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-devices.png"
-    }
-  ]
+  "failures": []
 }

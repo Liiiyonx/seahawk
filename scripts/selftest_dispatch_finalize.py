@@ -20,6 +20,12 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 PY = sys.executable
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 DISPATCH = BACKEND / "app/services/dispatch.py"
 CONSUMER = BACKEND / "app/services/consumer.py"
 
@@ -36,6 +42,8 @@ def run_tests(target: str = TEST_FILE) -> tuple[int, str]:
         cwd=str(BACKEND),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
 
@@ -137,7 +145,7 @@ inject(
 print("\n[注入 5] reassign_task 不重置 assigned_at")
 inject(
     DISPATCH,
-    """        task.assigned_at = datetime.now()
+    """        task.assigned_at = _utcnow()
 
         await finalize_dispatch(task)
         return True""",
@@ -150,13 +158,17 @@ inject(
 print("\n[注入 6] 定时循环去掉 ACK 超时回退（回到 handle_ack_timeout 零调用）")
 inject(
     CONSUMER,
-    """                for task in await tasks.list_by_status(TaskStatus.ASSIGNED, limit=50):
-                    try:
+    """            for task_id in assigned_ids:
+                try:
+                    async with session_factory() as session:
+                        task = await TaskRepository(session).get_by_task_id(task_id)
+                        if task is None:
+                            continue
+                        engine = DispatchEngine(session)
                         if await engine.handle_ack_timeout(task):
                             await session.commit()
-                    except Exception as exc:   # noqa: BLE001
-                        await session.rollback()
-                        logger.warning(f"[补派] 任务 {task.task_id} 超时回退失败：{exc}")""",
+                except Exception as exc:   # noqa: BLE001
+                    logger.warning(f"[补派] 任务 {task_id} 超时回退失败：{exc}")""",
     """                # （注入：这一段被删掉了）""",
     "ACK 超时回退没接上",
 )
@@ -165,13 +177,17 @@ inject(
 print("\n[注入 7] 定时循环去掉换车重派（回退后没人再派）")
 inject(
     CONSUMER,
-    """                for task in await tasks.list_by_status(TaskStatus.PENDING, limit=50):
-                    try:
+    """            for task_id in pending_ids:
+                try:
+                    async with session_factory() as session:
+                        task = await TaskRepository(session).get_by_task_id(task_id)
+                        if task is None:
+                            continue
+                        engine = DispatchEngine(session)
                         if await engine.reassign_task(task):
                             await session.commit()
-                    except Exception as exc:   # noqa: BLE001
-                        await session.rollback()
-                        logger.warning(f"[补派] 任务 {task.task_id} 换车重派失败：{exc}")""",
+                except Exception as exc:   # noqa: BLE001
+                    logger.warning(f"[补派] 任务 {task_id} 换车重派失败：{exc}")""",
     """                # （注入：这一段被删掉了）""",
     "换车重派没接上",
 )

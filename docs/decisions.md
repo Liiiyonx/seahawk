@@ -1013,6 +1013,57 @@ OpenCV 通道输出**同一个契约**（`{class, confidence, bbox}`），看起
 
 ---
 
+## ADR-028 同步派单入口不得重复投 Redis Stream
+
+**日期**：2026-09-28
+**状态**：已接受
+
+### 背景
+
+`POST /events` 与 MQTT `handle_event` 在提交后都同步调 `_try_dispatch()`，
+而 `EventService.ingest()` 过去**无条件**把事件写进 Redis Stream（HTTP
+入口传入了 redis）。于是 `dispatch_consumer` 会把同一条事件再消费一次，
+与同步派单形成两个并发事务，同时读到「无在途任务」后各自建任务，
+撞 `uq_task_active_event` 唯一约束，表现为事件上报 HTTP 500：
+
+```
+IntegrityError: 重复键违反唯一约束"uq_task_active_event"
+```
+
+上一轮加的 `await session.commit()` 是必要修复（否则新会话读不到刚
+flush 未提交的事件，同步派单恒为空转），但它把「同步派单 + Streams
+消费者双派」这条并发问题暴露了出来，不能回退。
+
+### 选项
+
+- A：只让 `dispatch_consumer` 在消费时靠防重复派单跳过已派事件。
+  两个并发事务可能都在对方提交前读到「无在途任务」，仍然会撞约束。
+- B：给 `EventService.ingest` 加 `enqueue_dispatch` 开关，同步派单
+  入口传 `False`；Streams 消费者保留为显式异步通道。
+- C：去掉同步派单，HTTP/MQTT 全走 Streams 异步。HTTP 无法按契约立即
+  回传 `task_id`（ADR-017），冒烟与演示链路都要重写，风险最大。
+
+### 决定
+
+选 **B**。
+
+### 理由
+
+- B 保住了 `_try_dispatch` 回传本次 Task 的契约（ADR-017），
+  HTTP 响应里的 `task_created` / `task_id` 语义不变。
+- 无可用机器人时 `_try_dispatch` 返回 None、事件保持 `new`，仍由
+  `pending_dispatcher` 从数据库补派，不依赖队列也不会丢事件。
+- `uq_task_active_event` 唯一约束保留为并发兜底，不是修复后的主依赖。
+
+### 代价
+
+- 当前两个入口都同步派单时，Redis Streams 没有生产者；文档必须把
+  它写清楚为「显式异步通道」，不能继续声称它是事件上报主链路。
+- 新增 AST 守卫：同步派单入口的 `service.ingest` 调用必须带
+  `enqueue_dispatch=False`；`make check-events-selftest` 增加注入验证。
+
+---
+
 ## ADR-0XX 一句话结论
 
 **背景**：什么问题触发了这个决策

@@ -8,6 +8,7 @@
   2. _try_dispatch 退回 -> None（丢掉本次产物）
   3. _try_dispatch 成功路径改成裸 return
   4. 某个仓库方法的元组解包被去掉（模拟新引入同类缺陷）
+  5. 同步派单入口重新把事件投进 Redis Stream（去掉 enqueue_dispatch=False）
 """
 
 from __future__ import annotations
@@ -19,6 +20,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 PY = sys.executable
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 EVENTS_API = BACKEND / "app/api/v1/events.py"
 HANDLERS = BACKEND / "app/mqtt/handlers.py"
@@ -37,6 +44,8 @@ def run_tests() -> tuple[int, str]:
         cwd=str(BACKEND),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
 
@@ -127,11 +136,20 @@ inject(
 print("\n[注入 4] 仓库层元组解包被去掉（模拟新引入同类缺陷）")
 inject(
     EVENTS_API,
-    "    result = await service.ingest(payload)",
+    "    result = await service.ingest(payload, enqueue_dispatch=False)",
     """    result = await service.ingest(payload)
     _probe_items = await EventRepository(session).list_events(limit=1)
     _probe_first = _probe_items[0]""",
     "新调用点未解包元组",
+)
+
+# ---------- 注入 5：同步派单入口重新入队 ----------
+print("\n[注入 5] 同步派单入口去掉 enqueue_dispatch=False")
+inject(
+    HANDLERS,
+    "        result = await service.ingest(ingest, enqueue_dispatch=False)",
+    "        result = await service.ingest(ingest)",
+    "同步派单入口重新投 Redis Stream",
 )
 
 # ---------- 汇总 ----------

@@ -17,7 +17,7 @@ import path from 'node:path'
 
 const require = createRequire(import.meta.url)
 const playwright = require(
-  'C:\\Users\\Liii\\AppData\\Roaming\\npm\\node_modules\\@playwright\\mcp\\node_modules\\playwright-core',
+  process.env.PLAYWRIGHT_CORE_PATH || 'playwright-core',
 )
 const CHROME = process.env.SEASIGHT_BROWSER_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 const BASE = process.env.SEASIGHT_BASE_URL || 'http://127.0.0.1:5188'

@@ -13,7 +13,16 @@ from __future__ import annotations
 
 import fnmatch
 import os
+import sys
 from pathlib import Path
+
+# Windows 控制台默认 GBK：结尾的 ✓ / ⚠ 直接 print 会抛 UnicodeEncodeError，
+# 把「检查通过」变成退出码 1，进而让 `make check` 在最后一步白白中断。
+# 与 check_contract_drift.py / check_claims.py 保持一致，只重配置输出编码，
+# 不改变任何扫描语义。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {"node_modules", ".git", "__pycache__", ".pytest_cache", ".vite"}

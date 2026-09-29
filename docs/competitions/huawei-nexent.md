@@ -35,7 +35,7 @@ SeaSight 原有主线是“事件理解 → 派单决策 → 工具调用 → �
 | 跨文档多跳及决策链路可追溯 | 检索结果携带资产版本、节点、关系、跳数、片段和引用；决策轨迹按顺序固化证据 | `KnowledgeService.create_decision` | 创建决策后读取 `/knowledge/decisions/{id}/evidence` |
 | 集成 Nexent MCP 与 Skills | 提供 stdio + Streamable HTTP/SSE MCP Server；支持出站令牌自动刷新；默认只注册只读工具；提供 5 个可复用 Skills | `integrations/nexent/mcp_server/`、`integrations/nexent/skills/` | `make nexent-acceptance`，再在 Nexent 中注册并导入 Skills |
 | 沉淀可快速部署的 Skill 工作流 | 政策证据问答、事件研判、跨文档决策、工单编排、决策轨迹审计 | `integrations/nexent/README.md` | 替换本体和资产源后可复用于其他行业 |
-| 智能体基于 Nexent 可运行 | 标准 MCP 工具面 + Skills 模板 + 后端公开接口 | `integrations/nexent/` | 需要在实际 Nexent 版本中完成一次注册和调用验收 |
+| 智能体基于 Nexent 可运行 | 标准 MCP 工具面 + Skills 模板 + 后端公开接口 | `integrations/nexent/` | 已完成（2026-09-28，本地 Nexent v2.6.1） |
 
 ## 三、代码结构
 
@@ -96,8 +96,9 @@ make nexent-acceptance
 ```
 
 该命令会验证 HTTP 未认证拒绝、MCP 初始化、工具面、5 个 Skills 的结构，
-并用模拟 SeaSight API 验证登录与过期令牌刷新。它不能替代实际 Nexent 平台
-注册和调用验收。验收产物写入 `artifacts/nexent-acceptance/latest.json`。
+并用模拟 SeaSight API 验证登录与过期令牌刷新。它不能替代真实 Nexent 平台
+注册和调用验收（本地平台侧验收见 §4.4）。验收产物写入
+`artifacts/nexent-acceptance/latest.json`。
 
 ### 4.3 在 Nexent 中注册
 
@@ -135,6 +136,94 @@ Header: Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 随后分别导入 `integrations/nexent/skills/` 下的 5 个 `SKILL.md`。每个 Skill
 定义触发条件、工具顺序、停止条件和输出要求，不替代 MCP 的权限判断。
 
+### 4.4 平台侧验收证据（已完成 2026-09-28）
+
+已于 2026-09-28 在本地 Nexent v2.6.1 完成注册、工具面加载与工具调用。证据存放于 `artifacts/nexent-platform-acceptance/`：
+
+2026-09-29 以官方内置 `suadmin@nexent.com` 复验同一入口；知识域演示数据灌入后，
+`knowledge_list_assets` 返回非空资产列表（total=4），轨迹见
+`artifacts/nexent-platform-acceptance/evidence/recheck-2026-09-29-with-data.json`。
+复验仍为本地官方源码部署，不是华为托管平台复验。
+
+2026-09-29 同日登记 R-NX-04：在本地官方源码部署中创建并发布
+`seasight-governance-decision-agent`，绑定 5 个 Skill 与 21 个 MCP 工具，
+发布版本 v2，调用关系 API 返回 21 个 MCP 工具并导出 Agent 配置 ZIP；
+未配置 LLM，未跑通完整问答，非华为托管平台验收。登记见
+`artifacts/nexent-platform-acceptance/agent-create-2026-09-29.yaml`，
+接口返回与截图见 `artifacts/nexent-platform-acceptance/evidence/agent-run-*`。
+
+2026-09-29 完成华为托管平台（AgentArts）MCP 注册与公网端点真实调用，登记为
+R-NX-05：`SeaSight Domain Cognition MCP` 在托管平台状态“部署成功”，工具列表
+加载 21 个只读工具；对同一公网端点执行 initialize → tools/list →
+`knowledge_list_assets`，返回 total=4。证据见
+`artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml` 与
+`artifacts/nexent-platform-acceptance/evidence/hosted-2026-09-29-*.png/json`。
+托管平台（AgentArts）Skill 页面暂无数据，导入需用户在控制台手动完成（AgentArts 不支持程序化批量导入）。5 个 Skill 已在本地 Nexent 官方源码部署完成导入与 Agent 绑定（R-NX-04）。控制台调试按钮未观察到调用输出。
+
+同日登记 R-NX-06：AgentArts 已创建 Agent
+`seasight-governance-decision-agent`（ID
+`fdeccb8f-c35e-459b-8413-26f72a37edf3`），配置
+`deepseek-provider/deepseek-chat` 模型，写入诚实系统提示词；编辑页明确
+提示公网环境不支持 Skill（Skill 绑定按钮 disabled），完整 Skill 问答需
+私网环境 + 私网可访问 MCP endpoint 后验收。结构化记录见
+`artifacts/nexent-platform-acceptance/hosted-agent-2026-09-29.yaml`。
+
+```text
+artifacts/nexent-platform-acceptance/
+  latest.yaml                 # 本次验收的结构化记录
+  evidence/
+    mcp-registered.png        # 租户侧 MCP 注册完成界面
+    mcp-registered.json       # MCP 注册记录（已去除令牌字段）
+    mcp-tools-21.png          # 编辑弹窗中加载出的 21 个工具
+    mcp-tools-21.json         # 工具列表响应
+    skills-imported.png       # Skills 导入完成界面
+    skills-list-5.json        # 5 个已导入 Skills 清单
+    skills-policy-evidence-qa.json
+    tool-call-trace.json      # knowledge_list_assets 调用返回 200
+```
+
+`latest.yaml` 建议结构：
+
+```yaml
+acceptance:
+  date: "2026-09-28"
+  platform_version: "Nexent v2.6.1"
+  operator_account: "suadmin@nexent.com / seasight.acceptance@nexent.com"
+  mcp_transport: "streamable-http"
+  endpoint: "http://host.docker.internal:8100/mcp"
+  invoked_tools:
+    - "knowledge_list_assets"
+  skills_imported:
+    - "policy-evidence-qa"
+    - "marine-event-assessment"
+    - "cross-document-decision"
+    - "dispatch-work-order-orchestration"
+    - "decision-trace-audit"
+  result: "success"
+  evidence_files:
+    - "mcp-registered.png"
+    - "mcp-registered.json"
+    - "mcp-tools-21.png"
+    - "mcp-tools-21.json"
+    - "skills-imported.png"
+    - "skills-list-5.json"
+    - "skills-policy-evidence-qa.json"
+    - "tool-call-trace.json"
+  reviewed_by: "liyongxiang"
+  review_note: "平台侧验收；不是海域验证，不代表检测精度"
+```
+
+创建最小权限只读账号（在 backend 容器内执行）：
+
+```bash
+SEASIGHT_API_PASSWORD=<随机密码> python scripts/create_nexent_service_account.py \
+  --username nexent_viewer --role viewer
+```
+
+口径：Nexent 平台侧验收记录只证明「SeaSight MCP 能在该平台版本上完成注册、
+Skills 导入和被调用」。它不等于海域部署验证，也不等于任何感知精度或
+现场治理效果证据。
+
 ## 五、最少验收路径
 
 以下步骤不需要机器人，也不需要 MQTT：
@@ -147,6 +236,20 @@ Header: Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 6. 在 Nexent 注册 `/mcp` 并导入 Skills，通过 Nexent 调用 MCP 只读工具，
    执行“政策证据问答”或“跨文档决策”Skill。
 7. 可选：登记一个事件、运行 Agent 工作流并检查审批与执行审计；机器人是否在线不影响前六步。
+
+真实后端上可复现第 1–5 步的自动化脚本：
+
+```bash
+make knowledge-evolution-demo
+```
+
+该脚本会写入 `artifacts/evolution-demo/latest.json`，包含每一步请求时间、
+状态、ID 和数量；后端或账号不可用时输出 `not_configured` /
+`backend_unavailable` 并给出非零退出码，不会伪造成功结果。
+
+2026-09-29 已在真实后端跑通并登记为 `R-KN-01`：2 个资产、4 个资产版本、
+60 个本体候选（20 节点 + 40 关系）、图谱多跳检索 4 命中、决策证据 4 条。
+该记录为 E1/E2 软件内部闭环证据，不代表海域部署验证或感知精度。
 
 ## 六、与连江比赛成果的复用
 
@@ -173,5 +276,15 @@ Header: Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 - 当前多跳检索基于已发布的显式本体关系，不应宣称为通用图谱推理引擎。
 - 仓库没有真实海域部署、医疗/金融生产客户或检测精度结论时，不应在答辩中虚构。
 - MCP 已通过独立 MCP SDK 的 HTTP 鉴权、初始化、工具列表和模拟令牌刷新
-  验收；实际 Nexent 平台注册、Skills 导入和真实调用仍需在目标版本中完成一次。
+  验收；本地 Nexent v2.6.1 平台侧注册、Skills 导入和真实调用已于
+  2026-09-28 完成（见 §4.4）。2026-09-29 以本地官方源码部署内置 suadmin 复验完成（R-NX-03），见 `artifacts/nexent-platform-acceptance/recheck-2026-09-29.yaml`。华为托管平台（AgentArts）MCP 注册与公网端点真实只读调用已于 2026-09-29 完成并登记 R-NX-05。
+- 华为托管平台（AgentArts）MCP 注册与公网端点真实只读调用已于 2026-09-29
+  完成并登记 R-NX-05；托管平台（AgentArts）Skill 页面暂无数据，导入需用户在控制台手动完成。5 个 Skill 已在本地 Nexent 官方源码部署完成导入与 Agent 绑定（R-NX-04）。控制台调试按钮未观察到调用输出。
+  同日创建 Agent 并配置 DeepSeek 模型（R-NX-06），公网环境不支持 Skill
+  （平台 UI 明确提示），完整 Skill 问答需私网环境 + 私网可访问 MCP
+  endpoint 后验收。
+- Agent 配置/发布/调用关系/导出证据登记为 R-NX-04（2026-09-29，本地官方
+  源码部署），见 `artifacts/nexent-platform-acceptance/agent-create-2026-09-29.yaml`；
+  未配置 LLM，未跑通完整问答，非华为托管平台验收。
 - “可接入 Nexent”不等于 Nexent 官方认证或生产 SLA。
+

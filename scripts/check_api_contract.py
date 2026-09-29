@@ -16,6 +16,12 @@ import re
 import sys
 from pathlib import Path
 
+# Windows 控制台默认 GBK：中文路径清单会以乱码输出（详见 check_contract_drift.py）。
+# 只重配置 stdout/stderr 编码，不改变任何契约校验语义。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 # 本文件在 seahawk/scripts/ 下，所以：
 #   ROOT     = seahawk/
 #   BACKEND  = seahawk/backend/   ← 需要加进 sys.path 才能 import app.*

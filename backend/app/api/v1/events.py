@@ -58,7 +58,13 @@ async def ingest_event(
     主通道是 MQTT；本接口为备用 HTTP 通道，也便于调试与冒烟测试。
     """
     service = EventService(session, redis)
-    result = await service.ingest(payload)
+    # 本入口会在下方同步派单，不能再让 ingest 投 Redis Stream ——
+    # 否则 dispatch_consumer 会把同一条事件再派一次，撞 uq_task_active_event。
+    result = await service.ingest(payload, enqueue_dispatch=False)
+
+    # _try_dispatch 会另开一个会话读事件；若这里不先提交，
+    # 新会话读不到本请求刚 flush 但尚未提交的行，同步派单恒为空转。
+    await session.commit()
 
     # 高优先级类别触发派单
     if not result.duplicate and payload.aggregate.main_class in WasteClass.HIGH_PRIORITY:

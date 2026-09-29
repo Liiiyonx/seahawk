@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-29T03:00:44.769Z",
+  "platform": "local-official-source",
+  "platform_version": "Nexent v2.6.1",
+  "operator_accounts": [
+    "seasight.acceptance@nexent.com"
+  ],
+  "agent_id": 1,
+  "agent_name": "seasight-governance-decision-agent",
+  "agent_display_name": "SeaSight 治理决策智能体",
+  "mcp_id": 2,
+  "mcp_tool_count": 21,
+  "selected_mcp_tool_count": 21,
+  "selected_skill_count": 5,
+  "model_ids": [],
+  "llm_status": "not_configured",
+  "published": true,
+  "note": "本地官方源码部署的 Agent 配置、工具/Skill 绑定、发布、调用关系与导出证据；未配置 LLM，未跑通完整问答，非华为托管平台复验，不代表海域验证或感知精度。"
+}

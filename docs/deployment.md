@@ -59,6 +59,11 @@ make prod-config
 # 3. 生成 EMQX 首次启动凭据（输出文件已 gitignore）
 make prod-mqtt-bootstrap
 
+# 3.1 机械臂若接同一 broker，先确认 .env.production 已配置
+#     MQTT_ROBOT_USERNAME / MQTT_ROBOT_PASSWORD，再重新生成 bootstrap。
+#     已经跑起来的 EMQX 不会因改 bootstrap 文件而生效：开发环境删
+#     emqx_data 卷重导，生产环境进 Dashboard 在线补账号与 ACL。
+
 # 4. 构建并启动
 make prod-up
 make prod-ps
@@ -267,6 +272,24 @@ CORS_ORIGINS=https://example.cn
 
 > 本机没有 Docker CLI 时无法代替服务器执行 `prod-config/prod-up`。这属于
 > 部署环境验收项，必须在目标服务器上实际跑一遍，不能只看静态配置。
+
+### 2.0.3 机械臂接入的 EMQX 前置
+
+真机械臂到货前，下面这些准备就能做完，不需要任何物理拾取动作：
+
+1. 在 `.env.production` 增加并替换强密码：
+   `MQTT_ROBOT_USERNAME=robot_device`、`MQTT_ROBOT_PASSWORD=<强密码>`。
+2. 重新生成 bootstrap：`make prod-mqtt-bootstrap`。已经跑起来的 EMQX 不会因
+   改文件自动生效：开发环境删除 `emqx_data` 卷重导；生产环境进 Dashboard
+   在线补账号与 ACL。
+3. ACL 需要放行：订阅 `robot/+/task`、`robot/+/cmd`；发布
+   `robot/+/cmd/ack`、`robot/+/task/progress`、
+   `marine/+/+/telemetry`、`marine/+/+/status`；其余 `deny all #`。
+   完整主题表见 `docs/mqtt-topics.md` §7.2。
+4. 在 `t_device` 注册机械臂，`device_type` 沿用 `robot`，不要新增枚举。
+5. 真机到货前用平台工单仿真页或 `mosquitto_pub` 做协议级自测；到货后只替换
+   设备侧回包程序，平台侧契约不需要改。完整清单见
+   [机械臂对接准备](../项目文档/探海灵眸_机械臂对接准备.md)。
 
 ### 2.1 本地开发：准备环境变量
 
@@ -605,10 +628,10 @@ npm run preview      # 本地预览构建产物
 
 ```bash
 # 创建 venv
-"C:/Users/<你>/.workbuddy/binaries/python/versions/3.13.12/python.exe" -m venv "C:/Users/<你>/.workbuddy/binaries/python/envs/seasight"
+"<托管 Python 路径>" -m venv "<venv 路径>"
 
 # 激活（Git Bash）
-source "C:/Users/<你>/.workbuddy/binaries/python/envs/seasight/Scripts/activate"
+source "<venv 路径>/Scripts/activate"
 
 # 安装依赖
 cd backend
@@ -971,6 +994,7 @@ docker compose exec redis redis-cli XRANGE stream:dead_letter - + COUNT 10
 - [ ] `.env.production` 与 `deploy/emqx/bootstrap.production.csv` 未被提交
 - [ ] EMQX Dashboard 默认密码已改，匿名访问已关闭
 - [ ] `make prod-config` 与 `make prod-mqtt-bootstrap` 成功
+- [ ] 机器人 MQTT 账号与 ACL 已配好（发布 ACK / progress / 遥测，订阅任务）
 - [ ] 宿主机只开放 80/443，Nginx 仅反代到 `127.0.0.1:8080`
 - [ ] `TMapSecurityConfig` 代理模式生效，前端源码中**搜不到任何地图密钥**
 - [ ] 生产环境 `APP_ENV=production`、`DEBUG=false`

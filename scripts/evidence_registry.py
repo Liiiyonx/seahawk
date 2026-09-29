@@ -242,15 +242,48 @@ _DISCIPLINE: list[EvidenceRecord] = [
 
 # ====================================================================
 # 工程验证记录：软件链路中已形成、可复现的 E1/E2 证据。
-# 等级按 evidence-claim-policy.md 冻结口径判定；协议级验收不等于
-# 真实 Nexent 平台注册与调用（后者仍是待办）。
+# 等级按 evidence-claim-policy.md 冻结口径判定；协议级验收不等于本地
+# Nexent 平台侧验收，本地平台侧验收不等于官方托管平台复验或海域验证。
 # ====================================================================
 _TECHNICAL: list[EvidenceRecord] = [
+    _r(
+        "R-KN-01",
+        "知识进化闭环演示通过：登记 policy/ledger 两类资产、追加 2 个版本、"
+        "创建本体版本并抽取 20 个候选节点/40 条候选关系、全部人工审核后发布、"
+        "图谱多跳检索 4 命中、创建决策并读取 4 条有序证据链；"
+        "E1/E2 软件内部闭环，非海域部署验证或感知精度",
+        "E2",
+        "test_report",
+        "scripts/knowledge_evolution_demo.py + artifacts/evolution-demo/latest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="验收命令：.venv/Scripts/python.exe scripts/knowledge_evolution_demo.py "
+        "--base-url http://127.0.0.1:8001/api/v1 --username admin --password <redacted>；"
+        "trace_id=dtr_20260929003429_9fedc9b1。",
+    ),
+    _r(
+        "R-KN-02",
+        "本体候选抽取确定性评测通过：12 份内部合成治理语料上，top-20 中当前实现"
+        "100% 为不超过 12 字的短语节点、0 条整句块候选，精确命中内部金标术语 35%"
+        "（朴素频次基线 5%），top-100 术语覆盖 100%（基线 95%），并输出带来源证据的"
+        "候选关系；top-20 短短语覆盖 40% 低于基线 60%，因基线把整句块当候选可一次"
+        "命中多个术语，不据此宣称识别更准；评测为 E1 软件内部确定性结果，不是真实"
+        "脱敏行业数据评测、领域准确率或感知精度",
+        "E1",
+        "test_report",
+        "scripts/ontology_eval.py + artifacts/ontology-eval/latest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="验收命令：.venv/Scripts/python.exe scripts/ontology_eval.py "
+        "--output artifacts/ontology-eval/latest.json；金标为内部 fixture，不是行业标准答案。",
+    ),
     _r(
         "R-NX-01",
         "SeaSight 领域认知 MCP 协议级端到端验收通过：未认证请求 401、MCP 初始化、"
         "32 个工具（21 只读常驻 + 11 写入按开关注册）、5 个 Skills、出站令牌自动刷新；"
-        "协议级验收不等于真实 Nexent 平台注册与调用",
+        "协议级验收不等于本地 Nexent 平台侧验收",
         "E2",
         "test_report",
         "scripts/nexent_acceptance.py + artifacts/nexent-acceptance/latest.json",
@@ -259,6 +292,146 @@ _TECHNICAL: list[EvidenceRecord] = [
         owner="WP-15",
         notes="验收命令：.venv-nexent/Scripts/python.exe scripts/nexent_acceptance.py "
         "--report-path artifacts/nexent-acceptance/latest.json。",
+    ),
+    _r(
+        "R-NX-02",
+        "本地 Nexent v2.6.1 平台侧验收通过：SeaSight MCP 完成租户注册、21 个工具面加载、"
+        "5 个 Skills 导入，并以 nexent_viewer 调用 knowledge_list_assets 返回 200；"
+        "平台侧验收不等于海域部署验证、感知精度或官方托管平台复验",
+        "E2",
+        "test_report",
+        "artifacts/nexent-platform-acceptance/latest.yaml + evidence/",
+        "2026-09-28",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="截图与 JSON 见 artifacts/nexent-platform-acceptance/evidence/。",
+    ),
+    _r(
+        "R-NX-03",
+        "本地官方源码部署复验：以 Nexent 配置服务 /tool/validate 通过 DB 中 MCP 注册"
+        "与授权令牌，由 Nexent 侧真实调用 SeaSight knowledge_list_assets 返回 200；"
+        "复验账号为官方内置 suadmin@nexent.com + seasight.acceptance@nexent.com；"
+        "灌入知识域演示数据后再次调用返回非空资产列表（total=4）；"
+        "本地官方源码部署复验不等于华为托管平台复验、海域部署验证或感知精度",
+        "E2",
+        "test_report",
+        "artifacts/nexent-platform-acceptance/recheck-2026-09-29.yaml + evidence/",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="工具调用 JSON 见 evidence/recheck-2026-09-29-tool-call.json 与 "
+        "evidence/recheck-2026-09-29-with-data.json；界面截图见 "
+        "recheck-2026-09-29-mcp-registered.png / recheck-2026-09-29-mcp-tools-21.png / "
+        "recheck-2026-09-29-skills-imported.png。",
+    ),
+
+    _r(
+        "R-NX-04",
+        "本地官方源码部署 Agent 配置/发布证据：创建并发布 seasight-governance-decision-agent，"
+        "绑定 5 个 Skill 与 21 个 MCP 工具，调用关系接口返回 21 个 MCP 工具，导出 Agent 配置 ZIP；"
+        "未配置 LLM，未跑通完整问答；非华为托管平台验收、非海域验证或感知精度",
+        "E2",
+        "test_report",
+        "artifacts/nexent-platform-acceptance/agent-create-2026-09-29.yaml + evidence/agent-run-*",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="证据文件见 agent-create-2026-09-29.yaml（agent_run.json、call_relationship.json、"
+        "export.zip 等）；界面截图见 agent-run-detail.png / agent-run-space.png。",
+    ),
+    _r(
+        "R-NX-05",
+        "华为托管平台（AgentArts）MCP 验收：注册 SeaSight Domain Cognition MCP，"
+        "状态部署成功，21 个只读工具加载；同一公网端点 MCP 初始化、工具列表与 knowledge_list_assets "
+        "真实只读调用返回 total=4；托管平台验收不等于海域验证或感知精度",
+        "E2",
+        "test_report",
+        "artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml + evidence/hosted-2026-09-29-*",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="界面截图与 JSON 见 evidence/hosted-2026-09-29-mcp-tools-21.png/json；"
+        "公网端点握手与调用轨迹见 hosted-2026-09-29-tunnel-tools.json / hosted-2026-09-29-tool-call.json。",
+    ),
+    _r(
+        "R-NX-06",
+        "华为托管平台（AgentArts）Agent 创建验收：创建 seasight-governance-decision-agent，"
+        "配置 deepseek-provider/deepseek-chat 模型（API key 已设）与诚实口径系统提示词；"
+        "编辑页明确提示公网环境不支持 Skill（按钮 disabled），平台限制已留证；"
+        "仅登记模型配置与平台限制验收，不写托管平台已跑通完整 Skill 问答",
+        "E2",
+        "test_report",
+        "artifacts/nexent-platform-acceptance/hosted-agent-2026-09-29.yaml",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="MCP 注册与公网端点真实调用由 R-NX-05 独立登记；本记录与 R-NX-05 互补，"
+        "分别覆盖托管平台 MCP 层与 Agent 配置层验收。",
+    ),
+    _r(
+        "R-KN-03",
+        "本体维护模式确定性对比通过：同一进程内测量，追加 1 个资产版本后全量重抽"
+        "中位数 3.364ms、增量追加中位数 1.116ms、时间节省 66.8%；增量模式复用已发布"
+        "候选只对新增版本抽取，最终关系仍基于同一份文档全集生成；为 E1 软件内部相对"
+        "对比，不是领域准确率、人工审核节省或真实脱敏行业数据评测",
+        "E1",
+        "test_report",
+        "scripts/ontology_incremental_eval.py + artifacts/ontology-eval/incremental-latest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="验收命令：.venv/Scripts/python.exe scripts/ontology_incremental_eval.py "
+        "--output artifacts/ontology-eval/incremental-latest.json。",
+    ),
+    _r(
+        "R-MG-01",
+        "Skill 模板轻量化迁移验证通过：同一套 5 个 Nexent SKILL.md 工作流模板在"
+        "海洋治理、医疗、政务三个演示资产源上复用，每领域 3 个资产、候选 36-40 个、"
+        "关系 60 条、检索命中 3/3；只替换资产源、领域词表、标准号、问题集与领域角色"
+        "映射；为 E1/E2 合成演示语料迁移验证，不是真实脱敏行业数据评测，不代表"
+        "生产跨行业迁移已交付",
+        "E2",
+        "test_report",
+        "scripts/skill_migration_validate.py + artifacts/skill-migration/evidence/latest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="验收命令：.venv/Scripts/python.exe scripts/skill_migration_validate.py "
+        "--output artifacts/skill-migration/evidence/latest.json "
+        "--mapping artifacts/skill-migration/skill-migration-mapping.md。",
+    ),
+    _r(
+        "R-KN-04",
+        "知识域问答轨迹采集通过：真实后端登录后执行问题检索（mode=ontology_graph、"
+        "4 条检索命中）并创建决策，读取 4 条有序证据链，保存 API JSON 与 2 张界面"
+        "截图；本次轨迹为 hop_count=0 的直接资产引用检索，不是多跳路径问答、不是"
+        "LLM 生成式问答、也不是真实脱敏行业数据评测",
+        "E2",
+        "test_report",
+        "scripts/knowledge_qa_trace_capture.mjs + artifacts/knowledge-qa-trace/latest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="trace_id=dtr_20260929070315_4a524e79；截图见 "
+        "artifacts/knowledge-qa-trace/01-检索结果-本体图检索与引用.png 与 "
+        "02-决策证据链-资产版本引用.png。",
+    ),
+    _r(
+        "R-OD-01",
+        "生态环境部公开开放通知本体抽取评测通过：8 份公开通知语料（manifest 含来源 "
+        "URL 与 SHA256），全量候选覆盖内部人工标注术语 23/32（71.9%）、关系 3/3"
+        "（100%）；top-20 术语覆盖 21.9%（朴素基线 28.1%），top-200 覆盖 71.9%；"
+        "top-N 关系命中为 0，因低频关系排在 top-N 之外；语料为公开开放数据，不是真实"
+        "脱敏行业数据集，不据此宣称识别更准",
+        "E1",
+        "test_report",
+        "scripts/open_data_eval.py + artifacts/open-data-eval/latest.json + corpus/manifest.json",
+        "2026-09-29",
+        review_status="已复核",
+        owner="liyongxiang",
+        notes="验收命令：.venv/Scripts/python.exe scripts/open_data_eval.py "
+        "--output artifacts/open-data-eval/latest.json；公开开放数据仅作替代证据，"
+        "真实脱敏行业数据评测仍未取得。",
     ),
 ]
 
@@ -274,7 +447,7 @@ _LEDGER: list[tuple] = [
     ("F-03", "传统养殖渔排升级改造塑胶渔排累计 16.56 万口", "E1", "public_fact", "同 F-02（docx 1.2 节；方案原文待补）", "2026-09-18"),
     ("F-04", "马鼻镇“每粒 1 元”泡沫浮球收捡补贴（5 收集点、日均清运卡车 30 余车次）", "E1", "public_fact", "docx 1.2 节引用公开报道（链接待补）", "2026-09-18"),
     ("F-05", "WasteShark 起售价约 2.36 万美元（约 17 万元为 1 USD≈7.2 CNY 折算的 E0 假设）", "E1", "public_fact", "docx 2.1/4.1 节、docs/business-model.md 引用；RanMarine 官网报价页待补", "2026-09-18"),
-    ("F-06", "连江滩涂约 1.17 万平方千米、海岸线长 238 千米（口径疑似有误，待官方复核）", "E1", "public_fact", "docx 1.5 节；连江县政府公开地理数据待补", "2026-09-18"),
+    ("F-06", "连江海域面积 3112 平方千米、大陆海岸线长 238 千米（多源公开报道一致，官方原文待补；原“滩涂约 1.17 万平方千米”不成立）", "E1", "public_fact", "docx 1.5 节；连江县政府官网/公开报道原文待补", "2026-09-18"),
     ("F-07", "连江碳汇制度事实：2022-01 首宗海洋渔业碳汇交易、2023-06 首张蓝色碳票、2025-04 首例跨区县认购碳汇交易", "E1", "public_fact", "docx 2.4 节引用公开报道（链接待补）", "2026-09-18"),
     ("F-08", "政策文件清单：连江县海上养殖转型升级行动方案等（文号/原文待补）", "E1", "public_fact", "docx 2.4 节列举；正式文号待补", "2026-09-18"),
     # --- C 类：内部测算（甲类，当前全部 E0=规划假设/内部测算）---

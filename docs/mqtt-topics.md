@@ -438,10 +438,12 @@ EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端�
 
 - 本地开发使用 `deploy/emqx/bootstrap.csv`，它由 Docker Compose 在首次启动时
   导入；默认后端账号是 `backend_service`，密码与 `.env` 中
-  `MQTT_PASSWORD` 保持一致。
+  `MQTT_PASSWORD` 保持一致；另含 `robot_device` 机器人账号与 `edge_device`
+  边缘盒账号，开发密码同为 `CHANGE_ME` 占位值，真机联调前必须替换。
 - 生产环境先填写 `.env.production`，再执行 `make prod-mqtt-bootstrap`。
   脚本读取 `MQTT_BACKEND_PASSWORD`、`MQTT_EDGE_PASSWORD`、
-  `MQTT_VIEWER_PASSWORD` 和 `MQTT_DASHBOARD_PASSWORD`，校验非占位值后生成
+  `MQTT_VIEWER_PASSWORD`、`MQTT_ROBOT_PASSWORD` 和
+  `MQTT_DASHBOARD_PASSWORD`，校验非占位值后生成
   `deploy/emqx/bootstrap.production.csv`；该文件含密码哈希且已被 gitignore。
 - EMQX 的内置认证数据在数据卷首次初始化时导入。生产环境修改账号密码后，
   不能只改 `.env.production`：必须同步旋转凭据并重建或更新 EMQX 认证数据，
@@ -454,9 +456,14 @@ EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端�
 | 客户端 | clientid 前缀 | 允许 publish | 允许 subscribe |
 | --- | --- | --- | --- |
 | 边缘盒 | `edge-` | `marine/{site}/{自己的dev}/#` | `marine/{site}/{自己的dev}/cmd` |
-| 机器人 | `robot-` | `robot/{自己的id}/#` | `robot/{自己的id}/task` |
+| 机器人桥接层（原型期共用 `robot_device`） | `robot-` | `robot/{自己的id}/cmd/ack`、`robot/{自己的id}/task/progress`、`marine/{site}/{自己的id}/telemetry`、`marine/{site}/{自己的id}/status` | `robot/{自己的id}/task`、`robot/{自己的id}/cmd` |
 | 平台后端 | `seasight-backend` | `robot/+/task`、`marine/+/+/cmd` | `marine/+/+/event`、`marine/+/+/telemetry`、`marine/+/+/status`、`robot/+/task/progress`、`robot/+/cmd/ack` |
 | 前端 | — | ❌ 不直连 | ❌ 不直连 |
+
+> 原型期共用 `robot_device` 账号，通配符按前缀放开；生产环境应在二期切到
+> **每台设备独立账号**，用 `%u`（username）或精确 `robot/{id}/...` 主题收紧，
+> 便于单台吊销。真机遥测必须走 `marine/{site}/{robot_id}/telemetry`，
+> 后端当前只订阅 `marine/+/+/telemetry`，不消费 `robot/+/telemetry`。
 
 > **前端绝不直连 MQTT**。浏览器暴露 broker 地址意味着任何人拿到地址就能伪造设备上报。前端只连后端 WebSocket，由后端做 MQTT 的唯一出口。
 
@@ -490,6 +497,8 @@ EMQX 默认关闭匿名（`EMQX_ALLOW_ANONYMOUS: "false"`）。所有客户端�
 ## 九、调试工具
 
 ```bash
+# 以下命令按本地开发 bootstrap 写，密码是 CHANGE_ME；生产环境换成
+# .env.production 里对应账号的真实密码。
 # 订阅所有上行主题（看设备到底发了什么）
 mosquitto_sub -h localhost -p 1883 \
   -u backend_service -P "$MQTT_PASSWORD" \
@@ -497,13 +506,13 @@ mosquitto_sub -h localhost -p 1883 \
 
 # 手动发一条事件（触发平台派单）
 mosquitto_pub -h localhost -p 1883 \
-  -u backend_service -P "$MQTT_PASSWORD" \
+  -u edge_device -P CHANGE_ME \
   -t 'marine/lianjiang/CAM-MABI-01/event' -q 1 \
   -m '{"event_id":"evt_manual_001","device_id":"CAM-MABI-01","device_type":"shore_camera","timestamp":"2026-09-18T01:00:00+08:00","location":{"lng":119.6531,"lat":26.3867},"detections":[{"class":"foam","confidence":0.9,"bbox":[400,280,470,340]}],"aggregate":{"main_class":"foam","count":1,"max_confidence":0.9},"seq":888001}'
 
 # 模拟机器人 ACK
 mosquitto_pub -h localhost -p 1883 \
-  -u backend_service -P "$MQTT_PASSWORD" \
+  -u robot_device -P CHANGE_ME \
   -t 'robot/RBT-001/cmd/ack' -q 1 \
   -m '{"ack_id":"ack_debug_1","command_id":"cmd_tsk_xxx","device_id":"RBT-001","seq":1,"received_at":1758230401.0,"accepted":true,"mode":"navigating"}'
 

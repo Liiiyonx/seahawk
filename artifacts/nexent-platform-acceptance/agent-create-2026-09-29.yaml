@@ -1,0 +1,45 @@
+acceptance:
+  recheck_id: R-NX-04
+  date: 2026-09-29
+  platform: local-official-source
+  platform_version: Nexent v2.6.1
+  operator_accounts:
+    - seasight.acceptance@nexent.com
+  agent_id: 1
+  agent_name: seasight-governance-decision-agent
+  agent_display_name: SeaSight 治理决策智能体
+  mcp_id: 2
+  mcp_transport: streamable-http
+  endpoint: http://host.docker.internal:8100/mcp
+  mcp_tool_count: 21
+  selected_mcp_tool_count: 21
+  selected_skill_count: 5
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  published:
+    status: true
+    version_no: 2
+    version_name: v0.1.0-seasight-governance
+    release_status: RELEASED
+  llm_status: not_configured
+  evidence_files:
+    - agent-run-summary.json
+    - agent-run-mcp-list.json
+    - agent-run-mcp-tools.json
+    - agent-run-tool-catalog.json
+    - agent-run-skills.json
+    - agent-run-update.json
+    - agent-run-list.json
+    - agent-run-publish.json
+    - agent-run-versions.json
+    - agent-run-call-relationship.json
+    - agent-run-export.zip
+    - agent-run-export-manifest.json
+    - agent-run-detail.png
+    - agent-run-space.png
+  reviewed_by: liyongxiang
+  review_note: 本地官方源码部署的 Agent 配置、工具/Skill 绑定、发布、调用关系与导出证据；未配置 LLM，未跑通完整问答，非华为托管平台验收，不代表海域验证或感知精度。

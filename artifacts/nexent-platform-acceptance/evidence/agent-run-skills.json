@@ -1,0 +1,99 @@
+{
+  "skills": [
+    {
+      "skill_id": 10,
+      "name": "decision-trace-audit",
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "description": "Audit whether a decision can be reconstructed from its evidence and Agent steps. Use for traceability review, incident review, or compliance preparation.",
+      "tags": [],
+      "content": "\n# Decision Trace Audit\n\n## Goal\n\nDetermine whether a recorded conclusion is reproducible from immutable sources\nand Agent execution steps.\n\n## Workflow\n\n1. Call `knowledge_list_decisions` and select the target `trace_id`.\n2. Call `knowledge_decision_evidence` and sort evidence by `rank_no`.\n3. For each evidence row, call `knowledge_asset_detail` using its `asset_id` and\n   verify that `asset_version_id` still exists.\n4. If the trace references a `run_id`, call `agent_run_detail` and\n   `agent_run_steps`.\n5. Check the run's policy version, status, tool steps, approvals, and error\n   codes against the decision metadata.\n6. Report missing evidence, broken references, unapproved ontology support, or\n   a decision that was created from model text alone.\n\n## Audit Rules\n\n- A citation string without a resolvable asset version is not sufficient.\n- A successful run does not prove that the final business action completed;\n  verify the referenced work order separately when one exists.\n- Do not modify historical traces. New conclusions must be recorded as new\n  traces.\n\n## Required Output\n\nReturn audit status, reproducible evidence, broken links, execution-step gaps,\nand concrete remediation actions.\n",
+      "source": "custom",
+      "group_ids": [
+        2
+      ],
+      "ingroup_permission": "EDIT",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "create_time": "2026-09-28T13:48:13.101198",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "update_time": "2026-09-28T13:48:13.101199",
+      "tool_ids": [],
+      "permission": "EDIT"
+    },
+    {
+      "skill_id": 9,
+      "name": "dispatch-work-order-orchestration",
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "description": "Orchestrate event assessment, SeaSight Agent execution, human approval, and work-order verification while keeping the execution endpoint replaceable. Use for dispatch or remediation workflows.",
+      "tags": [],
+      "content": "\n# Dispatch Work Order Orchestration\n\n## Goal\n\nCoordinate the software decision chain without coupling the workflow to one\nrobot vendor.\n\n## Preconditions\n\n- Confirm that the user explicitly requests an operational action.\n- Require `SEASIGHT_MCP_ALLOW_WRITES=true` and an operator/admin token before\n  creating a run.\n- Approvals require an admin or approver token.\n\n## Workflow\n\n1. Call `event_get` and verify that the event is actionable.\n2. Call `agent_runtime_status` and `agent_list_tools` to confirm the runtime and\n   registered tool contract.\n3. Call `task_list` to detect an existing active work order.\n4. If no active order exists and the user requested action, call\n   `agent_create_run` with a stable `idempotency_key`.\n5. Call `agent_run_detail` and `agent_run_steps` until the run reaches a\n   terminal or `waiting_approval` state.\n6. For `waiting_approval`, call `agent_list_approvals`. Do not auto-approve.\n   An authorized human must decide through `agent_decide_approval`.\n7. Verify the resulting work order with `task_get`; use `task_ack_history` only\n   for acknowledged command history.\n\n## Safety Rules\n\n- An empty event list or runtime status is not evidence that a dispatch\n  succeeded.\n- Never fabricate a robot identifier, work-order identifier, ACK, or completion\n  weight.\n- Keep knowledge and policy evaluation usable if no execution endpoint is\n  available; report the blocked execution step instead of manufacturing one.\n\n## Required Output\n\nReturn the event, run, approval, task, execution state, evidence, and any\nblocked step with its exact error code.\n",
+      "source": "custom",
+      "group_ids": [
+        2
+      ],
+      "ingroup_permission": "EDIT",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "create_time": "2026-09-28T13:48:13.003643",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "update_time": "2026-09-28T13:48:13.003650",
+      "tool_ids": [],
+      "permission": "EDIT"
+    },
+    {
+      "skill_id": 8,
+      "name": "cross-document-decision",
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "description": "Perform ontology-guided multi-hop reasoning across documents, tables, images, events, and datasets. Use for questions that require connecting several assets or explaining a decision path.",
+      "tags": [],
+      "content": "\n# Cross-Document Decision\n\n## Goal\n\nBuild a traceable path from a question to multiple source assets and ontology\nrelations.\n\n## Workflow\n\n1. Call `knowledge_list_ontology_versions` and prefer a `published` version.\n   Use a draft version only for review preparation, never as approved policy.\n2. Call `knowledge_search` with the selected `ontology_version_id` and\n   `hop_depth=2` or `3`.\n3. Inspect returned `path`, `matched_node_ids`, and `matched_relation_ids`; do\n   not treat a snippet without a path as a multi-hop result.\n4. Open each material asset with `knowledge_asset_detail` and verify the version\n   hash, source, and validity.\n5. If the ontology is incomplete, return the missing node or relation as a\n   candidate for human review instead of inventing the link.\n6. If write permission is enabled, create a decision trace and then read its\n   evidence chain.\n\n## Evidence Rules\n\n- A decision path must distinguish direct retrieval from inferred relation\n  traversal.\n- Rejected ontology nodes and relations cannot support an approved conclusion.\n- Do not merge similarly named entities unless the ontology canonical name or\n  source evidence supports the merge.\n\n## Required Output\n\nReturn the answer, hop-by-hop path, source versions, confidence-lowering gaps,\nand any ontology updates needed for a later review cycle.\n",
+      "source": "custom",
+      "group_ids": [
+        2
+      ],
+      "ingroup_permission": "EDIT",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "create_time": "2026-09-28T13:48:12.912281",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "update_time": "2026-09-28T13:48:12.912282",
+      "tool_ids": [],
+      "permission": "EDIT"
+    },
+    {
+      "skill_id": 7,
+      "name": "marine-event-assessment",
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "description": "Assess one marine-waste event using event facts, governance assets, and decision evidence. Use when an operator asks whether an event needs handling, what priority it has, or what evidence supports the assessment.",
+      "tags": [],
+      "content": "\n# Marine Event Assessment\n\n## Goal\n\nConvert an event record into an auditable assessment without requiring a robot\nto be online.\n\n## Workflow\n\n1. Call `event_get` for the exact `event_id`.\n2. Call `dashboard_get` for current operational context.\n3. Call `knowledge_list_assets` and `knowledge_search` using the event class,\n   township, and relevant policy terms.\n4. Call `task_list` with the event-related filters available from the event\n   context. If a task identifier is known, call `task_get`.\n5. If a decision trace is requested and write permission is enabled, call\n   `knowledge_create_decision` with the question, assessment summary, evidence\n   depth, and policy version.\n6. Read the resulting trace with `knowledge_decision_evidence`.\n\n## Decision Rules\n\n- Treat missing event data as a data-quality issue, not as low risk.\n- Never claim that a task was created or dispatched unless an API result\n  confirms the task identifier.\n- Do not trigger physical dispatch unless the user explicitly requests it and\n  the Agent run plus approval workflow permits it.\n\n## Required Output\n\nReturn event facts, assessment, evidence, existing work-order state, uncertainty,\nand the next permissible action.\n",
+      "source": "custom",
+      "group_ids": [
+        2
+      ],
+      "ingroup_permission": "EDIT",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "create_time": "2026-09-28T13:48:12.822057",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "update_time": "2026-09-28T13:48:12.822060",
+      "tool_ids": [],
+      "permission": "EDIT"
+    },
+    {
+      "skill_id": 6,
+      "name": "policy-evidence-qa",
+      "tenant_id": "c75733f1-25ad-4cb5-ac7d-2504bf815051",
+      "description": "Answer questions from registered policy, standard, and governance assets with version-level citations. Use when the user asks what rule applies, which policy supports a decision, or what the authoritative source says.",
+      "tags": [],
+      "content": "\n# Policy Evidence QA\n\n## Goal\n\nProduce an evidence-bound answer rather than an unsupported model summary.\n\n## Workflow\n\n1. Clarify the jurisdiction, date, industry, and policy topic from the request.\n2. Call `knowledge_list_assets` with `asset_type=\"document\"` and the relevant\n   `region`, `query`, or standard code filter.\n3. Call `knowledge_search` with `hop_depth=2` and the same policy scope.\n4. For every candidate answer, call `knowledge_asset_detail` to verify the\n   immutable `asset_version_id`, validity dates, and source URI.\n5. If a published ontology exists, select it explicitly and repeat retrieval\n   with `ontology_version_id`.\n6. Return only claims supported by retrieved snippets.\n\n## Stop Conditions\n\n- If no source is retrieved, state that the current asset base has insufficient\n  evidence.\n- If two valid versions conflict, show both and identify their effective dates.\n- Do not infer a legal conclusion that is absent from the cited source.\n\n## Required Output\n\nReturn:\n\n- direct answer;\n- applicable conditions and exceptions;\n- citation list with `asset_id`, `asset_version_id`, title, and source URI;\n- evidence gaps and unresolved version conflicts.\n",
+      "source": "custom",
+      "group_ids": [
+        2
+      ],
+      "ingroup_permission": "EDIT",
+      "created_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "create_time": "2026-09-28T13:48:12.671779",
+      "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+      "update_time": "2026-09-28T13:48:12.671782",
+      "tool_ids": [],
+      "permission": "EDIT"
+    }
+  ]
+}

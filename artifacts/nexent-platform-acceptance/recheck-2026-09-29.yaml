@@ -1,0 +1,26 @@
+acceptance:
+  date: 2026-09-29
+  platform_version: Nexent v2.6.1
+  operator_accounts:
+    - suadmin@nexent.com
+    - seasight.acceptance@nexent.com
+  mcp_transport: streamable-http
+  endpoint: http://host.docker.internal:8100/mcp
+  invoked_tools:
+    - knowledge_list_assets
+  nexent_entry: POST /tool/validate (config service API)
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  result: success
+  evidence_files:
+    - recheck-2026-09-29-mcp-registered.png
+    - recheck-2026-09-29-mcp-tools-21.png
+    - recheck-2026-09-29-skills-imported.png
+    - recheck-2026-09-29-tool-call.json
+    - recheck-2026-09-29-with-data.json
+  reviewed_by: liyongxiang
+  review_note: 本地官方源码部署 + 官方内置 suadmin 复验，非华为托管平台复验；灌入知识域演示数据后复验，knowledge_list_assets 返回非空资产列表（total=4）；不代表海域验证或感知精度

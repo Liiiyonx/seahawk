@@ -1,0 +1,83 @@
+{
+  "status": "ok",
+  "generated_at": "2026-09-29T07:01:40.387476+00:00",
+  "evidence_level": "E1",
+  "scope_note": "软件内部确定性评测：在内部合成治理语料上对比全量重抽与增量追加后再抽取的耗时与候选变化；耗时在同一进程内测量，仅用于相对对比。不是真实用户验证、不是领域准确率、不是真实脱敏行业数据评测，也不代表感知精度",
+  "parameters": {
+    "max_nodes": 20,
+    "timing_repeats": 3,
+    "base_assets": 3,
+    "appended_assets": 1,
+    "total_assets_after_append": 4,
+    "appended_asset_id": "ast_dispatch_2"
+  },
+  "maintenance_modes": {
+    "full": {
+      "label": "全量重抽：所有 N+1 个资产从头抽取候选并生成关系",
+      "extract_elapsed_ms_median": 3.364,
+      "extract_elapsed_ms_runs": [
+        3.921,
+        3.364,
+        3.334
+      ],
+      "candidate_count": 20,
+      "relation_count": 20
+    },
+    "incremental": {
+      "label": "增量追加：只对新增资产版本抽取候选，与已发布候选合并后再刷新关系",
+      "extract_elapsed_ms_median": 1.116,
+      "extract_elapsed_ms_runs": [
+        1.12,
+        1.116,
+        1.098
+      ],
+      "new_candidate_count": 16,
+      "merged_candidate_count": 35,
+      "relation_count": 20,
+      "appended_delta_terms": [
+        "打捞机器人",
+        "修订",
+        "机械臂",
+        "派单",
+        "岸基机械臂协同派单规则",
+        "v2",
+        "可插拔执行器",
+        "本次修订补充",
+        "养殖区边缘",
+        "机械臂末端",
+        "称重数据",
+        "网绳缠绕",
+        "拾取",
+        "浅滩",
+        "适合"
+      ]
+    }
+  },
+  "comparison": {
+    "extract_elapsed_ms_delta_full_minus_incremental": 2.248,
+    "time_savings_ratio": 0.6683,
+    "candidate_count_delta": -15,
+    "relation_count_delta": 0,
+    "changed_or_removed_relation_count": 12,
+    "changed_or_removed_relations": [
+      "塑料--岸基",
+      "处置--拾取",
+      "处置--派单",
+      "处置--海漂垃圾",
+      "处置--称重数据",
+      "处置--网绳缠绕",
+      "岸基--打捞机器人",
+      "岸基--机械臂",
+      "岸基--派单",
+      "岸基机械臂--拾取",
+      "打捞机器人--拾取",
+      "机械臂--称重数据"
+    ],
+    "interpretation": "增量追加模式复用已发布的候选集合，只对新增版本执行候选抽取，因此耗时下降（time_savings_ratio）；全量与增量最终都基于同一份文档全集生成关系，候选/关系差异用于说明增量语义覆盖范围，不作为领域准确率或人工审核节省宣称"
+  },
+  "limitations": [
+    "语料为内部合成治理文本，不是真实脱敏行业数据集",
+    "全量与增量共享同一确定性抽取实现，差异来自维护模式而非算法准确度",
+    "耗时受机器负载影响，仅用于相对对比"
+  ]
+}

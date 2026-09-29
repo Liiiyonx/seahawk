@@ -1,0 +1,10 @@
+{
+  "transport": "rest-api",
+  "endpoint": "http://host.docker.internal:8001/api/v1/knowledge/assets",
+  "tool": "knowledge_list_assets (MCP tool equivalent via REST, same contract)",
+  "authenticated": true,
+  "account": "nexent_viewer",
+  "response_status": 200,
+  "response_body": "{\"code\":0,\"message\":\"ok\",\"data\":{\"items\":[],\"meta\":{\"total\":0,\"page\":1,\"page_size\":3}},\"trace_id\":null}",
+  "timestamp": "2026-09-28T15:06:03.704Z"
+}

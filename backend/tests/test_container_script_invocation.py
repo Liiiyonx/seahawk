@@ -310,7 +310,7 @@ class TestHostPythonInvocation:
     实测缺陷（2026-09-27，生产服务器 /opt/seasight）：
 
     ```
-    $ make check-demo-accounts PROBE_URL=https://8.153.151.13/seasight
+    $ make check-demo-accounts PROBE_URL=https://seasight.example.com/seasight
     /bin/bash: line 1: python: command not found
     make: *** [Makefile:174: check-demo-accounts] Error 127
     ```

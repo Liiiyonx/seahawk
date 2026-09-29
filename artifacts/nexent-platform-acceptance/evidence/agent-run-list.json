@@ -1,0 +1,25 @@
+[
+  {
+    "agent_id": 1,
+    "name": "seasight-governance-decision-agent",
+    "display_name": "SeaSight 治理决策智能体",
+    "description": "基于 Nexent 的县域海洋治理决策智能体：政策证据问答、事件研判、跨文档决策、工单编排、决策轨迹审计；通过 SeaSight Domain Cognition MCP 使用只读知识域与运行证据工具面。",
+    "author": "liyongxiang",
+    "model_ids": [],
+    "model_names": [],
+    "model_name": null,
+    "is_available": "false",
+    "unavailable_reasons": [
+      "model_not_configured"
+    ],
+    "is_new": "false",
+    "group_ids": [
+      2
+    ],
+    "permission": "EDIT",
+    "is_published": "true",
+    "current_version_no": 1,
+    "is_a2a_server": "false",
+    "allow_chat_metadata": "false"
+  }
+]

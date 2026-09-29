@@ -26,7 +26,7 @@ and Agent execution audit remain usable without a robot.
 ## Setup
 
 ```powershell
-cd C:\Users\Liii\Desktop\seahawk
+cd <seahawk-repo>
 python -m venv .venv-nexent
 .\.venv-nexent\Scripts\python.exe -m pip install -r integrations\nexent\mcp_server\requirements.txt
 Copy-Item integrations\nexent\.env.example integrations\nexent\.env

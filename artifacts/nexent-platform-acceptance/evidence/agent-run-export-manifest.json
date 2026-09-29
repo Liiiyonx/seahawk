@@ -1,0 +1,7 @@
+{
+  "status": 200,
+  "content_type": "application/zip",
+  "bytes": 8114,
+  "agent_id": 1,
+  "note": "导出物为 ZIP，含 Agent 配置与绑定 Skills；未配置 LLM，不含模型问答运行记录。"
+}

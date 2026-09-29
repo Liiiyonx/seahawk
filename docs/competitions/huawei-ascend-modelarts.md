@@ -180,9 +180,18 @@ AGENT_MODEL_MAX_OUTPUT_TOKENS=1024
 1. 在 ModelArts 上部署一个可用的在线服务，取得推理地址与服务密钥。
 2. 按 §1 填写 `AGENT_MODEL_*` 变量，保持 `AGENT_MODEL_ADAPTER_ENABLED=true`。
 3. 先跑 `backend/tests/test_agent_model_adapter.py`，确认客户端侧无回归。
-4. 触发一次真实规划请求，检查返回的 `source` 是否为 `"model"`（而不是 `rule_fallback`）。
+4. 跑一次独立冒烟，确认端点真实接受 Chat Completions 请求：
+
+   ```bash
+   make modelarts-smoke
+   ```
+
+   成功时输出 `artifacts/modelarts-real-call/latest.json`，其中 `source="model"`、
+   含日期、模型名与延迟；未配置或调用失败时写 `not_configured` / 失败状态并
+   非零退出，不会伪造成功记录。
+5. 触发一次真实规划请求，检查返回的 `source` 是否为 `"model"`（而不是 `rule_fallback`）。
    若为回落，读 `fallback_reason` 判断是地址、密钥、模型名还是输出格式问题。
-5. 记录该次调用的日期、模型名与实际延迟，作为**第一条真实证据**登记到证据台账，
+6. 把第 4 步的 `latest.json` 与第 5 步的规划结果作为真实证据登记到证据台账，
    在此之前，本文所有 ModelArts 相关表述都应保持"配置级兼容 / 待验证"口径。
 
 ---

@@ -31,6 +31,8 @@ mqtt_user,edge_device,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a
 
 mqtt_user,dashboard_viewer,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
 
+mqtt_user,robot_device,442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a,,false
+
 # ----------------------------------------------------------------------
 # ACL —— 最小权限原则
 #
@@ -68,7 +70,16 @@ mqtt_acl,edge_device,allow,subscribe,robot/+/task
 mqtt_acl,edge_device,allow,subscribe,robot/+/cmd
 
 # ---------- 机器人：收任务、发进度 ----------
-mqtt_acl,backend_service,allow,subscribe,robot/+/telemetry
+# 原型期先共用 robot_device 账号；真机接入生产环境前应改成每台设备独立账号，
+# 用 %u（username）或精确 robot/{id}/... 主题收紧，便于单台吊销。
+# 真机遥测目前必须走 marine/{site}/{robot_id}/telemetry ——
+# 后端只订阅 marine/+/+/telemetry，不消费 robot/+/telemetry。
+mqtt_acl,robot_device,allow,subscribe,robot/+/task
+mqtt_acl,robot_device,allow,subscribe,robot/+/cmd
+mqtt_acl,robot_device,allow,publish,robot/+/cmd/ack
+mqtt_acl,robot_device,allow,publish,robot/+/task/progress
+mqtt_acl,robot_device,allow,publish,marine/+/+/telemetry
+mqtt_acl,robot_device,allow,publish,marine/+/+/status
 
 # ---------- 只读观察者 ----------
 mqtt_acl,dashboard_viewer,allow,subscribe,marine/+/+/status
@@ -80,6 +91,7 @@ mqtt_acl,dashboard_viewer,allow,subscribe,robot/+/task/progress
 # 权限悄悄放大。
 mqtt_acl,edge_device,deny,all,#
 mqtt_acl,dashboard_viewer,deny,all,#
+mqtt_acl,robot_device,deny,all,#
 
 # ----------------------------------------------------------------------
 # 如何生成正确的密码哈希

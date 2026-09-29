@@ -35,10 +35,12 @@ def _write_csv(path: Path, env: dict[str, str]) -> None:
     backend_user = env.get("MQTT_BACKEND_USERNAME", "backend_service")
     edge_user = env.get("MQTT_EDGE_USERNAME", "edge_device")
     viewer_user = env.get("MQTT_VIEWER_USERNAME", "dashboard_viewer")
+    robot_user = env.get("MQTT_ROBOT_USERNAME", "robot_device")
     passwords = {
         backend_user: _require(env, "MQTT_BACKEND_PASSWORD"),
         edge_user: _require(env, "MQTT_EDGE_PASSWORD"),
         viewer_user: _require(env, "MQTT_VIEWER_PASSWORD"),
+        robot_user: _require(env, "MQTT_ROBOT_PASSWORD"),
     }
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,7 +59,6 @@ def _write_csv(path: Path, env: dict[str, str]) -> None:
             "marine/+/+/status",
             "robot/+/cmd/ack",
             "robot/+/task/progress",
-            "robot/+/telemetry",
         ):
             writer.writerow(["mqtt_acl", backend_user, "allow", "subscribe", topic])
         for topic in (
@@ -76,6 +77,17 @@ def _write_csv(path: Path, env: dict[str, str]) -> None:
         for topic in ("robot/+/task", "robot/+/cmd"):
             writer.writerow(["mqtt_acl", edge_user, "allow", "subscribe", topic])
         writer.writerow(["mqtt_acl", edge_user, "deny", "all", "#"])
+
+        for topic in ("robot/+/task", "robot/+/cmd"):
+            writer.writerow(["mqtt_acl", robot_user, "allow", "subscribe", topic])
+        for topic in (
+            "robot/+/cmd/ack",
+            "robot/+/task/progress",
+            "marine/+/+/telemetry",
+            "marine/+/+/status",
+        ):
+            writer.writerow(["mqtt_acl", robot_user, "allow", "publish", topic])
+        writer.writerow(["mqtt_acl", robot_user, "deny", "all", "#"])
 
         for topic in (
             "marine/+/+/status",

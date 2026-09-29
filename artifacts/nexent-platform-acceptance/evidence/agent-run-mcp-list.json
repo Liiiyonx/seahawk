@@ -1,0 +1,145 @@
+{
+  "remote_mcp_server_list": [
+    {
+      "remote_mcp_server_name": "SeaSight Domain Cognition MCP",
+      "remote_mcp_server": "http://host.docker.internal:8100/mcp",
+      "status": "true",
+      "permission": "EDIT",
+      "mcp_id": 2,
+      "container_id": null,
+      "description": "SeaSight domain cognition MCP (platform-side read-only acceptance)",
+      "enabled": "true",
+      "source": "local",
+      "update_time": "2026-09-29T00:16:44.693644Z",
+      "create_time": "2026-09-28T13:48:12.641377Z",
+      "tags": [
+        "seasight",
+        "marine-governance",
+        "readonly"
+      ],
+      "container_port": null,
+      "registry_json": {
+        "tools": [
+          {
+            "name": "knowledge_list_assets",
+            "description": "List registered domain assets with optional text and metadata filters."
+          },
+          {
+            "name": "knowledge_asset_detail",
+            "description": "Read one asset and all immutable content versions."
+          },
+          {
+            "name": "knowledge_list_ontology_versions",
+            "description": "List ontology versions and their review or publication status."
+          },
+          {
+            "name": "knowledge_ontology_version_detail",
+            "description": "Read one ontology version."
+          },
+          {
+            "name": "knowledge_list_ontology_nodes",
+            "description": "List ontology nodes and their human-review decisions."
+          },
+          {
+            "name": "knowledge_list_ontology_relations",
+            "description": "List ontology relations and their evidence and review decisions."
+          },
+          {
+            "name": "knowledge_search",
+            "description": "Search assets with ontology-guided, cross-document multi-hop retrieval."
+          },
+          {
+            "name": "knowledge_list_decisions",
+            "description": "List decision traces, optionally scoped to one agent run."
+          },
+          {
+            "name": "knowledge_decision_evidence",
+            "description": "Read the ordered evidence chain for one decision trace."
+          },
+          {
+            "name": "event_get",
+            "description": "Read one event, its status, category, evidence and coordinates."
+          },
+          {
+            "name": "event_list",
+            "description": "List environmental events in a time window."
+          },
+          {
+            "name": "task_get",
+            "description": "Read one work order and its lifecycle timestamps."
+          },
+          {
+            "name": "task_list",
+            "description": "List work orders with optional status or assigned-resource filters."
+          },
+          {
+            "name": "task_ack_history",
+            "description": "Read the durable ACK audit history for one work order."
+          },
+          {
+            "name": "dashboard_get",
+            "description": "Read the current governance dashboard metrics."
+          },
+          {
+            "name": "agent_runtime_status",
+            "description": "Read the current SeaSight agent runtime state and tool count."
+          },
+          {
+            "name": "agent_list_runs",
+            "description": "List agent runs using the backend's PageResult envelope data."
+          },
+          {
+            "name": "agent_run_detail",
+            "description": "Read one agent run, including pending approval identifiers."
+          },
+          {
+            "name": "agent_run_steps",
+            "description": "Read the ordered decision and tool-execution trace of an agent run."
+          },
+          {
+            "name": "agent_list_tools",
+            "description": "Read the backend agent tool catalog, risk levels and schemas."
+          },
+          {
+            "name": "agent_list_approvals",
+            "description": "Read pending and decided human-approval records."
+          }
+        ],
+        "_toolNames": [
+          "knowledge_list_assets",
+          "knowledge_asset_detail",
+          "knowledge_list_ontology_versions",
+          "knowledge_ontology_version_detail",
+          "knowledge_list_ontology_nodes",
+          "knowledge_list_ontology_relations",
+          "knowledge_search",
+          "knowledge_list_decisions",
+          "knowledge_decision_evidence",
+          "event_get",
+          "event_list",
+          "task_get",
+          "task_list",
+          "task_ack_history",
+          "dashboard_get",
+          "agent_runtime_status",
+          "agent_list_runs",
+          "agent_run_detail",
+          "agent_run_steps",
+          "agent_list_tools",
+          "agent_list_approvals"
+        ]
+      },
+      "config_json": null,
+      "market_id": null,
+      "is_listed_in_repository": "false",
+      "container_status": null,
+      "group_ids": null,
+      "ingroup_permission": "READ_ONLY",
+      "shared_fields": null,
+      "authorization_token": "<redacted>",
+      "custom_headers": null
+    }
+  ],
+  "enable_upload_image": "false",
+  "status": "success"
+}

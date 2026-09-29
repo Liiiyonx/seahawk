@@ -467,7 +467,7 @@ python test_temporal.py
 cd frontend; npm run build
 
 # 2) 浏览器集成验收（E1）
-$env:PLAYWRIGHT_CORE_PATH='C:\Users\Liii\AppData\Roaming\npm\node_modules\@playwright\mcp\node_modules\playwright-core'
+$env:PLAYWRIGHT_CORE_PATH='<全局 playwright-core 安装路径>'
 node scripts/browser_acceptance.mjs
 
 # 3) 受控故障演练（E1；可选 live probe：设置 SEASIGHT_BACKEND_URL 后只读观测 /health）

@@ -13,15 +13,20 @@
 用法：
     python scripts/smoke_test.py
     python scripts/smoke_test.py --base-url http://localhost:8000
+    python scripts/smoke_test.py --username operator --password <pwd>
     python scripts/smoke_test.py --keep    # 不推进任务状态，便于人工到大屏看
 
 退出码：0 全部通过；1 有失败项。
+
+状态机写操作需要真实登录令牌，默认使用演示种子账号 operator / operator123456，
+生产环境请用 --username/--password 传专用账号，不要沿用演示口令。
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import sys
 import time
@@ -169,6 +174,25 @@ class Api:
             pass
         return False, {}
 
+    # ---- 认证 ----
+    def login(self, username: str, password: str) -> bool:
+        """真实登录并携带写令牌；登录失败返回 False。"""
+        try:
+            resp = self.client.post(
+                f"{self.api}/auth/login",
+                json={"username": username, "password": password},
+            )
+            if resp.status_code != 200:
+                return False
+            body = resp.json()
+            token = (body.get("data") or {}).get("access_token")
+            if not token:
+                return False
+            self.client.headers["Authorization"] = f"Bearer {token}"
+            return True
+        except Exception:   # noqa: BLE001
+            return False
+
 
 # ======================================================================
 # 测试数据构造
@@ -177,6 +201,7 @@ class Api:
 CAMERA_ID = "CAM-MABI-01"
 CAMERA_LNG = 119.6521
 CAMERA_LAT = 26.3864
+MERGE_RADIUS_M = 200
 
 
 def build_event(seq: int, event_id: str) -> dict:
@@ -209,6 +234,18 @@ def unique_ids() -> tuple[str, int]:
     seq = int(f"9{stamp}{rnd}")          # 9 开头，避开种子数据的 1xxx~7xxx
     event_id = f"evt_smoke_{stamp}{rnd}"
     return event_id, seq
+
+
+def _distance_m(lng1: float, lat1: float, lng2: float, lat2: float) -> float:
+    """球面近似距离（米），仅用于防抖合并半径判定。"""
+    lat1_r, lat2_r = math.radians(lat1), math.radians(lat2)
+    dlat = lat1_r - lat2_r
+    dlon = math.radians(lng1 - lng2)
+    h = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(lat1_r) * math.cos(lat2_r) * math.sin(dlon / 2) ** 2
+    )
+    return 2 * 6_371_000 * math.asin(math.sqrt(h))
 
 
 # ======================================================================
@@ -290,7 +327,8 @@ def step_devices(api: Api, rp: Report) -> bool:
     return len(online_robots) > 0
 
 
-def step_ingest(api: Api, rp: Report, event_id: str, seq: int) -> bool:
+def step_ingest(api: Api, rp: Report, event_id: str, seq: int) -> tuple[bool, str | None]:
+    """上报事件并返回 (是否成功, 派单命中的 task_id)。"""
     section(3, TOTAL_STEPS, "上报事件（HTTP 备用通道）")
     payload = build_event(seq, event_id)
     code, data, msg = api.post("/events", payload)
@@ -302,7 +340,7 @@ def step_ingest(api: Api, rp: Report, event_id: str, seq: int) -> bool:
         elif code == 1001:
             hint("参数校验失败 —— 对照 docs/api.md 第三节检查报文结构")
         rp.error(f"事件上报失败 code={code} {msg}")
-        return False
+        return False, None
 
     ok(f"事件已受理 · event_id={event_id}")
 
@@ -310,15 +348,16 @@ def step_ingest(api: Api, rp: Report, event_id: str, seq: int) -> bool:
         fail("上报被判重 —— 说明 seq 与历史数据冲突")
         hint("本脚本每次生成新 seq；若频繁出现，检查时钟是否异常")
         rp.error("首次上报即被判重")
-        return False
+        return False, None
 
+    task_id = data.get("task_id")
     if data.get("task_created"):
-        ok(f"自动派单成功 · task_id={data.get('task_id')}")
+        ok(f"自动派单成功 · task_id={task_id}")
     else:
         warn("未自动生成任务（可能无可用机器人）")
 
     rp.success()
-    return True
+    return True, task_id
 
 
 def step_idempotent(api: Api, rp: Report, event_id: str, seq: int) -> bool:
@@ -384,8 +423,47 @@ def step_query_event(api: Api, rp: Report, event_id: str) -> bool:
     return True
 
 
-def step_dispatch(api: Api, rp: Report, event_id: str, online_robot_exists: bool) -> str | None:
+def step_dispatch(
+    api: Api,
+    rp: Report,
+    event_id: str,
+    online_robot_exists: bool,
+    expected_task_id: str | None,
+) -> str | None:
     section(6, TOTAL_STEPS, "派单结果验证")
+
+    # 优先直查上报接口回传的 task_id。防抖窗口内新事件会合并进已有任务，
+    # 此时任务.event_id 不等于本次 event_id，但只要目标点在合并半径内就是合法命中。
+    if expected_task_id:
+        code, data, msg = api.get(f"/tasks/{expected_task_id}")
+        if code != 0:
+            fail(f"上报接口回传的任务查询失败：code={code} {msg}")
+            rp.error(f"任务详情查询失败 code={code}")
+            return None
+
+        task = data or {}
+        task_lng = task.get("lng")
+        task_lat = task.get("lat")
+        if task.get("event_id") == event_id:
+            ok(f"任务由本次事件直接生成 · task_id={task.get('task_id')}")
+        elif task_lng is not None and task_lat is not None:
+            dist = _distance_m(CAMERA_LNG, CAMERA_LAT, task_lng, task_lat)
+            if dist <= MERGE_RADIUS_M:
+                ok(f"事件合并至窗口内已有任务 · task_id={task.get('task_id')} · 距离 {dist:.0f}m")
+                info("防抖合并是设计行为：10 分钟内 200m 半径内不重复派单")
+            else:
+                fail(f"回传任务目标点距本次事件 {dist:.0f}m，超过合并半径 {MERGE_RADIUS_M}m")
+                rp.error("回传 task_id 与本次事件无关联")
+                return None
+        else:
+            fail("回传任务缺少目标坐标，无法判定与本次事件的关联")
+            rp.error("回传 task_id 缺少坐标")
+            return None
+
+        ok(f"机器人={task.get('robot_id')} · 状态={task.get('status_label')}")
+        rp.success()
+        return task.get("task_id")
+
     if not online_robot_exists:
         warn("无在线机器人，跳过派单验证")
         rp.skip("无在线机器人，未验证派单")
@@ -401,14 +479,25 @@ def step_dispatch(api: Api, rp: Report, event_id: str, online_robot_exists: bool
     related = [t for t in items if t.get("event_id") == event_id]
 
     if not related:
-        fail("找不到与本次事件关联的任务 —— 自动派单未生效")
-        hint("检查后端日志：docker compose logs -f backend | grep '\\[派单\\]'")
-        hint("确认事件的 main_class 是 foam 或 fishing_gear（其他类别不触发自动派单）")
-        hint("确认 Redis 可用：派单消费者依赖 Redis Streams")
-        rp.error("事件未生成关联任务")
-        return None
-
-    task = related[0]
+        merged = [
+            t
+            for t in items
+            if t.get("lng") is not None
+            and t.get("lat") is not None
+            and _distance_m(CAMERA_LNG, CAMERA_LAT, t["lng"], t["lat"]) <= MERGE_RADIUS_M
+        ]
+        if merged:
+            warn("本次事件被合并进窗口内已有任务（合法防抖）")
+            task = merged[0]
+        else:
+            fail("找不到与本次事件关联的任务 —— 自动派单未生效")
+            hint("检查后端日志：docker compose logs -f backend | grep '\\[派单\\]'")
+            hint("确认事件的 main_class 是 foam 或 fishing_gear（其他类别不触发自动派单）")
+            hint("确认 Redis 可用：派单消费者依赖 Redis Streams")
+            rp.error("事件未生成关联任务")
+            return None
+    else:
+        task = related[0]
     ok(
         f"已生成任务 · task_id={task.get('task_id')} · "
         f"机器人={task.get('robot_id')} · 状态={task.get('status_label')}"
@@ -430,23 +519,46 @@ def step_state_machine(api: Api, rp: Report, task_id: str | None) -> bool:
         rp.skip("无任务，未验证状态机")
         return False
 
-    # 先验证非法跳转被拒绝 —— 这是状态机最容易漏测的地方
-    code, _, msg = api.patch(f"/tasks/{task_id}", {"status": "done"})
+    # 先确认当前状态，再验证非法跳转被拒绝 —— 这是状态机最容易漏测的地方
+    code, data, msg = api.get(f"/tasks/{task_id}")
+    if code != 0:
+        fail(f"任务详情查询失败：code={code} {msg}")
+        rp.error("任务详情查询失败，无法确定当前状态")
+        return False
+
+    current_status = (data or {}).get("status") or "pending"
+    if current_status in ("done", "cancelled"):
+        warn(f"任务已是终态（{current_status}），无法再推进")
+        rp.skip("任务已是终态，未验证状态机")
+        return False
+
+    invalid_target = (
+        "done"
+        if current_status in ("pending", "assigned", "navigating")
+        else "navigating"
+    )
+    code, _, msg = api.patch(f"/tasks/{task_id}", {"status": invalid_target})
     if code == 0:
-        fail("非法跳转被接受了：assigned → done 本应被拒绝")
+        fail(f"非法跳转被接受了：{current_status} → {invalid_target} 本应被拒绝")
         hint("检查 DispatchEngine.transition() 是否被绕过")
         hint("SQL 直改 status 会绕过状态机 —— 全局搜索 task.status = ")
         rp.error("状态机未拦截非法跳转")
         return False
 
-    ok(f"非法跳转被正确拒绝 · code={code} · {msg}")
+    ok(f"非法跳转被正确拒绝 · {current_status} → {invalid_target} · code={code} · {msg}")
 
-    # 再走合法路径
-    chain = [
-        ("navigating", "前往中"),
-        ("collecting", "作业中"),
-        ("done", "已完成"),
-    ]
+    # 再走合法路径：从当前状态补全到终态，避免 ACK 超时回退后链断
+    chain_order = ["pending", "assigned", "navigating", "collecting", "done"]
+    labels = {
+        "pending": "待派单",
+        "assigned": "已派单",
+        "navigating": "前往中",
+        "collecting": "作业中",
+        "done": "已完成",
+    }
+    # 从当前状态的下一步开始，避免把「原地停留」当成合法迁移
+    start = chain_order.index(current_status) + 1 if current_status in chain_order else 1
+    chain = [(s, labels[s]) for s in chain_order[start:]]
 
     for status, label in chain:
         code, data, msg = api.patch(f"/tasks/{task_id}", {"status": status})
@@ -540,6 +652,16 @@ def main() -> int:
         action="store_true",
         help="不把任务推进到终态（保留在途工单，便于人工到大屏观察）",
     )
+    parser.add_argument(
+        "--username",
+        default="operator",
+        help="状态机写操作登录账号（默认 operator）",
+    )
+    parser.add_argument(
+        "--password",
+        default="operator123456",
+        help="状态机写操作登录密码（默认演示种子账号）",
+    )
     args = parser.parse_args()
 
     print(f"\n{C.BOLD}探海灵眸 SeaSight · 端到端冒烟测试{C.END}")
@@ -556,7 +678,8 @@ def main() -> int:
             return _summary(rp)
 
         online_robot_exists = step_devices(api, rp)
-        if not step_ingest(api, rp, event_id, seq):
+        ingest_ok, task_id_from_ingest = step_ingest(api, rp, event_id, seq)
+        if not ingest_ok:
             return _summary(rp)
 
         step_idempotent(api, rp, event_id, seq)
@@ -566,13 +689,19 @@ def main() -> int:
         print(f"\n  {C.GREY}等待派单消费者处理（3 秒）...{C.END}")
         time.sleep(3)
 
-        task_id = step_dispatch(api, rp, event_id, online_robot_exists)
+        task_id = step_dispatch(api, rp, event_id, online_robot_exists, task_id_from_ingest)
 
         if args.keep:
             section(7, TOTAL_STEPS, "任务状态机流转")
             info(f"已跳过（--keep）。任务 {task_id} 保留在途状态，可到大屏查看")
             rp.skip("按 --keep 跳过状态机推进")
         else:
+            if not api.login(args.username, args.password):
+                fail(f"状态机写操作前置登录失败：{args.username}")
+                hint("账号密码可用 --username/--password 指定；演示种子账号：operator / operator123456")
+                rp.error("状态机前置登录失败")
+                return _summary(rp)
+            info(f"状态机写操作使用真实登录令牌（{args.username}）")
             step_state_machine(api, rp, task_id)
 
         step_stats(api, rp)

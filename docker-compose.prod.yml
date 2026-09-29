@@ -72,7 +72,7 @@ services:
     image: emqx/emqx:5.8
     restart: unless-stopped
     environment:
-      EMQX_NODE_NAME: emqx@node1.emqx.io
+      EMQX_NODE_NAME: emqx@127.0.0.1
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${MQTT_DASHBOARD_USER:-admin}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${MQTT_DASHBOARD_PASSWORD:?set MQTT_DASHBOARD_PASSWORD}
       EMQX_ALLOW_ANONYMOUS: "false"

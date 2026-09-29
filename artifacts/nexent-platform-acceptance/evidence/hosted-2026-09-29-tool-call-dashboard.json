@@ -1,0 +1,73 @@
+{
+  "acceptance_id": "R-NX-05",
+  "date": "2026-09-29",
+  "platform": "huawei-agentarts-hosted",
+  "region": "cn-southwest-2",
+  "transport": "streamable-http",
+  "mcp_endpoint": "https://layout-louise-islands-biblical.trycloudflare.com/mcp",
+  "mcp_registration_name": "SeaSight Domain Cognition MCP",
+  "initialize": {
+    "protocol_version": "2025-11-25",
+    "server_info": {
+      "name": "SeaSight Domain Cognition MCP",
+      "version": "1.30.0"
+    },
+    "capabilities": {
+      "experimental": {},
+      "logging": null,
+      "prompts": {
+        "listChanged": false
+      },
+      "resources": {
+        "subscribe": false,
+        "listChanged": false
+      },
+      "tools": {
+        "listChanged": false
+      },
+      "completions": null,
+      "tasks": null
+    }
+  },
+  "tools_catalog": {
+    "count": 21,
+    "names": [
+      "agent_list_approvals",
+      "agent_list_runs",
+      "agent_list_tools",
+      "agent_run_detail",
+      "agent_run_steps",
+      "agent_runtime_status",
+      "dashboard_get",
+      "event_get",
+      "event_list",
+      "knowledge_asset_detail",
+      "knowledge_decision_evidence",
+      "knowledge_list_assets",
+      "knowledge_list_decisions",
+      "knowledge_list_ontology_nodes",
+      "knowledge_list_ontology_relations",
+      "knowledge_list_ontology_versions",
+      "knowledge_ontology_version_detail",
+      "knowledge_search",
+      "task_ack_history",
+      "task_get",
+      "task_list"
+    ]
+  },
+  "tool_calls": [
+    {
+      "tool": "dashboard_get",
+      "inputs": {},
+      "is_error": false,
+      "response_text": "{\n  \"event_count_24h\": 10,\n  \"pending_tasks\": 13,\n  \"collecting_tasks\": 1,\n  \"done_tasks_24h\": 3,\n  \"robots_online\": 2,\n  \"robots_total\": 3,\n  \"robots_online_rate\": 0.6667,\n  \"collected_kg_total\": 41.5,\n  \"devices_online\": 9,\n  \"devices_total\": 10,\n  \"metrics_meta\": {\n    \"event_count_24h\": {\n      \"label\": \"24 小时事件数\",\n      \"口径\": \"近 24 小时 t_event 事件计数（operator 角色只统计 township_scope 辖区）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻前 24 小时（[window_start, window_end]，以查询执行时刻为准）\",\n      \"来源\": \"t_event.event_time（EventRepository.count_since）\",\n      \"availability\": \"measured\"\n    },\n    \"pending_tasks\": {\n      \"label\": \"待派单工单数\",\n      \"口径\": \"当前状态为 pending 的 t_task 计数（状态快照，非时间窗）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照（全量，不按时间窗过滤）\",\n      \"来源\": \"t_task.status（TaskRepository.count_by_status）\",\n      \"availability\": \"measured\"\n    },\n    \"collecting_tasks\": {\n      \"label\": \"作业中工单数\",\n      \"口径\": \"当前状态为 collecting 或 navigating 的 t_task 计数（状态快照）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照（全量，不按时间窗过滤）\",\n      \"来源\": \"t_task.status（TaskRepository.count_by_status）\",\n      \"availability\": \"measured\"\n    },\n    \"done_tasks_24h\": {\n      \"label\": \"24 小时完成工单数\",\n      \"口径\": \"近 24 小时状态为 done 的工单计数（按 Task.finished_at 判定）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻前 24 小时（按 Task.finished_at）\",\n      \"来源\": \"t_task.status + finished_at（TaskRepository.done_count_since）\",\n      \"availability\": \"measured\"\n    },\n    \"robots_online\": {\n      \"label\": \"在线机器人数量\",\n      \"口径\": \"device_type=robot 且 status=online 的设备计数\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照（以设备心跳状态为准）\",\n      \"来源\": \"t_device（DeviceRepository.list_robots）\",\n      \"availability\": \"measured\"\n    },\n    \"robots_total\": {\n      \"label\": \"机器人总数\",\n      \"口径\": \"device_type=robot 的设备总数\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照\",\n      \"来源\": \"t_device（DeviceRepository.list_robots）\",\n      \"availability\": \"measured\"\n    },\n    \"robots_online_rate\": {\n      \"label\": \"机器人在线率\",\n      \"口径\": \"robots_online / robots_total（在线机器人占全部机器人的比例）\",\n      \"分母\": \"robots_total；分母为 0 时返回 null（not_available），不以 0 冒充实测\",\n      \"时间窗\": \"请求时刻状态快照\",\n      \"来源\": \"由 robots_online 与 robots_total 派生（不新增数据源）\",\n      \"availability\": \"derived；分母为 0 时运行时返回 null（not_available），null 透传不转 0\"\n    },\n    \"collected_kg_total\": {\n      \"label\": \"累计清理量\",\n      \"口径\": \"t_task.collected_weight 全表合计（含历史所有工单，不按状态/时间窗过滤）\",\n      \"分母\": \"1（计量合计，不涉比率）\",\n      \"时间窗\": \"全量累计（非时间窗）\",\n      \"来源\": \"t_task.collected_weight（TaskRepository.sum_collected_weight）\",\n      \"availability\": \"measured\"\n    },\n    \"devices_online\": {\n      \"label\": \"在线设备数\",\n      \"口径\": \"status=online 的设备计数（含机器人、岸端相机等全部设备类型）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照\",\n      \"来源\": \"t_device（DeviceRepository.count_by_status）\",\n      \"availability\": \"measured\"\n    },\n    \"devices_total\": {\n      \"label\": \"设备总数\",\n      \"口径\": \"全部设备计数（各状态之和）\",\n      \"分母\": \"1（计数，不涉比率）\",\n      \"时间窗\": \"请求时刻状态快照\",\n      \"来源\": \"t_device（DeviceRepository.count_by_status）\",\n      \"availability\": \"measured\"\n    }\n  },\n  \"window_start\": \"2026-09-28T13:44:32\",\n  \"window_end\": \"2026-09-29T13:44:32\"\n}"
+    },
+    {
+      "tool": "agent_runtime_status",
+      "inputs": {},
+      "is_error": false,
+      "response_text": "{\n  \"state\": \"idle\",\n  \"model_available\": false,\n  \"rule_mode\": true,\n  \"policy_version\": \"rules-work-order-v1.0\",\n  \"active_runs\": 0,\n  \"total_runs\": 0,\n  \"pending_approvals\": 0,\n  \"tools_registered\": 6,\n  \"uptime_ms\": 420109,\n  \"persistence\": \"mirrored\",\n  \"runtime\": \"in_process\",\n  \"require_approval_for_write\": true,\n  \"approval_risk_levels\": [\n    \"write\",\n    \"device_command\",\n    \"sensitive\"\n  ],\n  \"plan_variants\": [\n    \"single\",\n    \"team\"\n  ],\n  \"lessons\": []\n}"
+    }
+  ],
+  "note": "华为托管平台（AgentArts）注册的 SeaSight MCP 公网端点真实调用；dashboard_get 与 agent_runtime_status 均返回真实治理数据；平台侧验收，不是海域验证，不代表感知精度"
+}

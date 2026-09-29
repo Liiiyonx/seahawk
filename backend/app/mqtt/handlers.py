@@ -55,7 +55,8 @@ async def handle_event(topic: str, payload: dict[str, Any]) -> None:
 
     async with get_session_factory()() as session:
         service = EventService(session)
-        result = await service.ingest(ingest)
+        # MQTT 入口同样在下方同步派单，不投 Redis Stream，避免双派。
+        result = await service.ingest(ingest, enqueue_dispatch=False)
         await session.commit()
 
         if result.duplicate:

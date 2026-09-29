@@ -469,17 +469,14 @@ handle_event()                    ── mqtt/handlers.py
    │        ├─ 幂等判重 (device_id, seq)
    │        ├─ 校验设备已注册
    │        ├─ 落库 t_event (status=new)
-   │        └─ 投 Redis Stream
+   │        └─ enqueue_dispatch=True 时才投 Redis Stream
+   │           （当前两个入口都同步派单，传 False）
    │  ③ WebSocket 广播 new_event（大屏标红）
    │  ④ 高优先级类别 → _try_dispatch()
    ▼
-Redis Stream: stream:events
+同步派单路径：_try_dispatch → DispatchEngine.dispatch_for_event()
+异步/显式入队路径：Redis Stream: stream:events → dispatch_consumer()
    │
-   ▼
-dispatch_consumer()               ── services/consumer.py
-   │  消费者组 + ACK + pending list（消息不丢）
-   │  处理失败 → 死信 stream:dead_letter
-   ▼
 DispatchEngine.dispatch_for_event()
 ```
 

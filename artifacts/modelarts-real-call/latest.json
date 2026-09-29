@@ -1,0 +1,11 @@
+{
+  "status": "not_configured",
+  "generated_at": "2026-09-28T04:22:47.452139+00:00",
+  "evidence_level": "E1/E2",
+  "error": "AGENT_MODEL_BASE_URL and AGENT_MODEL_NAME are required",
+  "required": [
+    "AGENT_MODEL_BASE_URL",
+    "AGENT_MODEL_API_KEY",
+    "AGENT_MODEL_NAME"
+  ]
+}

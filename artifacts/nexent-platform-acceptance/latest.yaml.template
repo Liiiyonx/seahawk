@@ -1,0 +1,26 @@
+acceptance:
+  date: "2026-XX-XX"
+  platform_version: "Nexent <填实际版本>"
+  operator_account: "<平台账号>"
+  mcp_transport: "streamable-http"
+  endpoint: "<MCP 公网/内网地址，不写令牌>"
+  invoked_tools:
+    - "knowledge_list_assets"
+  skills_imported:
+    - "policy-evidence-qa"
+    - "marine-event-assessment"
+    - "cross-document-decision"
+    - "dispatch-work-order-orchestration"
+    - "decision-trace-audit"
+  result: "success"
+  evidence_files:
+    - "mcp-registered.png"
+    - "mcp-registered.json"
+    - "mcp-tools-21.png"
+    - "mcp-tools-21.json"
+    - "skills-imported.png"
+    - "skills-list-5.json"
+    - "skills-policy-evidence-qa.json"
+    - "tool-call-trace.json"
+  reviewed_by: "<复核人>"
+  review_note: "平台侧验收；不是海域验证，不代表检测精度"

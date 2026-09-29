@@ -1,0 +1,113 @@
+{
+  "countLabel": "工具列表(21)",
+  "desc": "SeaSight 海洋治理领域资产认知 MCP：面向海漂垃圾治理场景，统一接入事件、工单、知识资产、本体与决策轨迹等只读数据服务，支撑跨文档多跳检索、证据链追溯与派单决策编排。（华为平台侧验收，只读工具面）",
+  "toolCount": 21,
+  "tools": [
+    {
+      "description": "List registered domain assets with optional text and metadata filters.",
+      "name": "knowledge_list_assets",
+      "params": "query\nasset_type\npage\n6 +"
+    },
+    {
+      "description": "Read one asset and all immutable content versions.",
+      "name": "knowledge_asset_detail",
+      "params": "asset_id"
+    },
+    {
+      "description": "List ontology versions and their review or publication status.",
+      "name": "knowledge_list_ontology_versions",
+      "params": ""
+    },
+    {
+      "description": "Read one ontology version.",
+      "name": "knowledge_ontology_version_detail",
+      "params": "version_id"
+    },
+    {
+      "description": "List ontology nodes and their human-review decisions.",
+      "name": "knowledge_list_ontology_nodes",
+      "params": "version_id"
+    },
+    {
+      "description": "List ontology relations and their evidence and review decisions.",
+      "name": "knowledge_list_ontology_relations",
+      "params": "version_id"
+    },
+    {
+      "description": "Search assets with ontology-guided, cross-document multi-hop retrieval.",
+      "name": "knowledge_search",
+      "params": "query\nlimit\nontology_version_id\n6 +"
+    },
+    {
+      "description": "List decision traces, optionally scoped to one agent run.",
+      "name": "knowledge_list_decisions",
+      "params": "run_id\npage\npage_size"
+    },
+    {
+      "description": "Read the ordered evidence chain for one decision trace.",
+      "name": "knowledge_decision_evidence",
+      "params": "trace_id"
+    },
+    {
+      "description": "Read one event, its status, category, evidence and coordinates.",
+      "name": "event_get",
+      "params": "event_id"
+    },
+    {
+      "description": "List environmental events in a time window.",
+      "name": "event_list",
+      "params": "hours\ndevice_id\npage\n6 +"
+    },
+    {
+      "description": "Read one work order and its lifecycle timestamps.",
+      "name": "task_get",
+      "params": "task_id"
+    },
+    {
+      "description": "List work orders with optional status or assigned-resource filters.",
+      "name": "task_list",
+      "params": "robot_id\npage\nstatus\n4 +"
+    },
+    {
+      "description": "Read the durable ACK audit history for one work order.",
+      "name": "task_ack_history",
+      "params": "task_id\npage\npage_size"
+    },
+    {
+      "description": "Read the current governance dashboard metrics.",
+      "name": "dashboard_get",
+      "params": ""
+    },
+    {
+      "description": "Read the current SeaSight agent runtime state and tool count.",
+      "name": "agent_runtime_status",
+      "params": ""
+    },
+    {
+      "description": "List agent runs using the backend's PageResult envelope data.",
+      "name": "agent_list_runs",
+      "params": "page\nstatus\npage_size"
+    },
+    {
+      "description": "Read one agent run, including pending approval identifiers.",
+      "name": "agent_run_detail",
+      "params": "run_id"
+    },
+    {
+      "description": "Read the ordered decision and tool-execution trace of an agent run.",
+      "name": "agent_run_steps",
+      "params": "run_id"
+    },
+    {
+      "description": "Read the backend agent tool catalog, risk levels and schemas.",
+      "name": "agent_list_tools",
+      "params": ""
+    },
+    {
+      "description": "Read pending and decided human-approval records.",
+      "name": "agent_list_approvals",
+      "params": ""
+    }
+  ],
+  "url": "https://console.huaweicloud.com/agentarts/?region=cn-southwest-2#/home/agent-center/mcp-service/detail?id=ef30db1926c748fab10f30f86c42e2b8&type=service&resource=custom"
+}

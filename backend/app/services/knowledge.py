@@ -246,7 +246,21 @@ def extract_term_candidates(
             )
         )
     candidates.sort(key=lambda item: (-item.score, -len(item.term), item.term))
-    return candidates[:max_nodes]
+
+    # Equal-or-higher-score overlap pruning: when a longer phrase is already
+    # kept, drop its contained sub-ngrams. This keeps the top-N proposal list
+    # readable and reduces redundant human review without changing scores.
+    kept: list[TermCandidate] = []
+    for candidate in candidates:
+        if any(
+            candidate.canonical_name != item.canonical_name
+            and candidate.canonical_name in item.canonical_name
+            and item.score >= candidate.score
+            for item in kept
+        ):
+            continue
+        kept.append(candidate)
+    return kept[:max_nodes]
 
 
 def _candidate_counts(text: str, min_term_length: int) -> Counter[str]:
@@ -1205,6 +1219,9 @@ class KnowledgeService:
             created_by=username,
         )
         self.session.add(trace)
+        # The evidence rows reference trace_id through a plain FK, not an ORM
+        # relationship, so persist the trace first to guarantee insert order.
+        await self.session.flush()
         for rank, item in enumerate(evidence_payload, start=1):
             self.session.add(
                 DecisionEvidence(

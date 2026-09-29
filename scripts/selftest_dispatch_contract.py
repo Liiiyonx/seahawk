@@ -17,6 +17,12 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 PY = sys.executable
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 DISPATCH = BACKEND / "app/services/dispatch.py"
 TASK_MODEL = BACKEND / "app/models/task.py"
 
@@ -34,6 +40,8 @@ def run_tests(target: str = TEST_FILE) -> tuple[int, str]:
         cwd=str(BACKEND),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
 

@@ -309,7 +309,10 @@ def configure_styles(document: Document) -> None:
         style.paragraph_format.line_spacing = 1.14
 
 
-def configure_section(document: Document) -> None:
+def configure_section(
+    document: Document,
+    header_text: str = "\t探海灵眸 SeaSight  |  项目计划书 v2.1",
+) -> None:
     section = document.sections[0]
     section.page_width = Inches(8.5)
     section.page_height = Inches(11)
@@ -324,7 +327,7 @@ def configure_section(document: Document) -> None:
     header = section.header.paragraphs[0]
     header.alignment = WD_ALIGN_PARAGRAPH.LEFT
     header.paragraph_format.tab_stops.add_tab_stop(Inches(6.65), 2)
-    run = header.add_run("\t探海灵眸 SeaSight  |  项目计划书 v2.1")
+    run = header.add_run(header_text)
     set_run_font(run, BODY_FONT, 8)
     run.font.color.rgb = RGBColor(90, 90, 90)
 
@@ -380,32 +383,42 @@ def add_inline(paragraph, text: str, base_size: float = 10.5) -> None:
         set_run_font(run, BODY_FONT, base_size)
 
 
-def add_cover(document: Document, metadata: dict[str, str], h1_count: int) -> None:
+def add_cover(
+    document: Document,
+    metadata: dict[str, str],
+    h1_count: int,
+    cover_title: str | None = None,
+    cover_subtitle: str = "区域海上环卫治理系统",
+    cover_statement: str = "国奖候选工程基线",
+    cover_meta_rows: list[tuple[str, str]] | None = None,
+    cover_boundary: str = (
+        "本文档严格区分代码/测试、合成验证、用户真实验证和商业成交证据；"
+        "所有对外数字必须回到证据台账。"
+    ),
+) -> None:
     for _ in range(3):
         document.add_paragraph()
 
     title = document.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     remove_paragraph_border(title)
-    run = title.add_run(metadata.get("title", "探海灵眸 SeaSight 项目计划书"))
+    title_text = cover_title or metadata.get("title", "探海灵眸 SeaSight 项目计划书")
+    run = title.add_run(title_text)
     set_run_font(run, BODY_FONT, 30, True)
 
     subtitle = document.add_paragraph()
     subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
     subtitle.paragraph_format.space_after = Pt(28)
-    run = subtitle.add_run("区域海上环卫治理系统")
+    run = subtitle.add_run(cover_subtitle)
     set_run_font(run, BODY_FONT, 16, True)
 
     statement = document.add_paragraph()
     statement.alignment = WD_ALIGN_PARAGRAPH.CENTER
     statement.paragraph_format.space_after = Pt(24)
-    run = statement.add_run("国奖候选工程基线")
+    run = statement.add_run(cover_statement)
     set_run_font(run, BODY_FONT, 13, True)
 
-    meta_table = document.add_table(rows=6, cols=2)
-    meta_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    meta_table.autofit = False
-    meta_rows = [
+    meta_rows = cover_meta_rows or [
         ("版本", metadata.get("版本", "2.1")),
         ("编制日期", metadata.get("编制日期", "2026-09-19")),
         ("参赛赛道", metadata.get("参赛赛道", "海洋科创 / 海上智能装备与无人系统")),
@@ -413,6 +426,9 @@ def add_cover(document: Document, metadata: dict[str, str], h1_count: int) -> No
         ("当前评分", "80/100（内部红队；不是赛事官方评分）"),
         ("章节数量", f"{h1_count} 个一级章节"),
     ]
+    meta_table = document.add_table(rows=len(meta_rows), cols=2)
+    meta_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    meta_table.autofit = False
     for row_index, (key, value) in enumerate(meta_rows):
         cells = meta_table.rows[row_index].cells
         cells[0].width = Inches(1.25)
@@ -435,10 +451,7 @@ def add_cover(document: Document, metadata: dict[str, str], h1_count: int) -> No
     document.add_paragraph()
     boundary = document.add_paragraph()
     boundary.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = boundary.add_run(
-        "本文档严格区分代码/测试、合成验证、用户真实验证和商业成交证据；"
-        "所有对外数字必须回到证据台账。"
-    )
+    run = boundary.add_run(cover_boundary)
     set_run_font(run, BODY_FONT, 9.5)
     run.font.color.rgb = RGBColor(80, 80, 80)
     boundary.paragraph_format.space_before = Pt(18)
@@ -641,6 +654,19 @@ def build_docx(
     source_path: Path,
     output_path: Path,
     heading_pages_path: Path | None = None,
+    header_text: str = "\t探海灵眸 SeaSight  |  项目计划书 v2.1",
+    cover_title: str | None = None,
+    cover_subtitle: str = "区域海上环卫治理系统",
+    cover_statement: str = "国奖候选工程基线",
+    cover_meta_rows: list[tuple[str, str]] | None = None,
+    cover_boundary: str = (
+        "本文档严格区分代码/测试、合成验证、用户真实验证和商业成交证据；"
+        "所有对外数字必须回到证据台账。"
+    ),
+    core_title: str = "探海灵眸 SeaSight 项目计划书",
+    core_subject: str = "国奖候选工程基线与智能体开发分工方案",
+    core_author: str = "SeaSight 项目组",
+    core_comments: str = "严格区分 E0-E4 证据，不以规划替代真实现场与商业验证。",
 ) -> dict[str, object]:
     source = source_path.read_text(encoding="utf-8")
     metadata, blocks = parse_markdown(source)
@@ -652,16 +678,25 @@ def build_docx(
 
     document = Document()
     configure_styles(document)
-    configure_section(document)
-    add_cover(document, metadata, len(headings))
+    configure_section(document, header_text=header_text)
+    add_cover(
+        document,
+        metadata,
+        len(headings),
+        cover_title=cover_title,
+        cover_subtitle=cover_subtitle,
+        cover_statement=cover_statement,
+        cover_meta_rows=cover_meta_rows,
+        cover_boundary=cover_boundary,
+    )
     add_toc(document, headings, page_map)
     add_blocks(document, blocks)
 
     core = document.core_properties
-    core.title = "探海灵眸 SeaSight 项目计划书"
-    core.subject = "国奖候选工程基线与智能体开发分工方案"
-    core.author = "SeaSight 项目组"
-    core.comments = "严格区分 E0-E4 证据，不以规划替代真实现场与商业验证。"
+    core.title = core_title
+    core.subject = core_subject
+    core.author = core_author
+    core.comments = core_comments
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     document.save(output_path)

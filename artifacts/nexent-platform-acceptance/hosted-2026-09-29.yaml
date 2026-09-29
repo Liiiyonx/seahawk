@@ -1,0 +1,38 @@
+acceptance:
+  date: 2026-09-29
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  mcp_registration_name: SeaSight Domain Cognition MCP
+  mcp_registration_status: deployed
+  mcp_transport: streamable-http
+  endpoint: https://layout-louise-islands-biblical.trycloudflare.com/mcp
+  invoked_tools:
+    - knowledge_list_assets
+    - dashboard_get
+    - agent_runtime_status
+  tools_loaded: 21
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  skills_import_platform: local-nexent-source-deployment
+  result: success
+  evidence_files:
+    - hosted-2026-09-29-overview.png
+    - hosted-2026-09-29-mcp-tools-21.png
+    - hosted-2026-09-29-mcp-tools-21.json
+    - hosted-2026-09-29-tunnel-tools.json
+    - hosted-2026-09-29-tool-call.json
+    - hosted-2026-09-29-tool-call-dashboard.json
+  reviewed_by: liyongxiang
+  review_note: >-
+    华为托管平台（AgentArts）注册 SeaSight Domain Cognition MCP，状态部署成功，加载 21 个只读工具。
+    同一公网端点由 MCP 客户端完整握手并真实调用 knowledge_list_assets（total=4）、
+    dashboard_get（真实治理指标）、agent_runtime_status（idle/model_available=false）。
+    5 个 Skill 已在本地 Nexent 官方源码部署导入并绑定 Agent（R-NX-04）。
+    托管平台 Skill 导入待用户在控制台手动完成（AgentArts 不支持程序化批量导入）。
+    model_available=false：托管平台未配置 LLM，不代表海域推理能力。
+    平台侧验收，不是海域验证，不代表感知精度或现场治理效果。

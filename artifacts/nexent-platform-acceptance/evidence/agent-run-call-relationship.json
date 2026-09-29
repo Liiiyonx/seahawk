@@ -1,0 +1,112 @@
+{
+  "agent_id": "1",
+  "name": "SeaSight 治理决策智能体",
+  "tools": [
+    {
+      "tool_id": 35,
+      "name": "knowledge_list_assets",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 36,
+      "name": "knowledge_asset_detail",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 37,
+      "name": "knowledge_list_ontology_versions",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 38,
+      "name": "knowledge_ontology_version_detail",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 39,
+      "name": "knowledge_list_ontology_nodes",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 40,
+      "name": "knowledge_list_ontology_relations",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 41,
+      "name": "knowledge_search",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 42,
+      "name": "knowledge_list_decisions",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 43,
+      "name": "knowledge_decision_evidence",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 44,
+      "name": "event_get",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 45,
+      "name": "event_list",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 46,
+      "name": "task_get",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 47,
+      "name": "task_list",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 48,
+      "name": "task_ack_history",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 49,
+      "name": "dashboard_get",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 50,
+      "name": "agent_runtime_status",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 51,
+      "name": "agent_list_runs",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 52,
+      "name": "agent_run_detail",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 53,
+      "name": "agent_run_steps",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 54,
+      "name": "agent_list_tools",
+      "type": "MCP"
+    },
+    {
+      "tool_id": 55,
+      "name": "agent_list_approvals",
+      "type": "MCP"
+    }
+  ],
+  "sub_agents": []
+}

@@ -1,0 +1,30 @@
+{
+  "recheck_id": "R-NX-03",
+  "date": "2026-09-29",
+  "platform": "local-self-hosted",
+  "platform_version": "Nexent v2.6.1",
+  "operator_accounts": [
+    "suadmin@nexent.com",
+    "seasight.acceptance@nexent.com"
+  ],
+  "invoked_by": "seasight.acceptance@nexent.com",
+  "transport": "streamable-http",
+  "mcp_endpoint": "http://host.docker.internal:8100/mcp",
+  "nexent_side_entry": "POST http://127.0.0.1:5010/tool/validate",
+  "tool": "knowledge_list_assets",
+  "inputs": {
+    "page": 1,
+    "page_size": 3
+  },
+  "response_status": 200,
+  "response_body": {
+    "items": [],
+    "meta": {
+      "total": 0,
+      "page": 1,
+      "page_size": 3
+    }
+  },
+  "timestamp": "2026-09-29T00:16:12.878Z",
+  "note": "由 Nexent 配置服务读取 DB 中 MCP 注册记录与授权令牌，经 MCP Client 真实调用 SeaSight 工具；本地官方源码部署复验，非华为托管平台复验，不代表海域验证或感知精度"
+}

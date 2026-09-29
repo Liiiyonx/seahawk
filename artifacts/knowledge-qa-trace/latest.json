@@ -1,0 +1,390 @@
+{
+  "status": "ok",
+  "generated_at": "2026-09-29T07:03:17.113Z",
+  "evidence_level": "E1/E2",
+  "scope_note": "确定性检索-推理链路演示：本体图检索 + 决策证据链，非 LLM 生成式问答；资产为演示资产，非真实脱敏行业数据评测，不代表感知精度或真实部署。",
+  "question": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+  "search": {
+    "mode": "ontology_graph",
+    "ontology_version_id": "ont_20260929003427_4130e137",
+    "total": 4,
+    "results": [
+      {
+        "title": "连江重点区域海漂垃圾月度台账（演示）",
+        "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+        "asset_version_id": "kav_20260929003427_2be7e6e3",
+        "hop_count": 0,
+        "score": 13.5,
+        "path": [],
+        "citations": [
+          "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]"
+        ]
+      },
+      {
+        "title": "连江重点区域海漂垃圾月度台账（演示）",
+        "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+        "asset_version_id": "kav_20260929003112_2f82b0c2",
+        "hop_count": 0,
+        "score": 13.5,
+        "path": [],
+        "citations": [
+          "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]"
+        ]
+      },
+      {
+        "title": "连江海漂垃圾治理工作方案（演示）",
+        "asset_id": "EVO-20260929083427-b6268075-POLICY",
+        "asset_version_id": "kav_20260929003427_4115e7da",
+        "hop_count": 0,
+        "score": 9,
+        "path": [],
+        "citations": [
+          "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]"
+        ]
+      },
+      {
+        "title": "连江海漂垃圾治理工作方案（演示）",
+        "asset_id": "EVO-20260929083111-6369658a-POLICY",
+        "asset_version_id": "kav_20260929003112_90abee7b",
+        "hop_count": 0,
+        "score": 9,
+        "path": [],
+        "citations": [
+          "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]"
+        ]
+      }
+    ]
+  },
+  "decision": {
+    "trace_id": "dtr_20260929070315_4a524e79",
+    "status": "completed",
+    "answer_summary": "根据治理方案与月度台账，由值班研判人员复核后派单，调度岸基机械臂或打捞机器人拾取，并回传拾取回执形成闭环。",
+    "ontology_version_id": null
+  },
+  "evidence": [
+    {
+      "rank_no": 1,
+      "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+      "asset_version_id": "kav_20260929003427_2be7e6e3",
+      "hop_no": 0,
+      "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]"
+    },
+    {
+      "rank_no": 2,
+      "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+      "asset_version_id": "kav_20260929003112_2f82b0c2",
+      "hop_no": 0,
+      "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]"
+    },
+    {
+      "rank_no": 3,
+      "asset_id": "EVO-20260929083427-b6268075-POLICY",
+      "asset_version_id": "kav_20260929003427_4115e7da",
+      "hop_no": 0,
+      "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]"
+    },
+    {
+      "rank_no": 4,
+      "asset_id": "EVO-20260929083111-6369658a-POLICY",
+      "asset_version_id": "kav_20260929003112_90abee7b",
+      "hop_no": 0,
+      "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]"
+    }
+  ],
+  "api_traces": [
+    {
+      "phase": "search",
+      "path": "/api/v1/knowledge/search",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "ok",
+        "data": {
+          "query": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+          "mode": "ontology_graph",
+          "ontology_version_id": "ont_20260929003427_4130e137",
+          "total": 4,
+          "results": [
+            {
+              "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+              "asset_version_id": "kav_20260929003427_2be7e6e3",
+              "title": "连江重点区域海漂垃圾月度台账（演示）",
+              "asset_type": "table",
+              "source_uri": null,
+              "score": 13.5,
+              "snippet": "...账（演示） 连江县重点区域海漂垃圾月度台账（EVO-20260929083427-b6268075-POLICY）显示：马鼻镇泡沫聚集次数最多，黄岐镇塑料和渔网占比高，筱埕镇养殖区存在网绳缠绕风险。处置资源包括打捞机器人、岸基机械臂和人工回收队伍；每条任务记录关联摄像头编号、值班审批人、派单时间和拾取回执。 修订：补充机械臂拾取回执统计口径。",
+              "matched_node_ids": [],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]"
+              ]
+            },
+            {
+              "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+              "asset_version_id": "kav_20260929003112_2f82b0c2",
+              "title": "连江重点区域海漂垃圾月度台账（演示）",
+              "asset_type": "table",
+              "source_uri": null,
+              "score": 13.5,
+              "snippet": "...账（演示） 连江县重点区域海漂垃圾月度台账（EVO-20260929083111-6369658a-POLICY）显示：马鼻镇泡沫聚集次数最多，黄岐镇塑料和渔网占比高，筱埕镇养殖区存在网绳缠绕风险。处置资源包括打捞机器人、岸基机械臂和人工回收队伍；每条任务记录关联摄像头编号、值班审批人、派单时间和拾取回执。 修订：补充机械臂拾取回执统计口径。",
+              "matched_node_ids": [],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]"
+              ]
+            },
+            {
+              "asset_id": "EVO-20260929083427-b6268075-POLICY",
+              "asset_version_id": "kav_20260929003427_4115e7da",
+              "title": "连江海漂垃圾治理工作方案（演示）",
+              "asset_type": "document",
+              "source_uri": null,
+              "score": 9,
+              "snippet": "...） 连江县海漂垃圾治理工作方案（EVO-20260929083427-b6268075-POLICY）明确：岸基摄像头发现泡沫、塑料、渔网等海漂垃圾后，由值班研判人员复核，再通过派单平台调度打捞机器人或机械臂执行拾取。重点区域包括马鼻镇、黄岐镇、筱埕镇、苔菉镇、安凯镇和下宫镇。拾取完成后回传照片与称重数据，形成处置闭环。 修订：新增岸基机械臂作为可插拔执行末端。",
+              "matched_node_ids": [],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]"
+              ]
+            },
+            {
+              "asset_id": "EVO-20260929083111-6369658a-POLICY",
+              "asset_version_id": "kav_20260929003112_90abee7b",
+              "title": "连江海漂垃圾治理工作方案（演示）",
+              "asset_type": "document",
+              "source_uri": null,
+              "score": 9,
+              "snippet": "...） 连江县海漂垃圾治理工作方案（EVO-20260929083111-6369658a-POLICY）明确：岸基摄像头发现泡沫、塑料、渔网等海漂垃圾后，由值班研判人员复核，再通过派单平台调度打捞机器人或机械臂执行拾取。重点区域包括马鼻镇、黄岐镇、筱埕镇、苔菉镇、安凯镇和下宫镇。拾取完成后回传照片与称重数据，形成处置闭环。 修订：新增岸基机械臂作为可插拔执行末端。",
+              "matched_node_ids": [],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]"
+              ]
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "phase": "create_decision",
+      "path": "/api/v1/knowledge/decisions",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "决策轨迹已记录",
+        "data": {
+          "trace_id": "dtr_20260929070315_4a524e79",
+          "run_id": null,
+          "question": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+          "answer_summary": "根据治理方案与月度台账，由值班研判人员复核后派单，调度岸基机械臂或打捞机器人拾取，并回传拾取回执形成闭环。",
+          "status": "completed",
+          "ontology_version_id": null,
+          "policy_version": null,
+          "metadata": {
+            "search_mode": "ontology_graph",
+            "ontology_version_id": "ont_20260929003427_4130e137",
+            "result_count": 4
+          },
+          "created_by": "admin",
+          "created_at": "2026-09-29T07:03:15.775254Z",
+          "evidence": [
+            {
+              "evidence_id": "evd_20260929070315_4ab7c70a",
+              "trace_id": "dtr_20260929070315_4a524e79",
+              "rank_no": 1,
+              "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+              "asset_version_id": "kav_20260929003427_2be7e6e3",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]",
+              "source_uri": null,
+              "score": 13.5,
+              "metadata": {
+                "path": [],
+                "citations": [
+                  "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]"
+                ],
+                "matched_node_ids": []
+              },
+              "created_at": "2026-09-29T07:03:15.775254Z"
+            },
+            {
+              "evidence_id": "evd_20260929070315_a58665df",
+              "trace_id": "dtr_20260929070315_4a524e79",
+              "rank_no": 2,
+              "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+              "asset_version_id": "kav_20260929003112_2f82b0c2",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]",
+              "source_uri": null,
+              "score": 13.5,
+              "metadata": {
+                "path": [],
+                "citations": [
+                  "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]"
+                ],
+                "matched_node_ids": []
+              },
+              "created_at": "2026-09-29T07:03:15.775254Z"
+            },
+            {
+              "evidence_id": "evd_20260929070315_43d729ef",
+              "trace_id": "dtr_20260929070315_4a524e79",
+              "rank_no": 3,
+              "asset_id": "EVO-20260929083427-b6268075-POLICY",
+              "asset_version_id": "kav_20260929003427_4115e7da",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]",
+              "source_uri": null,
+              "score": 9,
+              "metadata": {
+                "path": [],
+                "citations": [
+                  "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]"
+                ],
+                "matched_node_ids": []
+              },
+              "created_at": "2026-09-29T07:03:15.775254Z"
+            },
+            {
+              "evidence_id": "evd_20260929070315_8ed1cf86",
+              "trace_id": "dtr_20260929070315_4a524e79",
+              "rank_no": 4,
+              "asset_id": "EVO-20260929083111-6369658a-POLICY",
+              "asset_version_id": "kav_20260929003112_90abee7b",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]",
+              "source_uri": null,
+              "score": 9,
+              "metadata": {
+                "path": [],
+                "citations": [
+                  "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]"
+                ],
+                "matched_node_ids": []
+              },
+              "created_at": "2026-09-29T07:03:15.775254Z"
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "phase": "decision_evidence",
+      "path": "/api/v1/knowledge/decisions/dtr_20260929070315_4a524e79/evidence",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "ok",
+        "data": [
+          {
+            "evidence_id": "evd_20260929070315_4ab7c70a",
+            "trace_id": "dtr_20260929070315_4a524e79",
+            "rank_no": 1,
+            "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+            "asset_version_id": "kav_20260929003427_2be7e6e3",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]",
+            "source_uri": null,
+            "score": 13.5,
+            "metadata": {
+              "path": [],
+              "citations": [
+                "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003427_2be7e6e3]"
+              ],
+              "matched_node_ids": []
+            },
+            "created_at": "2026-09-29T07:03:15.775254Z"
+          },
+          {
+            "evidence_id": "evd_20260929070315_a58665df",
+            "trace_id": "dtr_20260929070315_4a524e79",
+            "rank_no": 2,
+            "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+            "asset_version_id": "kav_20260929003112_2f82b0c2",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]",
+            "source_uri": null,
+            "score": 13.5,
+            "metadata": {
+              "path": [],
+              "citations": [
+                "连江重点区域海漂垃圾月度台账（演示） [kav_20260929003112_2f82b0c2]"
+              ],
+              "matched_node_ids": []
+            },
+            "created_at": "2026-09-29T07:03:15.775254Z"
+          },
+          {
+            "evidence_id": "evd_20260929070315_43d729ef",
+            "trace_id": "dtr_20260929070315_4a524e79",
+            "rank_no": 3,
+            "asset_id": "EVO-20260929083427-b6268075-POLICY",
+            "asset_version_id": "kav_20260929003427_4115e7da",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]",
+            "source_uri": null,
+            "score": 9,
+            "metadata": {
+              "path": [],
+              "citations": [
+                "连江海漂垃圾治理工作方案（演示） [kav_20260929003427_4115e7da]"
+              ],
+              "matched_node_ids": []
+            },
+            "created_at": "2026-09-29T07:03:15.775254Z"
+          },
+          {
+            "evidence_id": "evd_20260929070315_8ed1cf86",
+            "trace_id": "dtr_20260929070315_4a524e79",
+            "rank_no": 4,
+            "asset_id": "EVO-20260929083111-6369658a-POLICY",
+            "asset_version_id": "kav_20260929003112_90abee7b",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]",
+            "source_uri": null,
+            "score": 9,
+            "metadata": {
+              "path": [],
+              "citations": [
+                "连江海漂垃圾治理工作方案（演示） [kav_20260929003112_90abee7b]"
+              ],
+              "matched_node_ids": []
+            },
+            "created_at": "2026-09-29T07:03:15.775254Z"
+          }
+        ],
+        "trace_id": null
+      }
+    }
+  ],
+  "screenshots": [
+      "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\knowledge-qa-trace\\01-检索结果-本体图检索与引用.png",
+      "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\knowledge-qa-trace\\02-决策证据链-资产版本引用.png"
+    ]
+}

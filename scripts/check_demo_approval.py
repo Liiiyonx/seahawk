@@ -25,7 +25,7 @@
 
 ### ⑤ 为什么必须查（2026-09-27 线上验收 P0-5 的真实成因）
 
-线上 `https://8.153.151.13/seasight` 登录页把 `approver` 当成测试账号展示，
+线上 `https://<PROD_SERVER>/seasight` 登录页把 `approver` 当成测试账号展示，
 但生产库里根本没有这个账号 —— 点它登录只会得到 401「用户名或密码错误」。
 而当时的登录验收脚本 `artifacts/verify-prod-login.cjs` 里**只列了三个账号**
 （admin / operator / viewer），恰好漏掉 approver，于是这个缺口一路带到了
@@ -377,7 +377,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         metavar="URL",
         help=(
-            "对目标站点做真实登录探测，例如 https://8.153.151.13/seasight 。"
+            "对目标站点做真实登录探测，例如 https://<PROD_SERVER>/seasight 。"
             "逐个账号登录 + 校验角色 + 打审批门禁探针（只读，不写数据）"
         ),
     )

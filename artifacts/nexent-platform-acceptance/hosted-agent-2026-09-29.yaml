@@ -1,0 +1,37 @@
+ acceptance:
+   recheck_id: R-NX-06
+   date: 2026-09-29
+   platform: huawei-agentarts-hosted
+   region: cn-southwest-2
+   operator_account: hid_b7bcgi-i88yqw0x
+   agent_name: seasight-governance-decision-agent
+   agent_id: fdeccb8f-c35e-459b-8413-26f72a37edf3
+   edit_url: >-
+     https://console.huaweicloud.com/agentarts/?region=cn-southwest-2#/home/managed-agents/agent/edit?id=fdeccb8f-c35e-459b-8413-26f72a37edf3
+   model_provider: deepseek-provider
+   model_name: deepseek-chat
+   model_notes: API key 已在编辑页配置实际调用链路，密钥不写入仓库
+   environment: public-access (environment-ypflemxw)
+   system_prompt_overview: >-
+     诚实口径 QA 指示：只许基于知识库作答、资产版本级引用、证据不足标 not_evaluated、
+     不得把时序误报抑制率当识别精度
+   skill_support: disabled
+   skill_ui_warnings:
+     - "当前公网访问不支持Skill，请切换环境"
+     - "私网访问环境切换为公网访问环境时，会清空已选择Skill"
+   skill_selection_disabled: true
+   mcp_registration: R-NX-05 (MCP 已独立登记，已部署成功，21 工具加载)
+   live_tool_call: R-NX-05 (公网端点 MCP 初始化 + knowledge_list_assets 真实只读调用已完成)
+   limitations:
+     - "公网环境不支持 Skill 绑定与运行（平台 UI 明确禁止）"
+     - "完整 Skill 问答验收需切换为私网环境 + 私网可访问 MCP endpoint"
+   result: agent_created_model_configured
+   evidence_files:
+     - hosted-2026-09-29.yaml (R-NX-05: MCP registration + tool calls)
+   reviewed_by: liyongxiang
+   review_note: >-
+     华为 AgentArts 托管平台创建 Agent seasight-governance-decision-agent，
+     配置 deepseek-provider/deepseek-chat 模型（API key 已设）、写入诚实系统提示词；
+     Skill 绑定按钮 disabled，页面明确提示公网环境不支持 Skill；
+     本记录仅登记 Agent 创建、模型配置与平台限制验收。
+     不写"托管平台已跑通完整 Skill 问答"或"海域验证"。

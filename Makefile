@@ -1,7 +1,7 @@
 # 探海灵眸 SeaSight — 常用命令
 # 用法：make <target>     查看全部：make help
 
-.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend nexent-install nexent-mcp nexent-check nexent-acceptance simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-data check-data-stats test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts clean
+.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
 
 SHELL := /bin/bash
 
@@ -139,6 +139,15 @@ nexent-check:  ## 检查 Nexent MCP 配置与可导入性
 nexent-acceptance:  ## 端到端验收：HTTP 鉴权、MCP 工具面和 5 个 Skills
 	$(NEXENT_PYTHON) scripts/nexent_acceptance.py --report-path artifacts/nexent-acceptance/latest.json
 
+knowledge-evolution-demo:  ## 真实后端知识进化闭环：资产→本体→检索→决策证据链
+	@# 需配置 SEASIGHT_API_BASE_URL / SEASIGHT_API_USERNAME / SEASIGHT_API_PASSWORD，
+	@# 推荐 admin 账号一次跑通 operator + 本体审核两类权限。
+	$(PYTHON) scripts/knowledge_evolution_demo.py
+
+modelarts-smoke:  ## 真实 OpenAI-compatible 模型端点冒烟（ModelArts 路径）
+	@# 需配置 AGENT_MODEL_BASE_URL / AGENT_MODEL_API_KEY / AGENT_MODEL_NAME。
+	$(PYTHON) scripts/modelarts_smoke.py
+
 # ---------- 演示与测试 ----------
 simulate:  ## 运行边缘盒模拟器（真实抽帧节奏，上报冷却 90s）
 	cd edge/simulator && python simulator.py --scenario demo --loop
@@ -180,14 +189,14 @@ check-demo-accounts:  ## 真实登录探测：逐个演示账号登录 + 校验�
 	@# 「bootstrap 脚本里写了」。线上 2026-09-27 的 P0-5（登录页展示了
 	@# approver，但生产库里没有，点它只会 401）正是静态核对查不出来的那一层。
 	@# 默认探本地；探线上用：
-	@#   make check-demo-accounts PROBE_URL=https://8.153.151.13/seasight
+	@#   make check-demo-accounts PROBE_URL=https://<PROD_SERVER>/seasight
 	@$(PYTHON) scripts/check_demo_approval.py --probe-url $(or $(PROBE_URL),http://localhost:8000)
 
 # ---------- 同步到服务器（本仓库没有 git remote，走打包上传） ----------
 deploy-package:  ## 生成本机源码部署包 + SHA256 清单（artifacts/deploy/*.tar.gz）
 	@$(PYTHON) scripts/deploy_manifest.py
 
-deploy-verify:  ## 只读核对线上构建是否含本轮能力（不改服务器）
+deploy-verify:  ## 只读核对线上构建（需设 SEASIGHT_PRODUCTION_URL；未设置按 127.0.0.1 示例）
 	@$(PYTHON) scripts/deploy_verify.py
 
 bootstrap-demo-users:  ## 开发环境：写入登录页四个演示账号 —— 生产请用 prod-bootstrap-demo-users
@@ -205,13 +214,17 @@ check-api:  ## 契约校验：前端调用的 API 路径在后端是否都有实
 check-gitignore:  ## 检查是否有该忽略却没忽略的文件（运行时状态/权重/密钥）
 	$(PYTHON) scripts/check_gitignore.py
 
+check-public-repo-privacy:  ## 开源前检查：本机路径、生产地址、敏感验收证据
+	@echo "[check-public-repo-privacy] 只扫 git 已跟踪文件，私有仓库命中属预期；公开前必须退出码 0"
+	$(PYTHON) scripts/check_public_repo_privacy.py
+
 check-contract:  ## 契约漂移检查：MQTT 主题树、状态映射、类别枚举
 	$(PYTHON) scripts/check_contract_drift.py
 
 check-contract-selftest:  ## 自证：注入 12 种已知缺陷，确认上面的检查真的会红
 	$(PYTHON) scripts/selftest_contract_drift.py
 
-check-events-selftest:  ## 自证：注入事件上报契约的 4 种缺陷，确认测试会红
+check-events-selftest:  ## 自证：注入事件上报契约的 5 种缺陷，确认测试会红
 	$(PYTHON) scripts/selftest_events_contract.py
 
 check-dispatch-selftest:  ## 自证：注入派单引擎的 5 种缺陷，确认测试会红
@@ -222,6 +235,9 @@ check-finalize-selftest:  ## 自证：注入派单收尾的 7 种缺陷，确认
 
 check-pel-selftest:  ## 自证：注入消费者 PEL 回收的 4 种缺陷，确认测试会红
 	$(PYTHON) scripts/selftest_consumer_pel.py
+
+check-evidence-scripts-selftest:  ## 自证：华为 ICT 证据脚本未配置时不伪造成功
+	$(PYTHON) scripts/selftest_evidence_scripts.py
 
 check: check-api check-gitignore check-contract  ## 跑全部静态检查（不需要基础设施）
 	@echo "[check] 全部通过"
@@ -290,6 +306,7 @@ test-edge:  ## 边缘逻辑测试：时序校验 + 检测器（cv 与开放词�
 	# ★ 测试文件必须逐个列出：这里写的是 pytest 的文件名参数，不是目录。
 	#   新增测试文件如果不加进这一行，`make test-edge` 照样"全绿"——
 	#   只是它根本没跑。加文件时请同时改这里。
+	cd edge/arm_bridge && python -m pytest test_bridge.py -q
 	cd edge/detector && python -m pytest test_detector.py test_world_detector.py -q
 
 test-cv-selftest:  ## 真实边缘程序自检：合成海面跑通「检测→时序→报文」全链路

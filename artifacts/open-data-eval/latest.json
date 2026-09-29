@@ -1,0 +1,607 @@
+{
+  "status": "ok",
+  "generated_at": "2026-09-29T09:25:03.646129+00:00",
+  "evidence_level": "E1",
+  "scope_note": "软件内部确定性评测：在生态环境部公开开放通知语料上对比本体候选抽取实现与朴素基线；语料为可公开访问的官方通知，不是真实脱敏行业数据集、不是领域准确率、不是人工审核节省、也不代表感知精度或生产部署",
+  "parameters": {
+    "max_nodes": 20,
+    "min_term_length": 2,
+    "timing_repeats": 3,
+    "corpus_documents": 8,
+    "corpus_manifest": "artifacts\\open-data-eval\\corpus\\manifest.json"
+  },
+  "gold_reference": {
+    "terms": [
+      "海洋环境保护法",
+      "生态环境法典",
+      "生态环境损害鉴定评估",
+      "技术指南",
+      "环境要素",
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒在线监控技术规范",
+      "海洋倾倒物质评价规范",
+      "废弃物海洋倾倒许可证",
+      "生态环境部",
+      "生态环境部办公厅",
+      "海洋生态环境司",
+      "国家生态环境标准",
+      "许可证核发",
+      "意见征集",
+      "书面反馈",
+      "在线监控设备",
+      "非现场监管",
+      "数据传输",
+      "征求意见稿",
+      "编制说明",
+      "疏浚物",
+      "渔业废料",
+      "惰性无机地质材料",
+      "北海区",
+      "东海区",
+      "南海区",
+      "流域海域生态环境监督管理局",
+      "政务服务大厅",
+      "行政许可"
+    ],
+    "relations": [
+      "海洋倾倒物质评价规范--疏浚物",
+      "海洋倾倒物质评价规范--渔业废料",
+      "海洋倾倒物质评价规范--惰性无机地质材料"
+    ],
+    "note": "内部人工标注样例，仅用于确定性自评，不是行业标准答案；命中判据为短领域短语粒度（术语完全命中，或术语出现在不超过 12 字的候选短语内），长句整块不视为有效本体节点"
+  },
+  "sources": [
+    {
+      "asset_id": "OD-SEA-STD-2025-01",
+      "title": "关于公开征求国家生态环境标准《生态环境损害鉴定评估技术指南 环境要素 第3部分：海洋（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202506/t20250620_1121662.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 475,
+      "content_sha256": "54df1ba7bf4064ff7f34dc86e4eed16b8e16b9a0adeaea2da10753178a17b8eb"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2026-02",
+      "title": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202603/t20260324_1147645.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 262,
+      "content_sha256": "ec9fe0cfd5e1253efff43e6cd2b5fdc9a14a69955050afa61bfca36d6be423d9"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2026-03",
+      "title": "关于发布国家生态环境标准《海洋倾倒区选划技术导则》的公告",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202608/t20260807_1163728.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 281,
+      "content_sha256": "4e6ad1dde36d99f134149d1e67e4b33af90cc4254cc15c02f46f77b369913bb2"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2026-04",
+      "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202609/t20260904_1165188.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 456,
+      "content_sha256": "c9e239a9115c59640a35380c3806ea9277d42a1153c3a0e7d87a6db2ace645ab"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2026-05",
+      "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 渔业废料（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163420.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 435,
+      "content_sha256": "3053cc69eaeccabd0208800dfe849f0708e629654d072c0e2e8cd36f1f56aaeb"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2026-06",
+      "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163421.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 431,
+      "content_sha256": "58cbc373ebf4e30de6623ac0d663ad30f41f1bd7538f935912a8214f938b26d6"
+    },
+    {
+      "asset_id": "OD-SEA-STD-2025-02",
+      "title": "关于公开征求国家生态环境标准《海洋倾倒区选划技术导则（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202507/t20250701_1122520.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 420,
+      "content_sha256": "fbb468dc21fd9641355db96165b7d330b1f76226f980caf69967d9ff3e077541"
+    },
+    {
+      "asset_id": "OD-SEA-PERMIT-2022-01",
+      "title": "关于生态环境部流域海域生态环境监督管理局承担“废弃物海洋倾倒许可证核发”审批事项的公告",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202205/t20220527_983664.html",
+      "publisher": "中华人民共和国生态环境部",
+      "text_chars": 282,
+      "content_sha256": "9b6266b4ec16ea7094650d6606f6b60b807a45dc46021d6dd5959ad6043add0f"
+    }
+  ],
+  "current_implementation": {
+    "algorithm": "title_weighted_phrase + cooccurrence",
+    "extract_elapsed_ms_median": 14.578,
+    "extract_elapsed_ms_runs": [
+      14.578,
+      14.704,
+      12.019
+    ],
+    "candidate_count_before_cap": 132,
+    "candidate_count_after_cap": 20,
+    "relation_count_after_cap": 20,
+    "short_node_count": 19,
+    "short_node_ratio": 0.95,
+    "long_fragment_count": 1,
+    "long_fragment_ratio": 0.05,
+    "high_confidence_candidate_count": 20,
+    "high_confidence_candidate_ratio": 1.0,
+    "gold_term_hits": 7,
+    "gold_term_total": 32,
+    "gold_term_recall": 0.2188,
+    "gold_term_exact_hits": 7,
+    "gold_term_exact_recall": 0.2188,
+    "gold_relation_hits": 0,
+    "gold_relation_total": 3,
+    "gold_relation_recall": 0.0,
+    "gold_term_recall_at_budget": {
+      "20": 0.2188,
+      "50": 0.5,
+      "100": 0.625,
+      "200": 0.7188
+    },
+    "gold_relation_recall_at_budget": {
+      "20": 0.0,
+      "50": 0.0,
+      "100": 0.0,
+      "200": 0.0
+    },
+    "gold_term_hit_list": [
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒物质评价规范",
+      "生态环境部",
+      "国家生态环境标准",
+      "征求意见稿",
+      "惰性无机地质材料"
+    ],
+    "gold_term_exact_hit_list": [
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒物质评价规范",
+      "生态环境部",
+      "国家生态环境标准",
+      "征求意见稿",
+      "惰性无机地质材料"
+    ],
+    "gold_relation_hit_list": [],
+    "top_candidates": [
+      {
+        "term": "意见",
+        "canonical_name": "意见",
+        "score": 150.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "征求意见稿",
+        "canonical_name": "征求意见稿",
+        "score": 120.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "环境",
+        "canonical_name": "环境",
+        "score": 118.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "海洋",
+        "canonical_name": "海洋",
+        "score": 114.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "生态环境",
+        "canonical_name": "生态环境",
+        "score": 105.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "海洋倾倒",
+        "canonical_name": "海洋倾倒",
+        "score": 88.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-02",
+        "source_version_id": "kav_OD-SEA-STD-2026-02_1"
+      },
+      {
+        "term": "通知",
+        "canonical_name": "通知",
+        "score": 60.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "标准",
+        "canonical_name": "标准",
+        "score": 51.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "国家生态环境标准",
+        "canonical_name": "国家生态环境标准",
+        "score": 48.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "公开",
+        "canonical_name": "公开",
+        "score": 45.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "规范",
+        "canonical_name": "规范",
+        "score": 45.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-02",
+        "source_version_id": "kav_OD-SEA-STD-2026-02_1"
+      },
+      {
+        "term": "技术",
+        "canonical_name": "技术",
+        "score": 40.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "公告",
+        "canonical_name": "公告",
+        "score": 39.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-02",
+        "source_version_id": "kav_OD-SEA-STD-2026-02_1"
+      },
+      {
+        "term": "公开征求",
+        "canonical_name": "公开征求",
+        "score": 37.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "海洋倾倒物质评价规范",
+        "canonical_name": "海洋倾倒物质评价规范",
+        "score": 31.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-04",
+        "source_version_id": "kav_OD-SEA-STD-2026-04_1"
+      },
+      {
+        "term": "关于公开征求国家生态环境标准",
+        "canonical_name": "关于公开征求国家生态环境标准",
+        "score": 30.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "联系人",
+        "canonical_name": "联系人",
+        "score": 30.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "生态环境部",
+        "canonical_name": "生态环境部",
+        "score": 25.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2025-01",
+        "source_version_id": "kav_OD-SEA-STD-2025-01_1"
+      },
+      {
+        "term": "海洋倾倒区选划",
+        "canonical_name": "海洋倾倒区选划",
+        "score": 24.0,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-03",
+        "source_version_id": "kav_OD-SEA-STD-2026-03_1"
+      },
+      {
+        "term": "惰性无机地质材料",
+        "canonical_name": "惰性无机地质材料",
+        "score": 22.5,
+        "strong_evidence": true,
+        "source_asset_id": "OD-SEA-STD-2026-04",
+        "source_version_id": "kav_OD-SEA-STD-2026-04_1"
+      }
+    ],
+    "top_relations": [
+      {
+        "source": "海洋",
+        "target": "环境",
+        "count": 8,
+        "evidence_count": 3
+      },
+      {
+        "source": "海洋",
+        "target": "生态环境",
+        "count": 8,
+        "evidence_count": 3
+      },
+      {
+        "source": "环境",
+        "target": "生态环境",
+        "count": 8,
+        "evidence_count": 3
+      },
+      {
+        "source": "国家生态环境标准",
+        "target": "标准",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "国家生态环境标准",
+        "target": "环境",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "国家生态环境标准",
+        "target": "生态环境",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "标准",
+        "target": "海洋",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "标准",
+        "target": "环境",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "标准",
+        "target": "生态环境",
+        "count": 7,
+        "evidence_count": 3
+      },
+      {
+        "source": "海洋",
+        "target": "海洋倾倒",
+        "count": 7,
+        "evidence_count": 3
+      }
+    ]
+  },
+  "full_candidate_implementation": {
+    "candidate_count": 132,
+    "relation_count": 695,
+    "gold_term_hits": 23,
+    "gold_term_total": 32,
+    "gold_term_recall": 0.7188,
+    "gold_term_exact_hits": 17,
+    "gold_term_exact_recall": 0.5312,
+    "gold_relation_hits": 3,
+    "gold_relation_total": 3,
+    "gold_relation_recall": 1.0,
+    "gold_term_hit_list": [
+      "海洋环境保护法",
+      "生态环境法典",
+      "环境要素",
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
+      "废弃物海洋倾倒许可证",
+      "生态环境部",
+      "生态环境部办公厅",
+      "海洋生态环境司",
+      "国家生态环境标准",
+      "许可证核发",
+      "意见征集",
+      "书面反馈",
+      "数据传输",
+      "征求意见稿",
+      "编制说明",
+      "疏浚物",
+      "渔业废料",
+      "惰性无机地质材料",
+      "东海区",
+      "南海区"
+    ],
+    "gold_term_exact_hit_list": [
+      "环境要素",
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
+      "生态环境部",
+      "生态环境部办公厅",
+      "海洋生态环境司",
+      "国家生态环境标准",
+      "意见征集",
+      "征求意见稿",
+      "编制说明",
+      "疏浚物",
+      "渔业废料",
+      "惰性无机地质材料",
+      "东海区",
+      "南海区"
+    ],
+    "gold_relation_hit_list": [
+      "海洋倾倒物质评价规范--疏浚物",
+      "海洋倾倒物质评价规范--渔业废料",
+      "海洋倾倒物质评价规范--惰性无机地质材料"
+    ]
+  },
+  "baseline": {
+    "algorithm": "naive_raw_token_frequency (no title weighting, no n-grams)",
+    "extract_elapsed_ms_median": 0.386,
+    "extract_elapsed_ms_runs": [
+      1.149,
+      0.386,
+      0.373
+    ],
+    "candidate_count_before_cap": 103,
+    "candidate_count_after_cap": 20,
+    "short_node_count": 15,
+    "short_node_ratio": 0.75,
+    "long_fragment_count": 5,
+    "long_fragment_ratio": 0.25,
+    "high_confidence_candidate_count": 20,
+    "high_confidence_candidate_ratio": 1.0,
+    "gold_term_hits": 9,
+    "gold_term_total": 32,
+    "gold_term_recall": 0.2812,
+    "gold_term_exact_hits": 5,
+    "gold_term_exact_recall": 0.1562,
+    "gold_term_recall_at_budget": {
+      "20": 0.2812,
+      "50": 0.5938,
+      "100": 0.6562,
+      "200": 0.6562
+    },
+    "gold_term_hit_list": [
+      "海洋倾倒",
+      "海洋倾倒区选划",
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
+      "生态环境部",
+      "生态环境部办公厅",
+      "意见征集",
+      "书面反馈",
+      "征求意见稿"
+    ],
+    "gold_term_exact_hit_list": [
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
+      "生态环境部办公厅",
+      "意见征集",
+      "征求意见稿"
+    ],
+    "top_candidates": [
+      {
+        "term": "征求意见稿",
+        "count": 20
+      },
+      {
+        "term": "海洋倾倒物质评价规范",
+        "count": 12
+      },
+      {
+        "term": "http",
+        "count": 8
+      },
+      {
+        "term": "海洋倾倒区选划技术导则",
+        "count": 8
+      },
+      {
+        "term": "www.mee.gov.cn",
+        "count": 7
+      },
+      {
+        "term": "生态环境部办公厅",
+        "count": 7
+      },
+      {
+        "term": "关于公开征求国家生态环境标准",
+        "count": 5
+      },
+      {
+        "term": "意见的通知",
+        "count": 5
+      },
+      {
+        "term": "现公开征求意见",
+        "count": 5
+      },
+      {
+        "term": "征求意见稿及其编制说明可登录我部网站",
+        "count": 5
+      },
+      {
+        "term": "意见征集",
+        "count": 5
+      },
+      {
+        "term": "栏目检索查阅",
+        "count": 5
+      },
+      {
+        "term": "各机关团体",
+        "count": 5
+      },
+      {
+        "term": "企事业单位和个人均可提出意见和建议",
+        "count": 5
+      },
+      {
+        "term": "请于",
+        "count": 5
+      },
+      {
+        "term": "日前将意见书面反馈我部",
+        "count": 5
+      },
+      {
+        "term": "并注明联系人及联系方式",
+        "count": 5
+      },
+      {
+        "term": "意见电子版请同时发送至联系人邮箱",
+        "count": 5
+      },
+      {
+        "term": "联系人",
+        "count": 5
+      },
+      {
+        "term": "电话",
+        "count": 5
+      }
+    ]
+  },
+  "comparison": {
+    "gold_term_recall_delta": -0.0624,
+    "gold_term_exact_recall_delta": 0.0626,
+    "short_node_ratio_delta": 0.2,
+    "long_fragment_ratio_delta": -0.2,
+    "high_confidence_ratio_delta": 0.0,
+    "bulk_approve_ratio": 1.0,
+    "candidate_expansion_ratio": 1.2816,
+    "interpretation": "gold_term_recall_delta 表示在相同 top-N 上限下，当前实现命中内部人工标注术语的覆盖率增量；short_node_ratio/long_fragment_ratio 说明候选是否保持短领域短语粒度；high_confidence_ratio_delta 表示可凭标题/多文档证据批量确认的候选占比增量；candidate_expansion_ratio 为 n-gram 展开带来的候选面倍数，不作为人工审核节省宣称；当前实现还输出带来源证据的候选关系，朴素基线不生成关系"
+  },
+  "limitations": [
+    "语料为 8 份生态环境部公开通知，不是真实脱敏行业数据集",
+    "内部人工标注样例由项目自定，不是行业标准答案",
+    "抽取耗时在同一进程内测量，仅用于相对对比",
+    "公开通知正文较短，评测覆盖范围为通知级元数据与文本，不覆盖标准全文条款"
+  ]
+}

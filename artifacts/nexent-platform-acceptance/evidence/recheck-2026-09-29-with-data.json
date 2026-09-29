@@ -1,0 +1,85 @@
+{
+  "recheck_id": "R-NX-03-D",
+  "date": "2026-09-29",
+  "platform": "local-official-source",
+  "platform_version": "Nexent v2.6.1",
+  "operator_accounts": [
+    "suadmin@nexent.com",
+    "seasight.acceptance@nexent.com"
+  ],
+  "invoked_by": "suadmin@nexent.com",
+  "transport": "streamable-http",
+  "mcp_endpoint": "http://host.docker.internal:8100/mcp",
+  "nexent_side_entry": "POST http://127.0.0.1:5010/tool/validate",
+  "tool": "knowledge_list_assets",
+  "inputs": {
+    "page": 1,
+    "page_size": 3
+  },
+  "response_status": 200,
+  "response_body": {
+    "items": [
+      {
+        "asset_id": "EVO-20260929083427-b6268075-LEDGER",
+        "asset_type": "table",
+        "title": "连江重点区域海漂垃圾月度台账（演示）",
+        "description": "知识进化闭环演示用台账资产",
+        "region": "连江县",
+        "township": "马鼻镇",
+        "security_level": "internal",
+        "status": "active",
+        "current_version": 2,
+        "tags": [
+          "月度台账",
+          "闭环演示"
+        ],
+        "created_by": "admin",
+        "created_at": "2026-09-29T00:34:27.375850Z",
+        "updated_at": "2026-09-29T00:34:27.421236Z"
+      },
+      {
+        "asset_id": "EVO-20260929083427-b6268075-POLICY",
+        "asset_type": "document",
+        "title": "连江海漂垃圾治理工作方案（演示）",
+        "description": "知识进化闭环演示用治理方案资产",
+        "region": "连江县",
+        "township": "马鼻镇",
+        "security_level": "internal",
+        "status": "active",
+        "current_version": 2,
+        "tags": [
+          "治理方案",
+          "闭环演示"
+        ],
+        "created_by": "admin",
+        "created_at": "2026-09-29T00:34:27.333649Z",
+        "updated_at": "2026-09-29T00:34:27.388772Z"
+      },
+      {
+        "asset_id": "EVO-20260929083111-6369658a-LEDGER",
+        "asset_type": "table",
+        "title": "连江重点区域海漂垃圾月度台账（演示）",
+        "description": "知识进化闭环演示用台账资产",
+        "region": "连江县",
+        "township": "马鼻镇",
+        "security_level": "internal",
+        "status": "active",
+        "current_version": 2,
+        "tags": [
+          "月度台账",
+          "闭环演示"
+        ],
+        "created_by": "admin",
+        "created_at": "2026-09-29T00:31:12.406954Z",
+        "updated_at": "2026-09-29T00:31:12.484369Z"
+      }
+    ],
+    "meta": {
+      "total": 4,
+      "page": 1,
+      "page_size": 3
+    }
+  },
+  "timestamp": "2026-09-29T00:36:54.4359831Z",
+  "note": "在知识域演示数据灌入后，以同一 Nexent 配置服务 POST /tool/validate 复验 knowledge_list_assets，返回非空资产列表 total=4；本地官方源码部署复验，非华为托管平台复验，不代表海域验证或感知精度"
+}

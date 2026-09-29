@@ -13,7 +13,7 @@
 
 不区分目标的话，在服务器上跑：
 
-    make check-demo-accounts PROBE_URL=https://8.153.151.13/seasight
+    make check-demo-accounts PROBE_URL=https://seasight.example.com/seasight
 
 会稳定打印两条「未就位」并以 exit 1 结束 —— 而四账号真实登录其实全 ✅。
 2026-09-27 实测就是这个结果。运维看到「未就位」的直觉反应是去修，
@@ -60,7 +60,7 @@ class TestProbeScope:
             assert mod.is_local_target(local), f"{local} 应判定为本机目标"
 
         for remote in (
-            "https://8.153.151.13/seasight",
+            "https://seasight.example.com/seasight",
             "https://seasight.example.com/seasight",
             "http://10.0.0.7:8000/seasight",
         ):

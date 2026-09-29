@@ -1,0 +1,2067 @@
+[
+  {
+    "tool_id": 1,
+    "name": "aidp_search",
+    "origin_name": "aidp_search",
+    "description": "Performs a multimodal search on AIDP knowledge bases using FusionSearch. Returns text, table, and image chunks with title and text content. Image chunks include a safe Markdown image marker. When an image is relevant, copy that marker unchanged into the answer near the paragraph it illustrates; never invent or expose an image URL. Use when users ask about domain-specific knowledge stored in AIDP knowledge bases.",
+    "description_zh": "通过 AIDP FusionSearch 对知识库进行多模态检索，返回文本、表格和图片块。每个块包含标题和文本内容。适用于询问 AIDP 知识库中存储的领域专业知识。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "kds_list",
+        "description": "JSON string array of knowledge base IDs",
+        "description_zh": "要检索的知识库 ID 列表",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "search_method",
+        "description": "Search method",
+        "description_zh": "搜索方法：hybrid_search（融合检索）/vector_search（向量检索）/full_text_search（全文检索）",
+        "default": "hybrid_search",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "reranking_enable",
+        "description": "Enable reranking",
+        "description_zh": "是否启用重排序",
+        "default": "true",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "reranking_mode",
+        "description": "Reranking mode",
+        "description_zh": "重排序模式：performance/high_accuracy",
+        "default": "performance",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "rewrite_enable",
+        "description": "Enable query rewrite",
+        "description_zh": "是否启用黑话改写",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "related_search_enable",
+        "description": "Enable related search",
+        "description_zh": "是否启用关联 Chunk 检索",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "float",
+        "name": "score_threshold",
+        "description": "Score threshold 0-1",
+        "description_zh": "相似度阈值（0-1）",
+        "default": 0,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Top K results",
+        "description_zh": "返回结果数量（1-100）",
+        "default": 10,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "multi_modal",
+        "description": "Return multimodal chunks",
+        "description_zh": "是否返回多模态块（图片/表格）",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query string.\", \"description_zh\": \"搜索查询词\"}, \"kds_list\": {\"type\": \"array\", \"description\": \"The list of knowledge base IDs (kds_id) to search. If not provided, uses the kds_list from tool configuration.\", \"description_zh\": \"要检索的知识库 ID 列表，如不提供则使用工具配置中的 kds_list\", \"nullable\": true}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "false",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 2,
+    "name": "analyze_audio",
+    "origin_name": "analyze_audio",
+    "description": "This tool uses the configured video understanding model to understand audio based on your query and then returns an audio analysis result.\nIt is used to understand and analyze one audio file, with sources supporting S3 URLs (s3://bucket/key or /bucket/key), HTTP, and HTTPS URLs.\nUse this tool when you want to retrieve information contained in audio and provide the audio URL and your query.",
+    "description_zh": "使用视频理解模型，根据你的问题理解音频，并返回音频分析结果。可用于理解和分析一个音频文件，支持 S3 URL（s3://bucket/key 或 /bucket/key）、HTTP 和 HTTPS URL。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "integer",
+        "name": "selected_model_id",
+        "description": "Optional Nexent video understanding model ID to use for audio analysis. If omitted, the default video understanding model is used.",
+        "description_zh": null,
+        "default": null,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"audio_url\": {\"type\": \"string\", \"description\": \"Audio URL (S3, HTTP, or HTTPS). Supports s3://bucket/key, /bucket/key, http://, and https:// URLs.\", \"description_zh\": \"音频 URL（S3、HTTP 或 HTTPS）。支持 s3://bucket/key、/bucket/key、http:// 和 https:// URL。\"}, \"query\": {\"type\": \"string\", \"description\": \"User's question to guide the audio analysis\", \"description_zh\": \"用户的问题，用于指导音频分析\"}}",
+    "category": "multimodal",
+    "labels": [
+      "multimodal"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 3,
+    "name": "analyze_image",
+    "origin_name": "analyze_image",
+    "description": "This tool uses the configured image understanding model to understand images based on your query and then returns a description of the image.\nIt is used to understand and analyze multiple images, with image sources supporting S3 URLs (s3://bucket/key or /bucket/key), HTTP, and HTTPS URLs.\nUse this tool when you want to retrieve information contained in an image and provide the image's URL and your query.",
+    "description_zh": "使用图片理解模型，根据你的提示词来理解图像，并返回图像的描述。可用于理解和分析多张图片，支持 S3 URLs（s3://bucket/key 或 /bucket/key）、HTTP 和 HTTPS URL。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "integer",
+        "name": "selected_model_id",
+        "description": "Optional Nexent image understanding model ID to use for image analysis. If omitted, the default image understanding model is used.",
+        "description_zh": null,
+        "default": null,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"image_urls_list\": {\"type\": \"array\", \"description\": \"List of image URLs (S3, HTTP, or HTTPS). Supports s3://bucket/key, /bucket/key, http://, and https:// URLs.\", \"description_zh\": \"列表形式输入图片 URL（S3、HTTP 或 HTTPS）。支持 s3://bucket/key、/bucket/key、http:// 和 https:// URL。\"}, \"query\": {\"type\": \"string\", \"description\": \"User's question to guide the analysis\", \"description_zh\": \"用户的问题，用于指导分析\"}}",
+    "category": "multimodal",
+    "labels": [
+      "multimodal"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 4,
+    "name": "analyze_text_file",
+    "origin_name": "analyze_text_file",
+    "description": "Extract content from text files and analyze them using a large language model based on your query. Supports multiple files from S3 URLs (s3://bucket/key or /bucket/key), HTTP, and HTTPS URLs. The tool will extract text content from each file and return an analysis based on your question.",
+    "description_zh": "从文本文件中提取内容，并根据你的问题使用大语言模型进行分析。支持来自 S3、HTTP 和 HTTPS URL 的多个文件。支持 s3://bucket/key、/bucket/key、http:// 和 https:// URL。该工具将从每个文件中提取文本内容，并根据你的问题返回分析结果。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "integer",
+        "name": "selected_model_id",
+        "description": "Optional Nexent LLM model ID to use for text file analysis. If omitted, the default LLM model is used.",
+        "description_zh": null,
+        "default": null,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"file_url_list\": {\"type\": \"array\", \"description\": \"List of file URLs (S3, HTTP, or HTTPS). Supports s3://bucket/key, /bucket/key, http://, and https:// URLs.\", \"description_zh\": \"文件 URL 列表（S3、HTTP 或 HTTPS）。支持 s3://bucket/key、/bucket/key、http:// 和 https:// URL。\"}, \"query\": {\"type\": \"string\", \"description\": \"User's question to guide the analysis\", \"description_zh\": \"用户的问题，用于指导分析\"}}",
+    "category": "multimodal",
+    "labels": [
+      "multimodal"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 5,
+    "name": "analyze_video",
+    "origin_name": "analyze_video",
+    "description": "This tool uses the configured video understanding model to understand video based on your query and then returns a video analysis result.\nIt is used to understand and analyze one video, with sources supporting S3 URLs (s3://bucket/key or /bucket/key), HTTP, and HTTPS URLs.\nUse this tool when you want to retrieve information contained in a video and provide the video URL and your query.",
+    "description_zh": "使用视频理解模型，根据你的问题理解视频，并返回视频分析结果。可用于理解和分析一个视频，支持 S3 URL（s3://bucket/key 或 /bucket/key）、HTTP 和 HTTPS URL。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "integer",
+        "name": "selected_model_id",
+        "description": "Optional Nexent video understanding model ID to use for video analysis. If omitted, the default video understanding model is used.",
+        "description_zh": null,
+        "default": null,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"video_url\": {\"type\": \"string\", \"description\": \"Video URL (S3, HTTP, or HTTPS). Supports s3://bucket/key, /bucket/key, http://, and https:// URLs.\", \"description_zh\": \"视频 URL（S3、HTTP 或 HTTPS）。支持 s3://bucket/key、/bucket/key、http:// 和 https:// URL。\"}, \"query\": {\"type\": \"string\", \"description\": \"User's question to guide the video analysis\", \"description_zh\": \"用户的问题，用于指导视频分析\"}}",
+    "category": "multimodal",
+    "labels": [
+      "multimodal"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 54,
+    "name": "agent_list_tools",
+    "origin_name": "agent_list_tools",
+    "description": "Read the backend agent tool catalog, risk levels and schemas.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 55,
+    "name": "agent_list_approvals",
+    "origin_name": "agent_list_approvals",
+    "description": "Read pending and decided human-approval records.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 6,
+    "name": "create_directory",
+    "origin_name": "create_directory",
+    "description": "Create a directory at the specified path. Path should be relative to the workspace (e.g., 'documents/subfolder'). Absolute paths are not allowed for security reasons. Will create parent directories if they don't exist. If the target directory already exists, the operation will still succeed without error.",
+    "description_zh": "在指定路径创建目录，路径需为工作区相对路径（例如，'documents/subfolder'），出于安全考虑，不支持绝对路径，父目录不存在时将自动创建。若目标目录已存在，操作仍将完成且不会报错。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"directory_path\": {\"type\": \"string\", \"description\": \"Relative path where the directory should be created (e.g., 'documents/subfolder')\", \"description_zh\": \"要创建的目录的相对路径（例如，'documents/subfolder'）\"}, \"permissions\": {\"type\": \"string\", \"description\": \"Directory permissions in octal format (e.g., '755')\", \"description_zh\": \"目录权限，八进制格式（例如，'755'）\", \"default\": \"755\", \"nullable\": true}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 7,
+    "name": "create_file",
+    "origin_name": "create_file",
+    "description": "Create a file at the specified path and write content to it. Path should be relative to the workspace (e.g., 'documents/file.txt'). Absolute paths are not allowed for security reasons. If content is empty, creates an empty file. Supports custom encoding, defaults to utf-8. Will create parent directories if they don't exist.",
+    "description_zh": "在指定路径创建文件并写入内容。路径需为工作区相对路径（例如，'documents/file.txt'），父目录不存在时将自动创建。出于安全考虑，不支持绝对路径。若内容为空则创建空文件，支持自定义编码，默认为 utf-8 。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"file_path\": {\"type\": \"string\", \"description\": \"Relative path where the file should be created (e.g., 'documents/file.txt')\", \"description_zh\": \"文件创建的相对路径（例如，'documents/file.txt'）\"}, \"content\": {\"type\": \"string\", \"description\": \"Content to write to the file. If empty, creates an empty file\", \"description_zh\": \"写入文件的内容。如果为空，创建空文件\", \"nullable\": true}, \"encoding\": {\"type\": \"string\", \"description\": \"File encoding, defaults to utf-8\", \"description_zh\": \"文件编码，默认为 utf-8\", \"default\": \"utf-8\", \"nullable\": true}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 8,
+    "name": "datamate_search",
+    "origin_name": "datamate_search",
+    "description": "Performs a DataMate knowledge base search based on your query then returns the top search results. A tool for retrieving domain-specific knowledge, documents, and information stored in the DataMate knowledge base. Use this tool when users ask questions related to specialized knowledge, technical documentation, domain expertise, or any information that has been indexed in the DataMate knowledge base. Suitable for queries requiring access to stored knowledge that may not be publicly available.",
+    "description_zh": "基于你的查询词在 DataMate 知识库中进行搜索，返回最相关的搜索结果。适用于检索 DataMate 知识库中存储的领域专业知识、文档和信息。当用户询问与专业知识、技术文档、领域专长或任何已在 DataMate 知识库中建立索引的信息相关的问题时，请使用此工具。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "server_url",
+        "description": "DataMate server url. (e.g., 'https://192.168.1.100:8080' or 'https://datamate.example.com:8443')",
+        "description_zh": "服务器 IP 地址",
+        "optional": "false"
+      },
+      {
+        "type": "boolean",
+        "name": "verify_ssl",
+        "description": "Whether to verify SSL certificates for HTTPS connections",
+        "description_zh": "是否验证 HTTPS 连接的 SSL 证书",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "array",
+        "name": "index_names",
+        "description": "The list of index names to search",
+        "description_zh": "要索引的知识库",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Default maximum number of search results to return",
+        "description_zh": "返回的搜索结果最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "float",
+        "name": "threshold",
+        "description": "Default similarity threshold for search results",
+        "description_zh": "搜索结果的相似度阈值",
+        "default": 0.2,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "rerank",
+        "description": "Whether to enable reranking for search results",
+        "description_zh": null,
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "rerank_model_name",
+        "description": "The name of the rerank model to use",
+        "description_zh": null,
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "kb_page",
+        "description": "Page index when listing knowledge bases from DataMate",
+        "description_zh": "从 DataMate 列出知识库时的页面索引",
+        "default": 1,
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "kb_page_size",
+        "description": "Page size when listing knowledge bases from DataMate",
+        "description_zh": "从 DataMate 列出知识库时的页面大小",
+        "default": 20,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 9,
+    "name": "delete_directory",
+    "origin_name": "delete_directory",
+    "description": "Delete a directory at the specified path. Path should be relative to the workspace (e.g., 'documents/subfolder'). Absolute paths are not allowed for security reasons. This operation is irreversible and will delete the directory and all its contents. Use with caution as deleted directories cannot be recovered.",
+    "description_zh": "删除指定路径的目录，路径需为工作区相对路径（例如，'documents/subfolder'），出于安全考虑，不支持绝对路径。该操作不可逆，会删除目标目录及其中所有内容，删除后无法恢复，使用时请谨慎操作。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"directory_path\": {\"type\": \"string\", \"description\": \"Relative path of the directory to delete (e.g., 'documents/subfolder')\", \"description_zh\": \"要删除的目录的相对路径（例如，'documents/subfolder'）\"}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 10,
+    "name": "delete_file",
+    "origin_name": "delete_file",
+    "description": "Delete a single file at the specified path. Path should be relative to the workspace (e.g., 'documents/file.txt'). Absolute paths are not allowed for security reasons. This operation is irreversible and only works on individual files, not directories. Use with caution as deleted files cannot be recovered.",
+    "description_zh": "删除指定路径的单个文件，路径需为工作区相对路径（例如，'documents/file.txt'），出于安全考虑，不支持绝对路径。该操作仅对单个文件生效，不支持删除目录。删除的文件无法恢复，使用时请谨慎操作。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"file_path\": {\"type\": \"string\", \"description\": \"Relative path of the file to delete (e.g., 'documents/file.txt')\", \"description_zh\": \"要删除的文件的相对路径（例如，'documents/file.txt'）\"}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 11,
+    "name": "dify_search",
+    "origin_name": "dify_search",
+    "description": "Performs a search on a Dify knowledge base based on your query then returns the top search results. A tool for retrieving domain-specific knowledge, documents, and information stored in Dify knowledge bases. Use this tool when users ask questions related to specialized knowledge, technical documentation, domain expertise, or any information that has been indexed in Dify knowledge bases. Suitable for queries requiring access to stored knowledge that may not be publicly available.",
+    "description_zh": "基于你的查询词在 Dify 知识库中进行搜索，返回最相关的搜索结果。适用于检索 Dify 知识库中存储的领域专业知识、文档和信息。当用户询问与专业知识、技术文档、领域专长或任何已在 Dify 知识库中建立索引的信息相关的问题时，请使用此工具。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "server_url",
+        "description": "Dify API base URL. (e.g., 'https://api.dify.ai/v1')",
+        "description_zh": "Dify API 基础 URL",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "api_key",
+        "description": "Dify API key with Bearer token",
+        "description_zh": "Dify API 密钥（带 bearer token）",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "dataset_ids",
+        "description": "JSON string array of Dify dataset IDs",
+        "description_zh": "要索引的 Dify 知识库",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Maximum number of search results per dataset",
+        "description_zh": "每个数据集返回的搜索结果最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "string",
+        "name": "search_method",
+        "description": "Search method: keyword_search, semantic_search, full_text_search, hybrid_search",
+        "description_zh": "搜索方法：keyword_search（关键词搜索）、semantic_search（语义搜索）、full_text_search（全文搜索）、hybrid_search（混合搜索）",
+        "default": "semantic_search",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "rerank",
+        "description": "Whether to enable reranking for search results",
+        "description_zh": null,
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "rerank_model_name",
+        "description": "The name of the rerank model to use",
+        "description_zh": null,
+        "default": "",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 13,
+    "name": "exa_search",
+    "origin_name": "exa_search",
+    "description": "Performs a internet search based on your query (think a Google search) then returns the top search results. A tool for retrieving publicly available information, news, general knowledge, or non-proprietary data from the internet. Use this for real-time open-domain updates, broad topics, or or general knowledge queries",
+    "description_zh": "基于你的查询词进行互联网搜索，返回最相关的搜索结果。适用于获取公开信息、新闻、通用知识或互联网上的非专有数据。特别适合实时信息更新、广泛话题或通用知识查询。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "exa_api_key",
+        "description": "EXA API key",
+        "description_zh": "Exa API 密钥",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "max_results",
+        "description": "Maximum number of search results",
+        "description_zh": "返回搜索结果的最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "image_filter",
+        "description": "Whether to enable image filtering",
+        "description_zh": "是否启用图片过滤",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "search"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 14,
+    "name": "get_email",
+    "origin_name": "get_email",
+    "description": "Get emails from email server. Supports filtering emails by time range and sender (sender must be an email address, not a name or non-ASCII string; subject filtering is not supported due to IMAP limitations).",
+    "description_zh": "获取邮件，支持按时间范围和发件人筛选。受 IMAP 限制，暂不支持按主题筛选。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "imap_server",
+        "description": "IMAP Server Address",
+        "description_zh": "IMAP 服务器地址",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "imap_port",
+        "description": "IMAP Server Port",
+        "description_zh": "IMAP 服务器端口",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "username",
+        "description": "IMAP Server Username",
+        "description_zh": "IMAP 服务器用户名",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "IMAP Server Password",
+        "description_zh": "IMAP 服务器密码",
+        "optional": "false"
+      },
+      {
+        "type": "boolean",
+        "name": "use_ssl",
+        "description": "Use SSL",
+        "description_zh": "使用 SSL",
+        "default": "true",
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "timeout",
+        "description": "Timeout",
+        "description_zh": "连接超时时间（秒）",
+        "default": 30,
+        "optional": "true",
+        "constraints": {
+          "ge": 1
+        }
+      }
+    ],
+    "inputs": "{\"days\": {\"type\": \"integer\", \"description\": \"Get emails from the past few days, default is 7 days\", \"description_zh\": \"搜索邮件的天数，默认为 7 天\", \"default\": 7, \"nullable\": true}, \"sender\": {\"type\": \"string\", \"description\": \"Filter by sender (must be an email address, not a name or non-ASCII string)\", \"description_zh\": \"按发件人邮箱地址筛选\", \"nullable\": true}, \"max_emails\": {\"type\": \"integer\", \"description\": \"Maximum number of emails to retrieve, default is 10\", \"description_zh\": \"最多获取的邮件数量，默认为 10\", \"default\": 10, \"nullable\": true}}",
+    "category": "email",
+    "labels": [
+      "email"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 15,
+    "name": "haotian_search",
+    "origin_name": "haotian_search",
+    "description": "Performs a search on Haotian external knowledge bases based on your query then returns the top search results.",
+    "description_zh": "基于你的查询词在 Haotian 外部知识库中进行检索，返回最相关的搜索结果。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "list_url",
+        "description": "Haotian knowledge sets list URL",
+        "description_zh": "Haotian 知识集/知识库列表 URL",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "retrieve_url",
+        "description": "Haotian retrieve API URL",
+        "description_zh": "Haotian 检索 API URL",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "authorization",
+        "description": "Authorization header value, e.g. 'Bearer xxx'",
+        "description_zh": "Haotian Authorization 头（例如：Bearer xxx）",
+        "optional": "false"
+      },
+      {
+        "type": "any",
+        "name": "dataset_ids",
+        "description": "Selected dataset ids (JSON string array or list)",
+        "description_zh": "选择的知识库 ID（dify_dataset_id）列表（JSON 字符串数组）",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Maximum number of search results",
+        "description_zh": "返回的搜索结果最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "string",
+        "name": "search_method",
+        "description": "Search method",
+        "description_zh": "搜索方法：仅支持 keyword_search（Haotian 不支持语义搜索或混合搜索）",
+        "default": "keyword_search",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "reranking_enable",
+        "description": "Whether to enable reranking in retrieve API",
+        "description_zh": "是否启用检索接口内置 rerank",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "reranking_provider_name",
+        "description": "Reranking provider name",
+        "description_zh": "Rerank 提供方名称",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "reranking_model_name",
+        "description": "Reranking model name",
+        "description_zh": "Rerank 模型名称",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "float",
+        "name": "keyword_weight",
+        "description": "Keyword weight",
+        "description_zh": "关键词权重",
+        "default": 0.1,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "float",
+        "name": "vector_weight",
+        "description": "Vector weight",
+        "description_zh": "向量权重",
+        "default": 0.3,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "string",
+        "name": "embedding_provider_name",
+        "description": "Embedding provider name",
+        "description_zh": "Embedding 提供方名称",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "embedding_model_name",
+        "description": "Embedding model name",
+        "description_zh": "Embedding 模型名称",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "score_threshold_enabled",
+        "description": "Whether to enable score threshold",
+        "description_zh": "是否启用 score 阈值",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "Optional",
+        "name": "score_threshold",
+        "description": "Score threshold",
+        "description_zh": "score 阈值",
+        "default": null,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 16,
+    "name": "idata_search",
+    "origin_name": "idata_search",
+    "description": "Performs a search on an iData knowledge base based on your query then returns the top search results. A tool for retrieving domain-specific knowledge, documents, and information stored in iData knowledge bases. Use this tool when users ask questions related to specialized knowledge, technical documentation, domain expertise, or any information that has been indexed in iData knowledge bases. Suitable for queries requiring access to stored knowledge that may not be publicly available.",
+    "description_zh": "基于你的查询词在 iData 知识库中进行搜索，返回最相关的搜索结果。适用于检索 iData 知识库中存储的领域专业知识、文档和信息。当用户询问与专业知识、技术文档、领域专长或任何已在 iData 知识库中建立索引的信息相关的问题时，请使用此工具。特别适合需要访问可能无法公开获取的存储知识的查询。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "server_url",
+        "description": "iData API base URL",
+        "description_zh": "iData API 基础 URL",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "api_key",
+        "description": "iData API key with Bearer token",
+        "description_zh": "iData API 密钥（带 Bearer token）",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "user_id",
+        "description": "iData user ID",
+        "description_zh": "iData 用户 ID",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "knowledge_space_id",
+        "description": "iData knowledge space ID",
+        "description_zh": "iData 知识空间 ID",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "dataset_ids",
+        "description": "JSON string array of iData knowledge base IDs",
+        "description_zh": "iData 知识库 ID 的 JSON 字符串数组",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "rerank_model_id",
+        "description": "Rerank model ID",
+        "description_zh": "Rerank 模型 ID",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Maximum number of search results",
+        "description_zh": "最大返回搜索结果数量",
+        "default": 10,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "float",
+        "name": "similarity_threshold",
+        "description": "Rerank similarity threshold score",
+        "description_zh": "Rerank 相似度阈值",
+        "default": -10,
+        "optional": "true",
+        "constraints": {
+          "le": 1
+        }
+      },
+      {
+        "type": "float",
+        "name": "keyword_similarity_weight",
+        "description": "Keyword similarity weight",
+        "description_zh": "关键词相似度权重",
+        "default": 0.1,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "float",
+        "name": "vector_similarity_weight",
+        "description": "Vector similarity weight",
+        "description_zh": "向量相似度权重",
+        "default": 0.3,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      }
+    ],
+    "inputs": "{\"question\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 17,
+    "name": "ind_aidp_search",
+    "origin_name": "ind_aidp_search",
+    "description": "Searches independently configured AIDP knowledge bases with FusionSearch. The configured knowledge bases are the default scope; callers may provide a different kds_list for one invocation. Image results include safe image markers; copy a relevant marker unchanged into the final answer and never invent or expose an AIDP image URL.",
+    "description_zh": "通过独立配置的 AIDP FusionSearch 检索知识库。工具配置提供默认知识库范围，每次调用也可以传入不同的 kds_list。相关图片需原样引用结果中的安全图片标记。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "server_url",
+        "description": "Independent AIDP API base URL",
+        "description_zh": "独立 AIDP API 服务地址",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "api_key",
+        "description": "Independent AIDP API key",
+        "description_zh": "独立 AIDP API 密钥",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "tenant_id",
+        "description": "AIDP tenant identifier",
+        "description_zh": "AIDP API 路径中的租户标识",
+        "default": "aidp",
+        "optional": "true"
+      },
+      {
+        "type": "array",
+        "name": "kds_list",
+        "description": "Knowledge base IDs",
+        "description_zh": "此工具实例固定检索的知识库 ID 列表",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "search_method",
+        "description": "Search method",
+        "description_zh": "检索方式",
+        "default": "hybrid_search",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "reranking_enable",
+        "description": "Enable reranking",
+        "description_zh": "是否启用重排",
+        "default": "true",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "reranking_mode",
+        "description": "Reranking mode",
+        "description_zh": "重排模式",
+        "default": "performance",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "rewrite_enable",
+        "description": "Enable query rewrite",
+        "description_zh": "是否启用查询改写",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "related_search_enable",
+        "description": "Enable related search",
+        "description_zh": "是否启用关联检索",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "float",
+        "name": "score_threshold",
+        "description": "Score threshold",
+        "description_zh": "相似度阈值（0-1）",
+        "default": 0,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Top K results",
+        "description_zh": "返回结果数量（1-100）",
+        "default": 10,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "multi_modal",
+        "description": "Return multimodal chunks",
+        "description_zh": "是否返回图片和表格块",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query string.\", \"description_zh\": \"搜索查询词\"}, \"kds_list\": {\"type\": \"array\", \"description\": \"Optional knowledge base IDs for this call. When omitted, the knowledge bases configured on the tool are used.\", \"description_zh\": \"本次调用使用的知识库 ID；不传时使用工具配置中的知识库\", \"nullable\": true}}",
+    "category": "search",
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 18,
+    "name": "knowledge_base_search",
+    "origin_name": "knowledge_base_search",
+    "description": "Performs a local knowledge base search based on your query then returns the top search results. A tool for retrieving domain-specific knowledge, documents, and information stored in the local knowledge base. Use this tool when users ask questions related to specialized knowledge, technical documentation, domain expertise, personal notes, or any information that has been indexed in the knowledge base. Suitable for queries requiring access to stored knowledge that may not be publicly available.",
+    "description_zh": "执行本地知识库检索并返回最相关的结果。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Maximum number of search results",
+        "description_zh": "返回搜索结果的最大数量。",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "array",
+        "name": "index_names",
+        "description": "The list of index names to search",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "search_mode",
+        "description": "the search mode, optional values: hybrid, accurate, semantic",
+        "description_zh": "搜索模式，可选：hybrid、accurate、semantic。",
+        "default": "hybrid",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "rerank",
+        "description": "Whether to enable reranking for search results",
+        "description_zh": null,
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "rerank_model_name",
+        "description": "The name of the rerank model to use",
+        "description_zh": null,
+        "default": "",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}, \"index_names\": {\"type\": \"array\", \"description\": \"The list of index names to search\", \"description_zh\": \"要索引的知识库\", \"nullable\": true}}",
+    "category": "search",
+    "labels": [
+      "search"
+    ],
+    "is_user_selectable": "false",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 19,
+    "name": "linkup_search",
+    "origin_name": "linkup_search",
+    "description": "Performs a search using the Linkup API and returns the top search results. A tool for retrieving publicly available information, news, general knowledge, or non-proprietary data from the internet. Use this for real-time open-domain updates, broad topics, or general knowledge queries.",
+    "description_zh": "使用 Linkup API 进行搜索，返回最相关的搜索结果。适用于获取公开信息、新闻、通用知识或互联网上的非专有数据。特别适合实时信息更新、广泛话题或通用知识查询。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "linkup_api_key",
+        "description": "Linkup API key",
+        "description_zh": "Linkup API 密钥",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "max_results",
+        "description": "Maximum number of search results",
+        "description_zh": "搜索结果的最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "image_filter",
+        "description": "Whether to enable image filtering",
+        "description_zh": "是否启用图片过滤",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "search"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 20,
+    "name": "list_directory",
+    "origin_name": "list_directory",
+    "description": "List contents of a directory in tree structure format. Path should be relative to the workspace (e.g., 'documents' or '.' for current workspace). Absolute paths are not allowed for security reasons. Returns a hierarchical tree view of files and directories with metadata.",
+    "description_zh": "以树形结构格式列出目录下所有内容。路径需为工作区相对路径（例如，'documents'或'.'表示当前工作空间），出于安全考虑，不支持绝对路径。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"directory_path\": {\"type\": \"string\", \"description\": \"Relative path of the directory to list (e.g., 'documents' or '.' for workspace root)\", \"description_zh\": \"要列出的目录的相对路径（例如，'documents'或'.'表示工作区根目录）\", \"default\": \".\", \"nullable\": true}, \"max_depth\": {\"type\": \"integer\", \"description\": \"Maximum depth to traverse (default: 3, max: 10)\", \"description_zh\": \"遍历的最大深度（默认：3，最大：10）\", \"default\": 3, \"nullable\": true}, \"show_hidden\": {\"type\": \"boolean\", \"description\": \"Whether to show hidden files/directories (starting with .)\", \"description_zh\": \"是否显示隐藏文件/目录（以.开头）\", \"default\": false, \"nullable\": true}, \"show_size\": {\"type\": \"boolean\", \"description\": \"Whether to show file sizes\", \"description_zh\": \"是否显示文件大小\", \"default\": true, \"nullable\": true}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 21,
+    "name": "move_item",
+    "origin_name": "move_item",
+    "description": "Move a file or directory from source path to destination path. Both paths should be relative to the workspace (e.g., 'documents/file.txt' to 'backup/file.txt'). Absolute paths are not allowed for security reasons. Works for both files and directories. If destination directory doesn't exist, it will be created. If destination already exists, the operation will fail to prevent overwriting.",
+    "description_zh": "将文件或目录从源路径移动到目标路径，路径需为工作区相对路径（例如，从'documents/file.txt'移动到'backup/file.txt'），出于安全考虑，不支持绝对路径。如果目标目录不存在，则自动创建。为防止文件覆盖，如果目标文件已存在，操作会执行失败。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"source_path\": {\"type\": \"string\", \"description\": \"Relative path of source file or directory to move (e.g., 'documents/file.txt')\", \"description_zh\": \"要移动的源文件或目录的相对路径（例如，'documents/file.txt'）\"}, \"destination_path\": {\"type\": \"string\", \"description\": \"Relative path of destination (e.g., 'backup/file.txt')\", \"description_zh\": \"目标的相对路径（例如，'backup/file.txt'）\"}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 22,
+    "name": "mssql_database",
+    "origin_name": "mssql_database",
+    "description": "Execute SQL queries on Microsoft SQL Server database. This tool provides a standardized interface for AI agents to query SQL Server databases. It supports parameter binding and security controls. Security restrictions: DROP DATABASE, GRANT, REVOKE, CREATE USER, INTO OUTFILE, LOAD DATA INFILE, and EXEC xp_* are forbidden. UPDATE and DELETE statements require a WHERE clause. Input: sql, parameters (optional). Output: JSON containing execution status, column names, rows, row_count, and execution_time_ms.",
+    "description_zh": "在 Microsoft SQL Server 数据库上执行 SQL 查询。该工具为 AI 智能体提供标准化的 SQL Server 数据库操作接口。支持参数绑定和安全控制。安全限制：禁止执行 DROP DATABASE、GRANT、REVOKE、CREATE USER、INTO OUTFILE、LOAD DATA INFILE、EXEC xp_* 等危险操作。UPDATE 和 DELETE 语句必须包含 WHERE 子句。输入：sql、parameters（可选）。输出：JSON格式的执行状态、列名、行数据、行数、执行时间。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "host",
+        "description": "SQL Server database host IP or domain",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "user",
+        "description": "SQL Server database username",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "SQL Server database password",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "database",
+        "description": "SQL Server database name",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "port",
+        "description": "SQL Server database port",
+        "description_zh": null,
+        "default": 1433,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"sql\": {\"type\": \"string\", \"description\": \"SQL query to execute. Use @p1, @p2, ... as parameter placeholders for parameterized queries. Examples: 'SELECT * FROM users WHERE id = @p1', 'SELECT name, email FROM orders WHERE status = @p1'\", \"description_zh\": \"要执行的 SQL 查询。使用 @p1, @p2, ... 作为参数占位符进行参数化查询。示例：'SELECT * FROM users WHERE id = @p1'\", \"required\": true}, \"parameters\": {\"type\": \"array\", \"description\": \"Optional list of parameter values for parameterized queries. Parameters are bound in order to @p1, @p2, ... placeholders in the SQL.\", \"description_zh\": \"可选的参数值列表，用于参数化查询。\", \"nullable\": true}, \"max_rows\": {\"type\": \"integer\", \"description\": \"Maximum number of rows to return. Default is 100.\", \"description_zh\": \"最多返回的行数，默认100。\", \"default\": 100, \"nullable\": true}, \"timeout\": {\"type\": \"integer\", \"description\": \"Query execution timeout in seconds. Default is 10 seconds.\", \"description_zh\": \"查询执行超时时间（秒），默认10秒。\", \"default\": 10, \"nullable\": true}}",
+    "category": "database",
+    "labels": [
+      "database"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 23,
+    "name": "mysql_database",
+    "origin_name": "mysql_database",
+    "description": "Execute SQL queries on MySQL database. This tool provides a standardized interface for AI agents to query MySQL databases. It supports parameter binding and security controls. Security restrictions: DROP DATABASE, GRANT, REVOKE, CREATE USER, INTO OUTFILE, LOAD DATA INFILE are forbidden. UPDATE and DELETE statements require a WHERE clause. Input: sql, parameters (optional). Output: JSON containing execution status, column names, rows, row_count, and execution_time_ms.",
+    "description_zh": "在 MySQL 数据库上执行 SQL 查询。该工具为 AI 智能体提供标准化的 MySQL 数据库操作接口。支持参数绑定和安全控制。安全限制：禁止执行 DROP DATABASE、GRANT、REVOKE、CREATE USER、INTO OUTFILE、LOAD DATA INFILE 等危险操作。UPDATE 和 DELETE 语句必须包含 WHERE 子句。输入：sql、parameters（可选）。输出：JSON格式的执行状态、列名、行数据、行数、执行时间。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "host",
+        "description": "MySQL database host IP or domain",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "user",
+        "description": "MySQL database username",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "MySQL database password",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "database",
+        "description": "MySQL database name",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "port",
+        "description": "MySQL database port",
+        "description_zh": null,
+        "default": 3306,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"sql\": {\"type\": \"string\", \"description\": \"SQL query to execute. Use ? as parameter placeholders for parameterized queries. Examples: 'SELECT * FROM users WHERE id = ?', 'SELECT name, email FROM orders WHERE status = ? AND amount > ?'\", \"description_zh\": \"要执行的 SQL 查询。使用 ? 作为参数占位符进行参数化查询。示例：'SELECT * FROM users WHERE id = ?'、'SELECT name, email FROM orders WHERE status = ? AND amount > ?'\", \"required\": true}, \"parameters\": {\"type\": \"array\", \"description\": \"Optional list of parameter values for parameterized queries. Parameters are bound in order to ? placeholders in the SQL.\", \"description_zh\": \"可选的参数值列表，用于参数化查询。\", \"nullable\": true}, \"max_rows\": {\"type\": \"integer\", \"description\": \"Maximum number of rows to return. Default is 100.\", \"description_zh\": \"最多返回的行数，默认100。\", \"default\": 100, \"nullable\": true}, \"timeout\": {\"type\": \"integer\", \"description\": \"Query execution timeout in seconds. Default is 10 seconds.\", \"description_zh\": \"查询执行超时时间（秒），默认10秒。\", \"default\": 10, \"nullable\": true}}",
+    "category": "database",
+    "labels": [
+      "database"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 25,
+    "name": "postgres_database",
+    "origin_name": "postgres_database",
+    "description": "Execute SQL queries on PostgreSQL database. This tool provides a standardized interface for AI agents to query PostgreSQL databases. It supports parameter binding and security controls. Security restrictions: DROP DATABASE, GRANT, REVOKE, CREATE USER, INTO OUTFILE, LOAD DATA INFILE are forbidden. UPDATE and DELETE statements require a WHERE clause. Input: sql, parameters (optional). Output: JSON containing execution status, column names, rows, row_count, and execution_time_ms.",
+    "description_zh": "在 PostgreSQL 数据库上执行 SQL 查询。该工具为 AI 智能体提供标准化的 PostgreSQL 数据库操作接口。支持参数绑定和安全控制。安全限制：禁止执行 DROP DATABASE、GRANT、REVOKE、CREATE USER、INTO OUTFILE、LOAD DATA INFILE 等危险操作。UPDATE 和 DELETE 语句必须包含 WHERE 子句。输入：sql、parameters（可选）。输出：JSON格式的执行状态、列名、行数据、行数、执行时间。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "host",
+        "description": "PostgreSQL database host IP or domain",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "user",
+        "description": "PostgreSQL database username",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "PostgreSQL database password",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "database",
+        "description": "PostgreSQL database name",
+        "description_zh": null,
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "port",
+        "description": "PostgreSQL database port",
+        "description_zh": null,
+        "default": 5432,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"sql\": {\"type\": \"string\", \"description\": \"SQL query to execute. Use $1, $2, ... as parameter placeholders for parameterized queries. Examples: 'SELECT * FROM users WHERE id = $1', 'SELECT name, email FROM orders WHERE status = $1 AND amount > $2'\", \"description_zh\": \"要执行的 SQL 查询。使用 $1, $2, ... 作为参数占位符进行参数化查询。示例：'SELECT * FROM users WHERE id = $1'、'SELECT name, email FROM orders WHERE status = $1 AND amount > $2'\", \"required\": true}, \"parameters\": {\"type\": \"array\", \"description\": \"Optional list of parameter values for parameterized queries. Parameters are bound in order to $1, $2, ... placeholders in the SQL.\", \"description_zh\": \"可选的参数值列表，用于参数化查询。\", \"nullable\": true}, \"max_rows\": {\"type\": \"integer\", \"description\": \"Maximum number of rows to return. Default is 100.\", \"description_zh\": \"最多返回的行数，默认100。\", \"default\": 100, \"nullable\": true}, \"timeout\": {\"type\": \"integer\", \"description\": \"Query execution timeout in seconds. Default is 10 seconds.\", \"description_zh\": \"查询执行超时时间（秒），默认10秒。\", \"default\": 10, \"nullable\": true}}",
+    "category": "database",
+    "labels": [
+      "database"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 26,
+    "name": "ragflow_search",
+    "origin_name": "ragflow_search",
+    "description": "Performs a search on a RAGFlow knowledge base based on your query then returns the top search results. A tool for retrieving domain-specific knowledge, documents, and information stored in RAGFlow knowledge bases. Use this tool when users ask questions related to specialized knowledge, technical documentation, domain expertise, or any information that has been indexed in RAGFlow datasets. Suitable for queries requiring access to stored knowledge that may not be publicly available.",
+    "description_zh": "基于你的查询词在 RAGFlow 知识库中进行搜索，返回最相关的搜索结果。适用于检索 RAGFlow 知识库中存储的领域专业知识、文档和信息。当用户询问与专业知识、技术文档、领域专长或任何已在 RAGFlow 知识库中建立索引的信息相关的问题时，请使用此工具。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "server_url",
+        "description": "RAGFlow API base URL (e.g., 'http://localhost:9380')",
+        "description_zh": "RAGFlow API 基础 URL",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "api_key",
+        "description": "RAGFlow API key",
+        "description_zh": "RAGFlow API 密钥",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "dataset_ids",
+        "description": "JSON string array of RAGFlow dataset IDs",
+        "description_zh": "要检索的 RAGFlow 知识库 ID 列表",
+        "default": "[]",
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "top_k",
+        "description": "Maximum number of search results to return to the LLM",
+        "description_zh": "返回给 LLM 的搜索结果最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "float",
+        "name": "similarity_threshold",
+        "description": "Minimum similarity score threshold for results",
+        "description_zh": "结果的最小相似度阈值",
+        "default": 0.2,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "float",
+        "name": "vector_similarity_weight",
+        "description": "Weight of vector similarity in hybrid search (0.0-1.0)",
+        "description_zh": "混合搜索中向量相似度的权重 (0.0-1.0)",
+        "default": 0.3,
+        "optional": "true",
+        "constraints": {
+          "ge": 0,
+          "le": 1
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "keyword",
+        "description": "Whether to enable keyword search in hybrid mode",
+        "description_zh": "是否在混合搜索中启用关键词搜索",
+        "default": "false",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "highlight",
+        "description": "Whether to enable highlight in search results",
+        "description_zh": "是否在搜索结果中启用高亮",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}, \"doc_id\": {\"type\": \"string\", \"description\": \"Optional. Restrict search to a specific document ID. Pass a single document ID string, or a JSON array of document IDs. Leave empty to search across all documents in the selected datasets.\", \"description_zh\": \"可选。限定搜索到特定文档 ID。可传入单个文档 ID 字符串，或 JSON 数组格式的多个文档 ID。留空则在整个选定知识库中搜索。\", \"nullable\": true}, \"dataset_ids\": {\"type\": \"string\", \"description\": \"Optional. JSON string array of RAGFlow dataset IDs to override the configured datasets for this search. When provided, only these datasets are searched instead of the configured ones.\", \"description_zh\": \"可选。用于覆盖本次搜索配置的 RAGFlow 知识库 ID 列表（JSON 字符串数组）。传入时，只搜索此处指定的知识库，替换配置中的知识库列表。\", \"nullable\": true}}",
+    "category": "search",
+    "labels": [
+      "knowledge-base"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 27,
+    "name": "read_file",
+    "origin_name": "read_file",
+    "description": "Read content from a file at the specified path. Path should be relative to the workspace (e.g., 'documents/file.txt'). Absolute paths are not allowed for security reasons. Supports custom encoding, defaults to utf-8. Returns the file content as a string along with file metadata.",
+    "description_zh": "读取指定文件的内容，路径需为工作区相对路径（例如，'documents/file.txt'），出于安全考虑，不支持绝对路径。支持自定义编码，默认为 utf-8 ，文件内容以字符串形式返回，同时返回文件元数据。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作区路径",
+        "default": "/mnt/nexent",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"file_path\": {\"type\": \"string\", \"description\": \"Relative path of the file to read (e.g., 'documents/file.txt')\", \"description_zh\": \"要读取的文件的相对路径（例如，'documents/file.txt'）\"}, \"encoding\": {\"type\": \"string\", \"description\": \"File encoding, defaults to utf-8\", \"description_zh\": \"文件编码，默认为 utf-8\", \"default\": \"utf-8\", \"nullable\": true}}",
+    "category": "file",
+    "labels": [
+      "file"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 29,
+    "name": "send_email",
+    "origin_name": "send_email",
+    "description": "Send email to specified recipients. Supports only HTML formatted email content, and can add multiple recipients, CC, and BCC.",
+    "description_zh": "向指定收件人发送 HTML 格式邮件，支持添加多个收件人、抄送和密送。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "smtp_server",
+        "description": "",
+        "description_zh": "SMTP 服务器地址",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "smtp_port",
+        "description": "",
+        "description_zh": "SMTP 服务器端口",
+        "default": 587,
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "username",
+        "description": "",
+        "description_zh": "SMTP 服务器用户名",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "",
+        "description_zh": "SMTP 服务器密码",
+        "default": "",
+        "optional": "true"
+      },
+      {
+        "type": "boolean",
+        "name": "use_ssl",
+        "description": "",
+        "description_zh": "使用 SSL/TLS 加密（设为 False 使用明文）",
+        "default": "true",
+        "optional": "true"
+      },
+      {
+        "type": "Optional",
+        "name": "sender_email",
+        "description": "",
+        "description_zh": "实际发件人邮箱地址，默认为 username",
+        "default": null,
+        "optional": "true"
+      },
+      {
+        "type": "Optional",
+        "name": "sender_name",
+        "description": "",
+        "description_zh": "发件人名称",
+        "default": null,
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "timeout",
+        "description": "",
+        "description_zh": "连接超时时间（秒）",
+        "default": 30,
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"to\": {\"type\": \"string\", \"description\": \"Recipient email address, multiple recipients separated by commas\", \"description_zh\": \"收件人邮箱地址，多个收件人用逗号分隔\"}, \"subject\": {\"type\": \"string\", \"description\": \"Email subject\", \"description_zh\": \"邮件主题\"}, \"content\": {\"type\": \"string\", \"description\": \"Email content, supports HTML format\", \"description_zh\": \"邮件内容，支持 HTML 格式\"}, \"cc\": {\"type\": \"string\", \"description\": \"CC email address, multiple CCs separated by commas, optional\", \"description_zh\": \"抄送邮箱地址，多个抄送用逗号分隔，可选\", \"nullable\": true}, \"bcc\": {\"type\": \"string\", \"description\": \"BCC email address, multiple BCCs separated by commas, optional\", \"description_zh\": \"密送邮箱地址，多个密送用逗号分隔，可选\", \"nullable\": true}, \"sender_email\": {\"type\": \"string\", \"description\": \"Actual sender email address (From address), optional - defaults to username\", \"description_zh\": \"实际发件人邮箱地址（From字段），可选，默认为username\", \"nullable\": true}}",
+    "category": "email",
+    "labels": [
+      "email"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 31,
+    "name": "tavily_search",
+    "origin_name": "tavily_search",
+    "description": "Performs a internet search based on your query (think a Google search) then returns the top search results. A tool for retrieving publicly available information, news, general knowledge, or non-proprietary data from the internet. Use this for real-time open-domain updates, broad topics, or or general knowledge queries",
+    "description_zh": "基于你的查询词进行互联网搜索，返回最相关的搜索结果。适用于获取公开信息、新闻、通用知识或互联网上的非专有数据。特别适合实时信息更新、广泛话题或通用知识查询。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "tavily_api_key",
+        "description": "Tavily API key",
+        "description_zh": "Tavily API 密钥",
+        "optional": "false"
+      },
+      {
+        "type": "integer",
+        "name": "max_results",
+        "description": "Maximum number of search results",
+        "description_zh": "返回搜索结果的最大数量",
+        "default": 3,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 100
+        }
+      },
+      {
+        "type": "boolean",
+        "name": "image_filter",
+        "description": "Whether to enable image filtering",
+        "description_zh": "是否启用图片过滤",
+        "default": "true",
+        "optional": "true"
+      }
+    ],
+    "inputs": "{\"query\": {\"type\": \"string\", \"description\": \"The search query to perform.\", \"description_zh\": \"要执行的搜索查询词\"}}",
+    "category": "search",
+    "labels": [
+      "search"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 32,
+    "name": "terminal",
+    "origin_name": "terminal",
+    "description": "Execute shell commands on a remote terminal via SSH connection. Supports session management to maintain shell state across commands. Uses password authentication for secure connection. Returns the command output as a string.",
+    "description_zh": "通过 SSH 连接在远程终端上执行 shell 命令。支持会话管理以在多个命令之间保持 shell 状态。使用密码认证确保连接安全。返回命令执行的输出结果。",
+    "source": "local",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": null,
+    "params": [
+      {
+        "type": "string",
+        "name": "init_path",
+        "description": "Initial workspace path",
+        "description_zh": "初始工作目录路径",
+        "default": "~",
+        "optional": "true"
+      },
+      {
+        "type": "string",
+        "name": "ssh_host",
+        "description": "SSH host",
+        "description_zh": "SSH 主机地址",
+        "default": "nexent-openssh-server",
+        "optional": "true"
+      },
+      {
+        "type": "integer",
+        "name": "ssh_port",
+        "description": "SSH port",
+        "description_zh": "SSH 端口号",
+        "default": 22,
+        "optional": "true",
+        "constraints": {
+          "ge": 1,
+          "le": 65535
+        }
+      },
+      {
+        "type": "string",
+        "name": "ssh_user",
+        "description": "SSH username",
+        "description_zh": "SSH 用户名",
+        "optional": "false"
+      },
+      {
+        "type": "string",
+        "name": "password",
+        "description": "SSH password",
+        "description_zh": "SSH 密码",
+        "optional": "false"
+      }
+    ],
+    "inputs": "{\"command\": {\"type\": \"string\", \"description\": \"Shell command to execute (e.g., 'ls -la', 'cd /var/log')\", \"description_zh\": \"要执行的 shell 命令（例如：'ls -la', 'cd /var/log'）\"}, \"session_name\": {\"type\": \"string\", \"description\": \"Session name for connection reuse. Default is 'default'\", \"description_zh\": \"会话名称，用于连接复用。默认为 'default'\", \"default\": \"default\", \"nullable\": true}, \"timeout\": {\"type\": \"integer\", \"description\": \"Command timeout in seconds. Default is 30\", \"description_zh\": \"命令超时时间（秒）。默认为 30\", \"default\": 30, \"nullable\": true}}",
+    "category": "terminal",
+    "labels": [
+      "terminal"
+    ],
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 34,
+    "name": "local_test_tool_name",
+    "origin_name": "local_test_tool_name",
+    "description": "test_tool_description",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-28T13:48:12.269926Z",
+    "usage": "outer-apis",
+    "params": [],
+    "inputs": "{'para_1': {'type': 'string', 'description': 'see tool description'}, 'para_2': {'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 35,
+    "name": "knowledge_list_assets",
+    "origin_name": "knowledge_list_assets",
+    "description": "List registered domain assets with optional text and metadata filters.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'query': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Query', 'description': 'see tool description', 'type': 'string'}, 'asset_type': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Asset Type', 'description': 'see tool description', 'type': 'string'}, 'status': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Status', 'description': 'see tool description', 'type': 'string'}, 'region': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Region', 'description': 'see tool description', 'type': 'string'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 20, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 36,
+    "name": "knowledge_asset_detail",
+    "origin_name": "knowledge_asset_detail",
+    "description": "Read one asset and all immutable content versions.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'asset_id': {'title': 'Asset Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 37,
+    "name": "knowledge_list_ontology_versions",
+    "origin_name": "knowledge_list_ontology_versions",
+    "description": "List ontology versions and their review or publication status.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 38,
+    "name": "knowledge_ontology_version_detail",
+    "origin_name": "knowledge_ontology_version_detail",
+    "description": "Read one ontology version.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'version_id': {'title': 'Version Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 39,
+    "name": "knowledge_list_ontology_nodes",
+    "origin_name": "knowledge_list_ontology_nodes",
+    "description": "List ontology nodes and their human-review decisions.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'version_id': {'title': 'Version Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 40,
+    "name": "knowledge_list_ontology_relations",
+    "origin_name": "knowledge_list_ontology_relations",
+    "description": "List ontology relations and their evidence and review decisions.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'version_id': {'title': 'Version Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 41,
+    "name": "knowledge_search",
+    "origin_name": "knowledge_search",
+    "description": "Search assets with ontology-guided, cross-document multi-hop retrieval.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'query': {'title': 'Query', 'type': 'string', 'description': 'see tool description'}, 'ontology_version_id': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Ontology Version Id', 'description': 'see tool description', 'type': 'string'}, 'hop_depth': {'default': 2, 'title': 'Hop Depth', 'type': 'integer', 'description': 'see tool description'}, 'asset_types': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'title': 'Asset Types', 'description': 'see tool description', 'type': 'string'}, 'standard_codes': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'title': 'Standard Codes', 'description': 'see tool description', 'type': 'string'}, 'limit': {'default': 10, 'title': 'Limit', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 42,
+    "name": "knowledge_list_decisions",
+    "origin_name": "knowledge_list_decisions",
+    "description": "List decision traces, optionally scoped to one agent run.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'run_id': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Run Id', 'description': 'see tool description', 'type': 'string'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 20, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 43,
+    "name": "knowledge_decision_evidence",
+    "origin_name": "knowledge_decision_evidence",
+    "description": "Read the ordered evidence chain for one decision trace.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'trace_id': {'title': 'Trace Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 44,
+    "name": "event_get",
+    "origin_name": "event_get",
+    "description": "Read one event, its status, category, evidence and coordinates.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'event_id': {'title': 'Event Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 45,
+    "name": "event_list",
+    "origin_name": "event_list",
+    "description": "List environmental events in a time window.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'hours': {'default': 24, 'title': 'Hours', 'type': 'integer', 'description': 'see tool description'}, 'main_class': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Main Class', 'description': 'see tool description', 'type': 'string'}, 'status': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Status', 'description': 'see tool description', 'type': 'string'}, 'device_id': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Device Id', 'description': 'see tool description', 'type': 'string'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 20, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 46,
+    "name": "task_get",
+    "origin_name": "task_get",
+    "description": "Read one work order and its lifecycle timestamps.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'task_id': {'title': 'Task Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 47,
+    "name": "task_list",
+    "origin_name": "task_list",
+    "description": "List work orders with optional status or assigned-resource filters.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'status': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Status', 'description': 'see tool description', 'type': 'string'}, 'robot_id': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Robot Id', 'description': 'see tool description', 'type': 'string'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 50, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 48,
+    "name": "task_ack_history",
+    "origin_name": "task_ack_history",
+    "description": "Read the durable ACK audit history for one work order.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'task_id': {'title': 'Task Id', 'type': 'string', 'description': 'see tool description'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 20, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 49,
+    "name": "dashboard_get",
+    "origin_name": "dashboard_get",
+    "description": "Read the current governance dashboard metrics.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 50,
+    "name": "agent_runtime_status",
+    "origin_name": "agent_runtime_status",
+    "description": "Read the current SeaSight agent runtime state and tool count.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 51,
+    "name": "agent_list_runs",
+    "origin_name": "agent_list_runs",
+    "description": "List agent runs using the backend's PageResult envelope data.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'status': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Status', 'description': 'see tool description', 'type': 'string'}, 'page': {'default': 1, 'title': 'Page', 'type': 'integer', 'description': 'see tool description'}, 'page_size': {'default': 20, 'title': 'Page Size', 'type': 'integer', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 52,
+    "name": "agent_run_detail",
+    "origin_name": "agent_run_detail",
+    "description": "Read one agent run, including pending approval identifiers.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'run_id': {'title': 'Run Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  },
+  {
+    "tool_id": 53,
+    "name": "agent_run_steps",
+    "origin_name": "agent_run_steps",
+    "description": "Read the ordered decision and tool-execution trace of an agent run.",
+    "description_zh": null,
+    "source": "mcp",
+    "is_available": "true",
+    "create_time": "2026-09-29T03:00:17.390816Z",
+    "usage": "SeaSight Domain Cognition MCP",
+    "params": [],
+    "inputs": "{'run_id': {'title': 'Run Id', 'type': 'string', 'description': 'see tool description'}}",
+    "category": null,
+    "labels": null,
+    "is_user_selectable": "true",
+    "updated_by": "eec5c828-6b53-406d-b1c2-d5df106bc87a",
+    "updated_by_name": "seasight.acceptance@nexent.com"
+  }
+]

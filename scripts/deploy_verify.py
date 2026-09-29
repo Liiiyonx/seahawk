@@ -23,13 +23,14 @@
 每加一轮能力就往 `MARKERS` 里补一条 —— 这份清单本身就是"这版新增了什么"的台账。
 
 用法：
-    python scripts/deploy_verify.py                       # 默认 8.153.151.13/seasight/
+    python scripts/deploy_verify.py                       # 默认读 SEASIGHT_PRODUCTION_URL
     python scripts/deploy_verify.py --dist frontend/dist  # 指定本地构建目录
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import ssl
 import sys
@@ -37,7 +38,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_URL = "https://8.153.151.13/seasight/"
+DEFAULT_URL = os.environ.get(
+    "SEASIGHT_PRODUCTION_URL", "https://127.0.0.1/seasight/"
+)
 
 # 本轮能力的特征串：线上对应 chunk 里命中 = 该能力已上线。
 #
