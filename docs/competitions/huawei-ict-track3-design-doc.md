@@ -1,6 +1,5 @@
 # 探海灵眸 SeaSight · 可进化决策智能体开发设计文档（赛道三底稿）
 
-> 版本：1.3（提交件底稿）
 > 版本：1.4（提交件底稿）
 > 编制日期：2026-09-30
 > 用途：华为 ICT 大赛 创新赛道三初赛/决赛评测要求的开发设计文档底稿，
@@ -122,6 +121,10 @@ Nexent 智能体编排（MCP 工具面 + 5 个 Skill 工作流）
 与证据契约的前提下，将抽取方法替换为外部模型。
 
 ## 四、智能体构建方案
+
+> 本节是开发设计文档视角的摘要。赛道三【材料 2】要求的独立《Nexent 智能体
+> 整体设计说明》见 `docs/competitions/huawei-ict-track3-agent-design.md`
+> （Word：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`）。
 
 ### 4.1 模型信息（如实说明）
 
@@ -451,5 +454,6 @@ SKILL.md 评审 → Nexent 导入 → 示例问答验证 → 导出配置并存�
 | 2026-09-29 | 登记 R-KN-04 知识域问答轨迹（hop=0 直接引用，非多跳）与 R-OD-01 公开开放数据替代评测（8 份生态环境部公开通知，E1，非真实脱敏），更新 4.7/5.2/七/8.3/8.5/九，升版 1.2 | WP-15 + liyongxiang |
 | 2026-09-29 | 登记 R-NX-06 华为托管平台 Agent 创建与 DeepSeek 模型配置（公网环境不支持 Skill，平台限制已留证），更新 4.7/七/8.5/九，升版 1.3 | liyongxiang + WP-15 |
 | 2026-09-30 | 登记 R-NX-03B 本地 MCP 端点复验（`mcp 1.30.0` / 协议 `2025-11-25`，21 工具、3 次只读调用） | WP-15 |
+| 2026-09-30 | 第四章增加与【材料 2】《Nexent 智能体整体设计说明》的交叉引用（`docs/competitions/huawei-ict-track3-agent-design.md`），消除封面重复版本行，升版 1.4 | WP-15 |
 | 2026-09-30 | 登记 R-NX-07 `blocked`：华为托管平台私网环境/网关已建，Target 因账号欠费原生 disabled（0/10），Agent 启用 VPC 报 `AgentArts.03002206`；新增充值后 runbook（R-NX-08 准备） | liyongxiang + WP-15 |
 | 2026-09-30 | 登记 R-NX-09 本地官方源码部署完整 Skill 问答：Agent 版本 4 `v0.2.0-seasight-governance-llm` + DeepSeek `deepseek-v4-pro`，21 工具 / 5 Skill，HTTP 200、8 步、31 次工具调用、2,777 字回答，含证据链与控制台截图；更新 4.1/4.4/4.7/七/8.5/九，升版 1.4。**华为托管平台完整问答仍为 R-NX-07 blocked** | liyongxiang + WP-15 |
