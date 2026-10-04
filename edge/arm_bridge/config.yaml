@@ -55,7 +55,29 @@ driver:
   #     endpoint: "http://192.168.1.101:8080/dobot"
   #     ...
   #
+  # ---- 真机：走厂商 ROS 控制栈（推荐，2026-10-05 实测可用）----
+  #
+  # 厂商的 hiwonder_servo_manager 节点已持有 /dev/ttyS0，直连串口会与它
+  # 抢总线（半双工，必须独占）。本驱动复用 ros_control action，
+  # 与厂商程序**和平共存**，还能拿到有物理意义的关节角（弧度）。
+  #
+  # 前提：bridge 与机械臂在同一台树莓派上（或至少能访问其 ROS master）。
+  # 实测 joint_states：[joint1..joint5, r_joint]
+  #   positions = [0.0, 0.5236, -1.3614, -1.7593, 0.0, -1.7802] rad
+  #             = [0°, 30°, -78°, -100.8°, 0°, -102°]  ← 厂商标定的 home 位
+  #
+  # ros_arm_control:
+  #   arm_controller: "arm_controller"
+  #   gripper_controller: "gripper_controller"
+  #   # home_rad 为实测厂商标定值；pick_rad **必须示教确认**，
+  #   # 直接用 home 位当抓取位会抓空。
+  #   home_rad: [0.0, 0.5236, -1.3614, -1.7593, 0.0, -1.7802]
+  #   pick_rad: [0.0, 0.5236, -1.3614, -1.7593, 0.0, -1.7802]
+
   # Hiwonder Raspberry Pi bus-servo arms use the vendor SDK on the Pi.
+  # ★ 直连串口**必须先停掉厂商节点**（它占着 /dev/ttyS0），否则抢不到总线。
+  #   sudo systemctl stop armpi_fpv_bringup
+  # 优先级：能用 ros_arm_control 就别用这条 —— 串口那条与厂商 GUI 互斥。
   # pick_sequence positions are pre-taught servo positions (0..1000), not GPS
   # coordinates. Record them with the vendor's teach-and-playback example.
   # Alternatively record with tools/teach_hiwonder_sequence.py and set

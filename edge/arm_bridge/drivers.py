@@ -9,7 +9,9 @@ prototype adapters; they do not prove physical pickup or field acceptance.
 
 from __future__ import annotations
 
+import importlib
 import json
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -75,6 +77,11 @@ class ArmDriver(Protocol):
     def emergency_stop(self) -> None: ...
 
 
+#: 需要额外运行时依赖的驱动 -> 模块路径。惰性加载，见 build_arm_driver。
+_OPTIONAL_DRIVER_MODULES = {
+    "ros_arm_control": "arm_bridge.ros_driver",
+}
+
 ArmDriverFactory = Callable[..., Any]
 
 ARM_DRIVER_REGISTRY: dict[str, ArmDriverFactory] = {}
@@ -103,6 +110,21 @@ def build_arm_driver(
       class selected by ``kind``
     """
     effective_backend = str(backend or driver_cfg.get("backend", "simulated"))
+
+    # ★ 可选驱动惰性加载：ros_driver 只在真正选用它时才 import。
+    #   原因：它 import rospy，而 rospy 只在树莓派上有；开发机与 CI 上
+    #   import 会失败。同时它靠 import 副作用把自己注册进本表，
+    #   不import 就查不到 —— 所以在查表**之前**先尝试加载。
+    if effective_backend in _OPTIONAL_DRIVER_MODULES:
+        mod = _OPTIONAL_DRIVER_MODULES[effective_backend]
+        if mod not in sys.modules:
+            try:
+                importlib.import_module(mod)
+            except ImportError as exc:  # pragma: no cover - 取决于环境
+                raise DriverError(
+                    f"arm driver {effective_backend!r} requires module {mod!r}: {exc}"
+                ) from exc
+
     vendors = driver_cfg.get("vendors")
     if isinstance(vendors, dict) and effective_backend in vendors:
         vendor = vendors[effective_backend]

@@ -193,10 +193,18 @@ const DRIVERS = [
     hint: '把指令转发到 HTTP 端点，用于对接第三方机械臂接口',
   },
   {
+    name: 'ros_arm_control',
+    label: 'ROS 控制栈',
+    sim: false,
+    hint: '真机执行端：复用厂商 ros_control，与厂商程序共存，'
+      + '读 joint_states 拿真实关节角（推荐）',
+  },
+  {
     name: 'hiwonder_bus_servo',
     label: '幻尔总线舵机',
     sim: false,
-    hint: '真机执行端：树莓派总线舵机，按示教序列动作',
+    hint: '真机执行端：直连串口按示教序列动作。'
+      + '需先停掉厂商节点（它占着串口），与厂商 GUI 互斥',
   },
 ]
 const activeDriver = String(
