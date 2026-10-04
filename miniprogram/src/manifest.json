@@ -1,0 +1,29 @@
+{
+  "name": "探海灵眸",
+  "appid": "",
+  "description": "海洋漂浮垃圾智能治理平台 · 现场作业端",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "h5": {
+    "router": {
+      "mode": "hash",
+      "base": "./"
+    },
+    "title": "探海灵眸 SeaSight"
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "mergeVirtualHostAttributes": true
+  },
+  "uni-statistics": {
+    "enable": false
+  }
+}

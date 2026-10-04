@@ -1,0 +1,54 @@
+{
+  "pages": [
+    {
+      "path": "pages/tasks/tasks",
+      "style": {
+        "navigationBarTitleText": "工单看板",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/alerts/alerts",
+      "style": {
+        "navigationBarTitleText": "实时告警",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/me/me",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/task-detail/task-detail",
+      "style": {
+        "navigationBarTitleText": "工单详情"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#8e8e93",
+    "selectedColor": "#007aff",
+    "backgroundColor": "#f9f9f9",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/tasks/tasks", "text": "工单" },
+      { "pagePath": "pages/alerts/alerts", "text": "告警" },
+      { "pagePath": "pages/me/me", "text": "我的" }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "探海灵眸",
+    "navigationBarBackgroundColor": "#f9f9f9",
+    "backgroundColor": "#f2f2f7"
+  }
+}
