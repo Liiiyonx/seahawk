@@ -12,7 +12,7 @@
 | # | 材料 | 要求 | 当前状态 | 下一步 |
 | --- | --- | --- | --- | --- |
 | 1 | 开发设计文档 Word | 项目概述、整体方案设计、知识图谱构建方案、智能体构建方案、原始数据说明、数据处理说明 | Word 已生成：`项目文档/华为ICT赛道三_开发设计文档.docx` | 排版复核 |
-| 2 | Nexent 平台智能体整体设计思路与详细说明 | 模型、工具、知识库、调用关系图、调试迭代经验、示例问答截图 | **独立提交件已生成**：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章 / 114 blocks）。模型与示例问答为 R-NX-09（本地官方源码部署，DeepSeek `deepseek-v4-pro`、21 工具 + 5 Skill、HTTP 200、8 步、31 次调用、2,777 字回答、Nexent 控制台截图）；工具/知识库/调用关系图为 R-NX-01/R-NX-04/R-KN-01；华为托管平台 MCP 注册、21 工具、公网端点调用与 5 Skill 导入已登记（R-NX-05/R-NX-07）；托管平台 Agent 创建与模型配置已登记（R-NX-06）；另有 R-KN-04 本地知识域前端轨迹 | 托管平台内完整 Skill 问答截图待账号欠费解除 + 私网 Target 绑定后补（R-NX-07 blocked）；补齐后同步更新该文档第八章 |
+| 2 | Nexent 平台智能体整体设计思路与详细说明 | 模型、工具、知识库、调用关系图、调试迭代经验、示例问答截图 | **独立提交件已生成**：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章 / 114 blocks）。模型与示例问答为 R-NX-09（本地官方源码部署，DeepSeek `deepseek-v4-pro`、21 工具 + 5 Skill、HTTP 200、8 步、31 次调用、2,777 字回答、Nexent 控制台截图）；工具/知识库/调用关系图为 R-NX-01/R-NX-04/R-KN-01；华为托管平台 MCP 注册、21 工具、公网端点调用与 5 Skill 导入已登记（R-NX-05/R-NX-07）；托管平台 Agent 创建与模型配置已登记（R-NX-06）；另有 R-KN-04 本地知识域前端轨迹 | 托管平台内完整 Skill 问答截图待华为云账号解冻后补（2026-10-02：根因已修复、调用通道已打通，登记于 `hosted-skill-qa-2026-10-02.yaml`）；补齐后同步更新该文档第八章 |
 | 3 | json / 知识库 / MCP 文件说明 | 随设计说明同步提交 | **独立提交件已生成**：`docs/competitions/huawei-ict-track3-attachment-guide.md`（打包为 `03_附送文件说明.md`），四类随附文件逐项说明 + 证据等级 + 适用边界 + 提交前自检 | 托管平台完整问答补齐后刷新 §4.3 |
 | 4 | 答辩 PPT（决赛） | 项目设计、关键代码、知识库扩展、自定义工具、数据处理 | 未启动 | 决赛阶段再做 |
 | 5 | 附加分：多行业模板轻量化迁移适配验证 | 至少一个非海洋行业配置跑通 | 已完成 E1 演示级：`artifacts/skill-migration/`（R-MG-01，海洋/医疗/政务三领域，检索命中 3/3） | 决赛补真实行业配置 |
@@ -63,7 +63,7 @@
 | --- | --- |
 | `artifacts/evolution-demo/latest.json` | R-KN-01 知识进化闭环完整请求/响应 |
 | `artifacts/ontology-eval/latest.json` | R-KN-02 本体候选抽取确定性评测结果 |
-| `artifacts/ontology-eval/incremental-latest.json` | R-KN-03 本体全量重抽 vs 增量追加对比（节省 66.8%，E1 相对对比） |
+| `artifacts/ontology-eval/incremental-latest.json` | R-KN-03 本体全量重抽 vs 增量追加对比（节省 63.19%，E1 相对对比） |
 | `artifacts/skill-migration/evidence/latest.json` | R-MG-01 多行业模板轻量化迁移验证（三领域检索命中 3/3） |
 | `artifacts/skill-migration/skill-migration-mapping.md` | R-MG-01 模板→领域角色映射与变更点说明 |
 | `artifacts/knowledge-qa-trace/latest.json` | R-KN-04 示例问答轨迹 API JSON（问题→检索→决策→证据链；hop=0 直接资产引用，非多跳） |
@@ -125,8 +125,14 @@
   第 5 个 `cross-document-decision` 已绑定但未被该问题触发。
 - **仍缺**：华为 AgentArts 托管平台内的完整 Skill 问答截图。托管平台已创建
   Agent 并配置 DeepSeek 模型（R-NX-06）、导入 5 个 Skill 并完成公网端点只读调用
-  （R-NX-05/R-NX-07），但托管平台内完整 Skill 问答仍为 R-NX-07 `blocked`。
-  需账号欠费解除 + 私网环境内可达的 `/mcp` Target 绑定后再采集，届时登记 R-NX-08。
+  （R-NX-05/R-NX-07）。2026-10-02 已定位并修复真实根因——Skill 要求智能体绑定在
+  `network_mode=VPC` 的环境上，而环境在创建时固定、创建后不可改，因此原公网环境
+  智能体上必然报 `AgentArts.03002206`；已在私网环境新建同配置智能体
+  （`seasight-governance-agent-vpc`）并打通官方 Managed Agents WebSocket 调用通道
+  （收到 `connection.ack`，平台日志见 `模型调用完成 status=success`）。
+  **当前阻断**为华为云账号被冻结（全站 “account has been suspended”），
+  解除后按 `hosted-skill-qa-2026-10-02.yaml` 的 `resume_command` 直接复跑，
+  届时登记 R-NX-08 为完成态。
 
 目标（Nexent 平台内示例问答）：至少一组“问题 → 检索 → 答案 → 引用”完整
 对话截图，运行 `policy-evidence-qa` 或 `cross-document-decision` Skill。

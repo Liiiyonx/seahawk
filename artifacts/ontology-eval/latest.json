@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at": "2026-09-29T02:22:49.233380+00:00",
+  "generated_at": "2026-09-30T12:33:34.661740+00:00",
   "evidence_level": "E1",
   "scope_note": "软件内部确定性评测：在内部合成/演示语料上对比本体候选抽取实现与朴素基线；不是真实用户验证、不是领域准确率、不是真实脱敏行业数据评测，也不代表感知精度",
   "parameters": {
@@ -45,13 +45,13 @@
   },
   "current_implementation": {
     "algorithm": "title_weighted_phrase + cooccurrence",
-    "extract_elapsed_ms_median": 10.825,
+    "extract_elapsed_ms_median": 10.802,
     "extract_elapsed_ms_runs": [
-      11.248,
-      10.755,
-      10.825
+      11.61,
+      10.646,
+      10.802
     ],
-    "candidate_count_before_cap": 129,
+    "candidate_count_before_cap": 88,
     "candidate_count_after_cap": 20,
     "relation_count_after_cap": 20,
     "short_node_count": 20,
@@ -60,107 +60,85 @@
     "long_fragment_ratio": 0.0,
     "high_confidence_candidate_count": 20,
     "high_confidence_candidate_ratio": 1.0,
-    "gold_term_hits": 8,
+    "gold_term_hits": 12,
     "gold_term_total": 20,
-    "gold_term_recall": 0.4,
-    "gold_term_exact_hits": 7,
-    "gold_term_exact_recall": 0.35,
-    "gold_relation_hits": 0,
+    "gold_term_recall": 0.6,
+    "gold_term_exact_hits": 11,
+    "gold_term_exact_recall": 0.55,
+    "gold_relation_hits": 1,
     "gold_relation_total": 7,
-    "gold_relation_recall": 0.0,
+    "gold_relation_recall": 0.1429,
     "gold_term_recall_at_budget": {
-      "20": 0.4,
-      "50": 0.9,
+      "20": 0.6,
+      "50": 1.0,
       "100": 1.0,
       "200": 1.0
     },
     "gold_relation_recall_at_budget": {
-      "20": 0.0,
-      "50": 0.1429,
-      "100": 0.1429,
-      "200": 0.1429
+      "20": 0.1429,
+      "50": 0.5714,
+      "100": 0.7143,
+      "200": 1.0
     },
     "gold_term_hit_list": [
       "海漂垃圾",
       "打捞机器人",
       "机械臂",
       "塑料",
+      "渔网",
+      "马鼻镇",
       "黄岐镇",
       "筱埕镇",
       "派单",
-      "网绳缠绕"
+      "拾取",
+      "处置闭环",
+      "回收队伍"
     ],
     "gold_term_exact_hit_list": [
       "海漂垃圾",
       "打捞机器人",
       "机械臂",
       "塑料",
+      "渔网",
+      "马鼻镇",
       "黄岐镇",
       "筱埕镇",
-      "派单"
+      "派单",
+      "拾取",
+      "处置闭环"
     ],
-    "gold_relation_hit_list": [],
+    "gold_relation_hit_list": [
+      "打捞机器人--拾取"
+    ],
     "top_candidates": [
-      {
-        "term": "海漂垃圾",
-        "canonical_name": "海漂垃圾",
-        "score": 82.5,
-        "strong_evidence": true,
-        "source_asset_id": "ast_policy_county",
-        "source_version_id": "kav_ast_policy_county_1"
-      },
-      {
-        "term": "镇海漂垃圾",
-        "canonical_name": "镇海漂垃圾",
-        "score": 67.5,
-        "strong_evidence": true,
-        "source_asset_id": "ast_policy_t1",
-        "source_version_id": "kav_ast_policy_t1_1"
-      },
-      {
-        "term": "塑料",
-        "canonical_name": "塑料",
-        "score": 33.0,
-        "strong_evidence": true,
-        "source_asset_id": "ast_policy_county",
-        "source_version_id": "kav_ast_policy_county_1"
-      },
-      {
-        "term": "海漂垃圾月度台账",
-        "canonical_name": "海漂垃圾月度台账",
-        "score": 30.0,
-        "strong_evidence": true,
-        "source_asset_id": "ast_ledger_t1",
-        "source_version_id": "kav_ast_ledger_t1_1"
-      },
-      {
-        "term": "镇海漂垃圾月度台",
-        "canonical_name": "镇海漂垃圾月度台",
-        "score": 30.0,
-        "strong_evidence": true,
-        "source_asset_id": "ast_ledger_t1",
-        "source_version_id": "kav_ast_ledger_t1_1"
-      },
-      {
-        "term": "处置",
-        "canonical_name": "处置",
-        "score": 30.0,
-        "strong_evidence": true,
-        "source_asset_id": "ast_policy_county",
-        "source_version_id": "kav_ast_policy_county_1"
-      },
       {
         "term": "打捞机器人",
         "canonical_name": "打捞机器人",
-        "score": 28.5,
+        "score": 156.0,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "称重",
-        "canonical_name": "称重",
-        "score": 27.0,
+        "term": "海漂垃圾",
+        "canonical_name": "海漂垃圾",
+        "score": 143.4,
+        "strong_evidence": true,
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
+      },
+      {
+        "term": "垃圾月度台账",
+        "canonical_name": "垃圾月度台账",
+        "score": 114.6,
+        "strong_evidence": true,
+        "source_asset_id": "ast_ledger_t1",
+        "source_version_id": "kav_ast_ledger_t1_1"
+      },
+      {
+        "term": "派单",
+        "canonical_name": "派单",
+        "score": 107.2,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
@@ -168,63 +146,63 @@
       {
         "term": "机械臂",
         "canonical_name": "机械臂",
-        "score": 25.5,
+        "score": 99.8,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "派单",
-        "canonical_name": "派单",
-        "score": 25.5,
+        "term": "塑料",
+        "canonical_name": "塑料",
+        "score": 99.2,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "回执",
-        "canonical_name": "回执",
-        "score": 24.0,
-        "strong_evidence": true,
-        "source_asset_id": "ast_ledger_t1",
-        "source_version_id": "kav_ast_ledger_t1_1"
-      },
-      {
-        "term": "垃圾清理考核细则",
-        "canonical_name": "垃圾清理考核细则",
-        "score": 22.5,
+        "term": "镇海漂垃圾",
+        "canonical_name": "镇海漂垃圾",
+        "score": 89.0,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_t1",
         "source_version_id": "kav_ast_policy_t1_1"
       },
       {
-        "term": "海漂垃圾清理考核",
-        "canonical_name": "海漂垃圾清理考核",
-        "score": 22.5,
+        "term": "清理考核细则",
+        "canonical_name": "清理考核细则",
+        "score": 86.1,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_t1",
         "source_version_id": "kav_ast_policy_t1_1"
       },
       {
-        "term": "漂垃圾清理考核细",
-        "canonical_name": "漂垃圾清理考核细",
-        "score": 22.5,
+        "term": "渔网",
+        "canonical_name": "渔网",
+        "score": 81.2,
         "strong_evidence": true,
-        "source_asset_id": "ast_policy_t1",
-        "source_version_id": "kav_ast_policy_t1_1"
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "镇海漂垃圾清理考",
-        "canonical_name": "镇海漂垃圾清理考",
-        "score": 22.5,
+        "term": "马鼻镇",
+        "canonical_name": "马鼻镇",
+        "score": 80.3,
         "strong_evidence": true,
-        "source_asset_id": "ast_policy_t1",
-        "source_version_id": "kav_ast_policy_t1_1"
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "岸基",
-        "canonical_name": "岸基",
-        "score": 22.5,
+        "term": "称重",
+        "canonical_name": "称重",
+        "score": 79.2,
+        "strong_evidence": true,
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
+      },
+      {
+        "term": "拾取",
+        "canonical_name": "拾取",
+        "score": 78.2,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
@@ -232,7 +210,7 @@
       {
         "term": "筱埕镇",
         "canonical_name": "筱埕镇",
-        "score": 19.5,
+        "score": 77.3,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
@@ -240,98 +218,130 @@
       {
         "term": "黄岐镇",
         "canonical_name": "黄岐镇",
-        "score": 19.5,
+        "score": 77.3,
         "strong_evidence": true,
         "source_asset_id": "ast_policy_county",
         "source_version_id": "kav_ast_policy_county_1"
       },
       {
-        "term": "网绳缠绕风险集中",
-        "canonical_name": "网绳缠绕风险集中",
-        "score": 18.0,
+        "term": "回执",
+        "canonical_name": "回执",
+        "score": 73.2,
         "strong_evidence": true,
         "source_asset_id": "ast_ledger_t1",
         "source_version_id": "kav_ast_ledger_t1_1"
       },
       {
-        "term": "派单时间",
-        "canonical_name": "派单时间",
-        "score": 18.0,
+        "term": "人工回收队伍",
+        "canonical_name": "人工回收队伍",
+        "score": 72.6,
         "strong_evidence": true,
         "source_asset_id": "ast_ledger_t1",
         "source_version_id": "kav_ast_ledger_t1_1"
+      },
+      {
+        "term": "拾取回执",
+        "canonical_name": "拾取回执",
+        "score": 72.4,
+        "strong_evidence": true,
+        "source_asset_id": "ast_ledger_t1",
+        "source_version_id": "kav_ast_ledger_t1_1"
+      },
+      {
+        "term": "摄像头",
+        "canonical_name": "摄像头",
+        "score": 67.3,
+        "strong_evidence": true,
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
+      },
+      {
+        "term": "处置闭环",
+        "canonical_name": "处置闭环",
+        "score": 66.4,
+        "strong_evidence": true,
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
+      },
+      {
+        "term": "称重数",
+        "canonical_name": "称重数",
+        "score": 66.3,
+        "strong_evidence": true,
+        "source_asset_id": "ast_policy_county",
+        "source_version_id": "kav_ast_policy_county_1"
       }
     ],
     "top_relations": [
       {
+        "source": "摄像头",
+        "target": "派单",
+        "count": 11,
+        "evidence_count": 3
+      },
+      {
+        "source": "打捞机器人",
+        "target": "机械臂",
+        "count": 11,
+        "evidence_count": 3
+      },
+      {
+        "source": "塑料",
+        "target": "渔网",
+        "count": 11,
+        "evidence_count": 3
+      },
+      {
+        "source": "称重数",
+        "target": "处置闭环",
+        "count": 6,
+        "evidence_count": 3
+      },
+      {
+        "source": "海漂垃圾",
+        "target": "派单",
+        "count": 8,
+        "evidence_count": 3
+      },
+      {
+        "source": "拾取",
+        "target": "称重数",
+        "count": 6,
+        "evidence_count": 3
+      },
+      {
+        "source": "拾取",
+        "target": "处置闭环",
+        "count": 6,
+        "evidence_count": 3
+      },
+      {
         "source": "机械臂",
-        "target": "派单",
-        "count": 12,
+        "target": "拾取",
+        "count": 5,
         "evidence_count": 3
       },
       {
-        "source": "处置",
-        "target": "机械臂",
-        "count": 11,
+        "source": "摄像头",
+        "target": "塑料",
+        "count": 5,
         "evidence_count": 3
       },
       {
-        "source": "处置",
-        "target": "派单",
-        "count": 11,
-        "evidence_count": 3
-      },
-      {
-        "source": "岸基",
-        "target": "派单",
-        "count": 10,
-        "evidence_count": 3
-      },
-      {
-        "source": "打捞机器人",
-        "target": "机械臂",
-        "count": 10,
-        "evidence_count": 3
-      },
-      {
-        "source": "打捞机器人",
-        "target": "派单",
-        "count": 10,
-        "evidence_count": 3
-      },
-      {
-        "source": "塑料",
-        "target": "岸基",
-        "count": 9,
-        "evidence_count": 3
-      },
-      {
-        "source": "塑料",
-        "target": "打捞机器人",
-        "count": 9,
-        "evidence_count": 3
-      },
-      {
-        "source": "岸基",
-        "target": "打捞机器人",
-        "count": 9,
-        "evidence_count": 3
-      },
-      {
-        "source": "岸基",
-        "target": "机械臂",
-        "count": 9,
+        "source": "摄像头",
+        "target": "海漂垃圾",
+        "count": 5,
         "evidence_count": 3
       }
     ]
   },
   "baseline": {
     "algorithm": "naive_raw_token_frequency (no title weighting, no n-grams)",
-    "extract_elapsed_ms_median": 0.196,
+    "extract_elapsed_ms_median": 0.141,
     "extract_elapsed_ms_runs": [
-      0.999,
-      0.196,
-      0.187
+      0.832,
+      0.141,
+      0.136
     ],
     "candidate_count_before_cap": 66,
     "candidate_count_after_cap": 20,
@@ -453,13 +463,13 @@
     ]
   },
   "comparison": {
-    "gold_term_recall_delta": -0.2,
-    "gold_term_exact_recall_delta": 0.3,
+    "gold_term_recall_delta": 0.0,
+    "gold_term_exact_recall_delta": 0.5,
     "short_node_ratio_delta": 0.25,
     "long_fragment_ratio_delta": -0.25,
     "high_confidence_ratio_delta": 0.0,
     "bulk_approve_ratio": 1.0,
-    "candidate_expansion_ratio": 1.9545,
+    "candidate_expansion_ratio": 1.3333,
     "interpretation": "gold_term_recall_delta 表示在相同 top-N 上限下，当前实现命中内部人工标注术语的覆盖率增量；gold_term_exact_recall_delta 表示精确命中术语的覆盖率增量；short_node_ratio/long_fragment_ratio 用于说明候选是否保持短领域短语粒度（朴素基线会把整句块当作候选，不能直接作为本体节点）；high_confidence_ratio_delta 表示可凭标题/多文档证据批量确认的候选占比增量；bulk_approve_ratio 为当前实现中可直接批量确认的候选占比；candidate_expansion_ratio 为 n-gram 展开带来的候选面倍数，不作为人工审核节省宣称；当前实现还输出带来源证据的候选关系，朴素基线不生成关系"
   },
   "limitations": [

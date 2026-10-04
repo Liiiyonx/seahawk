@@ -265,15 +265,16 @@ _TECHNICAL: list[EvidenceRecord] = [
     _r(
         "R-KN-02",
         "本体候选抽取确定性评测通过：12 份内部合成治理语料上，top-20 中当前实现"
-        "100% 为不超过 12 字的短语节点、0 条整句块候选，精确命中内部金标术语 35%"
-        "（朴素频次基线 5%），top-100 术语覆盖 100%（基线 95%），并输出带来源证据的"
-        "候选关系；top-20 短短语覆盖 40% 低于基线 60%，因基线把整句块当候选可一次"
-        "命中多个术语，不据此宣称识别更准；评测为 E1 软件内部确定性结果，不是真实"
-        "脱敏行业数据评测、领域准确率或感知精度",
+        "100% 为不超过 12 字的短语节点、0 条整句块候选，精确命中内部金标术语 11/20"
+        "（55%，朴素频次基线 1/20=5%），top-20 术语覆盖 12/20=60%、top-100 覆盖"
+        "100%（基线 95%），并输出带来源证据的候选关系；top-20 关系命中 1/7=14.29%，"
+        "预算放宽到 200 后关系覆盖 7/7；金标为内部 fixture，不是行业标准答案，不据此"
+        "宣称识别更准；评测为 E1 软件内部确定性结果，不是真实脱敏行业数据评测、领域"
+        "准确率或感知精度",
         "E1",
         "test_report",
         "scripts/ontology_eval.py + artifacts/ontology-eval/latest.json",
-        "2026-09-29",
+        "2026-09-30",
         review_status="已复核",
         owner="liyongxiang",
         notes="验收命令：.venv/Scripts/python.exe scripts/ontology_eval.py "
@@ -371,13 +372,13 @@ _TECHNICAL: list[EvidenceRecord] = [
     _r(
         "R-KN-03",
         "本体维护模式确定性对比通过：同一进程内测量，追加 1 个资产版本后全量重抽"
-        "中位数 3.364ms、增量追加中位数 1.116ms、时间节省 66.8%；增量模式复用已发布"
+        "中位数 4.387ms、增量追加中位数 1.615ms、时间节省 63.19%；增量模式复用已发布"
         "候选只对新增版本抽取，最终关系仍基于同一份文档全集生成；为 E1 软件内部相对"
         "对比，不是领域准确率、人工审核节省或真实脱敏行业数据评测",
         "E1",
         "test_report",
         "scripts/ontology_incremental_eval.py + artifacts/ontology-eval/incremental-latest.json",
-        "2026-09-29",
+        "2026-09-30",
         review_status="已复核",
         owner="liyongxiang",
         notes="验收命令：.venv/Scripts/python.exe scripts/ontology_incremental_eval.py "
@@ -419,19 +420,54 @@ _TECHNICAL: list[EvidenceRecord] = [
     _r(
         "R-OD-01",
         "生态环境部公开开放通知本体抽取评测通过：8 份公开通知语料（manifest 含来源 "
-        "URL 与 SHA256），全量候选覆盖内部人工标注术语 23/32（71.9%）、关系 3/3"
-        "（100%）；top-20 术语覆盖 21.9%（朴素基线 28.1%），top-200 覆盖 71.9%；"
-        "top-N 关系命中为 0，因低频关系排在 top-N 之外；语料为公开开放数据，不是真实"
-        "脱敏行业数据集，不据此宣称识别更准",
+        "URL 与 SHA256），全量候选覆盖内部人工标注术语 9/32（28.125%）、精确命中 6/32"
+        "（18.75%）、关系 3/3（100%）；top-20 术语覆盖 28.125%（朴素基线 28.125%），"
+        "top-20/50/100/200 关系均命中 3/3；语料为公开开放数据，不是真实脱敏行业数据集，"
+        "不据此宣称识别更准或真实行业数据验证通过",
         "E1",
         "test_report",
         "scripts/open_data_eval.py + artifacts/open-data-eval/latest.json + corpus/manifest.json",
-        "2026-09-29",
+        "2026-09-30",
         review_status="已复核",
         owner="liyongxiang",
         notes="验收命令：.venv/Scripts/python.exe scripts/open_data_eval.py "
         "--output artifacts/open-data-eval/latest.json；公开开放数据仅作替代证据，"
         "真实脱敏行业数据评测仍未取得。",
+    ),
+    _r(
+        "R-LJ-01",
+        "连江县首届创新创业大赛海洋科创赛道公开奖项设置：金奖 2 项各 3 万元、"
+        "银奖 4 项各 2 万元、铜奖 6 项各 1 万元、优胜奖 10 项各 3000 元，"
+        "共 22 个获奖名额；来源为赛事公开公告与人民网福建报道，E1 外部公开事实"
+        "不代表项目已获奖或具备获奖能力",
+        "E1",
+        "public_fact",
+        "https://www.sohu.com/a/1074918599_121106994 + "
+        "http://fj.people.cn/n2/2026/0916/c181466-41698089.html",
+        "2026-09-30",
+        review_status="已复核",
+        owner="赛事证据",
+        rule="unsourced_business_number",
+        matches=("3000 元", "22 个获奖名额"),
+        notes="用于连江独立评审材料中的赛事公开事实引用；官方公告与媒体转载"
+        "交叉核验。",
+    ),
+    _r(
+        "R-LJ-02",
+        "连江县首届创新创业大赛参赛保障公开口径：每项目不超过 2 人食宿接待；"
+        "交通报销省外每人不高于 1600 元、省内每人不高于 1000 元；"
+        "来源为赛事公开公告，E1 外部公开事实，实际报销以主办方最终执行口径为准",
+        "E1",
+        "public_fact",
+        "https://www.sohu.com/a/1074918599_121106994 + "
+        "http://fj.people.cn/n2/2026/0916/c181466-41698089.html",
+        "2026-09-30",
+        review_status="已复核",
+        owner="赛事证据",
+        rule="unsourced_business_number",
+        matches=("1600 元/人", "1000 元/人"),
+        notes="用于连江独立评审材料中的参赛保障公开事实引用；官方公告与媒体转载"
+        "交叉核验。",
     ),
 ]
 

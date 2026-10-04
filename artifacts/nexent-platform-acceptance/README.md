@@ -169,12 +169,24 @@ Target 数 `0/10`。因此私网 Target 未建立、未与 Agent 绑定，Agent 
 4. 将 Target 绑定到 `seasight-governance-decision-agent`，启用 VPC 网络模式。
 5. 保存并发布 Agent 新版本，运行一次完整 Skill 问答，保存平台内截图与调用轨迹。
 
-### R-NX-08 准备：充值后的 VPC Target 与完整 Skill 问答 runbook
+### R-NX-08 部分验证：网关 MCP POST 已实证，平台内完整 Skill 问答未完成
 
 R-NX-07 保持 `blocked`，作为历史阻断记录，不覆盖。欠费解除后按
 `docs/competitions/huawei-agentarts-vpc-target-runbook.md` 执行，完成 Target
 创建、VPC 网络模式绑定、Agent 发布和一次平台内完整 Skill 问答后，新建
 `hosted-skill-qa-YYYY-MM-DD.yaml`（登记 R-NX-08）。
+
+2026-10-01 最新状态：私网环境、网关与 Target `seasight-mcp-vpc-target`
+已建立且 online（`http://192.168.0.65:8100/mcp`）；通过 AgentArts 网关
+工具调试页完成一次真实 MCP POST 与 `agent_runtime_status` 工具调用，
+返回 `tools_registered=6`、`state=idle`、`rule_mode=true`。该验证已登记
+`hosted-skill-qa-2026-10-01.yaml`，状态为
+`partial_gateway_mcp_tool_verified`。
+
+**如实边界**：网关 MCP 调用成功不等于平台内完整 Skill 问答验收。
+`platform_qa_completed: false`、`live_skill_qa_completed: false`、
+`platform_run_id: not_evaluated`；Agent 仍绑定公网环境，本地 8100
+端口未监听，平台内自然语言问答与多工具调用轨迹尚未完成。
 
 该 runbook 已固定：Target 的 MCP / Streamable HTTP / `/mcp` /
 `2025-03-26` / `Authorization: Bearer <token>` 字段；推荐在 `vpc-seasight`
@@ -184,3 +196,44 @@ R-NX-07 保持 `blocked`，作为历史阻断记录，不覆盖。欠费解除�
 完成前本目录维持以下结论：**华为托管平台完整 Skill 问答未跑通**，
 `live_skill_qa_completed: false`；不得把本地完整 Skill 问答（R-NX-09）、
 本地 MCP 复验、公网隧道调用或准备材料写成华为托管平台完整问答验收。
+
+### R-NX-08 续：根因已定位并修复，调用通道已打通，卡在账号冻结（2026-10-02）
+
+2026-10-02 复核纠正了 R-NX-07 的根因判断，并完成三件事：
+
+1. **真实根因**：AgentArts 的 Skill 要求智能体运行在「出网网络配置 = 私网访问
+   （VPC 网络模式）」的**环境**上，而环境在智能体创建时就固定、创建后不可更改。
+   原智能体 `fdeccb8f-…` 绑的是 `environment-ypflemxw`（`network_mode=PUBLIC`），
+   所以任何含 Skill 的保存都返回 `AgentArts.03002206`。控制台编辑页能切换环境下拉，
+   但保存请求 `PUT /core/agents/{id}` 里**不含 `environment_id`**，手工补上重放也不生效
+   —— 这是控制台表现与后端语义不一致，原智能体上做不成。
+2. **修复**：在私网环境 `environment-seasight-vpc-verify`（`network_mode=VPC`）上新建
+   同配置智能体（同一模型、同一系统提示词、4 个内置工具、5 个 Skill）。
+   验收用智能体为 `seasight-governance-agent-vpc`
+   （`aa46a0f0-ba3b-4e8f-8c17-4d5dc08aef15`，v1，入站认证 API Key）；
+   中间体 `seasight-governance-decision-agent-vpc`（IAM 入站）保留，仅用于证明
+   UI「保存为新版本」已能成功（v1→v2）。
+3. **调用通道**：控制台升级后托管智能体没有站内对话界面，官方调用方式是
+   Managed Agents WebSocket（`managed_agents_client.py` 协议）。
+   实测：私网运行时的访问域名默认只在 VPC 私网 DNS 内解析（公网 ENOTFOUND）；
+   在「治理与安全 > 网络配置 > defaultgw」开启 Public Access 后域名公网可解析，
+   WebSocket 握手成功、收到 `watchdog.initialized` 与 `connection.ack`，
+   发出 `chat.send` 后平台侧 `agent-run log` 能看到该 session 与
+   `[TelemetryRail] 模型调用完成 status=success duration=147.28s`。
+
+**当前阻断**：**私网环境没有公网出口，公网模型端点不可达（结构性互斥）**。
+10-02 账号充值与解冻后完整复跑了一次：WS 握手成功、能收到 `connection.ack` 与 keepalive，
+MCP 侧也正常（网关 Debug 页列出全部 21 个只读工具），但运行日志反复出现
+`模型调用开始 → APITimeoutError（60s）→ llm_call_error`，并伴随
+`iam.cn-southwest-2.myhuaweicloud.com` 的 `ConnectTimeoutError` ——
+沙箱完全无法出公网。平台文档也写明「私网访问…只能访问内网资源，流量不经过互联网」。
+修复方向是把模型搬进 VPC：`deployment/agentarts-vpc-model-relay.py`（VPC 内 OpenAI 兼容中转）
+或改用 MaaS 内网端点。取证见 `evidence/agentarts-hosted-qa-2026-10-02/root-cause-model-unreachable.md`。
+
+另：10-02 上午一度出现的欠费冻结已由用户充值解除（账户余额 ¥0.00 → ¥9.47，
+受限记录 `restrictedInfos` 已清空），与上面这条模型可达性问题**是两个独立问题**。
+
+**如实边界**：`platform_qa_completed: false`、`live_skill_qa_completed: false`，
+仍不得写成「托管平台已验收」。结构化记录见
+`hosted-skill-qa-2026-10-02.yaml`，证据目录
+`evidence/agentarts-hosted-qa-2026-10-02/`。

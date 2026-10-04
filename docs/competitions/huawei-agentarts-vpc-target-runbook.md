@@ -350,8 +350,130 @@ git diff --check
 - “真实脱敏行业数据评测已完成”；
 - 把演示数据、公网隧道或本地复验写成托管平台验收。
 
-## 十三、变更记录
+## 十三、2026-10-02 实测更正（重要，先读这一节）
+
+以下都是 2026-10-02 在真实控制台里踩出来的事实，与本文前面章节的假设不同，
+按本节执行，前面的章节作为背景。
+
+### 13.1 Skill 需要的是「VPC 网络模式的**环境**」，不是「改 Agent 的网络模式」
+
+- `AgentArts.03002206 / VPC network mode is required when skills are configured`
+  的真正判定依据是**智能体绑定的环境**的 `network_config.network_mode`
+  必须是 `VPC`（私网访问）。绑定在 `PUBLIC` 环境上的智能体，只要带 Skill 保存就必然报错。
+- **环境在创建智能体时固定，之后无法更改**：控制台编辑页的环境下拉框可以点、可以显示成
+  私网环境，但保存请求 `PUT /agentarts/v1/core/agents/{id}` 的 body 里**不含
+  `environment_id`**；手工把 `environment_id` 塞进 body 重放，环境依旧不变。
+- 因此**不要**在原公网环境智能体上耗时间，正确做法是：
+  用同一个 VPC 环境**新建**一个同配置智能体（模型 / 系统提示词 / 内置工具 / Skill 全部照抄）。
+
+### 13.2 托管智能体没有站内对话界面，官方调用方式是 WebSocket
+
+- 升级后的控制台里 Managed Agents 没有聊天/评测输入框；
+  「Debug Agent」只是引导文案。官方《快速使用》文档给的是
+  `python managed_agents_client.py --url "ws://{endpoint}/runtimes/{runtime_name}/ws" --auth "Bearer {api_key}" …`。
+- 运行时名称 = `托管与运行 > 智能体运行时` 里以 `managed-` 开头的那个；
+  访问域名在运行时详情页「访问域名」；API Key 来自工作负载身份
+  （`agent-identity` 控制台的 `#/workloadIdentity/detail/<identity>/basic`）。
+- **入站身份认证类型决定了能不能用 Bearer**：
+  - `IAM`：工作负载身份页的「Modify」是灰的（提示 “Not supported for this
+    authentication type”），官方客户端的 IAM 模式要 AK/SK 做 V11-HMAC-SHA256 签名；
+  - `API_KEY`：可以用 `Authorization: Bearer <key>`。控制台的「快速创建」走的就是
+    `identity_configuration = {authorizer_type: "API_KEY", …}`。
+  - 结论：**建智能体时就要把入站认证建成 API Key**，否则后面只能拿 AK/SK 签名。
+
+### 13.3 私网环境的调用端点默认公网不可达
+
+- VPC 网络模式的运行时，访问域名是**私网 DNS 专用域名**
+  （如 `defaultgw-mztggyleha.cn-southwest-2.huaweicloud-agentarts.com`），
+  在 VPC 外解析会 `ENOTFOUND`。
+- 需要在「治理与安全 > 网络配置 > defaultgw」把 **Public Access 打开**
+  （弹窗确认；后端 `PUT /v1/core/ingresses/{id}` `{"enable_public_network":true}`，
+  状态会先 PENDING 再 ACTIVE），域名才会公网可解析。
+- 打开公网访问属于暴露面变更，验收完记得关掉。
+
+### 13.4 MCP 宿主 ECS 必须处于 Running
+
+- 网关 Target `seasight-mcp-vpc-target` 指向 `http://192.168.0.65:8100/mcp`，
+  这台 ECS 叫 `seasight-mcp-host`（FlexusX，公网 EIP 1.95.120.238）。
+  它 **Stopped 时**智能体侧只会收到 keepalive、拿不到工具结果与最终回答。
+- Target 状态 `ready` 不代表后端活着，验收前先确认 ECS 是 Running。
+
+### 13.5 客户端细节（省时间）
+
+- Node `ws` 必须 `perMessageDeflate: false`，否则报 `invalid distance too far back`；
+  官方 Python 客户端同样传 `compression=None`（后端不支持 permessage-deflate）。
+- 单次模型调用实测可到 ~147 秒，客户端超时至少给 15 分钟，别用 5 分钟。
+- 抓运行日志的接口：
+  `GET /agentarts/v1/ops/observation/agent-run/{runtime_name}/log?log_type=agent&is_desc=true&limit=500&start_time=…&end_time=…`
+  —— 判断是「模型超时」还是「工具不来」看这里最快。
+
+### 13.6 账号侧风险（务必先看余额）
+
+- 控制台英文横幅 **“Your account has been suspended because an exception occurred.
+  To restore your account, submit a service ticket”** 是**通用文案**，看不出原因，
+  很容易误判成风控冻结；真正的原因去**账号中心（中文）**看，那里直接写
+  「您的账号已欠费，无法正常购买和使用按需计费云服务」。
+- 2026-10-02 实测口径：账户余额 `¥0.00`、可用余额 `−¥0.53`（即欠费 53 分）、
+  本月账单 `¥12.29`。**欠费冻结充值即解**，不用提工单；风控/实名类受限才必须提工单。
+- 可查的两个接口（在 console.huaweicloud.com 页面上下文里 fetch 即可）：
+  - `GET /cbc/usercenter/CSBBillingDeductService/rest/billing/deductservice/v1/debtbusiness`
+    → `totalDebt`（**单位是分**）
+  - `GET /cbc/usercenter/rest/cbc/csbfinancialservice/v2/account/balance?customer_id=…&be_id=0`
+    → 各账户 `amount`（余额）
+  - `GET /cbc/usercenter/rest/cbc/csbbillingqueryservice/v1/nvlbill/monthly_bill_expenditure?customerId=…`
+    → 本月 `paymentAmount`（**单位是分**）
+- **会产生费用的动作要提前打招呼**：启动 ECS（含 EIP）、开启 LTS/APM 观测日志、
+  大量长连接产生的 keepalive 日志都会计费；验收前先确认余额，验收后立刻收口
+  （关日志、关公网访问、决定是否释放 EIP）。
+
+### 13.7 【最关键】Skill（私网环境）与公网模型在平台层面互斥
+
+2026-10-02 实测确认：**Skill 要求智能体跑在 VPC 网络模式的环境上，而 VPC 环境的沙箱
+不允许出公网 —— 于是挂在公网的模型端点在那个环境里必然不可达。**
+
+- 环境 `environment-seasight-vpc-verify` 的出网是「私网访问」；平台文档原文：
+  「私网访问：打通您的企业私有VPC内网，**只能访问内网资源，流量不经过互联网**」。
+- 模型供应商 `deepseek-provider` 的运行时常量是
+  `base_url=https://api.deepseek.com/v1` + `credential_provider_name=deepseek-api-key-outbound`，
+  即沙箱需要**直连公网**并额外调 IAM 解析出站凭据。
+- 运行日志里因此反复出现（同一 session 内多次）：
+  ```
+  Before create openai client ... timeout=60, max_retries=1
+  [TelemetryRail] 模型调用开始: model=deepseek-chat, system=openai
+  ConnectionException ... host='iam.cn-southwest-2.myhuaweicloud.com', port=443 ... ConnectTimeoutError (connect timeout=60)
+  LLM stream 失败 [请求超时] ... reason: openAI API async stream error: APITimeoutError
+  llm_call_error ... "OpenAI API async stream error."
+  ```
+  表现就是：WS 握手成功、能收到 `connection.ack` 与 keepalive，但**永远没有回答**。
+
+**修复：把模型搬进 VPC（推荐做法）**
+
+1. 在 VPC 内的 ECS `seasight-mcp-host`（192.168.0.65，有公网 EIP 可出网）上运行
+   `artifacts/nexent-platform-acceptance/deployment/agentarts-vpc-model-relay.py`
+   （纯标准库，无需 pip）：
+   ```bash
+   export UPSTREAM_BASE=https://api.deepseek.com/v1
+   export UPSTREAM_KEY=<真实 DeepSeek Key>
+   export RELAY_TOKEN=<自定口令>
+   nohup python3 agentarts-vpc-model-relay.py --port 8080 > relay.log 2>&1 &
+   ```
+2. ECS 安全组放行来源 `192.168.0.0/16` → TCP `8080`。
+3. 控制台「托管与运行 > 模型」里把该模型供应商的 **Base_url** 改成
+   `http://192.168.0.65:8080/v1`；出站身份用 `标头 / Authorization / Bearer / <RELAY_TOKEN>`。
+4. 再按第 13.4 节确认 ECS 是 Running，然后跑 WS 调用即可拿到真实回答 + 工具轨迹。
+
+备选：改用华为云 MaaS 的**内网/VPC 端点**模型（需开通付费模型）。
+
+> 可执行的一页操作单（含可直接粘贴的脚本与 systemd 单元）：
+> `docs/competitions/huawei-agentarts-vpc-model-relay-howto.md`
+
+> 记账提示：这一条也是 R-NX-07（09-30）与 10-01「只收到 keepalive」的真正原因，
+> 不是 Target 没建，也不是账号欠费本身。
+
+## 十四、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
 | 2026-09-30 | 建立充值后 VPC Target、完整 Skill 问答与 R-NX-08 登记 runbook | WP-15 + liyongxiang |
+| 2026-10-02 | 新增第 13 节实测更正：Skill 要求 VPC 环境且环境不可改、托管智能体只走 WebSocket、私网端点需开 Public Access、MCP 宿主 ECS 必须 Running、ws 需关压缩、账号余额风险 | liyongxiang |
+| 2026-10-02 | 新增 13.7：定位「私网环境无公网出口 → 公网模型必然超时」这一结构性互斥，给出 VPC 内模型中转的修复方案与脚本 | liyongxiang |

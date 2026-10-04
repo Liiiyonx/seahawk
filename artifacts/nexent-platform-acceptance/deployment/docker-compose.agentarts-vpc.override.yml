@@ -1,0 +1,6 @@
+services:
+  nexent-mcp:
+    environment:
+      SEASIGHT_MCP_PUBLIC_URL: https://192.168.0.65:8100/mcp
+    ports:
+      - "127.0.0.1:8101:8100"

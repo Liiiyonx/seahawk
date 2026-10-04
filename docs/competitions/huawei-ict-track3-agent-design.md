@@ -332,7 +332,9 @@ R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检�
 禁用（Target 0/10），Agent 启用 VPC 时报 `AgentArts.03002206`，因此托管平台内
 完整 Skill 问答**尚未跑通**，`live_skill_qa_completed: false`。
 
-恢复路径（R-NX-08，尚未开始）：解除欠费 → 在 `vpc-seasight` 内创建可达的
+恢复路径（R-NX-08，2026-10-01 已取得部分进展）：网关层 MCP POST 与
+`agent_runtime_status` 工具调用已实证成功；仍需在私网环境绑定 Agent、发布并
+在平台内跑通一次完整 Skill 问答。后续步骤：在 `vpc-seasight` 内创建可达的
 `/mcp` Target → 绑定 Agent → 发布 → 在平台内跑一次完整 Skill 问答并留存平台内
 截图 → 按 `hosted-skill-qa.template.yaml` 登记。完成前，全部对外材料维持
 “本地已验收、托管平台未验收”的口径。

@@ -1,0 +1,91 @@
+observation:
+  id: R-NX-07-post-recharge-observation
+  date: 2026-09-30
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: still_blocked
+  supersedes_nothing: true
+  note: >-
+    本记录是充值后的只读观察，不修改 hosted-2026-09-30-target-blocked.yaml
+    的历史结论。R-NX-08 未开始，本记录不得写成托管平台验收通过。
+
+  gateway:
+    name: seasight-vpc-gateway
+    gateway_id: 0fe1d7fc-776f-4292-bbc9-5b3b885d1423
+    state: 运行中
+    mcp_version: 2025-03-26
+    egress_network: 私网访问
+    vpc: vpc-seasight
+    subnet: subnet-6ccf
+    security_group: default
+    inbound_gateway: defaultgw
+    target_count: 0
+    target_limit: 10
+    target_table: 暂无数据
+
+  create_target_button:
+    previous_state: disabled_by_account_arrears
+    observed_state: enabled
+    evidence_method: DOM 属性检查，按钮 disabled=false
+    action_taken: 未提交创建动作，未写入任何 Target
+    conclusion: 欠费对控制台的阻断已解除
+
+  agent_environment_binding:
+    agent_id: fdeccb8f-c35e-459b-8413-26f72a37edf3
+    bound_environment:
+      name: environment-ypflemxw
+      environment_id: 768078e8-5620-418d-97ce-a99d6fb67724
+      network_mode: 公网访问
+    console_hint: 当前公网访问不支持Skill，私网访问环境切换为公网访问环境时，会清空已选择Skill。
+    skills_selected: 5
+    skills:
+      - policy-evidence-qa
+      - marine-event-assessment
+      - cross-document-decision
+      - dispatch-work-order-orchestration
+      - decision-trace-audit
+    private_environment_in_selector: false
+    private_environment:
+      name: environment-seasight-vpc-verify
+      environment_id: 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+      network_mode: 私网访问
+    implication: >-
+      5 个 Skill 已选但挂在公网访问环境上，按平台提示不支持运行；
+      私网环境 environment-seasight-vpc-verify 未出现在该 Agent 的环境下拉选项中。
+
+  mcp_service:
+    name: SeaSight Domain Cognition MCP
+    service_id: ef30db1926c748fab10f30f86c42e2b8
+    state: 部署成功
+    tools_loaded: 21
+    note: MCP 服务本身与工具面未回退，仍为 21 个只读工具。
+
+  environment_list:
+    count: 2
+    entries:
+      - environment-seasight-vpc-verify / 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+      - environment-ypflemxw / 768078e8-5620-418d-97ce-a99d6fb67724
+    arrears_banner_observed: false
+
+  remaining_blocker:
+    type: no_vpc_reachable_mcp_endpoint
+    detail: >-
+      vpc-seasight 内没有可达的 Streamable HTTP MCP endpoint。现有 SeaSight MCP 仅
+      运行在本机 Docker 与已失效的临时公网隧道上，二者都不是 VPC 内地址。
+    consequence: >-
+      即使“创建 Target”按钮已恢复，也没有可填写的私网目标地址；无法完成
+      Target 创建、Target 探活、Agent 私网网络模式切换与平台内完整 Skill 问答。
+    needed_to_unblock: >-
+      需要在 vpc-seasight 内提供一个可被网关访问的 MCP 服务地址（例如同 VPC 的
+      计算资源上运行的 8100/mcp），并仅向网关来源放行。
+
+  live_skill_qa_completed: false
+  recheck_ids_advanced: []
+
+  not_claimed:
+    - 托管平台内完整 Skill 问答仍未跑通
+    - R-NX-07 仍为 blocked，R-NX-08 未开始
+    - 未创建任何付费资源
+
+  reviewed_by: liyongxiang

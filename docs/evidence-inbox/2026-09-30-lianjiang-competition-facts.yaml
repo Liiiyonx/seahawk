@@ -1,0 +1,28 @@
+schema_version: 1
+intake_entries:
+  - id: LJ-01
+    claim: "连江县首届创新创业大赛海洋科创赛道公开奖项设置：金奖 2 项各 3 万元、银奖 4 项各 2 万元、铜奖 6 项各 1 万元、优胜奖 10 项各 3000 元，共 22 个获奖名额"
+    evidence_level: E1
+    source_type: public_fact
+    source_ref: "https://www.sohu.com/a/1074918599_121106994 + http://fj.people.cn/n2/2026/0916/c181466-41698089.html"
+    captured_at: "2026-09-30"
+    review_status: 已复核
+    owner: 赛事证据
+    rule: unsourced_business_number
+    matches:
+      - "3000 元"
+      - "22 个获奖名额"
+    notes: "赛事公开事实，已与人民网福建报道交叉核验；不代表项目已获奖或具备获奖能力。已并入默认登记表 R-LJ-01。"
+  - id: LJ-02
+    claim: "连江县首届创新创业大赛参赛保障公开口径：每项目不超过 2 人食宿接待；交通报销省外每人不高于 1600 元、省内每人不高于 1000 元"
+    evidence_level: E1
+    source_type: public_fact
+    source_ref: "https://www.sohu.com/a/1074918599_121106994 + http://fj.people.cn/n2/2026/0916/c181466-41698089.html"
+    captured_at: "2026-09-30"
+    review_status: 已复核
+    owner: 赛事证据
+    rule: unsourced_business_number
+    matches:
+      - "1600 元/人"
+      - "1000 元/人"
+    notes: "赛事公开事实；实际报销以主办方最终执行口径为准。已并入默认登记表 R-LJ-02。"

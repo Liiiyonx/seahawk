@@ -111,7 +111,7 @@ E3 真实业务方参与 / E4 真实运营。
 | --- | --- | --- | --- |
 | `artifacts/evolution-demo/latest.json` | R-KN-01 | 知识进化闭环完整请求/响应：2 资产、4 版本、60 候选、图谱多跳检索 4 命中、决策证据 4 条 | 演示数据 |
 | `artifacts/ontology-eval/latest.json` | R-KN-02 | 本体候选抽取确定性评测 | E1 软件内部，非领域准确率 |
-| `artifacts/ontology-eval/incremental-latest.json` | R-KN-03 | 本体全量重抽 vs 增量追加对比（节省 66.8%） | E1 相对对比 |
+| `artifacts/ontology-eval/incremental-latest.json` | R-KN-03 | 本体全量重抽 vs 增量追加对比（节省 63.19%） | E1 相对对比 |
 | `artifacts/knowledge-qa-trace/latest.json` | R-KN-04 | 示例问答轨迹（问题 → 检索 → 决策 → 证据链） | `hop_count=0` 直接引用检索，非多跳、非 LLM 生成 |
 | `artifacts/knowledge-qa-trace/01-检索结果-本体图检索与引用.png`、`02-决策证据链-资产版本引用.png` | R-KN-04 | 知识域前端界面截图 | 同上 |
 | `artifacts/open-data-eval/latest.json`、`corpus/manifest.json` | R-OD-01 | 8 份生态环境部公开通知的本体抽取评测，来源 URL 与 SHA256 可追溯 | E1 替代证据，**非真实脱敏行业数据** |

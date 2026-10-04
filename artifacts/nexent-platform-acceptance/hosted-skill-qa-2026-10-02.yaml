@@ -1,0 +1,204 @@
+acceptance:
+  recheck_id: R-NX-08
+  date: "2026-10-02"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: invocation_channel_verified_blocked_by_account_suspension
+  replaces_blocked_record: R-NX-07
+  supersedes_partial: hosted-skill-qa-2026-10-01.yaml
+
+  # ── 本次定位到的真实根因（推翻 R-NX-07 的猜测） ──────────────────────
+  root_cause_found:
+    summary: >-
+      AgentArts 的 Skill 要求智能体运行在「出网网络配置 = 私网访问（VPC 网络模式）」的
+      环境上；而运行环境在智能体创建时即固定，创建后无法更改。
+    proof:
+      - 原智能体 fdeccb8f-... 绑定 environment-ypflemxw（network_mode=PUBLIC），
+        任何含 Skill 的保存请求都返回 400 AgentArts.03002206
+        ("VPC network mode is required when skills are configured")。
+      - 控制台 PUT /agentarts/v1/core/agents/{id} 的请求体不含 environment_id；
+        手工在请求体里补 environment_id 后重放，环境仍不变（PUT 不接受该字段）。
+      - 新建智能体时携带 environment_id=8be4cf0c-...（VPC 环境）同一个含 5 个 Skill
+        的请求返回 201，未再报 03002206。
+    console_note: >-
+      编辑页的环境下拉框可以被切换（显示成私网环境），但保存时不会提交，
+      属于控制台表现与后端语义不一致，不能在原智能体上完成验收。
+  agent_used_for_acceptance:
+    name: seasight-governance-agent-vpc
+    agent_id: aa46a0f0-ba3b-4e8f-8c17-4d5dc08aef15
+    created_at: "2026-10-01T15:24:50Z"
+    environment_id: 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+    environment_network_mode: VPC
+    model: deepseek-provider/deepseek-chat
+    allowed_tools: [bash, write_file, read_file, edit_file]
+    skills: 5
+    version: v1
+    inbound_identity_authentication: API_KEY
+  intermediate_agents_created:
+    - name: seasight-governance-decision-agent-vpc
+      agent_id: 9fb89026-e3bf-434e-b035-b7d864062d49
+      note: >-
+        首个 VPC 环境智能体，用控制台默认的 IAM 入站认证创建；UI「保存为新版本」
+        成功（v1→v2），证明 VPC 修复有效；但 IAM 身份的 Modify 是灰的，
+        无法改成 API Key，故另建 API Key 版用于调用。
+    - name: seasight-governance-decision-agent (fdeccb8f-...)
+      note: 原公网环境智能体，保留不动，仍为 R-NX-06 的记录对象。
+
+  # ── 调用通道（已实测打通到鉴权层） ───────────────────────────────────
+  invocation_channel:
+    method: Managed Agents WebSocket（官方 managed_agents_client.py 协议）
+    protocol_reference: https://support.huaweicloud.com/managedagents-agentarts/agentarts_13_0002.html
+    official_client: https://res-static.hc-cdn.cn/cloudbu-site/china/zh-cn/agentarts/ManagedAgents/managed_agents_client.py
+    runtime_name: managed-seasight-governance-agent-vpc
+    runtime_id: ef2f9864-fb7b-42d1-b290-f7998efbf483
+    endpoint_host: defaultgw-mztggyleha.cn-southwest-2.huaweicloud-agentarts.com
+    ws_url_shape: wss://<access-domain>/runtimes/<runtime_name>/ws
+    auth: "Authorization: Bearer <Agent Identity API Key>"
+    extra_headers: [x-hw-agentarts-session-id, X-HW-AgentArts-Claw-User-Id, X-HW-AgentGateway-Chat-Id, Origin]
+    verified:
+      - 私网环境运行时的访问域名默认只在 VPC 私网 DNS 内可解析（公网 ENOTFOUND）。
+      - 在「治理与安全 > 网络配置 > defaultgw」开启 Public Access 后，域名公网可解析
+        （1.95.217.27），HTTPS 探活由连接失败变为 401，WebSocket 握手成功建立。
+      - 官方协议握手成功：收到 watchdog.initialized 与 connection.ack，
+        发出 chat.send 后服务端持续返回 keepalive / context.usage 帧。
+      - 平台侧日志（观测 > agent-run log）确认该 session 已落库，
+        并记录到 [TelemetryRail] 模型调用完成 status=success duration=147.28s。
+    api_key_storage: D:\VeriCall_data\secrets\seasight_agentarts.env（不入库、不打印）
+    client_quirks:
+      - Node ws 必须 perMessageDeflate=false，否则报 "invalid distance too far back"。
+      - 官方 Python 客户端同样传 compression=None，原因一致。
+
+  # ── 本次运行尝试 ─────────────────────────────────────────────────────
+  run_attempts:
+    - attempt: 1
+      session: seasight-rnx08-1790868738603
+      result: 连接成功、收到 ack 与 keepalive，300s 内未拿到回答帧
+    - attempt: 2
+      session: seasight-rnx08-<后续>
+      result: 心跳 25 分钟窗口内仅 keepalive；结束时收到的是
+        "⚠️ 模型调用异常 [请求超时]，将在 10/20/40 秒后重试 1/3、2/3、3/3"
+        的智能体文本，说明模型调用在沙箱侧超时。
+    - attempt: 3
+      session: seasight-rnx08-<ECS 启动后>
+      result: >-
+        WebSocket 在 69.7s 被以 1011 keepalive ping timeout 关闭；
+        期间 ECS 刚完成启动，判断为瞬时链路抖动，需重试。
+  host_side_findings:
+    - id: ECS seasight-mcp-host
+      private_ip: 192.168.0.65
+      public_ip: 1.95.120.238
+      spec: FlexusX x1.2u.8g / Ubuntu 22.04
+      state_before: Stopped（导致网关 Target 指向的后端不可达）
+      state_after: Running（本次已启动）
+    - id: gateway target seasight-mcp-vpc-target
+      status: ready
+      endpoint: http://192.168.0.65:8100/mcp
+
+  blocking_issues:
+    - id: BLK-1
+      issue: 华为云账号欠费冻结
+      detail: >-
+        控制台英文横幅为通用文案 "Your account has been suspended because an exception
+        occurred. To restore your account, submit a service ticket"，容易误判为风控冻结；
+        账号中心（中文）明确给出原因：「您的账号已欠费，无法正常购买和使用按需计费云服务」。
+        金额口径（2026-10-02 11:15 实测）：
+        账户余额 ¥0.00；可用余额 −¥0.53（= 欠费 53 分）；
+        本月账单 ¥12.29（现金抵扣 ¥11.34 + 未结清 ¥0.95）；代金券 0；
+        受限记录 operatorId=system、type=3。
+      cost_attribution: >-
+        新增消费主要来自 2026-10-01 夜间为完成验收所做的三项操作：
+        ① 把 MCP 宿主 ECS seasight-mcp-host（FlexusX 2vCPU/8G + 5Mbit EIP）
+        由 Stopped 启动为 Running 并运行约 11 小时；
+        ② 开启 AgentArts runtime 与网关日志、并反复建立长连接调用（keepalive 帧
+        会落入 LTS，按量计费）；
+        ③ 平台侧模型调用（DeepSeek）。
+        昨天充值后余额被这些消费耗尽并透支，触发欠费冻结。
+      resolution: >-
+        属欠费冻结，充值即解（充值金额优先抵扣欠费），通常无需工单；
+        建议充值至余额提醒阈值 ¥50 以上。若充值后长时间未解冻，再按
+        「用户账号 > 账号冻结/受限咨询」提交工单做身份核验。
+      evidence:
+        - evidence/agentarts-hosted-qa-2026-10-02/account-arrears-zh.png
+        - evidence/agentarts-hosted-qa-2026-10-02/account-suspended.png
+    - id: BLK-2
+      issue: 私网环境无公网出口 → 公网模型端点不可达（决定性根因）
+      detail: >-
+        environment-seasight-vpc-verify 出网为「私网访问」（平台文档：只能访问内网资源，
+        流量不经过互联网），而模型供应商 deepseek-provider 的运行时 model_config 指向
+        base_url=https://api.deepseek.com/v1 且靠 credential_provider_name 解析出站凭据。
+        2026-10-02 11:29–11:45 的实测日志显示：模型调用开始（timeout=60）→
+        APITimeoutError（OpenAI API async stream error）→ llm_call_error，反复出现；
+        同期还出现 iam.cn-southwest-2.myhuaweicloud.com:443 的 ConnectTimeoutError
+        （connect timeout=60），说明沙箱完全没有公网出口。
+        因此「Skill 必须 VPC 环境」与「模型在公网」在平台层面互斥，
+        这也是 R-NX-07 / 10-01 两次只收到 keepalive 的真正原因。
+      evidence: evidence/agentarts-hosted-qa-2026-10-02/root-cause-model-unreachable.md
+      fix_options:
+        - id: FIX-1
+          name: VPC 内 OpenAI 兼容中转（推荐）
+          artifact: artifacts/nexent-platform-acceptance/deployment/agentarts-vpc-model-relay.py
+          steps: >-
+            在 ECS seasight-mcp-host（192.168.0.65，有公网 EIP）上以纯标准库方式运行中转，
+            监听 0.0.0.0:8080 转发到 https://api.deepseek.com/v1；安全组放行
+            192.168.0.0/16→8080；AgentArts 模型供应商 Base_url 改为
+            http://192.168.0.65:8080/v1，出站身份使用 Authorization: Bearer <RELAY_TOKEN>。
+          blocker: 需要 ECS 的 shell 访问（本机无 SSH 凭据，公网 22/8100 均被安全组过滤）
+        - id: FIX-2
+          name: 使用 VPC 内可达的 MaaS 内网端点模型
+          blocker: 需开通付费 MaaS 模型并配置 VPC 端点（涉及费用）
+        - id: FIX-3
+          name: 确认平台是否有"模型代理"能力可让沙箱经平台网络调用公网模型
+          blocker: 未验证，需向华为求证
+    - id: BLK-3
+      issue: 持续计费项需要收口
+      detail: >-
+        ECS seasight-mcp-host 在 2026-10-02 11:28 为复跑启动，11:50 已再次停机；
+        其 5 Mbit 动态 BGP EIP（1.95.120.238）若保留可能继续计费；
+        runtime/网关日志与 defaultgw 公网访问也应在验收完成后关闭。
+      need_user_action: >-
+        确认是否释放 EIP；验收完成后关闭 runtime/网关日志与 defaultgw 公网访问
+
+  skill_qa:
+    question: >-
+      连江县海漂垃圾治理中，岸基监控发现疑似漏油事件，请按照现有政策给出评估与处置建议，并给出证据链。
+    tool_calls_observed: []
+    final_answer_has_citations: not_evaluated
+    platform_qa_completed: false
+    live_skill_qa_completed: false
+    platform_run_id: not_evaluated
+    resume_command: >-
+      cd C:\Users\Liii\Desktop\seahawk\.codex-tmp\wb
+      && NODE_PATH=C:\Users\Liii\.workbuddy\binaries\node\workspace\node_modules
+      <managed-node> rnx08-run.mjs
+      # 需先在 D:\VeriCall_data\secrets\seasight_agentarts.env 里保留 API Key
+
+  evidence_files:
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/account-suspended.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/agents-page.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/new-agent-edit.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/new-agent-after-save.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/agent-detail.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/detail-versions.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/runtime-detail.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/identity-list.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/identity-apikey-detail.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/apikey-after-add.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/ecs-list.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/ecs-start-clicked.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/hosted-ws-run-frames.json
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/hosted-ws-run-attempt-1.log
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-02/hosted-ws-run-attempt-3.log
+
+  boundaries:
+    - 私网 Target 的 MCP 调用已由平台网关工具调试页验证；本记录新增的是「智能体侧调用通道」验证。
+    - 平台内完整 Skill 问答仍未完成：无 LLM 最终回答、无工具调用轨迹，
+      live_skill_qa_completed 与 platform_qa_completed 均为 false。
+    - 不得把本次记录写成「托管平台已验收」或「海域验证完成」。
+    - 演示数据不等于真实脱敏行业数据；76% 仍只是时序链路误报抑制率，不是识别精度。
+  reviewed_by: liyongxiang
+  review_note: >-
+    2026-10-02 复核：已定位并修复 R-NX-07 的真实根因（Skill 需要 VPC 网络模式的环境，
+    而环境在创建时固定），据此新建私网环境智能体并打通官方 WebSocket 调用通道；
+    剩余为账号冻结（BLK-1）与沙箱内模型调用超时（BLK-2）两项外部阻断，
+    账号恢复后按 resume_command 可直接复跑。

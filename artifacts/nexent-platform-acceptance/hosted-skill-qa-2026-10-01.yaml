@@ -1,0 +1,69 @@
+acceptance:
+  recheck_id: R-NX-08
+  date: "2026-10-01"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: partial_gateway_mcp_tool_verified
+  replaces_blocked_record: R-NX-07
+  agent:
+    name: seasight-governance-decision-agent
+    agent_id: fdeccb8f-c35e-459b-8413-26f72a37edf3
+    published_version: "1"
+    model: deepseek-provider/deepseek-chat
+  private_environment:
+    name: environment-seasight-vpc-verify
+    environment_id: 8be4cf0c-1de3-46f9-a5cd-90224ca0a378
+    gateway_name: seasight-vpc-gateway
+    gateway_id: 0fe1d7fc-776f-4292-bbc9-5b3b885d1423
+    target_name: seasight-mcp-vpc-target
+    target_id: not_evaluated
+    target_status: online
+    target_transport: streamable-http
+    target_protocol: MCP
+    target_endpoint_class: huawei_vpc_private_endpoint
+    target_endpoint: http://192.168.0.65:8100/mcp
+    mcp_version: "2025-03-26"
+    outbound_auth: API Key / Authorization / Bearer
+  mcp:
+    name: SeaSight Domain Cognition MCP
+    service_id: ef30db1926c748fab10f30f86c42e2b8
+    tools_loaded: 21
+    read_only: true
+  skills_imported:
+    - policy-evidence-qa
+    - marine-event-assessment
+    - cross-document-decision
+    - dispatch-work-order-orchestration
+    - decision-trace-audit
+  skill_qa:
+    skill_used: agent_runtime_status (网关工具调试)
+    question: >-
+      通过网关工具调试，调用 agent_runtime_status 工具读取后端运行时状态
+    tool_calls_observed:
+      - seasight-mcp-vpc-target_agent_runtime_status (MCP POST 成功)
+    final_answer_has_citations: not_evaluated
+    final_answer_marks_not_evaluated_if_insufficient: true
+    platform_qa_completed: false
+    live_skill_qa_completed: false
+    platform_run_id: not_evaluated
+  evidence_files:
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-01/gateway-tool-debug-live-2026-10-01.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-01/gw-calling-code.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-01/gateway-diaoche.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-01/gateway-tabs.png
+    - artifacts/nexent-platform-acceptance/evidence/agentarts-hosted-qa-2026-10-01/gateway-log-enabled.png
+    - verify/huawei-agentarts-skill/mcp_response.json
+    - verify/huawei-agentarts-skill/gateway-debug-live-response.json
+  boundaries:
+    - 网关层 MCP POST 与工具调用已通过平台"工具调试"页面验证成功。
+    - 平台内 Agent 完整 Skill 问答（含 LLM 推理 + 工具调用轨迹）尚未完成。
+    - 演示数据不等于真实脱敏行业数据；识别精度保持 not_evaluated。
+    - 76% 是时序链路误报抑制率，不是识别精度。
+  reviewed_by: liyongxiang
+  review_note: >-
+    华为 AgentArts 私网环境已通过网关工具调试页验证 MCP POST 可达、
+    工具 agent_runtime_status 返回正确 JSON-RPC 结果（tools_registered=6）。
+    后台代理运行时状态在线。但平台内完整 Skill 问答（Agent 评测页输入自然语言
+    并观察多工具调用轨迹）尚待完成。本记录为网关层协议验收，非完整 Skill QA。
+    感知精度与海域部署保持 not_evaluated。

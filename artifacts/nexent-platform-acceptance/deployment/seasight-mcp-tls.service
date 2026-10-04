@@ -1,0 +1,19 @@
+[Unit]
+Description=SeaSight MCP TLS proxy for Huawei AgentArts VPC gateway
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/socat OPENSSL-LISTEN:8100,bind=192.168.0.65,reuseaddr,fork,cert=/opt/seasight/tls/mcp.crt,key=/opt/seasight/tls/mcp.key,verify=0 TCP:127.0.0.1:8101
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/opt/seasight/tls
+
+[Install]
+WantedBy=multi-user.target
