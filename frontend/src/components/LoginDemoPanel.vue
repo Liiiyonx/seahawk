@@ -112,7 +112,7 @@ const accounts = [
   border-radius: 999px;
   background: var(--bg-active);
   color: var(--c-primary);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
 }

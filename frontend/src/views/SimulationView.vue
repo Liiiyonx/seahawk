@@ -1137,7 +1137,7 @@ onUnmounted(() => {
 .sim-section__hint {
   color: var(--text-dim);
   font-family: 'SF Mono', Consolas, monospace;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 400;
 }
 
@@ -1194,7 +1194,7 @@ onUnmounted(() => {
 .sim-timeline__item time {
   color: var(--text-dim);
   font-family: 'SF Mono', Consolas, monospace;
-  font-size: 10px;
+  font-size: 10.5px;
   text-align: right;
 }
 
@@ -1288,7 +1288,7 @@ onUnmounted(() => {
   background: var(--bg-panel-2);
   color: inherit;
   font-family: 'SF Mono', Consolas, monospace;
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 17px;
 }
 
@@ -1315,7 +1315,7 @@ onUnmounted(() => {
   padding-top: 2px;
   color: var(--text-dim);
   font-family: 'SF Mono', Consolas, monospace;
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 
 .sim-stream__tag {
@@ -1325,7 +1325,7 @@ onUnmounted(() => {
   border-radius: 5px;
   background: var(--bg-panel-2);
   color: var(--text-sub);
-  font-size: 9.5px;
+  font-size: 10.5px;
   text-align: center;
   white-space: nowrap;
 }
@@ -1368,7 +1368,7 @@ onUnmounted(() => {
 .sim-stream__body code {
   color: var(--text-dim);
   font-family: 'SF Mono', Consolas, monospace;
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 
 .sim-stream__empty {

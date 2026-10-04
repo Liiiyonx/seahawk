@@ -231,7 +231,7 @@ async function fillDemo(account) {
   display: inline-block;
   margin-bottom: 18px;
   color: #7ce8f5;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 2.8px;
 }
@@ -275,7 +275,7 @@ async function fillDemo(account) {
   border-radius: 6px;
   background: rgba(3, 20, 34, 0.28);
   color: rgba(255, 255, 255, 0.42);
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.4;
   text-align: right;
 }
@@ -538,7 +538,7 @@ async function fillDemo(account) {
   .login__photo-credit {
     margin-left: auto;
     color: rgba(255, 255, 255, 0.48);
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .login__access {
@@ -575,12 +575,12 @@ async function fillDemo(account) {
   }
 
   .login__story :deep(.brand-lockup__en) {
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 2px;
   }
 
   .login__story :deep(.brand-lockup__sub) {
-    font-size: 10px;
+    font-size: 10.5px;
   }
 
   .login__intro {

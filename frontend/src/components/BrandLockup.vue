@@ -55,7 +55,7 @@ defineProps({
 
 .brand-lockup__en {
   color: var(--text-dim);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.4px;
   line-height: 1;
