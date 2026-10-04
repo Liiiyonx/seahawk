@@ -49,6 +49,8 @@ const PATHS = {
     'M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z',
     'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1',
   ],
+  // 心电波形：用于「舵机遥测」这类实时读数
+  activity: ['M22 12h-4l-3 9L9 3l-3 9H2'],
 }
 
 const paths = computed(() => PATHS[props.name] || PATHS.check)

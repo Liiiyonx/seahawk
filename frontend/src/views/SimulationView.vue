@@ -84,7 +84,12 @@
             而不是「打开另一个软件」。mapTarget 可能是 {lng,lat} 也可能
             是字符串（不同接口的约定不同），统一格式化成字符串再传。
           -->
-          <ArmSimConsole v-else :task-id="taskId" :target="armTaskTarget" />
+          <ArmSimConsole
+            v-else
+            :task-id="taskId"
+            :target="armTaskTarget"
+            :servos="armServoTelemetry"
+          />
         </div>
         <div v-if="loading" class="sim-map__loading">
           <span class="sim-map__spinner"></span>
@@ -533,6 +538,21 @@ const telemetryItems = computed(() => {
         (taskId.value && item.task_id === taskId.value),
     )
     .slice(0, 60)
+})
+
+/**
+ * 最新一条遥测里的逐舵机读数，喂给 ArmSimConsole 的舵机面板。
+ * ★ 由机械臂驱动回读（t_track.servo_telemetry），不是平台自报 ——
+ *   所以它能作为"真机真的执行了"的证据。取最新一条即可：
+ *   遥测是持续上报的，旧的没有展示价值。
+ */
+const armServoTelemetry = computed(() => {
+  const items = telemetryItems.value
+  for (let i = 0; i < items.length; i += 1) {
+    const s = items[i]?.servo_telemetry || items[i]?.servos
+    if (s && typeof s === 'object' && Object.keys(s).length) return s
+  }
+  return {}
 })
 
 const logItems = computed(() =>

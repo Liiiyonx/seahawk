@@ -377,6 +377,10 @@ class ArmBridge:
             "task_id": task_id,
             "speed": driver_status.speed,
             "heading": driver_status.heading,
+            # ★ 逐舵机遥测（电压/温度/位置）。这是"机械臂真的动了"的
+            #   硬证据 —— status 字段是平台自报，这里的数字来自舵机本身。
+            #   采集不到时是空 dict，不会让整条消息失败。
+            "servos": dict(getattr(driver_status, "servos", {}) or {}),
         }
         self.transport.publish(self.telemetry_topic, payload, qos=0)
         self.history["telemetry"].append(payload)

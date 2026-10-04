@@ -160,6 +160,10 @@ CREATE TABLE IF NOT EXISTS t_track (
     bin_plastic NUMERIC(4,3),                              -- 塑胶仓占用
     bin_mixed   NUMERIC(4,3),                              -- 混合仓占用
     speed       NUMERIC(5,2),                              -- m/s
+    -- 逐舵机遥测（电压/温度/位置）。真机执行时由驱动回读写入，
+    -- 是「机械臂真的动了」的硬证据（status 字段是平台自报）。
+    -- 非真机（仿真 / 无舵机）时为 NULL。见 20260905_0100_servo_telemetry 迁移。
+    servo_telemetry JSONB,
     recorded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (id, recorded_at)
 ) PARTITION BY RANGE (recorded_at);

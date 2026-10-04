@@ -80,6 +80,30 @@
       </div>
     </div>
 
+    <!--
+      舵机遥测：真机接上后才有内容。
+      这是"机械臂真的动了"的硬证据 —— 电压/温度/位置由舵机回读，
+      不是平台自报。评委可以直接看数字对不对。
+    -->
+    <div v-if="servoRows.length" class="arm-console__servos">
+      <div class="arm-console__servos-head">
+        <UiIcon name="activity" :size="14" />
+        <span>舵机遥测（回读自舵机，非平台自报）</span>
+      </div>
+      <div class="arm-console__servos-grid">
+        <div
+          v-for="s in servoRows"
+          :key="s.id"
+          class="arm-console__servo"
+        >
+          <span class="arm-console__servo-id">#{{ s.id }}</span>
+          <span title="舵机电压">{{ fmtVolt(s.vin) }}</span>
+          <span title="舵机温度">{{ s.temp == null ? '—' : `${Math.round(Number(s.temp))}°C` }}</span>
+          <span title="位置量程 0–1000">{{ fmtPos(s.position) }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 预检结果：把「现场翻车」变成「现场排障指引」 -->
     <p v-if="reach.hint" class="arm-console__reach-hint" :class="`is-${reach.state}`">
       {{ reach.hint }}
@@ -132,6 +156,12 @@ const props = defineProps({
   taskId: { type: String, default: '' },
   /** 目标坐标：与工单一起构成任务上下文 */
   target: { type: String, default: '' },
+  /**
+   * 逐舵机遥测，来自 t_track.servo_telemetry（由机械臂驱动回读）。
+   * ★ 这是"机械臂真的动了"的硬证据 —— 数字来自舵机本身，
+   *   而平台 status 字段是自报的。没接真机时为空对象。
+   */
+  servos: { type: Object, default: () => ({}) },
 })
 
 const consoleLabel =
@@ -178,6 +208,25 @@ const currentTask = computed(() => {
   if (!props.taskId) return ''
   return props.target ? `${props.taskId} · ${props.target}` : props.taskId
 })
+
+/**
+ * 舵机遥测行 [{id, vin, temp, position}]，按舵机号排序。
+ * 只显示实际读到数的舵机 —— 没读到的直接不列，避免"看起来有其实没有"。
+ */
+const servoRows = computed(() => {
+  const src = props.servos || {}
+  return Object.keys(src)
+    .map((id) => ({ id, ...(src[id] || {}) }))
+    .filter((r) => r.vin != null || r.temp != null || r.position != null)
+    .sort((a, b) => Number(a.id) - Number(b.id))
+})
+
+/** 电压换算：厂商 SDK 回报单位是 mV（舵机侧约 11000，控制板约 7400） */
+const fmtVolt = (mv) =>
+  mv == null ? '—' : `${(Number(mv) / 1000).toFixed(2)}V`
+
+/** 舵机位置：0..1000 脉宽量程，不是角度 —— 口径上不能写成"角度" */
+const fmtPos = (p) => (p == null ? '—' : String(Math.round(Number(p))))
 
 /** 接入方式：nx:// 走协议唤起，其余按 http(s) 浏览器直连 */
 const mode = computed(() => {
@@ -530,6 +579,61 @@ onBeforeUnmount(() => {
 .arm-console__row code {
   overflow: hidden;
   color: var(--text-main);
+}
+
+/* ---------- 预检提示 ---------- */
+/* ---------- 舵机遥测（真机证据）---------- */
+.arm-console__servos {
+  display: grid;
+  gap: 7px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--c-success);
+  border-radius: 10px;
+  background: var(--bg-panel-2);
+}
+
+.arm-console__servos-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-sub);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.arm-console__servos-head svg {
+  width: 14px;
+  height: 14px;
+  color: var(--c-success);
+}
+
+.arm-console__servos-grid {
+  display: grid;
+  /* 168px 是实测下限：#id + 电压 + 温度 + 位置 四段等宽数字
+     在 11.5px 下需要这么多，窄了会逐字竖排换行。 */
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 5px;
+}
+
+.arm-console__servo {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: var(--bg-panel);
+  color: var(--text-main);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+  /* 等宽数字必须不换行——竖排的"1 1.52V38°C620"完全读不了 */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.arm-console__servo-id {
+  color: var(--c-primary);
+  font-weight: 600;
 }
 
 /* ---------- 预检提示 ---------- */

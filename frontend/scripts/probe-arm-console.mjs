@@ -16,6 +16,8 @@ const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 const BASE_UNSET = 'http://127.0.0.1:5199'
 const BASE_SET = 'http://127.0.0.1:5200'
 const BASE_NX = 'http://127.0.0.1:5201'
+// 遥测场景用 dev server：调试钩子 window.__oceanusStore 仅 DEV 挂载
+const BASE_TELE = process.env.PROBE_DEV_URL || 'http://127.0.0.1:5174'
 
 const FAKE_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
@@ -113,7 +115,72 @@ try {
     await page.screenshot({ path: 'artifacts/arm-console-reachable.png' })
     await ctx.close()
   }
-  // ===== 场景三：nx:// 协议档（实测选定的档位）=====
+  // ===== 场景三：舵机遥测面板（真机证据链）=====
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1500, height: 1000 } })
+    const page = await ctx.newPage()
+    page.on('pageerror', (e) => errors.push('[telemetry] ' + e.message))
+    await page.addInitScript((tok) => {
+      localStorage.setItem('seasight_token', tok)
+      localStorage.setItem('seasight_user', JSON.stringify({ username: 'p', role: 'admin' }))
+    }, FAKE_JWT)
+    await page.route('**/api/v1/**', (r) =>
+      r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }))
+
+    // ★ 遥测只走 WebSocket（realtime.js 的 robot_status 消息才进
+    //   telemetryFeed），REST 拦截喂不进来 —— 上一版探针就是错在这里。
+    //   直接调 store 的 pushTelemetry，走真实的 store → computed → 组件链路。
+    await page.evaluate(() => {
+      const btn = document.createElement('button')
+      btn.id = 'seed-telemetry'
+      btn.textContent = 'seed'
+      btn.style.display = 'none'
+      document.body.appendChild(btn)
+    })
+
+    await page.goto(`${BASE_TELE}/simulation/T-TEST-0001`, { waitUntil: 'networkidle' })
+    await page.waitForTimeout(1000)
+    await page.click('.sim-map__switch button[role="tab"]:nth-child(2)')
+    await page.waitForTimeout(1500)
+
+    // 注入一条带 servo_telemetry 的遥测（走 store 的公开入口）
+    const seeded = await page.evaluate(async () => {
+      const store = window.__oceanusStore || window.__seasightStore
+      if (!store || typeof store.pushTelemetry !== 'function') {
+        return { ok: false, why: 'store 未暴露到 window' }
+      }
+      store.pushTelemetry({
+        robot_id: 'R-01', task_id: 'T-TEST-0001', battery: 76,
+        servo_telemetry: {
+          1: { vin: 11520, temp: 38, position: 620 },
+          2: { vin: 11480, temp: 41, position: 585 },
+        },
+      })
+      return { ok: true, size: store.telemetryFeed.length }
+    })
+    if (!seeded.ok) log(false, '遥测注入（store 需暴露到 window）', JSON.stringify(seeded))
+    await page.waitForTimeout(1200)
+
+    const tele = await page.evaluate(() => {
+      const root = document.querySelector('.arm-console')
+      const panel = root?.querySelector('.arm-console__servos')
+      return {
+        hasPanel: !!panel,
+        rows: Array.from(root?.querySelectorAll('.arm-console__servo') || [])
+          .map((r) => r.textContent.replace(/\s+/g, ' ').trim()),
+        head: panel?.querySelector('.arm-console__servos-head')?.textContent.trim(),
+      }
+    })
+    log(tele.hasPanel, '舵机遥测面板已渲染（接入真机后出现）', JSON.stringify(tele))
+    log(tele.rows.length === 2, '两个舵机各一行', tele.rows.join(' | '))
+    log(/11\.52V/.test(tele.rows.join(' ')), '电压已格式化为 V（11520mV → 11.52V）')
+    log(/38°C/.test(tele.rows.join(' ')), '温度已显示')
+    log(/620/.test(tele.rows.join(' ')), '位置已显示')
+    await page.screenshot({ path: 'artifacts/arm-console-telemetry.png' })
+    await ctx.close()
+  }
+
+  // ===== 场景四：nx:// 协议档（实测选定的档位）=====
   {
     const ctx = await browser.newContext({ viewport: { width: 1500, height: 1000 } })
     const page = await ctx.newPage()
