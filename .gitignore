@@ -176,3 +176,10 @@ deliverables/
 
 # 前端渲染探针的截图产物（结论在提交信息与脚本里，图片不入库）
 frontend/artifacts/
+
+# 探针用的临时构建产物（用 vite --outDir dist-xxx 产出，验完即弃）
+frontend/dist-verify/
+frontend/dist-probe/
+frontend/dist-nx/
+frontend/dist-tele/
+frontend/dist-tele2/
