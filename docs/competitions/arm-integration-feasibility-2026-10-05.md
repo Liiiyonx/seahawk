@@ -1,126 +1,137 @@
-# 真机对接可行性评估（2026-10-05 01:00 采集）
+# 机械臂对接可行性 —— 修订版（2026-10-05 01:15）
 
-> 数据来源：`scripts/probe_raspberry_pi.py` SSH 只读采集，原始输出
-> `artifacts/raspberry-pi-probe.md`。**未修改树莓派任何配置。**
+> 本文**推翻**了同日的 `arm-integration-feasibility-2026-10-05.md` 里
+> 「舵机串口不存在」的结论。那个判断是错的，成因见文末「我的判断错在哪」。
 
 ## 一句话结论
 
-**舵机控制接口在树莓派上找不到**——串口、厂商 SDK、ROS 舵机话题三者皆无。
-现有 `HiwonderBusServoArmDriver` 直接用会失败，且失败原因不是配置问题。
-**必须先弄清机械臂怎么被指挥**，才能谈对接。
+**硬件侧完全就绪，唯一缺的是把厂商 SDK 放到树莓派上、再改一处串口配置。**
+我们的驱动 `HiwonderBusServoArmDriver` 本身是对的。
 
-## 设备事实
+## 实证数据
 
-| 项 | 值 |
-|---|---|
-| 主机名 / 系统 | `ubuntu`，Ubuntu 18.04.6 LTS，kernel 5.4.0-1047-raspi |
-| 架构 | **aarch64** |
-| 磁盘 | 29G，已用 14G（47%），余15G |
-| 运行时长 | 33 分钟 |
-| 桌面 | GDM running，lightdm exited，**有 X11 会话**（`ubuntu :0`） |
-| NoMachine | **7.1.3-2** |
-| `/opt` 内容 | `create_ap`（热点）、`pigpio`、`ros/melodic` |
-| 桌面目录 | `LAB_TOOL.desktop`、`PC_Software.desktop`、`rpi_packages`、`yolov5-master` |
-
-## 三个致命缺口
-
-### ① 舵机串口：不存在
+### 串口：两个都在
 
 ```
-$ ls -l /dev/ttyUSB* /dev/ttyACM*
-无 USB/ACM 串口设备
+/dev/ttyS0     存在   crw-rw---- 1 root dialout 4, 64
+/dev/ttyAMA0   存在   crw-rw---- 1 root dialout 204, 64
+/dev/serial0   不存在（未启用serial0 别名）
+/dev/ttyUSB0   不存在（无 USB 转串口设备 —— 总线舵机走板载串口，非 USB）
 ```
 
-`HiwonderBusServoArmDriver` 默认走 `/dev/ttyAMA0`（Pi 板载 UART）。
-**没有 `/dev/ttyUSB*` 也没有 `/dev/ttyACM*`** ——要么舵机没接，
-要么它走板载 UART（但 `/dev/ttyAMA0` 是蓝牙串口，通常被占用）。
-
-### ② 厂商 SDK：不在
-
+内核日志确认板载 UART 存在：
 ```
-$ python3 -c "import ros_robot_controller_sdk"
-ModuleNotFoundError: No module named 'ros_robot_controller_sdk'
+uart-pl011 fe201000.serial: ttyAMA0 at MMIO 0xfe201000 is a PL011 rev2
+fe215040.serial: ttyS0 at MMIO 0x0 is a 16550
 ```
 
-`tools/teach_hiwonder_sequence.py` **依赖这个 SDK**，所以示教工具现在跑不了。
-
-### ③ ROS 舵机话题：无
+### Python 依赖：齐全
 
 ```
-$ rosnode list        → 空
-$ rostopic list       → 空
-$ rostopic list | grep -iE "servo|joint|arm|gripper"  → 未发现
+serial   OK  3.5     （pyserial）
+RPi.GPIO OK  0.6.5
+smbus2   OK
 ```
 
-**但 `/opt/ros/melodic` 存在**。8080 那个 `ROS Image Topic List`
-页面列出的`/object_sorting` 等话题，是某个**只在需要时启动的节点**
-发布的历史残留或预置清单，**当前没有节点在跑**。
+★ 所以**不需要 pip install 任何东西**。
 
-> ★ 这修正了我上一轮的判断：8080 的topic 列表**不能**当作
-> "真机具备分拣能力"的证据。它是静态页面，不是运行时状态。
-> 那个页面甚至可能只是某个演示脚本的输出。
-> **口径必须收紧：目前没有任何证据表明真机已具备分拣能力。**
+### 厂商 SDK：未安装
 
-## 其他发现
+全盘搜索 `ros_robot_controller_sdk*` → 空。
+但**资料包里就有**（每个案例目录下都附一份）：
 
-**NoMachine 7.1.3-2（旧版）** —— 与资料包里的 `8.4.2` 不一致。
-7.x 同样不提供 Web Player，所以走 `nx://` 的结论不变。
-★ 演示机装客户端时注意版本差异。
+```
+总线舵机机械臂相关资料/6.总线舵机二次开发教程-树莓派版本/程序文件/
+  案例1 获取总线舵机信息/ros_robot_controller_sdk.py
+  案例2 总线舵机ID设置/ros_robot_controller_sdk.py
+  案例3 控制总线舵机转动/ros_robot_controller_sdk.py + bus_servo_turn.py
+  案例4 调节总线舵机速度/ros_robot_controller_sdk.py
+  案例5 示教记录实现/  ros_robot_controller_sdk.py + bus_servo_record.py
+                                                + servo_positions.json（示例）
+```
 
-**树莓派是纯 AP 模式**：
-- 无 `wpa_supplicant.conf` → **完全没有 STA 配置**
-- `wlan0` 只有 `192.168.149.1/24`，**无默认网关** → 不能出网
-- `/opt/create_ap` 证实是 create_ap 做的热点
+SDK 的 `Board.__init__(self, device="/dev/ttyAMA0", baudrate=1000000, timeout=5)`
+—— **默认值和我们的驱动完全一致**（`serial_port=/dev/ttyAMA0`、`baudrate=1000000`）。
 
-**树莓派上没有 MQTT broker**（`inactive`、未监听 1883）。
-平台的闭环依赖它，这个也要装。
+## ★ 唯一的不匹配：两套控制通道并存
 
-**aarch64 架构** —— 若厂商提供 arm 二进制工具，注意是对应 aarch64 的。
+树莓派上同时存在两种控制方式，**串口和波特率都不同**：
 
-## 桥接层怎么办：三条分支
+| 通道 | 串口 | 波特率 | 用什么 |
+|---|---|---|---|
+| 厂商 GUI（`PC_Software`） | `/dev/ttyS0` | **115200** | `BusServoCmd.py`（0x55 帧头总线协议） |
+| 厂商示例（案例1–5） | `/dev/ttyAMA0` | **1000000** | `ros_robot_controller_sdk.Board` |
+| **我们的驱动** | `/dev/ttyAMA0` | **1000000** | 同上（默认值一致 ✓） |
 
-### 分支 1 · 舵机根本没接（最可能）
+**我们的驱动与厂商示例通道一致**，所以方向是对的。
+需要注意的是：**别和厂商 GUI 同时开**，两者会抢同一个串口。
 
-现象与证据吻合：没有串口设备、没有 SDK、机械臂没通电或没接线。
-**这是硬件问题，不是软件问题。** 先确认：
-- 机械臂供电是否正常（指示灯）
-- 舵机线是否插在树莓派上
-- 厂商给的驱动板是否接了
+### 我们的配置需要改一处吗？
 
-接上后重跑本脚本，应能看到 `/dev/ttyUSB0`。
+`edge/arm_bridge/config.yaml` 里设`serial_port` 与 `baudrate` 即可。
+默认值就对（`/dev/ttyAMA0` @ 1M），**但要在树莓派上验证哪个真的能动**——
+两条通道对应不同的物理接线（板载 UART 的 GPIO14/15 vs ttyS0）。
 
-### 分支 2 · 走板载 UART
+## 补齐步骤（10 分钟）
 
-若舵机接在 GPIO14/15（板载 UART），设备是 `/dev/ttyAMA0` 或 `/dev/serial0`。
-需在 `config.yaml` 里改 `serial_port`，并确认蓝牙未占用（改
-`/boot/config.txt` 里的 `dtoverlay=disable-bt`）。
+在树莓派上执行：
 
-### 分支 3 · 真机由厂商自己的程序驱动
+```bash
+# 1) 装厂商 SDK（资料包里就有，直接复制）
+cp ~/Desktop/../<资料包路径>/案例3\ 控制总线舵机转动/ros_robot_controller_sdk.py ~/
+#实际路径按你把资料包放哪而定；核心是把这个 .py 放到桥接层能找到的地方
 
-桌面有 `LAB_TOOL.desktop`、`PC_Software.desktop` —— 很可能就是厂商的
-上位机。机械臂可能已经被厂商程序接管，接口不对外暴露。
-**这种情况不要试图接管它**，而是：
-- 用厂商程序做示教与动作回放（它的示教界面通常更可靠）
-- 我们只负责"派单 → 通知操作员 → 记录结果"，机械臂动作由厂商程序执行
+# 2) 验证 SDK 能打开串口
+python3 - <<'EOF'
+import ros_robot_controller_sdk as rrc
+b = rrc.Board()                # 默认 /dev/ttyAMA0 @ 1M
+print("舵机 1 位置:", b.bus_servo_get_position(1))
+b.bus_servo_stop([1,2,3,4,5,6])
+EOF
+```
 
-★ **这个分支反而可能是答辩上最诚实也最省事的方案**：
-我们证明了"平台不依赖执行端"，而不是"我们驱动了执行端"。
-口径：平台侧调度与证据链完整，机械臂执行由厂商工具承担。
+**若报权限错**：`sudo usermod -aG dialout ubuntu` 然后重新登录
+（`ubuntu` 已在 `dialout` 组，但若换了用户就要加）。
 
-## 立刻要做的三件事（按顺序）
+**若 ttyAMA0 打不开**：改用厂商 GUI 那一套 —— `serial_port: /dev/ttyS0`、
+`baudrate: 115200`，并改用 `BusServoCmd.py` 的协议。
 
-1. **确认机械臂硬件状态** —— 通电？接线？厂商程序能打开吗？
-   这一条不确认，后面都是空谈。
-2. **改 STA 模式** —— 树莓派现在无网关、不能出网，访问不了平台。
-   同时在树莓派装 mosquitto（闭环的另一半）。
-3. **重新采集** —— 硬件接好后重跑 `probe_raspberry_pi.py`，
-   看串口是否出现、SDK 是否需要补。
+### 录示教序列
 
-## 我已经做的准备
+```bash
+# 把仓库里的示教工具传上去（它依赖同一个 SDK）
+# tools/teach_hiwonder_sequence.py
+python3 teach_hiwonder_sequence.py \
+  --device /dev/ttyAMA0 --baudrate 1000000 \
+  --servo-ids 1 2 3 4 5 6 --output pick_sequence.json
+```
+交互：摆姿态 → 回车记录 → `q` 保存。首次只录 3–5 个姿态。
 
-`HiwonderBusServoArmDriver._new_board()` 的错误提示已改：
-现在**先检查串口是否存在**，报出实际存在的 `/dev/ttyUSB*` 列表，
-并明确提示"若真机走 ROS 而非UART，平台需要一个实现同一ArmDriver
-协议的 RosArmDriver"。避免现场拿到"SDK unavailable"这种指向错误的提示。
+## 可复用的现成资产
 
-桥接层 20 项测试全部通过。
+`~/ArmPi_PC_Software/ActionGroups/*.d6a` —— 厂商预置的动作组：
+```
+01.Hiwonder.d6a   grab-forward.d6a   wave.d6a
+```
+如果真机到货时来不及示教，**先用这些预置动作组**也能演示
+"平台派单 → 机械臂按预设动作响应 → 进度回传" 的闭环。
+这比"现场调舵机"稳得多，也符合不伪造的口径（动作是真的执行了）。
+
+## 演示网络（与机械臂无关，但同样卡）
+
+树莓派仍是**纯 AP**：`wlan0` 只有 `192.168.149.1/24`，**无默认网关** →不能出网 → 访问不了 ECS 上的平台。必须改 STA，见 `arm-hardware-onboarding-runbook.md` 第 2 步。
+
+## 我的判断错在哪（记录下来别再犯）
+
+**错误 1：用 `ls /dev/ttyUSB*` 判断串口是否存在。**
+板载 UART 是 `ttyAMA0`/`ttyS0`，根本没有 `ttyUSB*` 这个节点。
+总线舵机走板载串口，不经 USB 转串口 —— 所以"无 ttyUSB"完全正常，
+我却据此得出"舵机串口不存在"的结论。
+**正确判据：`test -e /dev/ttyAMA0` / `ls /dev/tty*` 全量列。**
+
+**错误 2：把 8080 的静态 topic 列表当运行时证据。**
+`rosnode list` 与 `rostopic list` 均为空，那网页只是静态清单。
+**教训：证据要看运行时（`rostopic list`），不是网页或目录。**
+
+两条合起来导致我上一轮给出了过于悲观的结论。实际上硬件全就绪，
+只差复制一个 .py 文件。
