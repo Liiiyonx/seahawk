@@ -173,3 +173,6 @@ deliverables/
 
 # 工具自身的单文件产物（上面的 .codex-*/ 只挡目录）
 .codex-*.png
+
+# 前端渲染探针的截图产物（结论在提交信息与脚本里，图片不入库）
+frontend/artifacts/
