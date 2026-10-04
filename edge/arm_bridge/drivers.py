@@ -49,6 +49,10 @@ class ArmStatus:
     location: Position = Position(119.6540, 26.3870)
     heading: float = 0.0
     speed: float = 0.0
+    #: Per-servo telemetry read back from the arm, keyed by servo id.
+    #: ★ 证据链价值：电压/温度/位置是"机械臂真的动了"的硬证据，
+    #:   比 progress 报文自报更有说服力。None 表示该次读取失败。
+    servos: dict[str, Any] = field(default_factory=dict)
 
 
 class ArmDriver(Protocol):
@@ -399,7 +403,22 @@ class HiwonderBusServoArmDriver:
 
     @classmethod
     def _load_sequence_file(cls, path: str) -> list[dict[str, Any]]:
-        """Load a pick sequence JSON file written by the teach tool."""
+        """Load a pick sequence JSON file written by a teach tool.
+
+        Accepts three shapes, because the vendor tooling and ours differ:
+
+        1. Vendor format — a flat list of single-servo positions::
+
+               [1000, 940]
+
+           That is what ``案例5 示教记录实现/bus_servo_record.py`` writes:
+           it records one position per Enter press, for ONE servo. Converted
+           here into single-servo steps so a vendor-recorded file can be
+           replayed without hand-editing.
+
+        2. Our format — a list of ``{"duration":…, "positions": [[id,pos]]}``.
+        3. ``{"steps": [...]}`` wrapping either of the above.
+        """
         try:
             raw = json.loads(Path(path).read_text(encoding="utf-8"))
         except OSError as exc:
@@ -416,6 +435,19 @@ class HiwonderBusServoArmDriver:
             raise ValueError(
                 f"pick_sequence_file {path!r} must contain a list of steps "
                 "or a {'steps': [...]} mapping"
+            )
+        # ★ 厂商扁平格式 [1000, 940, …] → 归一化成 step 列表。
+        #   厂商示教程序一次只记一个舵机的位置（用 bus_servo_read_id() 取
+        #   第一个舵机），所以这里按配置的 servo_ids[0] 还原。
+        if raw and all(isinstance(x, (int, float)) for x in raw):
+            return cls._normalize_sequence(
+                [
+                    {
+                        "duration": 1.0,
+                        "positions": [[1, int(round(float(x)))]],
+                    }
+                    for x in raw
+                ]
             )
         return cls._normalize_sequence(raw)
 
@@ -467,23 +499,79 @@ class HiwonderBusServoArmDriver:
         for servo_id in self.servo_ids:
             board.bus_servo_enable_torque(servo_id, False)
 
+    def _read_servo_telemetry(self, board: Any) -> dict[str, Any]:
+        """逐个舵机回读电压/温度/位置。
+
+        这是"机械臂真的动了"的硬证据 —— progress 报文是平台自报，
+        而这里的数字来自舵机本身。答辩时被问"怎么证明真机执行了"，
+        拿这个出来比任何架构图都有说服力。
+
+        单个舵机读失败不影响其余（每个都独立 try），因为总线的
+        回读是异步队列、单次调用常常正好赶不上回包。
+        """
+        out: dict[str, Any] = {}
+        for sid in self.servo_ids:
+            item: dict[str, Any] = {}
+            for key, fn in (
+                ("vin", board.bus_servo_read_vin),
+                ("temp", board.bus_servo_read_temp),
+                ("position", board.bus_servo_read_position),
+            ):
+                try:
+                    val = fn(sid)
+                    # 厂商 SDK 返回list，取第一个元素
+                    if isinstance(val, (list, tuple)):
+                        val = val[0] if val else None
+                    if isinstance(val, (int, float)):
+                        item[key] = round(float(val), 2)
+                except Exception:  # noqa: BLE001
+                    pass
+            if item:
+                out[str(sid)] = item
+        return out
+
+    def _read_board_voltage(self, board: Any, tries: int = 6) -> float | None:
+        """读控制板电压（mV）。
+
+        ★ `Board.get_battery()` 是**非阻塞**的：它只从已收到的队列里取，
+          队列空就直接返回 None。所以必须先 enable_reception、稍等、
+          再重试几次 —— 原实现只调一次，等于永远读不到，battery 恒为
+          构造时的初值。这是"声明了却没实现"的静默缺陷。
+        """
+        for _ in range(tries):
+            try:
+                raw = board.get_battery()
+            except Exception:  # noqa: BLE001
+                return None
+            if isinstance(raw, (int, float)) and raw > 0:
+                return float(raw)
+            time.sleep(0.05)
+        return None
+
     def status(self) -> ArmStatus:
         battery = self.battery
-        if self._board is not None:
+        servos: dict[str, Any] = {}
+        board = self._board
+        if board is not None:
             try:
-                self._board.enable_reception(True)
-                raw = self._board.get_battery()
-                if isinstance(raw, (int, float)) and raw > 0:
-                    # Vendor reports raw mV; keep the configured prototype
-                    # percentage until a calibrated mapping exists.
-                    battery = self.battery
+                board.enable_reception(True)
+                time.sleep(0.1)
+                servos = self._read_servo_telemetry(board)
+                mv = self._read_board_voltage(board)
+                if mv is not None:
+                    # 控制板电压来自 2S 锂电（标称 7.4V，满电约 8.4V）。
+                    # 这里是**粗略**换算，仅用于"电量明显偏低"的告警，
+                    # 不作为精确 SoC —— 精确 SoC 需要放电曲线标定，暂无。
+                    battery = max(0, min(100, round((mv - 6000.0) / 2400.0 * 100)))
             except Exception:  # noqa: BLE001
+                # 读不到就保持上次的值；不能因遥测失败让整条链路挂掉
                 pass
         return ArmStatus(
             mode=self._mode,
             battery=battery,
             bins=dict(self.bins),
             location=self.home,
+            servos=servos,
         )
 
     def pick(self, task_id: str, target: Position, priority: int) -> PickResult:
