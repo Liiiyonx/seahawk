@@ -72,6 +72,81 @@ _STOPWORDS = {
     "数据", "文档", "系统", "平台", "结果", "信息", "内容", "方法",
 }
 
+_GENERIC_CANDIDATES = _STOPWORDS | {
+    "意见", "征求", "征求意见", "征求意见稿", "通知", "公告", "公开", "标准",
+    "环境", "海洋", "生态环境", "国家", "技术", "规范", "方案", "工作", "治理",
+    "管理", "反馈", "联系人", "邮箱", "电话", "地址", "邮编", "附件", "单位",
+    "名单", "编制说明", "要求", "单位名称", "公众", "网站", "发布", "实施",
+    "查询", "登录", "办理", "承担", "负责", "申请", "审批", "许可", "设备",
+    "垃圾",
+    "监测", "处置", "执行", "回传", "照片", "数据", "编号", "时间", "结果",
+    "事项", "工作", "相关", "有关", "进行", "情况", "问题", "内容", "方式",
+}
+
+# Seed heads are extraction hints, not gold labels.  They give the
+# deterministic baseline a bounded place to expand a candidate phrase and
+# avoid the all-n-gram explosion that produced fragments such as
+# ``价规范`` and ``镇海漂垃圾``.
+_CANDIDATE_HEADS = (
+    "监督管理", "许可证", "摄像头", "机器人", "机械臂", "回收队伍",
+    "在线监控", "政务服务", "行政许可", "海域", "监管部门",
+    "红树林", "水质", "生态修复", "潮沟",
+    "渔网", "网绳", "泡沫", "塑料", "垃圾", "废料", "疏浚物", "材料",
+    "惰性无机地质材料",
+    "台账", "回执", "闭环", "派单", "拾取", "研判", "复核", "缠绕",
+    "称重", "风险", "规范", "导则", "指南", "法典", "许可证", "标准",
+    "方案", "细则", "规则", "办法", "平台", "系统", "设备", "队伍",
+    "镇", "县", "区", "乡", "村", "部", "厅", "司", "局", "物", "法",
+)
+
+_ADMIN_SUFFIXES = ("镇", "县", "区", "乡", "村")
+_PROTECTED_HEADS = {
+    "红树林", "水质", "潮沟", "海漂垃圾", "打捞机器人", "机械臂",
+    "泡沫", "塑料", "渔网", "派单", "拾取",
+    "惰性无机地质材料",
+}
+_ACTION_HEADS = (
+    "值班", "研判", "复核", "派单", "拾取", "处置", "闭环",
+    "称重", "回执", "回收", "队伍", "调度", "执行",
+)
+_DEVICE_HEADS = (
+    "摄像头", "机器人", "机械臂", "在线监控", "设备", "平台",
+)
+_STANDARD_HEADS = (
+    "规范", "导则", "指南", "标准", "法典", "法律", "办法", "许可证",
+)
+_PHRASE_BOUNDARIES = set(
+    "，。；：、！？,;:()（）[]【】<>《》“”\"'` \n\t"
+)
+_FUNCTION_CHARS = set(
+    "的了和与及或在对为是由通过按照根据包括主要应需其该本等并再从将向可实行以及"
+    "我部各每这那有被把于以也仍均须即已未不无更最"
+)
+_TRAILING_ANNOTATIONS_RE = re.compile(
+    r"[（(](?:征求意见稿|草案|演示|说明|修订稿|试行)[）)]"
+)
+_SENTENCE_RE = re.compile(r"[^。！？；!?;\n]+")
+
+_RELATION_TYPE_NAMES = {
+    "applies_to": "适用于",
+    "includes": "包括或组成",
+    "dispatches_to": "派单或调度至",
+    "executes": "执行或处置",
+    "monitors": "监测或研判",
+    "uses": "使用或传输",
+    "associated_with": "语义关联",
+    "co_occurs_with": "在同一知识资产片段中共现",
+}
+
+_RELATION_CUE_RULES = (
+    (re.compile(r"适用于|适用"), "applies_to", 7.0),
+    (re.compile(r"派单|调度|下发|指令"), "dispatches_to", 6.0),
+    (re.compile(r"包括|组成"), "includes", 5.0),
+    (re.compile(r"执行|处置|拾取|回传|形成"), "executes", 4.0),
+    (re.compile(r"监测|发现|监控|研判|复核"), "monitors", 4.0),
+    (re.compile(r"使用|传输|依托"), "uses", 3.0),
+)
+
 
 @dataclass
 class DocumentCandidate:
@@ -216,29 +291,42 @@ def extract_term_candidates(
     qualify when they occur in a title; all others need at least two mentions.
     """
     scores: defaultdict[str, float] = defaultdict(float)
-    display: dict[str, str] = {}
+    document_frequency: Counter[str] = Counter()
+    title_frequency: Counter[str] = Counter()
     source: dict[str, tuple[str, str]] = {}
 
     for doc in documents:
         title_counts = _candidate_counts(doc.title, min_term_length)
         body_counts = _candidate_counts(doc.text, min_term_length)
-        for term, count in title_counts.items():
-            scores[term] += count * 6.0
-            display.setdefault(term, term)
+        for term in set(title_counts) | set(body_counts):
+            document_frequency[term] += 1
             source.setdefault(term, (doc.asset_id, doc.asset_version_id))
+        for term, count in title_counts.items():
+            title_frequency[term] += count
+            scores[term] += count * 8.0
         for term, count in body_counts.items():
             scores[term] += count * 1.5
-            display.setdefault(term, term)
-            source.setdefault(term, (doc.asset_id, doc.asset_version_id))
 
     candidates: list[TermCandidate] = []
-    for key, score in scores.items():
-        appears_in_title = any(key in doc.title.lower() for doc in documents)
-        if score < 2.0 and not appears_in_title:
+    for key in set(scores) | set(document_frequency):
+        title_count = title_frequency[key]
+        frequency = document_frequency[key]
+        if frequency < 2 and title_count == 0:
             continue
+        score = scores[key] + frequency * 3.0 + len(key) * 0.1
+        if any(key.endswith(suffix) for suffix in _ADMIN_SUFFIXES):
+            score += 2.0
+        if _is_standard_term(key):
+            score += 5.0
+        if any(head in key for head in _ACTION_HEADS):
+            score += 12.0
+        if any(head in key for head in _DEVICE_HEADS):
+            score += 10.0
+        if key[:1] in _ADMIN_SUFFIXES:
+            score -= 24.0
         candidates.append(
             TermCandidate(
-                term=display[key],
+                term=key,
                 canonical_name=key,
                 score=score,
                 source_asset_id=source[key][0],
@@ -252,6 +340,9 @@ def extract_term_candidates(
     # readable and reduces redundant human review without changing scores.
     kept: list[TermCandidate] = []
     for candidate in candidates:
+        if candidate.canonical_name in _PROTECTED_HEADS:
+            kept.append(candidate)
+            continue
         if any(
             candidate.canonical_name != item.canonical_name
             and candidate.canonical_name in item.canonical_name
@@ -266,30 +357,93 @@ def extract_term_candidates(
 def _candidate_counts(text: str, min_term_length: int) -> Counter[str]:
     """Count conservative title/body candidates with short Chinese n-grams."""
     counts: Counter[str] = Counter()
-    for raw_chunk in _SPLIT_RE.split((text or "").lower()):
-        chunk = raw_chunk.strip()
-        if len(chunk) < min_term_length:
-            continue
-        if not _CHINESE_RE.fullmatch(chunk):
-            for term in _TERM_RE.findall(chunk):
-                normalized = _normalize_term(term)
-                if len(normalized) >= min_term_length and normalized not in _STOPWORDS:
-                    counts[normalized] += 1
-            continue
+    lowered = (text or "").lower()
 
-        for piece in re.split(r"[的和与及对在为是]", chunk):
-            piece = piece.strip()
-            if len(piece) < min_term_length:
-                continue
-            if len(piece) <= 32:
-                counts[piece] += 1
-            max_size = min(8, len(piece))
-            for size in range(min_term_length, max_size + 1):
-                for start in range(len(piece) - size + 1):
-                    term = piece[start : start + size]
-                    if term not in _STOPWORDS:
-                        counts[term] += 1
+    # Standards are commonly written as book-title phrases.  Preserve the
+    # complete standard name and its meaningful title components before the
+    # generic punctuation splitter can turn them into fragments.
+    for raw_title in re.findall(r"《([^》]{2,120})》", lowered):
+        cleaned_title = _TRAILING_ANNOTATIONS_RE.sub("", raw_title)
+        for part in re.split(r"[\s，。；：、,!?！？;:/\\|()（）\[\]【】<>《》“”\"'`]+", cleaned_title):
+            _add_standard_variants(counts, part, min_term_length)
+
+    # Use bounded neighbourhoods around domain heads.  This is deliberately
+    # stricter than all-n-gram expansion: a candidate must be anchored by a
+    # known domain morpheme and may extend by only a few characters.
+    for head in _CANDIDATE_HEADS:
+        start = 0
+        while True:
+            position = lowered.find(head, start)
+            if position < 0:
+                break
+            for left_size in range(0, 5):
+                for right_size in range(0, 3):
+                    phrase = lowered[
+                        max(0, position - left_size) : position + len(head) + right_size
+                    ]
+                    normalized = _clean_candidate(phrase, min_term_length)
+                    if normalized is not None:
+                        counts[normalized] += 1
+            start = position + len(head)
+
+    for term in _TERM_RE.findall(lowered):
+        normalized = _normalize_term(term)
+        if normalized and not _CHINESE_RE.fullmatch(normalized):
+            cleaned = _clean_candidate(normalized, min_term_length)
+            if cleaned is not None:
+                counts[cleaned] += 1
     return counts
+
+
+def _add_standard_variants(
+    counts: Counter[str],
+    raw_part: str,
+    min_term_length: int,
+) -> None:
+    part = _TRAILING_ANNOTATIONS_RE.sub("", raw_part).strip()
+    cleaned = _clean_candidate(part, min_term_length)
+    if cleaned is not None:
+        counts[cleaned] += 1
+    if not _CHINESE_RE.fullmatch(part):
+        return
+    for head in _STANDARD_HEADS:
+        position = part.rfind(head)
+        if position < 0:
+            continue
+        base = part[:position]
+        for variant in (part, base, base[-12:]):
+            cleaned_variant = _clean_candidate(variant, min_term_length)
+            if cleaned_variant is not None:
+                counts[cleaned_variant] += 1
+
+
+def _clean_candidate(term: str, min_term_length: int) -> str | None:
+    candidate = _TRAILING_ANNOTATIONS_RE.sub("", str(term or "")).strip()
+    candidate = candidate.strip(" \t\r\n._-，。；：、,!?！？;:")
+    if not candidate or any(char in _PHRASE_BOUNDARIES for char in candidate):
+        return None
+    if not re.fullmatch(r"[\w\u4e00-\u9fff.]+", candidate):
+        return None
+    while candidate and candidate[0] in _FUNCTION_CHARS:
+        candidate = candidate[1:]
+    while candidate and candidate[-1] in _FUNCTION_CHARS:
+        candidate = candidate[:-1]
+    if candidate in _GENERIC_CANDIDATES:
+        return None
+    if len(candidate) < min_term_length or len(candidate) > 16:
+        return None
+    if (
+        any(char in _FUNCTION_CHARS for char in candidate)
+        and candidate not in _PROTECTED_HEADS
+    ):
+        return None
+    if candidate.isdigit():
+        return None
+    return _normalize_term(candidate)
+
+
+def _is_standard_term(term: str) -> bool:
+    return len(term) >= 6 and any(term.endswith(head) for head in _STANDARD_HEADS)
 
 
 def cooccurrence_relations(
@@ -299,45 +453,154 @@ def cooccurrence_relations(
     max_relations: int,
 ) -> list[dict[str, Any]]:
     """Build candidate relations from co-occurrence in source documents."""
+    """Build scored candidate relations from sentence-local evidence.
+
+    Shortest-distance same-sentence pairs receive the strongest score.  A
+    small deterministic cue lexicon assigns a relation type when the text
+    between two candidates contains an explicit predicate; otherwise the
+    relation is kept as an untyped co-occurrence candidate for human review.
+    """
     by_key = {node.canonical_name: node for node in nodes}
-    relation_counts: Counter[tuple[str, str]] = Counter()
+    pair_scores: defaultdict[tuple[str, str], float] = defaultdict(float)
+    pair_counts: Counter[tuple[str, str]] = Counter()
+    pair_distances: defaultdict[tuple[str, str], list[int]] = defaultdict(list)
+    pair_document_ids: defaultdict[tuple[str, str], set[str]] = defaultdict(set)
+    pair_type_scores: defaultdict[tuple[str, str], defaultdict[str, float]] = defaultdict(
+        lambda: defaultdict(float)
+    )
     evidence: defaultdict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
 
     for doc in documents:
-        haystack = f"{doc.title}\n{doc.text}".lower()
-        present = [node.canonical_name for node in nodes if node.canonical_name in haystack]
-        present.sort(key=lambda key: haystack.find(key))
-        for index, source_key in enumerate(present):
-            for target_key in present[index + 1 : index + 5]:
-                if source_key == target_key:
-                    continue
-                edge = tuple(sorted((source_key, target_key)))
-                relation_counts[edge] += 1
-                if len(evidence[edge]) < 3:
-                    evidence[edge].append(
-                        {
-                            "asset_id": doc.asset_id,
-                            "asset_version_id": doc.asset_version_id,
-                            "citation": _snippet(doc.text, [source_key, target_key]),
-                        }
+        segments = [(doc.title, True)] + [
+            (match.group(0), False) for match in _SENTENCE_RE.finditer(doc.text)
+        ]
+        for segment, is_title in segments:
+            mentions = _sentence_mentions(segment, nodes)
+            for index, source_mention in enumerate(mentions):
+                source_key = source_mention[2]
+                for target_mention in mentions[index + 1 :]:
+                    target_key = target_mention[2]
+                    if source_key == target_key:
+                        continue
+                    edge = (source_key, target_key)
+                    distance = max(0, target_mention[0] - source_mention[1])
+                    between = segment[source_mention[1] : target_mention[0]]
+                    relation_type, cue_score = _relation_type_for(
+                        source_key,
+                        target_key,
+                        between,
+                        is_title=is_title,
                     )
+                    observation_score = _relation_observation_score(
+                        distance=distance,
+                        cue_score=cue_score,
+                        is_title=is_title,
+                    )
+                    pair_scores[edge] += observation_score
+                    pair_counts[edge] += 1
+                    pair_distances[edge].append(distance)
+                    pair_document_ids[edge].add(doc.asset_id)
+                    pair_type_scores[edge][relation_type] += observation_score
+                    if len(evidence[edge]) < 3:
+                        evidence[edge].append(
+                            {
+                                "asset_id": doc.asset_id,
+                                "asset_version_id": doc.asset_version_id,
+                                "citation": _snippet(segment, [source_key, target_key]),
+                            }
+                        )
 
     ranked = sorted(
-        relation_counts.items(),
-        key=lambda item: (-item[1], item[0][0], item[0][1]),
+        pair_scores.items(),
+        key=lambda item: (
+            -item[1],
+            -len(pair_document_ids[item[0]]),
+            item[0][0],
+            item[0][1],
+        ),
     )
     output: list[dict[str, Any]] = []
-    for edge, count in ranked[:max_relations]:
+    for edge, score in ranked[:max_relations]:
         source_key, target_key = edge
+        type_scores = pair_type_scores[edge]
+        relation_type = min(type_scores, key=lambda key: (-type_scores[key], key))
         output.append(
             {
                 "source": by_key[source_key],
                 "target": by_key[target_key],
-                "count": count,
-                "evidence": evidence[(source_key, target_key)],
+                "count": pair_counts[edge],
+                "relation_type": relation_type,
+                "score": round(score, 4),
+                "distance": min(pair_distances[edge]),
+                "evidence": evidence[edge],
             }
         )
     return output
+
+
+def _sentence_mentions(
+    sentence: str,
+    nodes: list[TermCandidate],
+) -> list[tuple[int, int, str]]:
+    lowered = sentence.lower()
+    occurrences: list[tuple[int, int, str]] = []
+    for node in nodes:
+        key = node.canonical_name
+        positions: list[int] = []
+        start = 0
+        while True:
+            position = lowered.find(key, start)
+            if position < 0:
+                break
+            positions.append(position)
+            start = position + len(key)
+        for position in positions:
+            occurrences.append((position, position + len(key), key))
+
+    selected: list[tuple[int, int, str]] = []
+    for occurrence in sorted(
+        occurrences,
+        key=lambda item: (item[0], -(item[1] - item[0])),
+    ):
+        if any(
+            occurrence[1] > existing[0] and occurrence[0] < existing[1]
+            for existing in selected
+        ):
+            continue
+        selected.append(occurrence)
+    return selected
+
+
+def _relation_type_for(
+    source_key: str,
+    target_key: str,
+    between: str,
+    *,
+    is_title: bool,
+) -> tuple[str, float]:
+    if is_title and _is_standard_term(source_key) and not _is_standard_term(target_key):
+        return "applies_to", 9.0
+    for pattern, relation_type, cue_score in _RELATION_CUE_RULES:
+        if pattern.search(between):
+            return relation_type, cue_score
+    return "co_occurs_with", 0.0
+
+
+def _relation_observation_score(
+    *,
+    distance: int,
+    cue_score: float,
+    is_title: bool,
+) -> float:
+    if distance <= 12:
+        distance_score = 5.0
+    elif distance <= 32:
+        distance_score = 3.0
+    elif distance <= 80:
+        distance_score = 1.0
+    else:
+        distance_score = 0.25
+    return 2.0 + distance_score + cue_score + (2.0 if is_title else 0.0)
 
 
 def relation_paths(
@@ -831,19 +1094,24 @@ class KnowledgeService:
         for spec in relation_specs:
             source = node_by_key[spec["source"].canonical_name]
             target = node_by_key[spec["target"].canonical_name]
-            key = (source.node_id, target.node_id, "co_occurs_with")
-            reverse_key = (target.node_id, source.node_id, "co_occurs_with")
+            relation_type = spec["relation_type"]
+            key = (source.node_id, target.node_id, relation_type)
+            reverse_key = (target.node_id, source.node_id, relation_type)
             if key in relation_keys or reverse_key in relation_keys:
                 continue
-            confidence = min(0.9, 0.45 + spec["count"] * 0.08)
+            confidence = min(0.9, 0.45 + spec["score"] * 0.015)
             relation = OntologyRelation(
                 relation_id=new_business_id("rel"),
                 ontology_version_id=version.version_id,
                 source_node_id=source.node_id,
                 target_node_id=target.node_id,
-                relation_type="co_occurs_with",
-                description="在同一知识资产片段中共现",
-                properties_json={"cooccurrence_count": spec["count"]},
+                relation_type=relation_type,
+                description=_RELATION_TYPE_NAMES.get(relation_type, relation_type),
+                properties_json={
+                    "cooccurrence_count": spec["count"],
+                    "extraction_score": spec["score"],
+                    "min_distance": spec["distance"],
+                },
                 evidence_json=spec["evidence"],
                 confidence=Decimal(str(round(confidence, 4))),
                 review_status=OntologyReviewStatus.PROPOSED,

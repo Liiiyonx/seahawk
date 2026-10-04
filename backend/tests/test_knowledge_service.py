@@ -519,3 +519,130 @@ async def test_extract_and_decision_reject_cross_township_inputs(
             township_scope="苔菉镇",
         )
     assert decision_error.value.code == 1004
+
+
+def _term_candidate(name: str) -> TermCandidate:
+    return TermCandidate(
+        term=name,
+        canonical_name=name,
+        score=1.0,
+        source_asset_id="ast_relation",
+        source_version_id="kav_relation_1",
+    )
+
+
+def test_relation_scores_prefer_close_sentence_local_evidence() -> None:
+    nodes = [_term_candidate("岸基摄像头"), _term_candidate("派单")]
+    near_document = DocumentCandidate(
+        asset_id="ast_near",
+        asset_version_id="kav_near_1",
+        title="岸基摄像头派单记录",
+        text="岸基摄像头派单。",
+        asset_type=KnowledgeAssetType.DOCUMENT,
+        source_uri=None,
+    )
+    far_document = DocumentCandidate(
+        asset_id="ast_far",
+        asset_version_id="kav_far_1",
+        title="岸边观测记录",
+        text=(
+            "岸基摄像头与本期无关的巡检记录和现场说明后，设备仍无异常，"
+            + "巡视" * 70
+            + "派单。"
+        ),
+        asset_type=KnowledgeAssetType.DOCUMENT,
+        source_uri=None,
+    )
+
+    near_relation = cooccurrence_relations(
+        [near_document], nodes, max_relations=1
+    )[0]
+    far_relation = cooccurrence_relations(
+        [far_document], nodes, max_relations=1
+    )[0]
+
+    assert near_relation["distance"] < far_relation["distance"]
+    assert near_relation["score"] > far_relation["score"]
+
+
+def test_relation_types_and_source_evidence_are_preserved() -> None:
+    document = DocumentCandidate(
+        asset_id="ast_dispatch",
+        asset_version_id="kav_dispatch_1",
+        title="海漂垃圾处置规则",
+        text="岸基摄像头按照监测结果派单；打捞机器人执行拾取。",
+        asset_type=KnowledgeAssetType.DOCUMENT,
+        source_uri="policy://dispatch",
+    )
+    nodes = [
+        _term_candidate("岸基摄像头"),
+        _term_candidate("派单"),
+        _term_candidate("打捞机器人"),
+        _term_candidate("拾取"),
+    ]
+
+    relations = cooccurrence_relations([document], nodes, max_relations=20)
+    by_pair = {
+        (relation["source"].canonical_name, relation["target"].canonical_name): relation
+        for relation in relations
+    }
+
+    assert by_pair[("岸基摄像头", "派单")]["relation_type"] == "monitors"
+    assert by_pair[("打捞机器人", "拾取")]["relation_type"] == "executes"
+    for relation in relations:
+        evidence = relation["evidence"][0]
+        assert evidence["asset_id"] == "ast_dispatch"
+        assert evidence["asset_version_id"] == "kav_dispatch_1"
+        assert evidence["citation"]
+
+
+def test_generic_operational_words_do_not_rank_as_domain_candidates() -> None:
+    documents = [
+        DocumentCandidate(
+            asset_id=f"ast_generic_{index}",
+            asset_version_id=f"kav_generic_{index}",
+            title="海漂垃圾处置工作方案",
+            text="工作通知要求各单位反馈情况，相关工作由系统平台管理。",
+            asset_type=KnowledgeAssetType.DOCUMENT,
+            source_uri=None,
+        )
+        for index in range(2)
+    ]
+    terms = {
+        node.canonical_name
+        for node in extract_term_candidates(documents, max_nodes=30, min_term_length=2)
+    }
+
+    assert "海漂垃圾" in terms
+    assert not ({"通知", "方案", "工作", "系统", "平台"} & terms)
+
+
+def test_standard_title_relations_cover_dumping_material_types() -> None:
+    document = DocumentCandidate(
+        asset_id="ast_dumping_standard",
+        asset_version_id="kav_dumping_standard_1",
+        title=(
+            "《海洋倾倒物质评价规范》适用于疏浚物、渔业废料和惰性无机地质材料"
+        ),
+        text=(
+            "《海洋倾倒物质评价规范》适用于疏浚物、渔业废料和惰性无机地质材料。"
+        ),
+        asset_type=KnowledgeAssetType.DOCUMENT,
+        source_uri="https://www.mee.gov.cn/standard",
+    )
+    nodes = extract_term_candidates([document], max_nodes=30, min_term_length=2)
+    node_names = {node.canonical_name for node in nodes}
+    assert {
+        "海洋倾倒物质评价规范",
+        "疏浚物",
+        "渔业废料",
+        "惰性无机地质材料",
+    } <= node_names
+
+    relations = cooccurrence_relations([document], nodes, max_relations=30)
+    relation_pairs = {
+        (relation["source"].canonical_name, relation["target"].canonical_name)
+        for relation in relations
+    }
+    for material in ("疏浚物", "渔业废料", "惰性无机地质材料"):
+        assert ("海洋倾倒物质评价规范", material) in relation_pairs
