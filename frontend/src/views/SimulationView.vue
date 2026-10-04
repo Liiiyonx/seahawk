@@ -79,7 +79,12 @@
             :phase="snapshot.phase || fallbackPhase"
             :state="state"
           />
-          <ArmSimConsole v-else />
+          <!--
+            把工单上下文传进去：演示叙事是「带着平台派的单去执行」，
+            而不是「打开另一个软件」。mapTarget 可能是 {lng,lat} 也可能
+            是字符串（不同接口的约定不同），统一格式化成字符串再传。
+          -->
+          <ArmSimConsole v-else :task-id="taskId" :target="armTaskTarget" />
         </div>
         <div v-if="loading" class="sim-map__loading">
           <span class="sim-map__spinner"></span>
@@ -424,6 +429,17 @@ const mapTarget = computed(() => {
   const lng = Number(task.value?.lng)
   const lat = Number(task.value?.lat)
   return Number.isFinite(lng) && Number.isFinite(lat) ? { lng, lat } : null
+})
+
+/** 喂给 ArmSimConsole 的任务上下文文案（工单号 + 目标坐标）。 */
+const armTaskTarget = computed(() => {
+  const t = mapTarget.value
+  if (!t) return ''
+  if (typeof t === 'string') return t
+  const lng = Number(t.lng)
+  const lat = Number(t.lat)
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return ''
+  return `${lng.toFixed(4)}, ${lat.toFixed(4)}`
 })
 
 const STATE_LABELS = {
