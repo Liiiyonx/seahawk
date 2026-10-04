@@ -1,0 +1,12 @@
+{
+  "id": "da9af2db-00e4-4d4f-b2a0-cb9f9ea13c28",
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\n  \"state\": \"idle\",\n  \"model_available\": false,\n  \"rule_mode\": true,\n  \"policy_version\": \"rules-work-order-v1.0\",\n  \"active_runs\": 0,\n  \"total_runs\": 0,\n  \"pending_approvals\": 0,\n  \"tools_registered\": 6,\n  \"uptime_ms\": 2705230,\n  \"persistence\": \"mirrored\",\n  \"runtime\": \"in_process\",\n  \"require_approval_for_write\": true,\n  \"approval_risk_levels\": [\n    \"write\",\n    \"device_command\",\n    \"sensitive\"\n  ],\n  \"plan_variants\": [\n    \"single\",\n    \"team\"\n  ],\n  \"lessons\": []\n}",
+        "type": "text"
+      }
+    ]
+  }
+}
