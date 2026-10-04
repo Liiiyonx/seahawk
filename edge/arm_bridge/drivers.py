@@ -420,6 +420,24 @@ class HiwonderBusServoArmDriver:
         return cls._normalize_sequence(raw)
 
     def _new_board(self) -> Any:
+        # 先查串口在不在，再import SDK —— 顺序反过来会让现场拿到
+        # "SDK unavailable" 这种指向错误的提示（真机没串口时 SDK 是有的，
+        # 真正的原因是舵机走 ROS 而不是串口）。
+        if not Path(self.serial_port).exists():
+            import glob  # noqa: PLC0415
+
+            tty_usb = sorted(glob.glob("/dev/ttyUSB*"))
+            tty_acm = sorted(glob.glob("/dev/ttyACM*"))
+            found = ", ".join(tty_usb + tty_acm) or "none"
+            raise DriverError(
+                f"serial port {self.serial_port} does not exist "
+                f"(ttyUSB/ttyACM present: {found}). "
+                "Either fix driver.serial_port in config.yaml, or — if the "
+                "arm is driven over ROS instead of a UART — the platform "
+                "needs a RosArmDriver implementing the same ArmDriver "
+                "protocol; check `rosnode list` / `rostopic list` on the Pi. "
+                "See docs/competitions/arm-hardware-probe-2026-10-05.md."
+            )
         try:
             import ros_robot_controller_sdk as rrc  # noqa: PLC0415
         except ImportError as exc:
