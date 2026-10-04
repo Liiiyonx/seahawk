@@ -151,15 +151,17 @@ def build_concatenation() -> tuple[list[str], int]:
 
 
 def pick_front_back(concat: list[str]) -> tuple[list[str], list[str], bool]:
-    """截取前 1500 行与后 1500 行。返回 (前段, 后段, 是否全量)。"""
+    """截取前 1500 行与后 1500 行。返回 (前段, 后段, 是否全量)。
+
+    两段都必须**恰好** 50 的整数倍，否则后段起始下标落在页中间，
+    分页边界会整体错位（表现为总页数 ≠ 60 或出现空白页）。
+    """
     need = LINES_PER_PAGE * PAGES_EACH_SIDE
     if len(concat) <= need * 2:
         return concat, [], True
     front = concat[:need]
+    # 后段从尾部往前取 need 行；concat 已剔除空行，末行必为有效代码行。
     back = concat[-need:]
-    # 保证后段最后一行是程序结尾（非空行）
-    while back and not back[-1].strip():
-        back.pop()
     return front, back, False
 
 
@@ -298,7 +300,7 @@ def write_pages(doc: Document, lines: list[str], start_line: int = 0,
     for i, raw in enumerate(lines):
         text = sanitize_emoji(raw[:MAX_LINE_WIDTH])
         pos = start_line + i
-        need_break = (pos % LINES_PER_PAGE == 0)
+        need_break = (pos % LINES_PER_PAGE == 0) and (pos > 0)
         add_code_line(doc, text, LINE_SPACING_PT, page_break_before=need_break)
         written += 1
         # 分页页补行：含分页符那页会少排 1~2 个行位，补回来才够 50 行。
@@ -307,13 +309,8 @@ def write_pages(doc: Document, lines: list[str], start_line: int = 0,
             for _ in range(PAD_LINES):
                 add_code_line(doc, "", LINE_SPACING_PT, page_break_before=False)
 
-    # 段尾若恰好在页边界，下一段会从新页开始；否则补齐当前页剩余行位，
-    # 让「前30 页」与「后 30 页」的分界正好落在页边界上。
-    # pad_to_page 只对**前段**开启（后段是文档结尾，补齐会产生空白页）。
-    if pad_to_page and total % LINES_PER_PAGE:
-        pad = LINES_PER_PAGE - (total % LINES_PER_PAGE)
-        for _ in range(pad):
-            add_code_line(doc, "", LINE_SPACING_PT, page_break_before=False)
+    # 段尾补齐会多出整页（60 页变 61 页并产生空白页），故**不做段尾补齐**：
+    # 前后两段本身都恰好是 50 的整数倍，分页符自然落在页边界上。
     return written
 
 
