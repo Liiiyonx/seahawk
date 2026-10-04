@@ -1,6 +1,6 @@
 # 树莓派（ArmPiFPV）信息采集记录
 
-- 采集时间：2026-10-05 01:00
+- 采集时间：2026-10-05 01:14
 - 目标：`ubuntu@192.168.149.1`
 - 方式：SSH 只读探测，**未修改任何配置**
 
@@ -38,12 +38,62 @@ VERSION="18.04.6 LTS (Bionic Beaver)"
 192.168.149.0/24 dev wlan0 proto kernel scope link src 192.168.149.1
 ```
 
-## ★ 舵机串口（决定 HiwonderBusServoArmDriver 能否直接用）
+## ★ 舵机串口（全量列举）
 
-> 为什么问：★ 关键：有 ttyUSB/ttyACM 才说明舵机走串口；没有则必须改走 ROS 服务
+> 为什么问：★ 关键：板载 UART 是 ttyAMA0/ttyS0，不是 ttyUSB。用 test -e 判定，别用 ls /dev/ttyUSB*
 
 ```
-无 USB/ACM 串口设备
+/dev/ttyAMA0  存在
+/dev/ttyS0  存在
+/dev/serial0  不存在
+/dev/ttyUSB0  不存在
+/dev/ttyACM0  不存在
+--- ls -l ---
+crw-rw---- 1 root dialout 204, 64 Feb 12 12:38 /dev/ttyAMA0
+crw-rw---- 1 root dialout   4, 64 Feb 12 12:39 /dev/ttyS0
+--- 内核日志 ---
+[    6.967004] uart-pl011 fe201000.serial: cts_event_workaround enabled
+[    6.967812] fe201000.serial: ttyAMA0 at MMIO 0xfe201000 (irq = 14, base_baud = 0) is a PL011 rev2
+```
+
+## ★ 板载UART 的内核设备树
+
+> 为什么问：判断板载 UART 是否被蓝牙占用（Pi4 蓝牙默认占用 ttyAMA0）
+
+```
+8250.nr_uarts=1
+console=tty1
+--- boot config ---
+/boot/firmware/config.txt:enable_uart=1
+```
+
+## ★ 厂商控制通道（决定我们该用哪个串口）
+
+> 为什么问：★ 最关键：厂商 GUI 与厂商示例用**不同串口/波特率**。GUI=/dev/ttyS0@115200，示例=/dev/ttyAMA0@1000000。别和厂商 GUI 同时开（抢串口）
+
+```
+/home/ubuntu/ArmPi_PC_Software/BusServoCmd.py:39:serialHandle = serial.Serial("/dev/ttyS0", 115200)  # 初始化串口， 波特率为115200
+--- 我们的 SDK 默认 ---
+```
+
+## ★ 厂商预置动作组（来不及示教时的兜底）
+
+> 为什么问：★ 演示兜底：预置动作组能直接演示"派单→机械臂动作→进度回传"闭环，动作是真执行的，不违反不伪造口径
+
+```
+01.Hiwonder.d6a
+grab-forward.d6a
+wave.d6a
+```
+
+## ★ Python 依赖（别重复 pip install）
+
+> 为什么问：树莓派出厂已预装 pyserial/RPi.GPIO/smbus2，通常不需再装
+
+```
+pyserial OK
+RPi.GPIO OK
+smbus2 OK
 ```
 
 ## ★ 厂商 SDK 是否在位
@@ -98,9 +148,9 @@ Xreset
 Xreset.d
 Xresources
    Loaded: loaded (/etc/init.d/lightdm; generated)
-   Active: active (exited) since Sat 2022-02-12 12:38:46 UTC; 32min ago
+   Active: active (exited) since Sat 2022-02-12 12:38:46 UTC; 46min ago
    Loaded: loaded (/lib/systemd/system/gdm.service; static; vendor preset: enabled)
-   Active: active (running) since Sat 2022-02-12 12:38:46 UTC; 32min ago
+   Active: active (running) since Sat 2022-02-12 12:38:46 UTC; 46min ago
 ubuntu   :0           2022-02-12 12:38 (:0)
 ```
 
@@ -158,7 +208,7 @@ XRCed.desktop
 
 ```
 /dev/mmcblk0p2   29G   14G   15G  47% /
- 13:11:27 up 33 min,  1 user,  load average: 0.69, 0.58, 0.57
+ 13:25:27 up 47 min,  1 user,  load average: 1.10, 0.94, 0.77
 ```
 
 

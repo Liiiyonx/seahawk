@@ -52,9 +52,45 @@ PROBES = [
      'ip -4 addr show | grep -E "^[0-9]+:|inet " ; echo "--- routes ---"; ip route',
      'wlan0 有没有拿到演示网 IP；有无默认网关（决定能否出网访问平台）'),
 
-    ('★ 舵机串口（决定 HiwonderBusServoArmDriver 能否直接用）',
-     'ls -l /dev/ttyUSB* /dev/ttyACM* 2>/dev/null || echo "无 USB/ACM 串口设备"',
-     '★ 关键：有 ttyUSB/ttyACM 才说明舵机走串口；没有则必须改走 ROS 服务'),
+    # ★ 这一条被我写错过一次，务必保留全量列举+ test -e 双重判据。
+    # 板载 UART 是 ttyAMA0 / ttyS0，**根本没有 ttyUSB* 节点** ——
+    # 总线舵机走板载串口、不经 USB 转串口，所以"无 ttyUSB"完全正常。
+    # 上一版据此误判成"舵机串口不存在"。
+    ('★ 舵机串口（全量列举）',
+     'for d in /dev/ttyAMA0 /dev/ttyS0 /dev/serial0 /dev/ttyUSB0 /dev/ttyACM0; do '
+     'test -e $d && echo "$d  存在" || echo "$d  不存在"; done; '
+     'echo "--- ls -l ---"; ls -l /dev/ttyAMA* /dev/ttyS* /dev/ttyUSB* 2>/dev/null; '
+     'echo "--- 内核日志 ---"; dmesg 2>/dev/null | grep -iE "ttyAMA|uart-pl011" | tail -3',
+     '★ 关键：板载 UART 是 ttyAMA0/ttyS0，不是 ttyUSB。'
+     '用 test -e 判定，别用 ls /dev/ttyUSB*'),
+
+    ('★ 板载UART 的内核设备树',
+     'cat /proc/cmdline | tr " " "\n" | grep -E "8250|console" ; '
+     'echo "--- boot config ---"; '
+     'grep -iE "enable_uart|dtparam.*uart" /boot/firmware/config.txt /boot/config.txt 2>/dev/null | head -4',
+     '判断板载 UART 是否被蓝牙占用（Pi4 蓝牙默认占用 ttyAMA0）'),
+
+    ('★ 厂商控制通道（决定我们该用哪个串口）',
+     'grep -rnE "serial\\.Serial\\(" ~/ArmPi_PC_Software/*.py 2>/dev/null | head -5; '
+     'echo "--- 我们的 SDK 默认 ---"; '
+     'find / -name "ros_robot_controller_sdk.py" -not -path "*/proc/*" 2>/dev/null | head -3',
+     '★ 最关键：厂商 GUI 与厂商示例用**不同串口/波特率**。'
+     'GUI=/dev/ttyS0@115200，示例=/dev/ttyAMA0@1000000。'
+     '别和厂商 GUI 同时开（抢串口）'),
+
+    ('★ 厂商预置动作组（来不及示教时的兜底）',
+     'ls -1 ~/ArmPi_PC_Software/ActionGroups/ 2>/dev/null | head -8 || echo "无预置动作组"',
+     '★ 演示兜底：预置动作组能直接演示"派单→机械臂动作→进度回传"闭环，'
+     '动作是真执行的，不违反不伪造口径'),
+
+    ('★ Python 依赖（别重复 pip install）',
+     'python3 -c "import serial; print(1)" >/dev/null 2>&1 '
+     '&& echo "pyserial OK" || echo "pyserial 缺失"; '
+     'python3 -c "import RPi.GPIO" >/dev/null 2>&1 '
+     '&& echo "RPi.GPIO OK" || echo "RPi.GPIO 缺失"; '
+     'python3 -c "import smbus2" >/dev/null 2>&1 '
+     '&& echo "smbus2 OK" || echo "smbus2 缺失"',
+     '树莓派出厂已预装 pyserial/RPi.GPIO/smbus2，通常不需再装'),
 
     ('★ 厂商 SDK 是否在位',
      'find ~ /opt -maxdepth 3 -name "ros_robot_controller_sdk.py" 2>/dev/null; '
