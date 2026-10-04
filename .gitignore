@@ -162,3 +162,11 @@ inspect_pptx.py
 # 属真实环境画像，且未被任何文档引用 —— 提交前请先脱敏。
 docs/competitions/private-env-page*.png
 docs/competitions/agent-edit-state.png
+
+# 答辩 PPT 交付物：单文件 10MB，且文件名含姓名+手机号。
+# 属对外提交物而非源码，留在本地/比赛平台，不进版本库。
+# 提交前请先去掉文件名中的个人信息。
+deliverables/
+
+# WorkBuddy 会话记忆：本地工作记录，不属于项目资产
+.workbuddy/
