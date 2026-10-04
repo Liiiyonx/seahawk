@@ -157,3 +157,8 @@ inspect_pptx.py
 # 工具自身的工作目录
 .codex-*/
 .codex
+
+# 华为云私有环境截图：含账号 ID、区域、VPC/子网/安全组配置。
+# 属真实环境画像，且未被任何文档引用 —— 提交前请先脱敏。
+docs/competitions/private-env-page*.png
+docs/competitions/agent-edit-state.png
