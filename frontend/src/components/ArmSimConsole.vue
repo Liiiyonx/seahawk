@@ -235,8 +235,10 @@ const reach = computed(() => {
   if (p.ok === null) {
     return {
       state: 'ready',
-      text: '已配置跳转',
-      hint: 'nx:// 由系统协议处理器接管，网页无法预检 —— 请确认演示机已装NoMachine 客户端。',
+      text: 'nx 协议',
+      hint: '协议唤起模式：网页无法预检连通性。'
+        + '若点击后没有任何反应，说明演示机未安装 NoMachine 客户端'
+        + '（资料包内 nomachine_8.4.2_10_x64.exe），或未注册 nx:// 协议。',
     }
   }
   if (p.ok) {

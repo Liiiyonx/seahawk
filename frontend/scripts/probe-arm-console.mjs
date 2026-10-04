@@ -15,6 +15,7 @@ const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 // 两个静态服务：dist-verify 未配置 VITE_ARM_CONSOLE_URL，dist-probe 注入了配置
 const BASE_UNSET = 'http://127.0.0.1:5199'
 const BASE_SET = 'http://127.0.0.1:5200'
+const BASE_NX = 'http://127.0.0.1:5201'
 
 const FAKE_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
@@ -110,6 +111,46 @@ try {
     log(!!reach && /direct|直连|NoMachine/.test(reach.mode || ''),
       '接入方式自动识别为浏览器直连', reach ? reach.mode : '-')
     await page.screenshot({ path: 'artifacts/arm-console-reachable.png' })
+    await ctx.close()
+  }
+  // ===== 场景三：nx:// 协议档（实测选定的档位）=====
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1500, height: 1000 } })
+    const page = await ctx.newPage()
+    page.on('pageerror', (e) => errors.push('[nx] ' + e.message))
+    await page.addInitScript((tok) => {
+      localStorage.setItem('seasight_token', tok)
+      localStorage.setItem('seasight_user', JSON.stringify({ username: 'p', role: 'admin' }))
+    }, FAKE_JWT)
+    await page.route('**/api/v1/**', (r) =>
+      r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }))
+
+    await page.goto(`${BASE_NX}/simulation/T-TEST-0001`, { waitUntil: 'networkidle' })
+    await page.waitForTimeout(1000)
+    await page.click('.sim-map__switch button[role="tab"]:nth-child(2)')
+    await page.waitForTimeout(2500)
+
+    const nx = await page.evaluate(() => {
+      const root = document.querySelector('.arm-console')
+      return {
+        tag: root?.querySelector('.arm-console__tag')?.textContent.trim(),
+        hint: root?.querySelector('.arm-console__reach-hint')?.textContent.trim().slice(0, 90),
+        mode: Array.from(root?.querySelectorAll('.arm-console__row') || [])
+          .map((r) => r.textContent.trim())
+          .find((t) => t.includes('接入方式')),
+        target: Array.from(root?.querySelectorAll('.arm-console__row') || [])
+          .map((r) => r.textContent.trim())
+          .find((t) => t.includes('跳转目标')),
+        openEnabled: !root?.querySelector('.arm-console__open')?.disabled,
+      }
+    })
+    log(!!nx && nx.openEnabled, 'nx 档：按钮可用', JSON.stringify(nx))
+    log(!!nx && /nx/.test(nx.tag || ''), 'nx 档：状态标签识别为协议模式', nx ? nx.tag : '-')
+    log(!!nx && String(nx.target || '').indexOf('nx://') >= 0, 'nx 档：跳转目标显示正确', nx ? nx.target : '-')
+    log(!!nx && /协议唤起/.test(nx.mode || ''), 'nx 档：接入方式识别为协议唤起', nx ? nx.mode : '-')
+    log(!!nx && /NoMachine/.test(nx.hint || ''),
+      'nx 档：提示含"未装客户端"的排障指引', nx ? nx.hint : '-')
+    await page.screenshot({ path: 'artifacts/arm-console-nx.png' })
     await ctx.close()
   }
 } finally {
