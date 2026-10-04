@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight · 可进化决策智能体开发设计文档（赛道三底稿）
+# 探海灵眸 Oceanus · 可进化决策智能体开发设计文档（赛道三底稿）
 
 > 版本：1.4（提交件底稿）
 > 编制日期：2026-09-30
@@ -11,7 +11,7 @@
 
 ### 1.1 项目名称
 
-探海灵眸 SeaSight —— 面向县域海洋环境治理的“感知—决策—执行”可进化决策
+探海灵眸 Oceanus —— 面向县域海洋环境治理的“感知—决策—执行”可进化决策
 智能体。
 
 ### 1.2 一句话定位
@@ -44,7 +44,7 @@
 多模态行业数据（政策文本 / 表格台账 / 事件 / 遥测 / 图像 / 数据集）
         │  登记 + 版本化 + 内容哈希
         ▼
-SeaSight 知识域（六类资产，不可变版本）
+Oceanus 知识域（六类资产，不可变版本）
         │  候选抽取（低资源、无需标注）
         ▼
 本体候选 → 人工审核 → 本体版本发布（携带 standard_codes）
@@ -70,7 +70,7 @@ Nexent 智能体编排（MCP 工具面 + 5 个 Skill 工作流）
 | 消息 | Redis + EMQX MQTT | 事件队列、派单与执行回执 |
 | 前端 | Vue 3 | 大屏、知识域四工作台、Agent 审批 |
 | 智能体 | ModelEngine Nexent | MCP 协议接入、Skill 编排、平台运行 |
-| 集成 | 自研 SeaSight Domain Cognition MCP | 通过 `/api/v1` 暴露领域认知能力 |
+| 集成 | 自研 Oceanus Domain Cognition MCP | 通过 `/api/v1` 暴露领域认知能力 |
 
 ### 2.3 安全与权限边界
 
@@ -130,7 +130,7 @@ Nexent 智能体编排（MCP 工具面 + 5 个 Skill 工作流）
 
 本节区分两个不同的模型位置，避免把平台侧验收写成后端已内置 LLM：
 
-- **SeaSight 后端内置规划器**：默认使用**确定性规则回退**；LLM 规划器通过
+- **Oceanus 后端内置规划器**：默认使用**确定性规则回退**；LLM 规划器通过
   `OpenAICompatibleModelClient` 接入，配置项
   `AGENT_MODEL_BASE_URL` / `AGENT_MODEL_API_KEY` / `AGENT_MODEL_NAME` 已就绪。
   截至 2026-09-30，后端内置 LLM 规划器**尚未真实调用外部模型**，验收依赖
@@ -178,10 +178,10 @@ Nexent Agent
   └── Skill：decision-trace-audit
           │
           ▼
-SeaSight Domain Cognition MCP（Bearer 入站鉴权）
+Oceanus Domain Cognition MCP（Bearer 入站鉴权）
           │  出站令牌自动刷新
           ▼
-SeaSight /api/v1（角色 / 辖区 / 审批 / 审计）
+Oceanus /api/v1（角色 / 辖区 / 审批 / 审计）
           │
           ▼
 PostgreSQL（资产 / 本体 / 决策 / 事件 / 任务）
@@ -258,7 +258,7 @@ Skill 不替代 MCP 权限判断，可替换本体和资产源后跨行业复用
   覆盖 28.125%（朴素基线 28.125%），top-20/50/100/200 关系均为 3/3；
   不据此宣称识别更准；为 E1 替代证据，不是真实脱敏行业数据评测。
 - 华为托管平台（AgentArts，区域 cn-southwest-2）MCP 注册与公网端点真实只读
-  调用已于 2026-09-29 完成并登记 R-NX-05：`SeaSight Domain Cognition MCP`
+  调用已于 2026-09-29 完成并登记 R-NX-05：`Oceanus Domain Cognition MCP`
   状态“部署成功”，工具列表加载 21 个只读工具，`knowledge_list_assets` 返回
   total=4；当日 Skills 导入与控制台调用输出尚未完成，后续在 2026-09-30
   复核中确认 5 个 Skill 已全部导入（见 R-NX-07），控制台内完整问答输出仍受

@@ -2,13 +2,13 @@
 
 > 赛题：基于华为 ModelEngine Nexent 打造可进化决策智能体
 >
-> 本文说明 SeaSight 代码基线与赛题要求的对应关系、可验收入口和复用边界。
+> 本文说明 Oceanus 代码基线与赛题要求的对应关系、可验收入口和复用边界。
 > 机器人是可选执行端；不接机器人时，领域资产认知、动态本体、多跳检索和
 > 决策溯源仍可独立运行。
 
 ## 一、项目定位
 
-SeaSight 原有主线是“事件理解 → 派单决策 → 工具调用 → 审批守卫 → MQTT
+Oceanus 原有主线是“事件理解 → 派单决策 → 工具调用 → 审批守卫 → MQTT
 执行 → 回执审计”。Nexent 适配层在这个主线上追加领域资产认知能力：
 
 ```text
@@ -47,7 +47,7 @@ SeaSight 原有主线是“事件理解 → 派单决策 → 工具调用 → �
 | `backend/app/api/v1/knowledge.py` | `/api/v1/knowledge/*` 接口与权限控制 |
 | `backend/alembic/versions/20260919_1900_knowledge_assets.py` | 追加式数据库迁移，当前 Alembic head |
 | `frontend/src/views/KnowledgeView.vue` | 资产、本体、检索、决策四个工作台页签 |
-| `integrations/nexent/mcp_server/server.py` | SeaSight Domain Cognition MCP |
+| `integrations/nexent/mcp_server/server.py` | Oceanus Domain Cognition MCP |
 | `integrations/nexent/skills/` | 5 个领域工作流模板 |
 
 ## 四、Nexent 接入
@@ -96,7 +96,7 @@ make nexent-acceptance
 ```
 
 该命令会验证 HTTP 未认证拒绝、MCP 初始化、工具面、5 个 Skills 的结构，
-并用模拟 SeaSight API 验证登录与过期令牌刷新。它不能替代真实 Nexent 平台
+并用模拟 Oceanus API 验证登录与过期令牌刷新。它不能替代真实 Nexent 平台
 注册和调用验收（本地平台侧验收见 §4.4）。验收产物写入
 `artifacts/nexent-acceptance/latest.json`。
 
@@ -153,7 +153,7 @@ Header: Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 接口返回与截图见 `artifacts/nexent-platform-acceptance/evidence/agent-run-*`。
 
 2026-09-29 完成华为托管平台（AgentArts）MCP 注册与公网端点真实调用，登记为
-R-NX-05：`SeaSight Domain Cognition MCP` 在托管平台状态“部署成功”，工具列表
+R-NX-05：`Oceanus Domain Cognition MCP` 在托管平台状态“部署成功”，工具列表
 加载 21 个只读工具；对同一公网端点执行 initialize → tools/list →
 `knowledge_list_assets`，返回 total=4。证据见
 `artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml` 与
@@ -220,7 +220,7 @@ SEASIGHT_API_PASSWORD=<随机密码> python scripts/create_nexent_service_accoun
   --username nexent_viewer --role viewer
 ```
 
-口径：Nexent 平台侧验收记录只证明「SeaSight MCP 能在该平台版本上完成注册、
+口径：Nexent 平台侧验收记录只证明「Oceanus MCP 能在该平台版本上完成注册、
 Skills 导入和被调用」。它不等于海域部署验证，也不等于任何感知精度或
 现场治理效果证据。
 

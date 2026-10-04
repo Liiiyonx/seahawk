@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""构建 SeaSight 开源发布快照（脱敏副本）。
+"""构建 Oceanus 开源发布快照（脱敏副本）。
 
 只导出显式允许清单内的 git 已跟踪文件，避免把私有验收产物、比赛材料和
 本机路径带进公开仓库。构建流程：
@@ -255,7 +255,7 @@ def build_report(dest: Path, files: list[str]) -> str:
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines = [
-        "# SeaSight 公开快照报告",
+        "# Oceanus 公开快照报告",
         "",
         f"- 生成时间：{generated}",
         f"- 文件数：{len(files)}",
@@ -297,7 +297,7 @@ def prepare_dest(dest: Path) -> Path:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="构建 SeaSight 开源发布快照")
+    parser = argparse.ArgumentParser(description="构建 Oceanus 开源发布快照")
     parser.add_argument("--dest", type=Path, default=DEFAULT_DEST, help="输出目录")
     args = parser.parse_args(argv)
 

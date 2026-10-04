@@ -790,7 +790,7 @@ def scan_root(root: Path, registry: Any, extra_excludes: Iterable[str] = ()) -> 
 def render_summary(result: ScanResult, registry_summary: dict[str, Any]) -> str:
     lines_out: list[str] = []
     red = result.red_lines
-    lines_out.append("== 探海灵眸 SeaSight 宣称扫描器（WP-15 证据门禁）==")
+    lines_out.append("== 探海灵眸 Oceanus 宣称扫描器（WP-15 证据门禁）==")
     lines_out.append(f"规则：{len(RULES)} 条红线；登记表：{registry_summary['records']} 条"
                      f"（外部 {registry_summary.get('external', 0)}）")
     lines_out.append(f"扫描目录：{result.root}")

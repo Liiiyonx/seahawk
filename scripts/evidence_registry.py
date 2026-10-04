@@ -282,7 +282,7 @@ _TECHNICAL: list[EvidenceRecord] = [
     ),
     _r(
         "R-NX-01",
-        "SeaSight 领域认知 MCP 协议级端到端验收通过：未认证请求 401、MCP 初始化、"
+        "Oceanus 领域认知 MCP 协议级端到端验收通过：未认证请求 401、MCP 初始化、"
         "32 个工具（21 只读常驻 + 11 写入按开关注册）、5 个 Skills、出站令牌自动刷新；"
         "协议级验收不等于本地 Nexent 平台侧验收",
         "E2",
@@ -296,7 +296,7 @@ _TECHNICAL: list[EvidenceRecord] = [
     ),
     _r(
         "R-NX-02",
-        "本地 Nexent v2.6.1 平台侧验收通过：SeaSight MCP 完成租户注册、21 个工具面加载、"
+        "本地 Nexent v2.6.1 平台侧验收通过：Oceanus MCP 完成租户注册、21 个工具面加载、"
         "5 个 Skills 导入，并以 nexent_viewer 调用 knowledge_list_assets 返回 200；"
         "平台侧验收不等于海域部署验证、感知精度或官方托管平台复验",
         "E2",
@@ -310,7 +310,7 @@ _TECHNICAL: list[EvidenceRecord] = [
     _r(
         "R-NX-03",
         "本地官方源码部署复验：以 Nexent 配置服务 /tool/validate 通过 DB 中 MCP 注册"
-        "与授权令牌，由 Nexent 侧真实调用 SeaSight knowledge_list_assets 返回 200；"
+        "与授权令牌，由 Nexent 侧真实调用 Oceanus knowledge_list_assets 返回 200；"
         "复验账号为官方内置 suadmin@nexent.com + seasight.acceptance@nexent.com；"
         "灌入知识域演示数据后再次调用返回非空资产列表（total=4）；"
         "本地官方源码部署复验不等于华为托管平台复验、海域部署验证或感知精度",
@@ -342,7 +342,7 @@ _TECHNICAL: list[EvidenceRecord] = [
     ),
     _r(
         "R-NX-05",
-        "华为托管平台（AgentArts）MCP 验收：注册 SeaSight Domain Cognition MCP，"
+        "华为托管平台（AgentArts）MCP 验收：注册 Oceanus Domain Cognition MCP，"
         "状态部署成功，21 个只读工具加载；同一公网端点 MCP 初始化、工具列表与 knowledge_list_assets "
         "真实只读调用返回 total=4；托管平台验收不等于海域验证或感知精度",
         "E2",

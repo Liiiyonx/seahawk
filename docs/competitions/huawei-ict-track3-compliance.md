@@ -69,10 +69,10 @@ cd nexent
 bash deploy.sh docker
 ```
 
-部署完成后，在 Nexent 中注册 SeaSight MCP：
+部署完成后，在 Nexent 中注册 Oceanus MCP：
 
 ```text
-名称：SeaSight Domain Cognition MCP
+名称：Oceanus Domain Cognition MCP
 传输：streamable-http（本地自建可改用 stdio）
 URL：http://host.docker.internal:8100/mcp
 Header：Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
@@ -82,7 +82,7 @@ Header：Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 只读 MCP 工具调用（例如 `knowledge_list_assets` 或 `policy-evidence-qa` Skill），
 留存截图与轨迹，填写 `artifacts/nexent-platform-acceptance/latest.yaml`。
 
-**本机现状（2026-09-28）**：已在本地 Nexent v2.6.1 完成平台侧验收：注册 SeaSight MCP、加载 21 个只读工具、导入 5 个 Skills，并以 `nexent_viewer` 调用 `knowledge_list_assets` 返回 200。证据与截图见 `artifacts/nexent-platform-acceptance/`，登记号 `R-NX-02`。
+**本机现状（2026-09-28）**：已在本地 Nexent v2.6.1 完成平台侧验收：注册 Oceanus MCP、加载 21 个只读工具、导入 5 个 Skills，并以 `nexent_viewer` 调用 `knowledge_list_assets` 返回 200。证据与截图见 `artifacts/nexent-platform-acceptance/`，登记号 `R-NX-02`。
 
 **复验完成（2026-09-29）**：以本地官方源码部署内置 suadmin 复验（R-NX-03），见 `artifacts/nexent-platform-acceptance/recheck-2026-09-29.yaml`。华为托管平台（AgentArts）MCP 注册与公网端点真实只读调用已完成（R-NX-05），见 `artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml`；Agent 创建与 DeepSeek 模型配置亦已完成（R-NX-06），见 `artifacts/nexent-platform-acceptance/hosted-agent-2026-09-29.yaml`；公网环境不支持 Skill（控制台明确提示），完整 Skill 问答需私网环境 + 私网可访问 MCP endpoint。
 
@@ -104,7 +104,7 @@ Header：Authorization: Bearer <SEASIGHT_MCP_SERVER_TOKEN>
 
 **华为托管平台验收记录（2026-09-29，登记号 R-NX-05）**：已用华为云账号 `hid_b7bcgi-i88yqw0x`
 （区域 cn-southwest-2）登录 AgentArts，公测已于 2026-09-29 审批通过，控制台已解锁。
-MCP 详情页确认 `SeaSight Domain Cognition MCP` 状态“部署成功”，工具列表加载
+MCP 详情页确认 `Oceanus Domain Cognition MCP` 状态“部署成功”，工具列表加载
 21 个只读工具；对同一公网端点完成 initialize → tools/list →
 `knowledge_list_assets` 真实只读调用，返回 total=4。界面截图与轨迹见
 `artifacts/nexent-platform-acceptance/evidence/hosted-2026-09-29-*.png/json`，
@@ -142,12 +142,12 @@ MCP 详情页确认 `SeaSight Domain Cognition MCP` 状态“部署成功”，�
 
 ## 六、诚实口径
 
-1. 本地 Nexent 自建验收证明“SeaSight MCP 能在该 Nexent 版本上完成注册、Skills 导入
+1. 本地 Nexent 自建验收证明“Oceanus MCP 能在该 Nexent 版本上完成注册、Skills 导入
    与被调用”；它不等于华为云商业环境认证，也不等于海域部署验证或感知精度。
 2. 感知精度在独立测试集就绪前一律写 `not_evaluated`；76% 只能表述为时序链路误报抑制率。
 3. 本地官方源码部署的 Nexent 已真实调用 DeepSeek 模型并跑通完整 Skill 问答
    （R-NX-09），可写“本地 Nexent 内已接入 LLM 并跑通完整问答”；不得写成
-   “华为托管平台已跑通”或暗示 SeaSight 后端内置 LLM 规划器已启用。
+   “华为托管平台已跑通”或暗示 Oceanus 后端内置 LLM 规划器已启用。
    昇腾、ModelArts、鲲鹏继续写“架构/配置已就绪、待验证”。
 4. 总决赛代金券是主办方提供的资源支持，不等于免费商用授权，也不等于可无上限调用。
 

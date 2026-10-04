@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight 试点前就绪度证据清单（product-readiness）
+# 探海灵眸 Oceanus 试点前就绪度证据清单（product-readiness）
 
 > 版本：1.0
 > 编制日期：2026-09-18

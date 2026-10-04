@@ -35,8 +35,8 @@ def main() -> None:
     result = build_plan_docx.build_docx(
         source,
         output,
-        header_text="\t探海灵眸 SeaSight  |  华为 ICT 赛道三 · Nexent 智能体设计说明",
-        cover_title="探海灵眸 SeaSight Nexent 智能体整体设计说明",
+        header_text="\t探海灵眸 Oceanus  |  华为 ICT 赛道三 · Nexent 智能体设计说明",
+        cover_title="探海灵眸 Oceanus Nexent 智能体整体设计说明",
         cover_subtitle="华为 ICT 大赛 创新赛道三",
         cover_statement="领域资产认知智能体 · MCP 工具面 + Skill 分层编排",
         cover_meta_rows=cover_meta_rows,
@@ -44,9 +44,9 @@ def main() -> None:
             "本地官方源码部署已跑通完整 Skill 问答；华为 AgentArts 托管平台内完整"
             "问答仍为 blocked，两者不可混写。"
         ),
-        core_title="探海灵眸 SeaSight Nexent 智能体整体设计说明",
+        core_title="探海灵眸 Oceanus Nexent 智能体整体设计说明",
         core_subject="华为 ICT 大赛 创新赛道三初赛/决赛评测材料（材料 2）",
-        core_author="SeaSight 项目组",
+        core_author="Oceanus 项目组",
         core_comments="严格区分本地 Nexent 验收与华为托管平台验收；感知精度 not_evaluated。",
     )
     print(result)

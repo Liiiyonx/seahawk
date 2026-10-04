@@ -41,7 +41,7 @@
 
 | 文件 | 说明 |
 | --- | --- |
-| `integrations/nexent/mcp_server/server.py` | SeaSight Domain Cognition MCP 实现 |
+| `integrations/nexent/mcp_server/server.py` | Oceanus Domain Cognition MCP 实现 |
 | `integrations/nexent/mcp_server/requirements.txt` | MCP 运行依赖 |
 | `integrations/nexent/.env.example` | 环境变量模板（不含真实密钥） |
 | `integrations/nexent/README.md` | 接入说明、安全边界、工具清单 |
@@ -116,7 +116,7 @@
 - R-KN-04：已采集本地知识域前端（问题 → 检索 → 决策 → 证据链，2 张截图 +
   API JSON）。该轨迹为 `hop_count=0` 的直接资产引用检索，不表述为多跳路径问答。
 - R-NX-09（2026-09-30 新增）：**本地官方源码部署 Nexent 控制台完整 Skill 问答
-  已跑通**。Agent 版本 4 绑定 21 个 SeaSight MCP 只读工具与 5 个 Skill；
+  已跑通**。Agent 版本 4 绑定 21 个 Oceanus MCP 只读工具与 5 个 Skill；
   `POST /agent/run` SSE HTTP 200、8 步、31 次工具调用、13 个唯一工具、
   最终回答 2,777 字，无 run error。已保存控制台截图
   （`nexent-console-home.png`、`nexent-console-newchat.png`）与完整 SSE/工具轨迹。
@@ -139,7 +139,7 @@
 
 前置条件：
 
-- 本地 Nexent 已注册 SeaSight MCP 并导入 5 个 Skills（见 R-NX-02/R-NX-03）；
+- 本地 Nexent 已注册 Oceanus MCP 并导入 5 个 Skills（见 R-NX-02/R-NX-03）；
 - 本地官方源码部署已创建并发布 Agent，绑定 5 个 Skill 与 21 个 MCP 工具
   （见 R-NX-04）；
 - 后端已灌入知识域演示数据（total=4）；

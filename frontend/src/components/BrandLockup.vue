@@ -4,7 +4,7 @@
     <div class="brand-lockup__copy">
       <div class="brand-lockup__title">
         <span class="brand-lockup__cn">探海灵眸</span>
-        <span class="brand-lockup__en">SeaSight</span>
+        <span class="brand-lockup__en">Oceanus</span>
       </div>
       <span v-if="subtitle" class="brand-lockup__sub">{{ subtitle }}</span>
     </div>

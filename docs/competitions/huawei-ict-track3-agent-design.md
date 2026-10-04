@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight · Nexent 平台智能体整体设计说明
+# 探海灵眸 Oceanus · Nexent 平台智能体整体设计说明
 
 > 版本：1.0（提交件底稿）
 > 编制日期：2026-09-30
@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | 本地官方源码部署 Nexent | 按官方仓库 `ModelEngine-Group/nexent` 本地部署，v2.6.1 | **完整 LLM Skill 问答已跑通**（R-NX-09） |
 | 华为 AgentArts 托管平台 | 华为云控制台内注册 MCP、导入 Skill、创建 Agent | MCP 注册与公网端点只读调用完成（R-NX-05）、Agent 与模型配置完成（R-NX-06）、5 个 Skill 已导入；**平台内完整 Skill 问答未跑通**（R-NX-07 `blocked`） |
-| SeaSight 生产后端 | 项目自研 FastAPI + PostgreSQL 业务系统 | 独立运行，内置规则规划器；本地 LLM 规划器尚未真实调用外部模型 |
+| Oceanus 生产后端 | 项目自研 FastAPI + PostgreSQL 业务系统 | 独立运行，内置规则规划器；本地 LLM 规划器尚未真实调用外部模型 |
 
 由此产生四条**不可宣称**：
 
@@ -46,19 +46,19 @@
 ### 2.2 三层结构
 
 ```text
-认知层  SeaSight 知识域：资产版本化 → 半自动本体 → 图谱检索 → 决策证据链
+认知层  Oceanus 知识域：资产版本化 → 半自动本体 → 图谱检索 → 决策证据链
               │  以 MCP 工具面暴露为 21 个只读工具
               ▼
 编排层  Nexent Agent：模型 + Skill 工作流模板 + MCP 工具调用
               │  Skill 决定“先查什么、再算什么、何时停止”
               ▼
-执行层  SeaSight 业务系统：角色 / 辖区 / 审批 / 幂等 / 审计
+执行层  Oceanus 业务系统：角色 / 辖区 / 审批 / 幂等 / 审计
               │  执行末端可插拔（岸基设备、机器人、机械臂统一走派单链路）
               ▼
         PostgreSQL：资产 / 本体 / 决策 / 事件 / 任务
 ```
 
-关键分工：**Nexent 负责编排与推理，SeaSight 后端负责权限与事实**。工具返回
+关键分工：**Nexent 负责编排与推理，Oceanus 后端负责权限与事实**。工具返回
 的是后端真实数据；后端 `code != 0` 会被 MCP 转成工具错误，业务失败不会伪装成
 成功数据返回给模型。
 
@@ -83,7 +83,7 @@
 | --- | --- |
 | Agent ID | `1` |
 | 平台内 identifier | `seasight_governance_decision_agent` |
-| 对外展示名 | SeaSight 治理决策智能体 |
+| 对外展示名 | Oceanus 治理决策智能体 |
 | 当前发布版本 | 版本 4 `v0.2.0-seasight-governance-llm`（`RELEASED`） |
 | 版本历史 | v1/v2 `v0.1.0-seasight-governance`（未接模型）；v3/v4 `v0.2.0-seasight-governance-llm`（接入 DeepSeek 后的完整问答版本） |
 
@@ -106,14 +106,14 @@
 `/api/model/healthcheck` 后 `/api/agent/list` 才返回 `is_available: true`，
 控制台才会正常展示该 Agent。
 
-**降级与回退**：SeaSight 后端内置规划器默认走确定性规则；当模型不可用、超时或
+**降级与回退**：Oceanus 后端内置规划器默认走确定性规则；当模型不可用、超时或
 输出不符合 schema 时，规划器返回 `source="rule_fallback"` 与结构化
 `fallback_reason`，由规则规划器接管，保证链路不中断。这条设计使平台侧模型成为
 **增强项而非单点依赖**。
 
 ### 3.3 工具信息（MCP 工具面）
 
-MCP 服务：`SeaSight Domain Cognition MCP`。默认注册 **21 个只读工具**；
+MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具**；
 显式开启 `SEASIGHT_MCP_ALLOW_WRITES=true` 后才注册写入工具，合计 32 个。
 写入工具不是“隐藏”，而是**根本不注册**。
 
@@ -130,7 +130,7 @@ MCP 服务：`SeaSight Domain Cognition MCP`。默认注册 **21 个只读工具
 抽取 / 审核 / 发布、决策创建、Agent 运行控制与审批。
 
 **入站鉴权**：MCP 服务对入站请求做 Bearer 鉴权并 fail-closed，未授权请求不会
-落到后端。**出站鉴权**：MCP 到 SeaSight `/api/v1` 使用最小权限只读账号，
+落到后端。**出站鉴权**：MCP 到 Oceanus `/api/v1` 使用最小权限只读账号，
 支持账号密码模式自动刷新令牌；静态令牌模式过期需人工轮换并重启服务（已文档化）。
 
 ### 3.4 知识库信息
@@ -162,10 +162,10 @@ Nexent Agent: seasight_governance_decision_agent (v0.2.0-seasight-governance-llm
   └── Skill：decision-trace-audit
           │
           ▼
-SeaSight Domain Cognition MCP（21 个只读工具 · Bearer 入站鉴权）
+Oceanus Domain Cognition MCP（21 个只读工具 · Bearer 入站鉴权）
           │  出站令牌自动刷新 · 最小权限只读账号
           ▼
-SeaSight /api/v1（角色 / 辖区 / 审批 / 幂等 / 审计）
+Oceanus /api/v1（角色 / 辖区 / 审批 / 幂等 / 审计）
           │
           ▼
 PostgreSQL（资产 / 本体 / 决策 / 事件 / 任务）
@@ -255,7 +255,7 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 
 | 时间 | 问题 | 处理与结论 |
 | --- | --- | --- |
-| 2026-09-28 | Nexent 首次接入 SeaSight MCP | 完成 MCP 注册、21 工具加载、5 个 Skill 导入与一次 `knowledge_list_assets` 调用（R-NX-02） |
+| 2026-09-28 | Nexent 首次接入 Oceanus MCP | 完成 MCP 注册、21 工具加载、5 个 Skill 导入与一次 `knowledge_list_assets` 调用（R-NX-02） |
 | 2026-09-29 | 换个入口复验同一能力 | 以本地官方源码部署内置 suadmin 复验（R-NX-03）；灌入演示数据后返回 total=4 |
 | 2026-09-29 | 无 Agent，工具面无法端到端 | 创建并发布 Agent（R-NX-04，版本 v2），绑定 5 个 Skill 与 21 个工具，导出配置 ZIP；当时未配模型，完整问答列为待补 |
 | 2026-09-30 | Agent 运行时被拒 | 根因：Nexent 要求 Agent `name` 为合法 Python 标识符，连字符形式不合法。改为 `seasight_governance_decision_agent` |
@@ -298,7 +298,7 @@ R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检�
 
 | 类别 | 文件 | 说明 |
 | --- | --- | --- |
-| MCP 实现 | `integrations/nexent/mcp_server/server.py` | SeaSight Domain Cognition MCP 服务实现 |
+| MCP 实现 | `integrations/nexent/mcp_server/server.py` | Oceanus Domain Cognition MCP 服务实现 |
 | MCP 依赖 | `integrations/nexent/mcp_server/requirements.txt` | 运行依赖 |
 | MCP 配置模板 | `integrations/nexent/.env.example` | 环境变量模板，不含真实密钥 |
 | MCP 接入说明 | `integrations/nexent/README.md` | 工具面、安全边界、部署方式 |
@@ -319,7 +319,7 @@ R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检�
 
 已完成的托管平台动作：
 
-1. 注册 MCP 服务 `SeaSight Domain Cognition MCP`，状态“部署成功”，工具列表
+1. 注册 MCP 服务 `Oceanus Domain Cognition MCP`，状态“部署成功”，工具列表
    加载 21 个只读工具，公网端点 `knowledge_list_assets` 真实只读调用返回
    total=4（R-NX-05）；
 2. 创建 Agent 并配置 `deepseek-provider/deepseek-chat`，写入诚实系统提示词

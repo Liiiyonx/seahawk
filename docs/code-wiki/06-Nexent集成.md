@@ -1,6 +1,6 @@
 # 06 · Nexent 集成（integrations/nexent/）
 
-> 把 SeaSight 的知识资产、动态本体、多跳检索、决策证据链、事件与工单能力通过 **MCP (Model Context Protocol)** 暴露给华为 ModelEngine Nexent 等外部智能体框架。**不替换后端**——所有读写走 `/api/v1` 公共 HTTP 契约，不直接导入后端 DB 模型。
+> 把 Oceanus 的知识资产、动态本体、多跳检索、决策证据链、事件与工单能力通过 **MCP (Model Context Protocol)** 暴露给华为 ModelEngine Nexent 等外部智能体框架。**不替换后端**——所有读写走 `/api/v1` 公共 HTTP 契约，不直接导入后端 DB 模型。
 
 ## 1. 架构总览
 
@@ -13,7 +13,7 @@ integrations/nexent/mcp_server/server.py   (FastMCP, 32 tools)
    │  出站认证: 专用账号登录 / 静态 Bearer Token（自动刷新）
    │  HTTP httpx
    ▼
-SeaSight backend /api/v1/*                 (保留角色/范围/审批/审计权限)
+Oceanus backend /api/v1/*                 (保留角色/范围/审批/审计权限)
 ```
 
 **双传输模式**：
@@ -32,7 +32,7 @@ SeaSight backend /api/v1/*                 (保留角色/范围/审批/审计权
 | 组件 | 行号区间（约） | 职责 |
 | --- | --- | --- |
 | 配置读取 | L49-69 | `SEASIGHT_API_BASE_URL`、认证模式、`SEASIGHT_MCP_ALLOW_WRITES`、超时、传输模式、HTTP token、端口、public URL |
-| `SeaSightTokenProvider` | L89-243 | 出站认证：静态 token / 用户名密码两种模式；登录、缓存、**到期前自动刷新**、401 失效重试 |
+| `OceanusTokenProvider` | L89-243 | 出站认证：静态 token / 用户名密码两种模式；登录、缓存、**到期前自动刷新**、401 失效重试 |
 | `_call()` | L250-317 | 统一 API 调用：组装请求、带 token、401 触发刷新、校验 `ApiResponse.code != 0` 抛结构化错误 |
 | FastMCP 实例 | L356-363 | 服务名、host/port、`/mcp` 路径、HTTP 模式 inbound token verifier |
 | 只读 knowledge 工具 | L371-487 | 资产列表/详情、本体版本/节点/关系、多跳检索、决策列表与证据链 |

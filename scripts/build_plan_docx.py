@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the SeaSight proposal DOCX from the controlled Markdown source."""
+"""Build the Oceanus proposal DOCX from the controlled Markdown source."""
 
 from __future__ import annotations
 
@@ -311,7 +311,7 @@ def configure_styles(document: Document) -> None:
 
 def configure_section(
     document: Document,
-    header_text: str = "\t探海灵眸 SeaSight  |  项目计划书 v2.1",
+    header_text: str = "\t探海灵眸 Oceanus  |  项目计划书 v2.1",
 ) -> None:
     section = document.sections[0]
     section.page_width = Inches(8.5)
@@ -402,7 +402,7 @@ def add_cover(
     title = document.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     remove_paragraph_border(title)
-    title_text = cover_title or metadata.get("title", "探海灵眸 SeaSight 项目计划书")
+    title_text = cover_title or metadata.get("title", "探海灵眸 Oceanus 项目计划书")
     run = title.add_run(title_text)
     set_run_font(run, BODY_FONT, 30, True)
 
@@ -654,7 +654,7 @@ def build_docx(
     source_path: Path,
     output_path: Path,
     heading_pages_path: Path | None = None,
-    header_text: str = "\t探海灵眸 SeaSight  |  项目计划书 v2.1",
+    header_text: str = "\t探海灵眸 Oceanus  |  项目计划书 v2.1",
     cover_title: str | None = None,
     cover_subtitle: str = "区域海上环卫治理系统",
     cover_statement: str = "国奖候选工程基线",
@@ -663,9 +663,9 @@ def build_docx(
         "本文档严格区分代码/测试、合成验证、用户真实验证和商业成交证据；"
         "所有对外数字必须回到证据台账。"
     ),
-    core_title: str = "探海灵眸 SeaSight 项目计划书",
+    core_title: str = "探海灵眸 Oceanus 项目计划书",
     core_subject: str = "国奖候选工程基线与智能体开发分工方案",
-    core_author: str = "SeaSight 项目组",
+    core_author: str = "Oceanus 项目组",
     core_comments: str = "严格区分 E0-E4 证据，不以规划替代真实现场与商业验证。",
 ) -> dict[str, object]:
     source = source_path.read_text(encoding="utf-8")

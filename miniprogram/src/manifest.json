@@ -1,7 +1,7 @@
 {
   "name": "探海灵眸",
   "appid": "",
-  "description": "海洋漂浮垃圾智能治理平台 · 现场作业端",
+  "description": "海漂垃圾全链路智能治理平台 · 现场作业端",
   "versionName": "1.0.0",
   "versionCode": "100",
   "transformPx": false,
@@ -10,7 +10,7 @@
       "mode": "hash",
       "base": "./"
     },
-    "title": "探海灵眸 SeaSight"
+    "title": "探海灵眸 Oceanus"
   },
   "mp-weixin": {
     "appid": "",

@@ -10,7 +10,7 @@
 
 ## 一、技术选型说明
 
-SeaSight 面向县域海漂垃圾治理的"感知—决策—执行"闭环。选型时对齐了三条约束：
+Oceanus 面向县域海漂垃圾治理的"感知—决策—执行"闭环。选型时对齐了三条约束：
 **边缘算力受限**、**政务侧数据不出域**、**决策过程必须可审计**。
 华为技术栈在这三条上与项目需求同向：
 
@@ -37,7 +37,7 @@ SeaSight 面向县域海漂垃圾治理的"感知—决策—执行"闭环。选
 | 协议级验收 | 未认证拒绝、MCP 初始化、工具面枚举、5 个 Skills 结构校验、模拟令牌刷新 | `make nexent-acceptance`；验收产物 `artifacts/nexent-acceptance/latest.json` |
 | 平台侧验收 | 本地 Nexent v2.6.1 注册 MCP、加载 21 个工具面、导入 5 个 Skills、调用 `knowledge_list_assets` 成功 | `artifacts/nexent-platform-acceptance/`（2026-09-28） |
 
-**平台侧验收口径**：已完成的本地平台侧验收只证明 SeaSight MCP 能在该
+**平台侧验收口径**：已完成的本地平台侧验收只证明 Oceanus MCP 能在该
 Nexent 版本上完成注册、Skills 导入和被调用；2026-09-29 已以本地官方源码部署
 内置 suadmin 完成复验（R-NX-03），见 `artifacts/nexent-platform-acceptance/recheck-2026-09-29.yaml`。
 同日华为托管平台（AgentArts）MCP 注册与公网端点真实只读调用完成并登记
@@ -111,7 +111,7 @@ SEASIGHT_API_PASSWORD=<随机密码> python scripts/create_nexent_service_accoun
   --username nexent_viewer --role viewer
 ```
 
-口径：平台侧验收记录只证明「SeaSight MCP 能在该 Nexent 版本上完成注册、
+口径：平台侧验收记录只证明「Oceanus MCP 能在该 Nexent 版本上完成注册、
 Skills 导入和被调用」。它不等于海域部署验证，也不代表任何感知精度或
 现场治理效果证据。
 

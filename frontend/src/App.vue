@@ -7,7 +7,7 @@
         class="brand"
         variant="header"
         :size="32"
-        subtitle="海洋漂浮垃圾智能治理平台"
+        subtitle="海漂垃圾全链路智能治理平台"
       />
 
       <nav class="nav">

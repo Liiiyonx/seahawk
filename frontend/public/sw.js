@@ -1,5 +1,5 @@
 /**
- * SeaSight Service Worker（PWA 离线壳）
+ * Oceanus Service Worker（PWA 离线壳）
  *
  * 策略刻意保守：
  * - /api/、/stream/、WebSocket 一律放行 —— 实时数据永远走网络，

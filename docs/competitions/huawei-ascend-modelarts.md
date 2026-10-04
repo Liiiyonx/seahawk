@@ -1,4 +1,4 @@
-# SeaSight × 昇腾 Atlas / ModelArts 接入说明
+# Oceanus × 昇腾 Atlas / ModelArts 接入说明
 
 > 版本：1.0 ｜ 日期：2026-09-27
 > 配套材料：`docs/competitions/huawei-tech-matrix.md`（纽带矩阵）
@@ -115,7 +115,7 @@ session = ort.InferenceSession("best_ascend.om", providers=preferred or None)
  └───────────────────────────────┬──────────────────────────────┘
                                  │ MQTT（与平台同一套主题）
                                  ▼
-                    中心侧 SeaSight 平台（容器编排）
+                    中心侧 Oceanus 平台（容器编排）
 ```
 
 要点：

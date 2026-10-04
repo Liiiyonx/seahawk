@@ -96,7 +96,7 @@
 ```bash
 sudo mkdir -p /opt/seasight/model-relay && sudo chmod 700 /opt/seasight/model-relay
 
-# 看看这台机器上现有的 SeaSight 环境里有没有现成的 Key
+# 看看这台机器上现有的 Oceanus 环境里有没有现成的 Key
 sudo grep -rhoE 'DEEPSEEK[A-Z_]*KEY=sk-[A-Za-z0-9]+' /opt/seasight /root /home 2>/dev/null | head -3
 ```
 

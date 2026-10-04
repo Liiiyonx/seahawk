@@ -38,7 +38,7 @@
 ```text
 ① 拍照/收集 → ml/datasets/seasight/<批次>/images/
 ② 标注（anylabeling / labelimg 任一，导出 COCO）
-③ 转 SeaSight COCO-like JSON（schema 见 docs/perception-data-protocol.md）：
+③ 转 Oceanus COCO-like JSON（schema 见 docs/perception-data-protocol.md）：
    python ml/scripts/convert_annotations.py validate --input <dataset.json> \
      --images-root ml/datasets/seasight/<批次> --verify-dimensions
 ④ 复制 ml/datasets/manifests/template_manifest.yaml → test_<日期>_<地点>.yaml

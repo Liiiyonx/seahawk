@@ -1,4 +1,4 @@
-"""MQTT contract bridge between SeaSight and any physical arm.
+"""MQTT contract bridge between Oceanus and any physical arm.
 
 Responsibilities:
 

@@ -1,8 +1,8 @@
 {
-  "name": "seasight-mini",
+  "name": "oceanus-mini",
   "version": "1.0.0",
   "private": true,
-  "description": "探海灵眸 SeaSight 小程序端 — 现场作业与告警速览（uni-app Vue3，编译到微信小程序 / H5）",
+  "description": "探海灵眸 Oceanus 小程序端 — 现场作业与告警速览（uni-app Vue3，编译到微信小程序 / H5）",
   "scripts": {
     "dev:mp-weixin": "uni -p mp-weixin",
     "build:mp-weixin": "uni build -p mp-weixin",

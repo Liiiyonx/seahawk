@@ -1,5 +1,5 @@
 # ============================================================
-# SeaSight arm bridge configuration
+# Oceanus arm bridge configuration
 # ============================================================
 # The bridge subscribes to robot/{device_id}/task and
 # robot/{device_id}/cmd, then translates arm driver results into

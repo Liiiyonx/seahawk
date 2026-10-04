@@ -33,7 +33,7 @@ BASE_XLSX = COMP_DIR / "报名表_探海灵眸_初稿.xlsx"
 OUT_DOCX = COMP_DIR / "创业项目计划书_探海灵眸_初稿.docx"
 OUT_MD = COMP_DIR / "提交材料清单_探海灵眸_初稿.md"
 
-PROJECT_NAME = "探海灵眸 SeaSight——海漂垃圾“感知—决策—执行”一体化智能治理系统"
+PROJECT_NAME = "探海灵眸 Oceanus——海漂垃圾“感知—决策—执行”一体化智能治理系统"
 
 
 def _save_or_fallback(wb, path: Path) -> None:

@@ -15,7 +15,7 @@ R-NX-07 已经确认：华为 AgentArts 里的 Agent、MCP、5 个 Skill、私�
 ```text
 充值解除欠费
   → 确认创建 Target 恢复可用
-  → 部署华为云 VPC 内可达的 SeaSight MCP endpoint
+  → 部署华为云 VPC 内可达的 Oceanus MCP endpoint
   → 创建并调测 MCP Target
   → 绑定 Agent 并启用 VPC 网络模式
   → 保存并发布 Agent 新版本
@@ -34,7 +34,7 @@ R-NX-07 已经确认：华为 AgentArts 里的 Agent、MCP、5 个 Skill、私�
 | AgentArts 账号 | `hid_b7bcgi-i88yqw0x` |
 | Agent | `seasight-governance-decision-agent` |
 | Agent ID | `fdeccb8f-c35e-459b-8413-26f72a37edf3` |
-| MCP | `SeaSight Domain Cognition MCP` |
+| MCP | `Oceanus Domain Cognition MCP` |
 | MCP service ID | `ef30db1926c748fab10f30f86c42e2b8` |
 | MCP 工具面 | 21 个只读工具 |
 | 私网环境 | `environment-seasight-vpc-verify` |
@@ -70,7 +70,7 @@ AgentArts 私网 Target 只能访问华为云 VPC 内实际可达的地址。`12
 
 ### 方案 A：华为云 ECS + Docker Compose（本次推荐）
 
-在同一个区域、同一个 VPC 中创建一台 ECS，部署 SeaSight 生产栈和 `nexent-mcp` 服务。
+在同一个区域、同一个 VPC 中创建一台 ECS，部署 Oceanus 生产栈和 `nexent-mcp` 服务。
 
 适用条件：
 
@@ -99,7 +99,7 @@ https://<私网域名>/mcp
 
 ### 方案 C：CCE 或已有内网服务
 
-如果 SeaSight 已经部署在 CCE、内网服务器或通过云专线/VPN 可达的地址，可以直接复用现有 endpoint，但必须先证明：
+如果 Oceanus 已经部署在 CCE、内网服务器或通过云专线/VPN 可达的地址，可以直接复用现有 endpoint，但必须先证明：
 
 1. 从 `vpc-seasight` 内能访问该地址；
 2. 路径是 `/mcp`，不是 `/sse`、`/inference/` 或其他路径；
@@ -150,7 +150,7 @@ NEXENT_MCP_PORT=8100
 
 说明：
 
-- `SEASIGHT_API_USERNAME/PASSWORD` 是 MCP 到 SeaSight 后端的出站账号，推荐使用专用只读账号 `nexent_viewer`；
+- `SEASIGHT_API_USERNAME/PASSWORD` 是 MCP 到 Oceanus 后端的出站账号，推荐使用专用只读账号 `nexent_viewer`；
 - `SEASIGHT_MCP_SERVER_TOKEN` 是 AgentArts 网关到 MCP 的入站令牌，二者不要复用；
 - `NEXENT_MCP_BIND_ADDR=0.0.0.0` 只意味着容器绑定私网网卡，真正的外网暴露仍由安全组禁止；
 - 如果 ECS 上还部署前端，按实际域名调整 `SEASIGHT_MCP_PUBLIC_URL`。
@@ -203,11 +203,11 @@ curl -i http://<ECS私网IP>:8100/mcp \
 | MCP 地址 | `http://<ECS私网IP>:8100/mcp` | 若要求 HTTPS 则改为方案 B 的私网域名 |
 | MCP 版本 | `2025-03-26` | 与现有网关版本一致；平台支持 2025-03-26 / 2025-06-18 / 2025-11-25 |
 | 超时 | 30 秒或平台最大值 | MCP server 默认 30 秒 |
-| 出站认证 | `API Key` | 对应 SeaSight MCP 服务端的 Bearer 鉴权 |
+| 出站认证 | `API Key` | 对应 Oceanus MCP 服务端的 Bearer 鉴权 |
 | 认证位置 | `标头` / Header | 不要选 Query 或 Body |
 | 参数名 | `Authorization` | 若控制台自动带前缀，确认最终请求头为 `Authorization: Bearer ...` |
 | 前缀 | `Bearer` | 注意 Bearer 后有一个空格 |
-| 密钥值 | `<SEASIGHT_MCP_SERVER_TOKEN>` | 只填服务端入站令牌，不填 SeaSight 后端账号密码 |
+| 密钥值 | `<SEASIGHT_MCP_SERVER_TOKEN>` | 只填服务端入站令牌，不填 Oceanus 后端账号密码 |
 
 创建后：
 
@@ -234,7 +234,7 @@ Target 在线后再操作 Agent：
    `fdeccb8f-c35e-459b-8413-26f72a37edf3`。
 2. 在运行环境/网络选择处切换到私网环境
    `environment-seasight-vpc-verify`，启用 VPC 网络模式。
-3. 在工具/MCP 配置中确认 `SeaSight Domain Cognition MCP` 已选中，工具面为
+3. 在工具/MCP 配置中确认 `Oceanus Domain Cognition MCP` 已选中，工具面为
    21 个只读工具。
 4. 在 Skill 配置中选中已导入的 5 个 Skill。
 5. 检查模型仍是 `deepseek-provider/deepseek-chat`，系统提示词仍保留
@@ -295,7 +295,7 @@ python artifacts/nexent-platform-acceptance/hosted_tunnel_acceptance.py \
 截图和 YAML 中不得出现：
 
 - 真实 `SEASIGHT_MCP_SERVER_TOKEN`；
-- SeaSight 后端账号密码；
+- Oceanus 后端账号密码；
 - 华为云 AK/SK；
 - 未脱敏的个人联系方式；
 - 把演示数据描述成真实脱敏数据的文字。
@@ -340,7 +340,7 @@ git diff --check
 
 完成后可以表述：
 
-> 在华为 AgentArts 私网环境中，SeaSight Domain Cognition MCP 通过 VPC Target 与 Agent 完成绑定，基于 5 个 Skill 和 21 个只读 MCP 工具跑通了一次完整 Skill 问答，并保存了平台内截图与调用轨迹。
+> 在华为 AgentArts 私网环境中，Oceanus Domain Cognition MCP 通过 VPC Target 与 Agent 完成绑定，基于 5 个 Skill 和 21 个只读 MCP 工具跑通了一次完整 Skill 问答，并保存了平台内截图与调用轨迹。
 
 不能表述：
 

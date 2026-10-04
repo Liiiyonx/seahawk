@@ -39,7 +39,7 @@
       <button class="btn me__logout" @tap="logoutConfirm">退出登录</button>
     </view>
 
-    <text class="me__footnote">探海灵眸 SeaSight · 小程序作业端 v1.0</text>
+    <text class="me__footnote">探海灵眸 Oceanus · 小程序作业端 v1.0</text>
   </view>
 </template>
 

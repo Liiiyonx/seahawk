@@ -1,6 +1,6 @@
 # 华为 ICT 赛道三：开源发布操作手册
 
-> 适用仓库：探海灵眸 SeaSight
+> 适用仓库：探海灵眸 Oceanus
 > 目标平台：GitCode / GitHub（新建公开仓库）
 > 最近更新：2026-09-30
 > 关联工具：`scripts/build_public_release.py`、`scripts/check_public_repo_privacy.py`
@@ -85,7 +85,7 @@ cd dist/public-release/seasight
 git init
 git checkout -b main
 git add .
-git -c user.name="<你的提交者名称>" -c user.email="<你的提交邮箱>" commit -m "Initial public release: SeaSight"
+git -c user.name="<你的提交者名称>" -c user.email="<你的提交邮箱>" commit -m "Initial public release: Oceanus"
 ```
 
 先在 GitCode 或 GitHub 上创建一个**空仓库**：

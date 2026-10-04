@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight · 赛道三随附文件说明
+# 探海灵眸 Oceanus · 赛道三随附文件说明
 
 > 版本：1.0（提交件底稿）
 > 编制日期：2026-09-30
@@ -28,7 +28,7 @@ E3 真实业务方参与 / E4 真实运营。
 
 | 文件 | 类型 | 说明 |
 | --- | --- | --- |
-| `integrations/nexent/mcp_server/server.py` | 源码 | SeaSight Domain Cognition MCP 服务实现。默认注册 21 个只读工具；开启 `SEASIGHT_MCP_ALLOW_WRITES=true` 后才注册写入工具（合计 32 个）。入站 Bearer 鉴权 fail-closed，出站调用 SeaSight `/api/v1` |
+| `integrations/nexent/mcp_server/server.py` | 源码 | Oceanus Domain Cognition MCP 服务实现。默认注册 21 个只读工具；开启 `SEASIGHT_MCP_ALLOW_WRITES=true` 后才注册写入工具（合计 32 个）。入站 Bearer 鉴权 fail-closed，出站调用 Oceanus `/api/v1` |
 | `integrations/nexent/mcp_server/requirements.txt` | 依赖 | MCP 服务运行依赖 |
 | `integrations/nexent/.env.example` | 配置模板 | 环境变量模板，**不含真实密钥**；密钥与令牌由部署方在平台侧配置 |
 | `integrations/nexent/README.md` | 文档 | 工具面清单、安全边界、本地与容器部署方式 |

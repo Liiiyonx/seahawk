@@ -34,8 +34,8 @@ def main() -> None:
     result = build_plan_docx.build_docx(
         source,
         output,
-        header_text="\t探海灵眸 SeaSight  |  华为 ICT 赛道三 · 开发设计文档",
-        cover_title="探海灵眸 SeaSight 可进化决策智能体开发设计文档",
+        header_text="\t探海灵眸 Oceanus  |  华为 ICT 赛道三 · 开发设计文档",
+        cover_title="探海灵眸 Oceanus 可进化决策智能体开发设计文档",
         cover_subtitle="华为 ICT 大赛 创新赛道三",
         cover_statement="政务-县域海洋环境治理 · 领域资产认知智能体",
         cover_meta_rows=cover_meta_rows,
@@ -43,9 +43,9 @@ def main() -> None:
             "本文档严格区分代码/测试、合成验证、本地平台侧验收与华为托管平台验收；"
             "所有对外数字必须回到证据台账。"
         ),
-        core_title="探海灵眸 SeaSight 可进化决策智能体开发设计文档",
+        core_title="探海灵眸 Oceanus 可进化决策智能体开发设计文档",
         core_subject="华为 ICT 大赛 创新赛道三初赛/决赛评测材料",
-        core_author="SeaSight 项目组",
+        core_author="Oceanus 项目组",
         core_comments="严格区分 E0-E4 证据；平台侧验收不等于海域验证或感知精度。",
     )
     print(result)

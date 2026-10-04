@@ -67,7 +67,7 @@
   只读工具加载成功，`knowledge_list_assets`（total=4）、`dashboard_get` 与
   `agent_runtime_status` 均真实调用成功；本记录仅为本地 MCP 端点复验。
 - 华为托管平台验收（R-NX-05，2026-09-29）：AgentArts 注册
-  `SeaSight Domain Cognition MCP`，状态“部署成功”，工具列表加载 21 个
+  `Oceanus Domain Cognition MCP`，状态“部署成功”，工具列表加载 21 个
   只读工具；同一公网端点 MCP 初始化、工具列表与 `knowledge_list_assets`
   真实只读调用返回 total=4。界面截图与轨迹见
   `artifacts/nexent-platform-acceptance/evidence/hosted-2026-09-29-*`。

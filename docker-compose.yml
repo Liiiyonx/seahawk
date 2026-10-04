@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight — 一键启动全套依赖服务
+# 探海灵眸 Oceanus — 一键启动全套依赖服务
 # 用法：docker compose up -d
 # 参考 fastapi/full-stack-fastapi-template 与 Mediamtx 社区实践组织
 

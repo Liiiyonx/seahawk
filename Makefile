@@ -1,4 +1,4 @@
-# 探海灵眸 SeaSight — 常用命令
+# 探海灵眸 Oceanus — 常用命令
 # 用法：make <target>     查看全部：make help
 
 .PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
@@ -130,7 +130,7 @@ nexent-install:  ## 安装 Nexent MCP 独立运行环境
 	$(NEXENT_PYTHON) -m pip install -r integrations/nexent/mcp_server/requirements.txt
 	@echo "[nexent-install] 完成。请复制 integrations/nexent/.env.example 为 .env 并填写令牌"
 
-nexent-mcp:  ## 启动 SeaSight Nexent MCP（默认 stdio）
+nexent-mcp:  ## 启动 Oceanus Nexent MCP（默认 stdio）
 	$(NEXENT_PYTHON) integrations/nexent/mcp_server/server.py
 
 nexent-check:  ## 检查 Nexent MCP 配置与可导入性

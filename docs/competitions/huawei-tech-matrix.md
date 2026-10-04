@@ -1,4 +1,4 @@
-# SeaSight × 华为技术纽带矩阵
+# Oceanus × 华为技术纽带矩阵
 
 > 版本：1.0 ｜ 日期：2026-09-27
 > 上位口径：`docs/evidence-claim-policy.md`（证据分级与宣称纪律）、
@@ -12,7 +12,7 @@
 
 ## 一、一句话口径
 
-SeaSight 与华为技术的结合是**一实三虚**：
+Oceanus 与华为技术的结合是**一实三虚**：
 
 - **实线一条**：ModelEngine Nexent —— 已集成，已通过协议级验收与本地
   平台侧验收（E1/E2，见 §四第 1 行）。
@@ -46,7 +46,7 @@ SeaSight 与华为技术的结合是**一实三虚**：
                     └───────────────────┬────────────────────────────────┘
                                         │  MCP：stdio / streamable-http
                                         ▼
-   ┌──────────────────────────── SeaSight 平台（本仓库） ────────────────────────────┐
+   ┌──────────────────────────── Oceanus 平台（本仓库） ────────────────────────────┐
    │   FastAPI ── PostgreSQL 16 + PostGIS ── Redis ── EMQX ── MinIO ── Vue3 大屏     │
    │   Agent Runtime（Run/Step/Tool/Policy/Approval/Replay/Eval）                    │
    └───┬────────────────────────────┬────────────────────────────┬─────────────────┘
@@ -91,7 +91,7 @@ SeaSight 与华为技术的结合是**一实三虚**：
   配置 ZIP；未配置 LLM，未跑通完整问答，非华为托管平台验收。
 - **华为托管平台验收（2026-09-29，登记号 R-NX-05）**：AgentArts（区域
   cn-southwest-2，账号 `hid_b7bcgi-i88yqw0x`）已注册
-  `SeaSight Domain Cognition MCP`，状态“部署成功”，工具列表加载 21 个只读
+  `Oceanus Domain Cognition MCP`，状态“部署成功”，工具列表加载 21 个只读
   工具；对同一公网端点执行 MCP 初始化、工具列表与 `knowledge_list_assets`
   真实只读调用，返回 total=4。界面截图见
   `artifacts/nexent-platform-acceptance/evidence/hosted-2026-09-29-mcp-tools-21.png`，

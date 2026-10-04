@@ -6,7 +6,7 @@
         <text class="login__logo-icon">◈</text>
       </view>
       <text class="login__title">探海灵眸</text>
-      <text class="login__subtitle">SeaSight · 海洋漂浮垃圾智能治理平台</text>
+      <text class="login__subtitle">Oceanus · 海漂垃圾全链路智能治理平台</text>
     </view>
 
     <!-- 表单卡片 -->
