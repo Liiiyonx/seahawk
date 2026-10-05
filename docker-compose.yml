@@ -126,6 +126,10 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - ./deploy/go2rtc/go2rtc.yaml:/config/go2rtc.yaml:ro
+      # ★ 演示视频源目录必须挂进容器：go2rtc 的 `ffmpeg:<path>` 源在**容器内**
+      #   解析路径。原配置只挂了 yaml，四路流全部读不到文件而报
+      #   NetworkError，治理大屏截图带整片报错区。
+      - ./deploy/go2rtc/demo:/config/demo:ro
     ports:
       - "1984:1984"   # API + Web UI
       - "8554:8554"   # RTSP 转发出口
