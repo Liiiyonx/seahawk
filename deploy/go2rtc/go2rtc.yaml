@@ -49,7 +49,7 @@ streams:
   CAM-HUANGQI-01: ffmpeg:/config/demo/huangqi.mp4#video=h264
   CAM-XIAOCHENG-01: ffmpeg:/config/demo/xiaochen.mp4#video=h264
   CAM-TAILU-01: ffmpeg:/config/demo/tailu.mp4#video=h264
-  CAM-ANKAI-01: ffmpeg:/config/demo/mabi.mp4#video=h264
+  CAM-ANKAI-01: ffmpeg:/config/demo/ankai.mp4#video=h264
   CAM-XIAGONG-01: ffmpeg:/config/demo/huangqi.mp4#video=h264
 
   # ---------- 机器人机载摄像头 ----------
