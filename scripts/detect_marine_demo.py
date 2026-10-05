@@ -83,7 +83,14 @@ def install_clip_shim(model_dir: Path) -> None:
         device: str | torch.device = "cpu",
         **_kwargs: Any,
     ) -> tuple[TransformersClip, None]:
-        model = CLIPModel.from_pretrained(str(model_dir))
+        # 本机 transformers 4.46.3 在 from_pretrained 内部读
+        # `metadata.get("format")` 时 metadata 可能是 None →
+        # AttributeError: 'NoneType' object has no attribute 'get'。
+        # 显式指定 use_safetensors 走 safetensors 加载路径，绕开该分支。
+        try:
+            model = CLIPModel.from_pretrained(str(model_dir), use_safetensors=True)
+        except (AttributeError, TypeError):
+            model = CLIPModel.from_pretrained(str(model_dir))
         return TransformersClip(model, torch.device(device)), None
 
     clip_module.load = load
@@ -156,8 +163,16 @@ def write_preview(
 def main() -> int:
     args = parse_args()
     clip_dir = Path(args.clip_dir).expanduser().resolve()
-    if not (clip_dir / "pytorch_model.bin").exists():
-        raise SystemExit(f"CLIP weights not found: {clip_dir / 'pytorch_model.bin'}")
+    # 本机 CLIP 缓存是 transformers 新版布局：只有 model.safetensors，没有
+    # pytorch_model.bin。两种布局都认，否则会误报「权重缺失」。
+    if not any(
+        (clip_dir / name).exists()
+        for name in ("pytorch_model.bin", "model.safetensors")
+    ):
+        raise SystemExit(
+            f"CLIP weights not found: {clip_dir / 'pytorch_model.bin'}"
+            f" 或 {clip_dir / 'model.safetensors'}"
+        )
 
     install_clip_shim(clip_dir)
     from ultralytics import YOLOWorld
