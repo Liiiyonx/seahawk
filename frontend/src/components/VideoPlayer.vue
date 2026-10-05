@@ -98,6 +98,43 @@ const boxArea = reactive({ w: 0, h: 0 })
 let player = null
 let resizeObserver = null
 
+// ---------- 停滞看门狗 ----------
+// 实测：go2rtc 播放本地 mp4 时每 20 秒一次文件循环，FLV 时间戳跳变累积
+// 1~2 分钟后 mpegts.js 会停止追帧，画面冻结在最后一帧（不报错、不黑屏，
+// 事件层看不到任何异常）。直播流的 currentTime 正常情况下每秒都在前进；
+// 连续 12 秒纹丝不动只可能是真停滞 —— 直接重建播放器自愈，比让评委
+// 盯着冻结画面强。真实摄像头码流抖动同样适用。
+const STALL_LIMIT = 6 // 6 × 2s = 12s 无进展即重连
+let lastCurrentTime = -1
+let stallCount = 0
+let watchdogTimer = null
+
+function startWatchdog() {
+  if (watchdogTimer) return
+  watchdogTimer = setInterval(() => {
+    const v = videoEl.value
+    if (!v || !playing.value) return
+    if (v.currentTime > 0 && v.currentTime === lastCurrentTime) {
+      if (++stallCount >= STALL_LIMIT) {
+        stallCount = 0
+        play()
+      }
+    } else {
+      stallCount = 0
+    }
+    lastCurrentTime = v.currentTime
+  }, 2000)
+}
+
+function stopWatchdog() {
+  if (watchdogTimer) {
+    clearInterval(watchdogTimer)
+    watchdogTimer = null
+  }
+  stallCount = 0
+  lastCurrentTime = -1
+}
+
 const boxes = computed(() => props.detections || [])
 const detectionCount = computed(() => boxes.value.length)
 
@@ -216,6 +253,7 @@ watch([() => props.streamUrl, () => props.deviceId], play)
 
 onMounted(() => {
   play()
+  startWatchdog()
   // 容器尺寸决定检测框落位：宫格切换、侧栏开合、窗口缩放都会改它
   if (rootEl.value && typeof ResizeObserver !== 'undefined') {
     boxArea.w = rootEl.value.clientWidth || 0
@@ -231,6 +269,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  stopWatchdog()
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
