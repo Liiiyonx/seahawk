@@ -98,23 +98,40 @@ class SourceFile:
 # 精选文件清单：前 30 页落在「入口 + 派单引擎 + Agent 运行时」，
 # 后 30 页落在「工单页面 + 实时通道 + API 封装」并以程序结尾收尾。
 CURATED_FILES: list[SourceFile] = [
-    SourceFile("backend/app/main.py", "平台应用入口（FastAPI lifespan 启动流程）"),
-    SourceFile("backend/app/services/dispatch.py", "事件派单引擎（五步筛选 + 防抖合并）"),
-    SourceFile("backend/app/services/agents/runtime.py", "智能体运行时内核"),
+    # ── 选材原则（P1-4 修���后的口径）──────────────────────────────
+    # 软著提交「前 30 页 + 后 30 页」。审查报告 P1-4 指出后 30 页
+    # 落在 .vue 的 CSS 规则上，观感是「排版样式」而非「业务逻辑」。
+    #
+    # 做法：**按行数从小到大排列业务逻辑文件**，让前 30 页落在派单引擎、
+    # 智能体规划与工具层；后 30 页（序列尾部）落在机械臂驱动、
+    # MQTT 处理、边缘检测 —— 全是业务逻辑，且体现最新工作。
+    # .vue 单文件组件放最后，仅在前两段都排不满时才轮到。
+    #
+    # 为什么不用「把 .vue 放最后」这一招：前 3 个文件合计 1899 行
+    # 已经吃掉 1500 行的前 30 页，尾部根本轮不到 .vue —— 实测确认。
+    # 必须靠**行数升序**来控制前后两段的落点。
+    SourceFile("frontend/src/api/http.js", "前端 API 封装"),
+    SourceFile("frontend/src/utils/realtime.js", "WebSocket 实时通道"),
     SourceFile("backend/app/services/agents/planner.py", "智能体规划器"),
-    SourceFile("backend/app/services/agents/tools.py", "智能体工具层"),
     SourceFile("backend/app/services/agents/memory.py", "智能体记忆"),
-    SourceFile("backend/app/services/knowledge.py", "知识智能体服务"),
-    SourceFile("backend/app/mqtt/handlers.py", "MQTT 消息处理"),
-    SourceFile("edge/main.py", "边缘感知程序入口（取流→检测→时序→上报）"),
+    SourceFile("frontend/src/stores/realtime.js", "前端实时状态仓库"),
+    SourceFile("backend/app/main.py", "平台应用入口（FastAPI lifespan 启动流程）"),
+    SourceFile("edge/arm_bridge/ros_driver.py", "机械臂 ROS 控制栈驱动"),
+    SourceFile("backend/app/services/agents/tools.py", "智能体工具层"),
+    SourceFile("edge/arm_bridge/bridge.py", "机械臂桥接与报文契约"),
+    SourceFile("backend/app/api/v1/simulations.py", "后端接口层（工单/轨迹/控制）"),
+    SourceFile("backend/app/services/dispatch.py", "事件派单引擎（五步筛选 + 防抖合并）"),
     SourceFile("edge/detector/detector.py", "边缘双通道检测器"),
+    SourceFile("edge/main.py", "边缘感知程序入口（取流→检测→时序→上报）"),
+    SourceFile("backend/app/mqtt/handlers.py", "MQTT 消息处理"),
+    SourceFile("backend/app/services/agents/model.py", "智能体模型定义"),
+    SourceFile("backend/app/services/agents/model_adapter.py", "智能体模型适配层"),
+    SourceFile("backend/app/services/agents/runtime.py", "智能体运行时内核"),
+    SourceFile("backend/app/services/knowledge.py", "知识智能体服务"),
     SourceFile("edge/simulator/simulator.py", "时序校验与边缘模拟"),
     SourceFile("frontend/src/views/DashboardView.vue", "前端大屏页面"),
     SourceFile("frontend/src/views/EventsView.vue", "前端事件页面"),
     SourceFile("frontend/src/views/TasksView.vue", "前端工单页面"),
-    SourceFile("frontend/src/stores/realtime.js", "前端实时状态仓库"),
-    SourceFile("frontend/src/utils/realtime.js", "WebSocket 实时通道"),
-    SourceFile("frontend/src/api/http.js", "前端 API 封装"),
 ]
 
 
