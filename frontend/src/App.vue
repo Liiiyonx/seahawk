@@ -12,14 +12,16 @@
 
       <nav class="nav">
         <RouterLink
-          v-for="r in navRoutes"
+          v-for="(r, idx) in navRoutes"
           :key="r.path"
           :to="r.path"
           class="nav__item"
           active-class="nav__item--active"
+          :title="idx < 9 ? `快捷键 ${idx + 1}` : undefined"
         >
           <span class="nav__icon">{{ r.meta.icon }}</span>
           <span>{{ r.meta.title }}</span>
+          <span v-if="idx < 9" class="nav__hint">{{ idx + 1 }}</span>
         </RouterLink>
       </nav>
 
@@ -285,6 +287,16 @@ function onDocumentKeydown(event) {
   if (event.key === 'Escape') {
     closeNotif()
     showMore.value = false
+    return
+  }
+  // 数字键 1-9 直达顶栏导航项（演示切页利器，参考 GitHub 的 g 系列快捷键）。
+  // 输入框内、带修饰键时不拦截，避免劫持正常输入与浏览器快捷键。
+  if (/^[1-9]$/.test(event.key) && !event.altKey && !event.ctrlKey && !event.metaKey) {
+    const el = event.target
+    const tag = el?.tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || el?.isContentEditable) return
+    const target = navRoutes[Number(event.key) - 1]
+    if (target && route.path !== target.path) router.push(target.path)
   }
 }
 
@@ -399,6 +411,29 @@ onUnmounted(() => {
   border-radius: var(--radius);
   transition: color 0.2s var(--ease), background 0.2s var(--ease);
   white-space: nowrap;
+}
+
+/* 数字键直达的键位提示：默认隐藏，悬停浮现——保持顶栏第一眼的简洁 */
+.nav__hint {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  min-width: 14px;
+  padding: 0 3px;
+  font-size: 10px;
+  line-height: 15px;
+  text-align: center;
+  color: var(--text-dim);
+  background: var(--bg-hover, rgba(127, 127, 127, 0.12));
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease);
+}
+
+.nav__item:hover .nav__hint {
+  opacity: 1;
 }
 
 /* 导航下划线动效 */
