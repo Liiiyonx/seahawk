@@ -2,7 +2,7 @@
   "cookies": [],
   "origins": [
     {
-      "origin": "http://127.0.0.1:5174",
+      "origin": "http://127.0.0.1:5173",
       "localStorage": [
         {
           "name": "seasight_theme",
@@ -10,7 +10,7 @@
         },
         {
           "name": "seasight_token",
-          "value": "eyJzdWIiOiAiYWRtaW4iLCAicm9sZSI6ICJhZG1pbiIsICJzY29wZSI6IG51bGwsICJleHAiOiAxNzg5OTA1Mjc0fQ.2e704217d51b3562e3dd3871826a1b52"
+          "value": "eyJzdWIiOiAiYWRtaW4iLCAicm9sZSI6ICJhZG1pbiIsICJzY29wZSI6IG51bGwsICJleHAiOiAxNzkxMjUyMzQwfQ.b2c6f85683f4d5e5c5cf9b8063c96fe6"
         },
         {
           "name": "seasight_user",

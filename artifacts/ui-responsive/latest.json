@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-28T03:41:03.085Z",
-  "frontend": "http://127.0.0.1:5174",
+  "generated_at": "2026-10-05T02:11:32.709Z",
+  "frontend": "http://127.0.0.1:5173",
   "results": [
     {
       "route": "/login",
@@ -223,8 +223,8 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
@@ -232,11 +232,6 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -274,20 +269,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -325,14 +322,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -341,11 +338,6 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -380,7 +372,7 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 1980
+          "scroll_height": 2352
         },
         "nav": {
           "client_width": 768,
@@ -399,11 +391,6 @@
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -437,31 +424,19 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 1957
+          "client_height": 832,
+          "scroll_height": 2425
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -495,31 +470,19 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 1957
+          "client_height": 780,
+          "scroll_height": 2425
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -553,31 +516,19 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 1921
+          "client_height": 676,
+          "scroll_height": 2389
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -611,31 +562,19 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 1921
+          "client_height": 504,
+          "scroll_height": 2389
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
       "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
         "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -673,23 +612,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-events.png"
     },
@@ -722,23 +653,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-events.png"
     },
@@ -771,14 +701,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -786,15 +716,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-events.png"
     },
@@ -824,7 +746,7 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 929
+          "scroll_height": 2203
         },
         "nav": {
           "client_width": 768,
@@ -848,15 +770,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-events.png"
     },
@@ -885,20 +799,14 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 842
+          "client_height": 832,
+          "scroll_height": 2436
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.panel.table-panel",
             "client_width": 388,
@@ -910,15 +818,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-events.png"
     },
@@ -947,20 +847,14 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 842
+          "client_height": 780,
+          "scroll_height": 2436
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.panel.table-panel",
             "client_width": 364,
@@ -972,15 +866,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-events.png"
     },
@@ -1009,20 +895,14 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 842
+          "client_height": 676,
+          "scroll_height": 2436
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.panel.table-panel",
             "client_width": 334,
@@ -1034,15 +914,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-events.png"
     },
@@ -1071,20 +943,14 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 842
+          "client_height": 504,
+          "scroll_height": 2436
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.panel.table-panel",
             "client_width": 294,
@@ -1096,15 +962,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-events.png"
     },
@@ -1137,23 +995,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-tasks.png"
     },
@@ -1186,23 +1036,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-tasks.png"
     },
@@ -1235,14 +1084,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -1250,15 +1099,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-tasks.png"
     },
@@ -1312,15 +1153,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-tasks.png"
     },
@@ -1349,40 +1182,19 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 799
+          "client_height": 832,
+          "scroll_height": 1915
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          },
-          {
-            "element": "div.kanban",
-            "client_width": 390,
-            "scroll_width": 1820,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-tasks.png"
     },
@@ -1411,40 +1223,19 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 747
+          "client_height": 780,
+          "scroll_height": 1915
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          },
-          {
-            "element": "div.kanban",
-            "client_width": 366,
-            "scroll_width": 1717,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks.png"
     },
@@ -1473,40 +1264,19 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 643
+          "client_height": 676,
+          "scroll_height": 1915
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          },
-          {
-            "element": "div.kanban",
-            "client_width": 336,
-            "scroll_width": 1588,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-tasks.png"
     },
@@ -1535,40 +1305,19 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 471
+          "client_height": 504,
+          "scroll_height": 1915
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          },
-          {
-            "element": "div.kanban",
-            "client_width": 296,
-            "scroll_width": 1416,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-tasks.png"
     },
@@ -1601,25 +1350,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-devices.png"
     },
@@ -1652,25 +1391,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-devices.png"
     },
@@ -1700,17 +1436,17 @@
           "client_width": 1280,
           "scroll_width": 1280,
           "client_height": 736,
-          "scroll_height": 736
+          "scroll_height": 825
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -1718,17 +1454,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-devices.png"
     },
@@ -1758,7 +1484,7 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 1009
+          "scroll_height": 1204
         },
         "nav": {
           "client_width": 768,
@@ -1776,17 +1502,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-devices.png"
     },
@@ -1815,36 +1531,19 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 983
+          "client_height": 832,
+          "scroll_height": 1205
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-devices.png"
     },
@@ -1873,36 +1572,19 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 983
+          "client_height": 780,
+          "scroll_height": 1205
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-devices.png"
     },
@@ -1931,36 +1613,19 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 953
+          "client_height": 676,
+          "scroll_height": 1175
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-devices.png"
     },
@@ -1989,36 +1654,19 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 953
+          "client_height": 504,
+          "scroll_height": 1175
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
-        "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          }
-        ],
+        "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-devices.png"
     },
@@ -2051,24 +1699,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-reports.png"
     },
@@ -2101,24 +1740,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-reports.png"
     },
@@ -2151,14 +1788,14 @@
           "scroll_height": 769
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -2166,16 +1803,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-reports.png"
     },
@@ -2229,16 +1857,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-reports.png"
     },
@@ -2267,20 +1886,14 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 1503
+          "client_height": 832,
+          "scroll_height": 1563
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "section.panel.table-panel",
             "client_width": 388,
@@ -2292,16 +1905,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-reports.png"
     },
@@ -2330,20 +1934,14 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 1503
+          "client_height": 780,
+          "scroll_height": 1563
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "section.panel.table-panel",
             "client_width": 364,
@@ -2355,16 +1953,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-reports.png"
     },
@@ -2393,20 +1982,14 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 1522
+          "client_height": 676,
+          "scroll_height": 1582
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "section.panel.table-panel",
             "client_width": 334,
@@ -2418,16 +2001,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-reports.png"
     },
@@ -2456,20 +2030,14 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 1522
+          "client_height": 504,
+          "scroll_height": 1582
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "section.panel.table-panel",
             "client_width": 294,
@@ -2481,16 +2049,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-reports.png"
     },
@@ -2523,23 +2082,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-agents.png"
     },
@@ -2572,23 +2123,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-agents.png"
     },
@@ -2621,14 +2171,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -2636,15 +2186,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-agents.png"
     },
@@ -2674,7 +2216,7 @@
           "client_width": 768,
           "scroll_width": 768,
           "client_height": 929,
-          "scroll_height": 4047
+          "scroll_height": 3963
         },
         "nav": {
           "client_width": 768,
@@ -2692,15 +2234,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-agents.png"
     },
@@ -2729,20 +2263,14 @@
         "main": {
           "client_width": 414,
           "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 4828
+          "client_height": 832,
+          "scroll_height": 4757
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.table-scroll",
             "client_width": 388,
@@ -2754,15 +2282,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-agents.png"
     },
@@ -2791,20 +2311,14 @@
         "main": {
           "client_width": 390,
           "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 4902
+          "client_height": 780,
+          "scroll_height": 4831
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.table-scroll",
             "client_width": 364,
@@ -2816,15 +2330,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-agents.png"
     },
@@ -2853,20 +2359,14 @@
         "main": {
           "client_width": 360,
           "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 5077
+          "client_height": 676,
+          "scroll_height": 4987
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.table-scroll",
             "client_width": 334,
@@ -2878,15 +2378,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-agents.png"
     },
@@ -2915,20 +2407,14 @@
         "main": {
           "client_width": 320,
           "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 5271
+          "client_height": 504,
+          "scroll_height": 5162
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "div.table-scroll",
             "client_width": 294,
@@ -2940,15 +2426,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-agents.png"
     },
@@ -2981,25 +2459,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-knowledge.png"
     },
@@ -3032,25 +2500,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-knowledge.png"
     },
@@ -3080,17 +2545,17 @@
           "client_width": 1280,
           "scroll_width": 1280,
           "client_height": 736,
-          "scroll_height": 736
+          "scroll_height": 758
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -3098,17 +2563,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-knowledge.png"
     },
@@ -3136,9 +2591,9 @@
         "body_scroll_width": 768,
         "main": {
           "client_width": 768,
-          "scroll_width": 768,
+          "scroll_width": 933,
           "client_height": 929,
-          "scroll_height": 929
+          "scroll_height": 997
         },
         "nav": {
           "client_width": 768,
@@ -3150,23 +2605,19 @@
             "client_width": 768,
             "scroll_width": 907,
             "scrollable": true
+          },
+          {
+            "element": "main.layout__main",
+            "client_width": 768,
+            "scroll_width": 933,
+            "scrollable": true
           }
         ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-knowledge.png"
     },
@@ -3194,19 +2645,19 @@
         "body_scroll_width": 414,
         "main": {
           "client_width": 414,
-          "scroll_width": 414,
-          "client_height": 799,
-          "scroll_height": 824
+          "scroll_width": 933,
+          "client_height": 832,
+          "scroll_height": 1202
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
           {
-            "element": "nav.nav",
+            "element": "main.layout__main",
             "client_width": 414,
-            "scroll_width": 907,
+            "scroll_width": 933,
             "scrollable": true
           }
         ],
@@ -3214,17 +2665,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-knowledge.png"
     },
@@ -3252,19 +2693,19 @@
         "body_scroll_width": 390,
         "main": {
           "client_width": 390,
-          "scroll_width": 390,
-          "client_height": 747,
-          "scroll_height": 824
+          "scroll_width": 933,
+          "client_height": 780,
+          "scroll_height": 1202
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
           {
-            "element": "nav.nav",
+            "element": "main.layout__main",
             "client_width": 390,
-            "scroll_width": 907,
+            "scroll_width": 933,
             "scrollable": true
           }
         ],
@@ -3272,17 +2713,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-knowledge.png"
     },
@@ -3310,19 +2741,19 @@
         "body_scroll_width": 360,
         "main": {
           "client_width": 360,
-          "scroll_width": 360,
-          "client_height": 643,
-          "scroll_height": 824
+          "scroll_width": 933,
+          "client_height": 676,
+          "scroll_height": 1202
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
           {
-            "element": "nav.nav",
+            "element": "main.layout__main",
             "client_width": 360,
-            "scroll_width": 907,
+            "scroll_width": 933,
             "scrollable": true
           }
         ],
@@ -3330,17 +2761,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-knowledge.png"
     },
@@ -3368,19 +2789,19 @@
         "body_scroll_width": 320,
         "main": {
           "client_width": 320,
-          "scroll_width": 320,
-          "client_height": 471,
-          "scroll_height": 824
+          "scroll_width": 933,
+          "client_height": 504,
+          "scroll_height": 1202
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
           {
-            "element": "nav.nav",
+            "element": "main.layout__main",
             "client_width": 320,
-            "scroll_width": 907,
+            "scroll_width": 933,
             "scrollable": true
           }
         ],
@@ -3388,17 +2809,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-knowledge.png"
     },
@@ -3431,23 +2842,15 @@
           "scroll_height": 1016
         },
         "nav": {
-          "client_width": 1104,
-          "scroll_width": 1104
+          "client_width": 1069,
+          "scroll_width": 1069
         },
         "scroll_containers": [],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1920x1080-assistant.png"
     },
@@ -3480,23 +2883,22 @@
           "scroll_height": 836
         },
         "nav": {
-          "client_width": 624,
-          "scroll_width": 754
+          "client_width": 720,
+          "scroll_width": 907
         },
-        "scroll_containers": [],
+        "scroll_containers": [
+          {
+            "element": "nav.nav",
+            "client_width": 720,
+            "scroll_width": 907,
+            "scrollable": true
+          }
+        ],
         "clipped_panels": [],
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1440x900-assistant.png"
     },
@@ -3529,14 +2931,14 @@
           "scroll_height": 736
         },
         "nav": {
-          "client_width": 599,
-          "scroll_width": 847
+          "client_width": 572,
+          "scroll_width": 871
         },
         "scroll_containers": [
           {
             "element": "nav.nav",
-            "client_width": 599,
-            "scroll_width": 847,
+            "client_width": 572,
+            "scroll_width": 871,
             "scrollable": true
           }
         ],
@@ -3544,15 +2946,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\1280x800-assistant.png"
     },
@@ -3600,15 +2994,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\768x1024-assistant.png"
     },
@@ -3637,20 +3023,14 @@
         "main": {
           "client_width": 414,
           "scroll_width": 446,
-          "client_height": 799,
-          "scroll_height": 799
+          "client_height": 832,
+          "scroll_height": 832
         },
         "nav": {
-          "client_width": 414,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 414,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "main.layout__main",
             "client_width": 414,
@@ -3668,15 +3048,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\414x896-assistant.png"
     },
@@ -3705,20 +3077,14 @@
         "main": {
           "client_width": 390,
           "scroll_width": 446,
-          "client_height": 747,
-          "scroll_height": 747
+          "client_height": 780,
+          "scroll_height": 780
         },
         "nav": {
-          "client_width": 390,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 390,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "main.layout__main",
             "client_width": 390,
@@ -3736,15 +3102,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-assistant.png"
     },
@@ -3773,20 +3131,14 @@
         "main": {
           "client_width": 360,
           "scroll_width": 446,
-          "client_height": 643,
-          "scroll_height": 643
+          "client_height": 676,
+          "scroll_height": 676
         },
         "nav": {
-          "client_width": 360,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 360,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "main.layout__main",
             "client_width": 360,
@@ -3804,15 +3156,7 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\360x740-assistant.png"
     },
@@ -3841,20 +3185,14 @@
         "main": {
           "client_width": 320,
           "scroll_width": 446,
-          "client_height": 471,
-          "scroll_height": 535
+          "client_height": 504,
+          "scroll_height": 504
         },
         "nav": {
-          "client_width": 320,
-          "scroll_width": 907
+          "client_width": 0,
+          "scroll_width": 0
         },
         "scroll_containers": [
-          {
-            "element": "nav.nav",
-            "client_width": 320,
-            "scroll_width": 907,
-            "scrollable": true
-          },
           {
             "element": "main.layout__main",
             "client_width": 320,
@@ -3878,22 +3216,37 @@
         "clipped_controls": [],
         "offscreen_text": []
       },
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
-      ],
+      "console_errors": [],
       "page_errors": [],
       "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\320x568-assistant.png"
     },
     {
-      "skipped": [
-        "task drawer: /tasks 未渲染任务卡片（后端未在线或无数据）"
-      ],
+      "skipped": [],
+      "drawer": {
+        "layout": {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "document_scroll_width": 390,
+          "body_scroll_width": 390,
+          "main": {
+            "client_width": 390,
+            "scroll_width": 390,
+            "client_height": 780,
+            "scroll_height": 1915
+          },
+          "nav": {
+            "client_width": 0,
+            "scroll_width": 0
+          },
+          "scroll_containers": [],
+          "clipped_panels": [],
+          "clipped_controls": [],
+          "offscreen_text": []
+        },
+        "screenshot": "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\ui-responsive\\390x844-tasks-drawer.png"
+      },
       "notifications": {
         "layout": {
           "viewport": {
@@ -3905,27 +3258,14 @@
           "main": {
             "client_width": 390,
             "scroll_width": 390,
-            "client_height": 747,
-            "scroll_height": 747
+            "client_height": 780,
+            "scroll_height": 1915
           },
           "nav": {
-            "client_width": 390,
-            "scroll_width": 907
+            "client_width": 0,
+            "scroll_width": 0
           },
-          "scroll_containers": [
-            {
-              "element": "nav.nav",
-              "client_width": 390,
-              "scroll_width": 907,
-              "scrollable": true
-            },
-            {
-              "element": "div.kanban",
-              "client_width": 366,
-              "scroll_width": 1717,
-              "scrollable": true
-            }
-          ],
+          "scroll_containers": [],
           "clipped_panels": [],
           "clipped_controls": [],
           "offscreen_text": []
