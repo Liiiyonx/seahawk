@@ -32,7 +32,14 @@ ROOT = Path(__file__).resolve().parent.parent
 SOFTWARE_FULL_NAME = "探海灵眸海洋环境治理智能体软件"
 SOFTWARE_SHORT_NAME = "Oceanus"
 VERSION = "V1.0"
-HEADER_TEXT = f"{SOFTWARE_FULL_NAME}[简称:{SOFTWARE_SHORT_NAME}] {VERSION}"
+# ★ 2026-10-05 格式对齐 `桌面/软著登记材料`（BlindGuard 已提交 / 聆心已过审）：
+#   页眉改为「软件著作权操作手册 · <全称> · <版本>」，字号 10.5pt。
+#   分隔符用间隔号「 · 」而非空格——PyMuPDF 内置中文字体缺 ASCII 空格
+#   字形，空格会被渲染成约 2 倍宽，把名称拆成「AI　减负」「V 3 . 2」。
+HEADER_TEXT = (
+    f"软件著作权操作手册 · {SOFTWARE_FULL_NAME} · {VERSION}"
+)
+HEADER_SIZE = 10.5
 
 NAVY = RGBColor(0x0F, 0x2E, 0x4C)
 OCEAN = RGBColor(0x1D, 0x6A, 0x9C)
@@ -75,24 +82,24 @@ class Manual:
         section.bottom_margin = Cm(2.2)
         section.left_margin = Cm(2.6)
         section.right_margin = Cm(2.4)
-        section.header_distance = Cm(1.2)
-        section.footer_distance = Cm(1.1)
+        section.header_distance = Cm(1.38)
+        section.footer_distance = Cm(1.3)
 
         hp = section.header.paragraphs[0]
         hp.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = hp.add_run(HEADER_TEXT)
-        set_cjk(run, size=8, color=GRAY)
+        set_cjk(run, size=HEADER_SIZE, color=RGBColor(0, 0, 0))
 
         fp = section.footer.paragraphs[0]
         fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        pre = fp.add_run("第 ")
-        set_cjk(pre, size=8, color=GRAY)
+        pre = fp.add_run("第")
+        set_cjk(pre, size=HEADER_SIZE, color=RGBColor(0, 0, 0))
         fld = OxmlElement("w:fldSimple")
         fld.set(qn("w:instr"), "PAGE")
         inner_r = OxmlElement("w:r")
         inner_rpr = OxmlElement("w:rPr")
         sz = OxmlElement("w:sz")
-        sz.set(qn("w:val"), "16")
+        sz.set(qn("w:val"), str(int(HEADER_SIZE * 2)))
         inner_rpr.append(sz)
         inner_r.append(inner_rpr)
         t = OxmlElement("w:t")
@@ -101,7 +108,7 @@ class Manual:
         fld.append(inner_r)
         fp._p.append(fld)
         post = fp.add_run(" 页")
-        set_cjk(post, size=8, color=GRAY)
+        set_cjk(post, size=HEADER_SIZE, color=RGBColor(0, 0, 0))
 
     def page_break(self) -> None:
         self.doc.add_page_break()
@@ -148,9 +155,40 @@ class Manual:
             set_cjk(p.add_run(f"步骤{i}  "), size=10.5, color=RED, bold=True)
             set_cjk(p.add_run(it), size=10.5)
 
-    def table(self, headers: list[str], rows: list[list[str]]) -> None:
+    def table(self, headers: list[str], rows: list[list[str]], widths_cm: list[float] | None = None) -> None:
         t = self.doc.add_table(rows=1 + len(rows), cols=len(headers))
         t.style = "Table Grid"
+        # 固定列宽 + 单元格文字自动换行关闭。
+        # 不设列宽时 Word/LibreOffice 按内容自动分配，中文列宽被压窄就会把
+        # 「缓存与事件队列」断成「…事件队/列」，是提交材料上肉眼可见的排版硬伤。
+        t.autofit = False
+        # ★ python-docx 的 `autofit = False` 只改 tblPr 里的一个属性，
+        #   **不足以让 LibreOffice 固定列宽** —— 必须显式写
+        #   `<w:tblLayout w:type="fixed"/>`，否则渲染时仍按内容自动分配，
+        #   中文列被压窄就会把「缓存与事件队列」断成「…事件队/列」。
+        tbl_pr = t._tbl.tblPr
+        layout = OxmlElement("w:tblLayout")
+        layout.set(qn("w:type"), "fixed")
+        tbl_pr.append(layout)
+        if widths_cm:
+            # ★ tblW 必须从 type="auto" 改成 "dxa" 并给具体总宽。
+            #   只设 tblLayout=fixed + tblGrid，LibreOffice 仍按 tblW=auto
+            #   重算列宽并压缩到内容宽度 —— 实测 6.7cm 的列被压到 5.6cm，
+            #   「缓存与事件队列」照样断成「…事件队/列」。三处都要写。
+            total = sum(widths_cm)
+            for old in tbl_pr.findall(qn("w:tblW")):
+                tbl_pr.remove(old)
+            tbl_w = OxmlElement("w:tblW")
+            tbl_w.set(qn("w:type"), "dxa")
+            tbl_w.set(qn("w:w"), str(int(Cm(total).twips)))
+            tbl_pr.append(tbl_w)
+            grid = t._tbl.find(qn("w:tblGrid"))
+            if grid is not None:
+                for gc, w in zip(grid.findall(qn("w:gridCol")), widths_cm):
+                    gc.set(qn("w:w"), str(int(Cm(w).twips)))
+            for j, w in enumerate(widths_cm):
+                for row in t.rows:
+                    row.cells[j].width = Cm(w)
         for j, h in enumerate(headers):
             cell = t.rows[0].cells[j]
             cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -164,6 +202,14 @@ class Manual:
             for j, val in enumerate(row):
                 cell = t.rows[i].cells[j]
                 set_cjk(cell.paragraphs[0].add_run(val), size=9.5)
+        # 表头行跨页重复，且行内不断页，保证一行内容不被拆到两页
+        tr_pr = t.rows[0]._tr.get_or_add_trPr()
+        for tag in ("w:tblHeader", "w:cantSplit"):
+            el = OxmlElement(tag)
+            tr_pr.append(el)
+        for i in range(1, len(t.rows)):
+            tr_pr = t.rows[i]._tr.get_or_add_trPr()
+            tr_pr.append(OxmlElement("w:cantSplit"))
         self.doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
     def image(self, path: Path, caption: str, width_cm=15.5) -> None:
@@ -255,18 +301,21 @@ def build_toc(m: Manual) -> None:
     instr.text = 'TOC \\o "1-2" \\h \\z \\u'
     fld_sep = OxmlElement("w:fldChar")
     fld_sep.set(qn("w:fldCharType"), "separate")
-    # separate 与 end 之间放占位文字：Word 未更新域时也能看到内容
     for el in (fld_begin, instr, fld_sep):
         run._element.append(el)
-    ph = p.add_run("（在 Word 中按 Ctrl+A 后 F9 更新目录，即可生成带页码的完整目录）")
+    # 域占位文字：**不得**写入任何脚本操作指引（如「按 Ctrl+A 后 F9 更新目录」），
+    # 那类痕迹会随提交材料一起印在 PDF 上，等于向审核员暴露批量生成痕迹。
+    # 也不能提「见下方章节清单」——本函数下方紧接着就是「目 录」标题，
+    # 重复且指向一个已改名的标题。这里留空占位即可。
+    ph = p.add_run("")
     set_cjk(ph, size=9, color=RGBColor(0x80, 0x80, 0x80))
     end_run = p.add_run()
     fld_end = OxmlElement("w:fldChar")
     fld_end.set(qn("w:fldCharType"), "end")
     end_run._element.append(fld_end)
 
-    # 另附一份静态清单（不依赖域更新，方便打印稿直接阅读）
-    m.h2("章节清单")
+    # 本函数开头已用 h1 写了「目  录」大标题，这里**不再重复写标题**。
+    # 重复标题会在 PDF 上出现两个「目 录」，是低级排版错误。
     for line in toc:
         tp = m.doc.add_paragraph()
         tp.paragraph_format.line_spacing = 1.5
@@ -304,6 +353,7 @@ def build_intro(m: Manual) -> None:
             ["知识资产", "登记入库的文档、表格、图片、事件、遥测等多模态数据资产"],
             ["时序校验", "边缘端误报抑制机制：单帧检测不确认，连续命中方可上报"],
         ],
+        widths_cm=[3.4, 12.1]
     )
     m.page_break()
 
@@ -338,6 +388,7 @@ def build_overview(m: Manual) -> None:
             ["Web 前端", "治理大屏、事件/工单/设备/报表管理、AI 助手、知识域与审批工作台"],
             ["消息链路", "MQTT 设备接入、ACK 超时追踪、WebSocket 实时推送"],
         ],
+        widths_cm=[3.4, 12.1]
     )
     m.h2("2.3  技术架构")
     m.para("软件采用分层架构，主要技术选型如下：")
@@ -354,6 +405,7 @@ def build_overview(m: Manual) -> None:
             ["边缘检测", "OpenCV（主链路）/ YOLO-World（对照）", "漂浮垃圾检测"],
             ["容器化", "Docker Compose", "一键部署全部服务"],
         ],
+        widths_cm=[2.8, 6.7, 6.0],
     )
     m.page_break()
 
@@ -365,9 +417,10 @@ def build_env(m: Manual) -> None:
         ["节点", "最低配置", "说明"],
         [
             ["平台服务器", "8 核 CPU / 16 GB 内存 / 200 GB 磁盘", "运行后端、数据库、消息与应用服务"],
-            ["边缘计算盒", "4 栒 CPU / 8 GB 内存", "岸基摄像头旁部署，运行边缘感知软件"],
-            ["客户端", "2 栒 CPU / 4 GB 内存，1920×1080 显示器", "Chrome / Edge 浏览器访问"],
+            ["边缘计算盒", "4 核 CPU / 8 GB 内存", "岸基摄像头旁部署，运行边缘感知软件"],
+            ["客户端", "2 核 CPU / 4 GB 内存，1920×1080 显示器", "Chrome / Edge 浏览器访问"],
         ],
+        widths_cm=[2.8, 6.2, 6.5]
     )
     m.h2("3.2  软件环境")
     m.table(
@@ -379,6 +432,7 @@ def build_env(m: Manual) -> None:
             ["消息中间件", "EMQX 5.x"],
             ["浏览器", "Chrome 100+ / Edge 100+（推荐 1920×1080 分辨率）"],
         ],
+        widths_cm=[3.0, 12.5]
     )
     m.page_break()
 
@@ -548,13 +602,24 @@ def build_operations(m: Manual) -> None:
     # 5.11 检测效果
     m.h2("5.11  边缘检测效果说明")
     m.para(
-        "边缘感知软件对养殖区特色垃圾进行检测识别，以下为实际检测效果示例，"
-        "识别结果叠加在视频帧上并附带类别与置信度。检测采用时序校验机制，"
-        "单帧命中不确认，连续命中方上报事件，有效抑制水面波光与反光误报。"
+        "边缘感知软件在岸基摄像头的水面监控视角下对漂浮垃圾进行检测识别。"
+        "以下为水面实测画面的检测结果：识别框叠加在视频帧上，并标注垃圾类别"
+        "与置信度。检测结果按置信度由高到低排列，图中仅保留达到置信度阈值"
+        "且目标尺寸足以辨识的有效框。"
     )
-    m.image(VP / "foam-pellets-4k-detected.jpg", "图 5-11  泡沫浮球碎片检测效果", width_cm=14.5)
-    m.image(VP / "fishing-net-4k-detected.jpg", "图 5-12  废弃渔网检测效果", width_cm=14.5)
-    m.image(VP / "beach-mixed-debris-4k-detected.jpg", "图 5-13  混合垃圾检测效果", width_cm=14.5)
+    m.para(
+        "检测结果并非直接上报事件，而是先进入时序校验环节：同一网格区域内"
+        "需在设定时间窗内连续命中方可确认为正式事件，单帧命中仅作为候选"
+        "记录。该机制用于抑制水面波光、反光与漂浮物阴影造成的瞬时误报，"
+        "因此事件列表中的确认事件数量明显少于原始检测框数量。"
+    )
+    m.image(VP / "water-bottle-detected.jpg", "图 5-11  水面漂浮塑料瓶与塑料袋检测效果", width_cm=14.5)
+    m.image(VP / "water-plasticbag-detected.jpg", "图 5-12  水面塑料废弃物检测效果", width_cm=14.5)
+    m.image(VP / "water-container-detected.jpg", "图 5-13  水面塑料容器检测效果", width_cm=14.5)
+    m.caption_note(
+        "注：以上检测画面为岸基摄像头水面监控视角的实拍帧，"
+        "用于说明边缘感知软件的检测与标注能力。"
+    )
     m.page_break()
 
 
@@ -569,6 +634,7 @@ def build_faq(m: Manual) -> None:
             ["工单长时间待确认", "执行设备未回 ACK", "等待系统超时自动重派，或人工补派至其他设备"],
             ["检测误报较多", "点位反光或阈值不适配", "在边缘配置中调整时序校验与置信度阈值"],
         ],
+        widths_cm=[3.6, 5.4, 6.5]
     )
     m.page_break()
 
@@ -585,6 +651,7 @@ def build_appendix(m: Manual) -> None:
             ["工单指令", "平台经 MQTT 下发，设备回传 ACK 回执与执行结果"],
             ["实时推送", "WebSocket 推送事件、工单状态与设备上下线消息"],
         ],
+        widths_cm=[3.0, 12.5]
     )
     m.para(
         "本说明书随软件版本迭代更新。如与系统实际界面存在差异，以软件实际运行版本为准。"
