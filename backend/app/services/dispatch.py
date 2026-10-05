@@ -159,7 +159,7 @@ async def finalize_dispatch(task: Task) -> None:
     else:
         logger.warning(f"[派单] 任务 {task.task_id} 没有绑定机器人，跳过下发指令")
 
-    # ★ 四个字段一个都不能少（契约真源：docs/api.md §「服务端推送消息」）
+    # ★ 四个字段一个都不能少（服务端推送消息契约）
     await ws_manager.push_task_update(
         {
             "task_id": task.task_id,
@@ -193,9 +193,8 @@ class DispatchEngine:
         返回创建的 Task；若合并到已有任务则返回该任务；
         若该事件已有在途任务则返回 None。
 
-        ★ 无可用机器人时**抛** `NoRobotAvailableError`（不是返回 None）。
-        这里曾写成「返回 None」，与实现不符——照着 docstring 写调用方
-        就不会 try/except，异常会一路穿到 HTTP 层变成 500。
+        ★ 无可用机器人时**抛** `NoRobotAvailableError`（不是返回 None），
+        调用方须 try/except 捕获，否则异常会一路穿到 HTTP 层变成 500。
         """
         # ---------- 前置：防重复派单 ----------
         if await self.tasks.has_active_task_for_event(event.event_id):
@@ -330,16 +329,9 @@ class DispatchEngine:
     async def _class_match_weight(self, event: Event, robot_id: str) -> int:
         """类别匹配加权：0=该机器人已在处理同类别任务（更优），1=普通。
 
-        ★ 必须**两两比对** event 与机器人现有任务的类别。
-
-        这里曾写成 `return 0 if event.main_class == FOAM else 1` ——
-        收了 `task` 形参却从未使用，于是加权退化成「按事件类别给常量」，
-        与机器人手上在跑什么完全无关。后果：
-          a. 文档承诺的「同类别顺路复用」**从未生效**（空驶优化是空的）；
-          b. 因为返回的常量对同一 event 的所有候选机器人完全相同，
-             排序实际只剩「距离」一维 —— 看起来在工作，实则白算。
-
-        任务的类别取自它关联事件的 `main_class`。
+        ★ 必须**两两比对** event 与机器人现有任务的类别，任务类别
+        取自它关联事件的 `main_class`。返回值参与候选排序：
+        类别匹配优先（0 优于 1），其次距离最近。
         """
         active_tasks = await self.tasks.list_active_tasks_for_robot(robot_id)
         if not active_tasks:
@@ -472,16 +464,11 @@ class DispatchEngine:
         扫描**两类**对象，两类都要覆盖：
 
             1. `t_event` 中状态仍为 `new` 的高优先级事件 ——
-               当初无可用机器人，事件保持 new；机器人上线后由
+               派单时无可用机器人，事件保持 new；机器人上线后由
                `dispatch_for_event` 建一条**新**任务派出去；
             2. `t_task` 中 `status='pending' AND robot_id IS NULL` 的工单 ——
                **人工建单**（`POST /tasks` 不指定机器人）产生的工单。
                它们 `event_id` 为 NULL，没有任何事件可扫，第一类永远扫不到。
-
-        ★ 第二类是 2026-09-27 线上验收发现的缺陷（报告 P1-3）：
-            人工建单 → 点「触发补派」→ 接口回 `{"dispatched": 0}` 且提示
-            「完成补派 0 个任务」，工单永远停在待派单，既不报错也不留日志。
-            根因就是这里只扫了事件表。
 
         两类共用同一处收尾（见下方注释），调用方无需区分来源。
         """

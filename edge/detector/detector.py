@@ -1,34 +1,18 @@
 """OpenCV 海漂垃圾检测器 —— 不依赖训练数据的识别方案。
 
-为什么有这个模块
-----------------
-原本的识别路线是 YOLO11s + ONNX，但它的前置依赖是**数据集**：
-`ml/configs/seasight.yaml` 的 stats 至今是 0（一张图都没采）。
-采集 → 标注 → 训练 → 导出 → 边缘部署，整条链 3~4 周且受天气与出海排期
-支配，任何一环卡住全线停摆。
-
-而 OpenCV 传统视觉方案的**数据依赖是 0**：不需要一张标注图，
-今天写完明天就能在真实画面上跑出真实检测框。
-
-它靠什么把"不准"这件事兜住
----------------------------
-**下游的时序校验器**（`edge/simulator/simulator.py` 的 `TemporalValidator`）。
-设计文档 §2.3 写得很清楚：原始检测 5772 条 → 确认事件 52 条，抑制率 42%。
-也就是说，架构上**本来就是按"检测器会误报"设计的** —— 本模块只是把
-一个高质量检测器换成一个低质量但零成本的检测器，误报由同一道闸压住。
-
-真要换回 YOLO 怎么办
---------------------
-本模块的输出契约与 `backend/app/services/ai/server.py` 的 detections
-**完全一致**（`{class, confidence, bbox:[x1,y1,x2,y2]}`），
-下游（时序校验 → MQTT 上报 → 派单 → 大屏）一行都不用改。
-换模型只要换掉这一个类的 `detect()`。
+识别采用背景差分与颜色/纹理双通道，不依赖标注数据集与模型训练，可直接
+在边缘设备部署。原始检测允许存在一定误报，由下游时序校验器
+（`edge/simulator/simulator.py` 的 `TemporalValidator`）做时序抑制，
+连续多帧确认后才生成事件。
 
 输出契约
 --------
     [{"class": "foam", "confidence": 0.72, "bbox": [x1, y1, x2, y2]}, ...]
 
-`bbox` 是**设备原始分辨率下的像素坐标、原点左上**，与 mqtt-topics.md 一致。
+`bbox` 是**设备原始分辨率下的像素坐标、原点左上**。输出结构与
+`backend/app/services/ai/server.py` 的 detections **完全一致**
+（`{class, confidence, bbox:[x1,y1,x2,y2]}`），下游（时序校验 → MQTT
+上报 → 派单 → 大屏）一行都不用改，更换识别实现只需替换本类的 `detect()`。
 """
 
 from __future__ import annotations
@@ -39,17 +23,15 @@ from typing import Any
 import cv2
 import numpy as np
 
-# 类别定义 —— 顺序即类别索引，必须与以下三处逐项一致：
+# 类别定义 —— 顺序即类别索引，必须与以下两处逐项一致：
 #   1. ml/configs/seasight.yaml           的 names
 #   2. backend/app/services/ai/server.py  的 CLASS_NAMES
-#   3. docs/software-design.md            的类别定义
-# 第四处定义很容易与前四处漂移，所以 tests 里有断言把这几处钉在一起。
+# 多处定义容易漂移，tests 里有断言把这几处钉在一起。
 CLASS_NAMES = ["foam", "plastic", "fishing_gear", "other"]
 
 
 # 参数默认值 —— ★ 必须与 edge/config.yaml 的 detector 段逐项一致。
-# 项目踩过的坑（见 docs/decisions.md）：默认值散落在代码里，
-# 而 config.yaml 里改了却因为实例化时漏传不生效 —— 且不报错。
+# 默认值若只散落在代码里，config.yaml 修改后会因实例化漏传而不生效，
 # 所以这里每一个默认值都在测试里与 config.yaml 对账。
 DEFAULT_CONFIG: dict[str, Any] = {
     "background": {
@@ -103,9 +85,8 @@ def _get(config: dict[str, Any] | None, section: str, key: str) -> Any:
     """从配置取值，缺失或配置未给该段时回落到默认。
 
     为什么逐键回退而不是整体 `config or DEFAULT_CONFIG`：
-    真实边缘盒上的 config.yaml 很可能是旧版（少几个新加的键），
-    整体回退会让运维在 yaml 里改的参数**静默失效** ——
-    这正是本项目反复出现的缺陷形状。
+    部署现场的 config.yaml 可能缺少部分新增键，整体回退会让运维
+    在 yaml 里改的参数**静默失效**，逐键回退则新旧配置都能生效。
     """
     if config:
         sec = config.get(section)
@@ -356,7 +337,7 @@ class CvDetector:
         有彩度（塑料）再次；都不像就归 other。
 
         匹配度不是概率，是"离该类规则中心有多近"的可解释打分，
-        现场答辩可以直接把阈值调给评委看。
+        各类别的判定阈值均可在配置中直接调整。
         """
         fg_cfg = _get(self.config, "classifier", "fishing_gear")
         foam_cfg = _get(self.config, "classifier", "foam")
