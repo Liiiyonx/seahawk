@@ -44,7 +44,9 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      # 宿主机 6379 常被本地 Nexent 栈占用；容器间通信用内部 DNS（redis:6379），
+      # 宿主端口仅调试用，错开到 6380 即可，改回需先停 Nexent。
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -203,7 +205,9 @@ services:
       # 它们靠 `Path(__file__).parents[4]` 反推仓库根，容器内即 `/`，故挂到 /edge。
       - ./edge:/edge:ro
     ports:
-      - "8000:8000"
+      # 宿主机 8000 被 supabase-kong-mini 占用；容器间调用走内部 DNS
+      # （backend:8000），宿主端口仅调试用。
+      - "18000:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     networks: [seasight]
 
@@ -249,7 +253,12 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_BASE_URL: http://localhost:8000
+      # ★ vite.config.js 的 dev 代理读 VITE_BACKEND_URL / VITE_STREAM_URL（loadEnv
+      #   前缀为空串，会合并进程环境变量）。此前写的 VITE_API_BASE_URL 从未被
+      #   任何代码读取，代理目标回落到 localhost:8000 —— 在容器内指向前端自身，
+      #   API 代理全部 500。必须用 compose 网络内的服务名，而不是宿主端口。
+      VITE_BACKEND_URL: http://backend:8000
+      VITE_STREAM_URL: http://go2rtc:1984
       TZ: Asia/Shanghai
     volumes:
       - ./frontend:/app
