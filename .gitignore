@@ -183,3 +183,16 @@ frontend/dist-probe/
 frontend/dist-nx/
 frontend/dist-tele/
 frontend/dist-tele2/
+frontend/dist-clean/
+
+# D_six 批量检测探针的工作目录：detected 预览与批次报告属中间产物，
+# 需要留存的检测效果帧已显式提交到 artifacts/vision-preview/
+.d_six_probe/
+
+# 厂商课程资料（scripts/fetch_remote_zip_members.py 可按需重新抓取）：
+# 第三方版权材料，仓库计划开源发布，不入库
+artifacts/vendor-docs/
+
+# vision-preview 只入库检测产出图与标定记录；image (N).jpg 是原始抓取样张，
+# 体积大且可重新下载
+artifacts/vision-preview/image*
