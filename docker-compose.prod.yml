@@ -138,6 +138,10 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - ./deploy/go2rtc/go2rtc.yaml:/config/go2rtc.yaml:ro
+      # ★ 演示视频源目录必须挂进容器：`ffmpeg:<path>` 源在容器内解析路径。
+      #   只挂 yaml 不挂 demo 目录时，六路流全部读不到文件而报 NetworkError，
+      #   大屏宫格会显示整片连接失败（与 dev compose 的教训一致）。
+      - ./deploy/go2rtc/demo:/config/demo:ro
     networks: [private]
 
   backend:

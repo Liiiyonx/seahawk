@@ -44,13 +44,15 @@ webrtc:
 #   拿到真实摄像头 RTSP 后把 source 换掉即可，key 不要改。
 # ----------------------------------------------------------------------
 streams:
-  # ---------- 连江沿海点位（本地演示视频源，循环播放） ----------
-  CAM-MABI-01: ffmpeg:/config/demo/mabi.mp4#video=h264
-  CAM-HUANGQI-01: ffmpeg:/config/demo/huangqi.mp4#video=h264
-  CAM-XIAOCHENG-01: ffmpeg:/config/demo/xiaochen.mp4#video=h264
-  CAM-TAILU-01: ffmpeg:/config/demo/tailu.mp4#video=h264
+  # ---------- 连江沿海点位（AI 生成演示视频源，统一 720p/12fps/15s 循环） ----------
+  # 大屏四宫格 = ANKAI / HUANGQI / MABI / TAILU（按 device_id 排序取前 4），
+  # 五路画面独立；下宫回收点复用黄岐画面（回收点场景与渔港相近）。
+  CAM-MABI-01: ffmpeg:/config/demo/mabi_new.mp4#video=h264
+  CAM-HUANGQI-01: ffmpeg:/config/demo/huangqi_1.mp4#video=h264
+  CAM-XIAOCHENG-01: ffmpeg:/config/demo/xiaochen_new.mp4#video=h264
+  CAM-TAILU-01: ffmpeg:/config/demo/tailu_new.mp4#video=h264
   CAM-ANKAI-01: ffmpeg:/config/demo/ankai.mp4#video=h264
-  CAM-XIAGONG-01: ffmpeg:/config/demo/huangqi.mp4#video=h264
+  CAM-XIAGONG-01: ffmpeg:/config/demo/huangqi_1.mp4#video=h264
 
   # ---------- 机器人机载摄像头 ----------
   # 机器人走 4G，建议先用 WebRTC；带宽不足时降级为低分辨率子码流
