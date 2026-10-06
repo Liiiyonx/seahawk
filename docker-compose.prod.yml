@@ -72,10 +72,17 @@ services:
     image: emqx/emqx:5.8
     restart: unless-stopped
     environment:
-      EMQX_NODE_NAME: emqx@127.0.0.1
+      EMQX_NODE_NAME: emqx@node1.emqx.io
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${MQTT_DASHBOARD_USER:-admin}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${MQTT_DASHBOARD_PASSWORD:?set MQTT_DASHBOARD_PASSWORD}
       EMQX_ALLOW_ANONYMOUS: "false"
+      # 认证链与授权（2026-10-05 线上补齐，现已回填仓库）。此前本段完全缺失，
+      # 而 allow_anonymous=false 且用户库为空 -> 所有 MQTT 连接被拒。
+      # EMQX 5.8 不支持 bootstrap.csv 的数据导入（那是 6.x 才有的），
+      # 所以认证链用环境变量声明，用户与 ACL 走 REST API 写入内置库。
+      EMQX_AUTHENTICATION: >-
+        [{"mechanism":"password_based","backend":"built_in_database","user_id_type":"username"}]
+      EMQX_AUTHORIZATION__NO_MATCH: deny
       TZ: Asia/Shanghai
     volumes:
       # Generate this file with `make prod-mqtt-bootstrap` after filling
@@ -85,6 +92,9 @@ services:
     ports:
       - "${MQTT_BIND_ADDR:-127.0.0.1}:1883:1883"
       - "127.0.0.1:${MQTT_DASHBOARD_PORT:-18083}:18083"
+      # 8083 = MQTT over WebSocket，路演设备经 nginx 443 /mqtt 转到此。
+      # 只绑回环：公网不能直连，必须走 nginx（与"只开 80/443"一致）。
+      - "127.0.0.1:${MQTT_WS_PORT:-8083}:8083"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:18083/status"]
       interval: 15s
