@@ -182,6 +182,9 @@ services:
       # 默认值与 app/core/config.py 完全一致，透传后行为不变；
       # 演示层 docker-compose.demo.yml 覆盖 AGENT_REQUIRE_APPROVAL_FOR_WRITE=true。
       AGENT_REQUIRE_APPROVAL_FOR_WRITE: ${AGENT_REQUIRE_APPROVAL_FOR_WRITE:-false}
+      # 录屏/验收时可在本地 .env 置 false：关闭 30 秒定时补派，避免它与
+      # Agent run 抢同一事件（抢先建单 → run 报 6007 业务冲突）。
+      BACKGROUND_WORKERS_ENABLED: ${BACKGROUND_WORKERS_ENABLED:-true}
       AGENT_PERSISTENT_REPOSITORY_ENABLED: ${AGENT_PERSISTENT_REPOSITORY_ENABLED:-false}
       AGENT_MODEL_ADAPTER_ENABLED: ${AGENT_MODEL_ADAPTER_ENABLED:-false}
       AGENT_MODEL_BASE_URL: ${AGENT_MODEL_BASE_URL:-}
