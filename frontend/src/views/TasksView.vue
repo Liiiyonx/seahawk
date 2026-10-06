@@ -71,7 +71,7 @@
                 :title="simulationHint(t)"
                 @click="openSimulation(t)"
               >
-                仿真
+                执行仿真 ▸
               </button>
               <template v-if="canWriteOps">
               <button
@@ -119,6 +119,21 @@
                 <span class="timeline__label">{{ step.label }}</span>
                 <span class="timeline__time">{{ step.time ? fmtTime(step.time) : '—' }}</span>
               </div>
+            </div>
+
+            <!-- 主操作：进入机械臂执行页（三维作业仿真 + 机械臂执行端控制台） -->
+            <div class="drawer__cta">
+              <button
+                class="btn btn--primary drawer__cta-btn"
+                :disabled="!canSimulate(detail)"
+                :title="simulationHint(detail)"
+                @click="openSimulation(detail)"
+              >
+                打开执行仿真 · 机械臂作业 ▸
+              </button>
+              <span v-if="!canSimulate(detail)" class="drawer__cta-hint">
+                {{ simulationHint(detail) }}
+              </span>
             </div>
           </div>
         </div>
@@ -657,9 +672,15 @@ watch(
 }
 
 .tcard__btn--simulation {
-  flex: 0 1 64px;
+  flex: 0 0 auto;
+  padding-inline: 10px;
   color: var(--text-main);
   background: var(--bg-hover);
+}
+
+.tcard__btn--simulation:not(:disabled):hover {
+  color: var(--c-primary);
+  background: var(--bg-active);
 }
 
 .tcard__btn--danger {
@@ -716,6 +737,32 @@ watch(
 .drawer__body {
   flex: 1;
   overflow-y: auto;
+}
+
+/* 详情抽屉底部的主操作：一眼可见的「去机械臂执行」入口 */
+.drawer__cta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--separator);
+}
+
+.drawer__cta-btn {
+  width: 100%;
+  min-height: 44px;
+  font-size: 13.5px;
+}
+
+.drawer__cta-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.drawer__cta-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
 }
 
 .kv {

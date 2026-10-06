@@ -27,17 +27,6 @@
 
       <div class="header-right">
         <button
-          class="caption-toggle"
-          type="button"
-          :class="{ 'caption-toggle--on': captionVisible }"
-          :title="captionVisible ? '隐藏口径字幕' : '显示口径字幕（演示录屏时用）'"
-          :aria-pressed="captionVisible"
-          @click="toggleCaption()"
-        >
-          口径
-        </button>
-
-        <button
           class="theme-toggle"
           type="button"
           :title="theme === 'light' ? '切换到深色模式' : '切换到浅色模式'"
@@ -77,21 +66,32 @@
                 v-for="n in notifications"
                 :key="n._key"
                 class="notif__item"
+                :class="{ 'notif__item--link': notifTarget(n) }"
+                :role="notifTarget(n) ? 'link' : undefined"
+                :tabindex="notifTarget(n) ? 0 : undefined"
+                :title="notifTarget(n) ? '点击查看' : undefined"
+                @click="openNotif(n)"
+                @keydown.enter="openNotif(n)"
               >
                 <span class="notif__dot" :class="n.type === 'event' ? 'notif__dot--event' : 'notif__dot--task'"></span>
                 <div class="notif__body">
                   <div class="notif__title">{{ n.title }}</div>
                   <div class="notif__time">{{ fmtTime(n.time) }}</div>
                 </div>
+                <span v-if="notifTarget(n)" class="notif__go" aria-hidden="true">›</span>
               </div>
-              <div v-if="!notifications.length" class="notif__empty">暂无通知</div>
+              <div v-if="!notifications.length" class="notif__empty">
+                <span class="notif__empty-icon" aria-hidden="true">◌</span>
+                <span>暂无通知</span>
+                <span class="notif__empty-sub">告警与工单动态会实时出现在这里</span>
+              </div>
             </div>
           </div>
         </div>
 
         <span v-if="currentUser" class="user">
           <span class="user__name">{{ currentUser.full_name || currentUser.username }}</span>
-          <span class="user__role">{{ roleLabel(currentUser.role) }}</span>
+          <span v-if="userRoleChip" class="user__role">{{ userRoleChip }}</span>
           <button class="user__logout" type="button" @click="logout">退出</button>
         </span>
         <span
@@ -190,7 +190,6 @@ import { getUser, clearAuth, isLoggedIn, roleLabel } from '@/utils/auth'
 import { statsApi } from '@/api'
 import { fmtTime } from '@/utils/format'
 import { getTheme, toggleTheme } from '@/utils/theme'
-import { captionVisible, toggleCaption } from '@/utils/demoCaption'
 import BrandLockup from '@/components/BrandLockup.vue'
 import DemoCaption from '@/components/DemoCaption.vue'
 
@@ -211,6 +210,21 @@ const showMore = ref(false)
 const isLoginPage = computed(() => route.name === 'login')
 
 const currentUser = ref(getUser())
+
+/**
+ * 顶栏角色徽章该显示什么。
+ * 种子演示账号的 full_name 本身就是角色名（如「乡镇操作员」「系统管理员」），
+ * 再挂一个同文角色徽章会重复出现两次。此时徽章改显管辖乡镇（有则显示、
+ * 无则隐藏）；真实用户（姓名 ≠ 角色名）仍显示角色徽章。
+ */
+const userRoleChip = computed(() => {
+  const u = currentUser.value
+  if (!u) return ''
+  const name = String(u.full_name || u.username || '').trim()
+  const role = roleLabel(u.role).trim()
+  if (role && name.includes(role)) return String(u.township_scope || '').trim()
+  return role
+})
 
 function logout() {
   clearAuth()
@@ -275,6 +289,30 @@ function markAllRead() {
   if (latest) {
     localStorage.setItem(NOTIF_KEY, String(new Date(latest).getTime()))
     unreadCount.value = 0
+  }
+}
+
+// ---------- 通知点击直达 ----------
+// 工单通知：已派单/执行中的工单一键跳到执行仿真页（机械臂作业），
+// 待派单等不可仿真的状态退回工单看板；告警通知跳事件中心。
+// 拿不到可用目标（缺 id 等）就不跳，避免点了一条通知什么都不发生还关了面板。
+const SIMULATABLE_TASK_STATUS = ['assigned', 'navigating', 'collecting', 'done']
+
+function notifTarget(n) {
+  if (n.type === 'task' && n.task_id) {
+    return SIMULATABLE_TASK_STATUS.includes(n.status)
+      ? { name: 'simulation', params: { taskId: n.task_id } }
+      : { path: '/tasks' }
+  }
+  if (n.type === 'event') return { path: '/events' }
+  return null
+}
+
+function openNotif(n) {
+  const target = notifTarget(n)
+  if (target) {
+    closeNotif()
+    router.push(target)
   }
 }
 
@@ -520,30 +558,6 @@ onUnmounted(() => {
   color: var(--text-main);
 }
 
-/* ---------- 口径字幕开关 ---------- */
-.caption-toggle {
-  min-height: 28px;
-  padding: 3px 10px;
-  font-size: 12px;
-  color: var(--text-sub);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
-}
-
-.caption-toggle:hover {
-  color: var(--c-primary);
-  border-color: var(--c-primary-dim);
-}
-
-.caption-toggle--on {
-  color: var(--c-primary);
-  border-color: color-mix(in srgb, var(--c-primary) 42%, transparent);
-  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
-}
-
 /* ---------- 主题切换 ---------- */
 .theme-toggle {
   width: 30px;
@@ -633,6 +647,29 @@ onUnmounted(() => {
   background: var(--bg-hover);
 }
 
+/* 可点击的通知行：指针手势 + 行尾箭头，暗示能直达详情 */
+.notif__item--link {
+  cursor: pointer;
+}
+
+.notif__item--link:hover .notif__title {
+  color: var(--c-primary);
+}
+
+.notif__go {
+  align-self: center;
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1;
+  transition: color 0.15s var(--ease), transform 0.15s var(--ease);
+}
+
+.notif__item--link:hover .notif__go {
+  color: var(--c-primary);
+  transform: translateX(2px);
+}
+
 .notif__dot {
   width: 7px;
   height: 7px;
@@ -650,6 +687,7 @@ onUnmounted(() => {
 }
 
 .notif__body {
+  flex: 1;
   min-width: 0;
 }
 
@@ -665,10 +703,25 @@ onUnmounted(() => {
 }
 
 .notif__empty {
-  padding: 24px 0;
-  text-align: center;
-  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 26px 16px;
+  font-size: 12.5px;
   color: var(--text-dim);
+}
+
+.notif__empty-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.notif__empty-sub {
+  font-size: 11px;
+  opacity: 0.75;
 }
 
 /* ---------- 主体 ---------- */
@@ -781,28 +834,6 @@ onUnmounted(() => {
   background: var(--bg-panel-2);
   color: var(--text-sub);
   font-size: 16px;
-}
-
-.caption-toggle {
-  min-height: 36px;
-  padding: 6px 12px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--bg-panel-2);
-  color: var(--text-main);
-  font-size: 13px;
-}
-
-.caption-toggle:hover {
-  border: 0;
-  background: var(--bg-hover);
-  color: var(--c-primary);
-}
-
-.caption-toggle--on {
-  border: 0;
-  background: var(--bg-active);
-  color: var(--c-primary);
 }
 
 .theme-toggle:hover {
@@ -1198,7 +1229,6 @@ onUnmounted(() => {
   }
 
   .theme-toggle,
-  .caption-toggle,
   .notif__bell,
   .user__logout {
     min-width: 38px;
