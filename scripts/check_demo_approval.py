@@ -120,7 +120,44 @@ def parse_seed_usernames(text: str) -> list[str]:
 
 
 def parse_panel_accounts(text: str) -> list[tuple[str, str]]:
-    """从 LoginDemoPanel.vue 的 accounts 常量里取登录页展示的账号。"""
+    """取登录页展示的账号。
+
+    LoginDemoPanel.vue 已改为构建期注入：口令不再硬编码在源码里
+    （防泄漏到产物/截图/读屏），账号表的运行时真源是 frontend 侧
+    env 文件里的 VITE_DEMO_ACCOUNTS（JSON 数组）。这里按两步解析：
+
+      1. frontend/.env* 里的 VITE_DEMO_ACCOUNTS（新真源，优先）；
+      2. 兼容旧版组件源码里的 `const accounts = [...]` 常量。
+    """
+    frontend_dir = DEMO_PANEL.parent.parent.parent  # components → src → frontend
+    env_accounts: list[tuple[str, str]] = []
+    for env_name in (".env.local", ".env"):
+        env_path = frontend_dir / env_name
+        if not env_path.exists():
+            continue
+        m = re.search(
+            r"^VITE_DEMO_ACCOUNTS\s*=\s*(.+)$",
+            env_path.read_text(encoding="utf-8"),
+            flags=re.MULTILINE,
+        )
+        if m is None:
+            continue
+        try:
+            arr = json.loads(m.group(1).strip())
+        except json.JSONDecodeError:
+            continue
+        env_accounts = [
+            (str(a.get("username", "")), str(a.get("password", "")))
+            for a in arr
+            if isinstance(a, dict) and a.get("username")
+        ]
+        if env_accounts:
+            break
+
+    if env_accounts:
+        return env_accounts
+
+    # 兼容：旧版组件把账号直接写在源码常量里
     block = re.search(r"const\s+accounts\s*=\s*\[(?P<body>.*?)\n\]", text, flags=re.DOTALL)
     if block is None:
         return []
