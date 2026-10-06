@@ -27,6 +27,12 @@ ENV VITE_TMAP_PROXY_URL=$VITE_TMAP_PROXY_URL
 ARG VITE_BASE_PATH=/
 ENV VITE_BASE_PATH=$VITE_BASE_PATH
 
+# 登录页演示账号一键填入面板（默认空 = 面板不渲染）。口令值只放在服务器的
+# .env.production（.dockerignore 已排除 .env.*，不会随构建上下文意外进镜像）；
+# 路演需要时经 compose 构建参数注入，结束后置空重建即隐藏。
+ARG VITE_DEMO_ACCOUNTS=
+ENV VITE_DEMO_ACCOUNTS=$VITE_DEMO_ACCOUNTS
+
 # 用国内镜像源加速（渔港/校园网环境下 npm 官方源常常超时）
 RUN npm config set registry https://registry.npmmirror.com
 

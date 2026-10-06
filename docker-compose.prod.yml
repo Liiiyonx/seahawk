@@ -266,6 +266,8 @@ services:
         # Vite embeds this value into the static bundle at image build time.
         VITE_TMAP_PROXY_URL: ${VITE_TMAP_PROXY_URL:-}
         VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
+        # 登录页演示账号面板；值来自服务器 .env.production，留空则面板不渲染。
+        VITE_DEMO_ACCOUNTS: ${VITE_DEMO_ACCOUNTS:-}
     restart: unless-stopped
     depends_on:
       backend:
