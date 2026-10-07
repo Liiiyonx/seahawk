@@ -36,6 +36,7 @@
             @click="toggleDesktopLauncher"
           >
             <span aria-hidden="true">▣</span>
+            <span>机械臂桌面</span>
           </button>
           <form
             v-if="showDesktopLauncher"
