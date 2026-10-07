@@ -26,6 +26,48 @@
       </nav>
 
       <div class="header-right">
+        <div ref="desktopLauncherRef" class="desktop-launcher">
+          <button
+            class="desktop-launcher__button"
+            type="button"
+            aria-haspopup="dialog"
+            :aria-expanded="showDesktopLauncher"
+            aria-controls="arm-pi-desktop-launcher"
+            @click="toggleDesktopLauncher"
+          >
+            <span aria-hidden="true">▣</span>
+            <span>机械臂桌面</span>
+          </button>
+          <form
+            v-if="showDesktopLauncher"
+            id="arm-pi-desktop-launcher"
+            class="desktop-launcher__panel"
+            role="dialog"
+            aria-label="连接树莓派桌面"
+            @submit.prevent="openArmPiDesktop"
+          >
+            <label class="desktop-launcher__label" for="arm-pi-ip">树莓派当前 IP</label>
+            <div class="desktop-launcher__controls">
+              <input
+                id="arm-pi-ip"
+                v-model.trim="armPiIp"
+                class="desktop-launcher__input"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="例如 192.168.137.198"
+                aria-describedby="arm-pi-ip-help"
+                @input="armPiIpError = ''"
+              />
+              <button class="desktop-launcher__connect" type="submit">打开桌面</button>
+            </div>
+            <p id="arm-pi-ip-help" class="desktop-launcher__help">
+              输入树莓派当前可访问的 IPv4 地址，将在新标签页打开桌面。网页服务目前监听有线 ICS 地址；若它变化，还需同步更新树莓派服务。
+            </p>
+            <p v-if="armPiIpError" class="desktop-launcher__error" role="alert">{{ armPiIpError }}</p>
+          </form>
+        </div>
+
         <button
           class="theme-toggle"
           type="button"
@@ -206,6 +248,36 @@ const tabbarRoutes = navRoutes.filter((r) => TABBAR_PATHS.includes(r.path))
 const moreRoutes = navRoutes.filter((r) => !TABBAR_PATHS.includes(r.path))
 const showMore = ref(false)
 
+// 树莓派网页桌面入口：记住上次使用的地址，下次可直接替换成当前 IP。
+const ARM_PI_IP_KEY = 'seasight_arm_pi_ip'
+const armPiIp = ref(localStorage.getItem(ARM_PI_IP_KEY) || '')
+const armPiIpError = ref('')
+const showDesktopLauncher = ref(false)
+const desktopLauncherRef = ref(null)
+
+function toggleDesktopLauncher() {
+  showDesktopLauncher.value = !showDesktopLauncher.value
+  armPiIpError.value = ''
+}
+
+function isValidIPv4(value) {
+  const parts = value.split('.')
+  return parts.length === 4 && parts.every((part) => /^\d{1,3}$/.test(part) && Number(part) <= 255)
+}
+
+function openArmPiDesktop() {
+  const ip = armPiIp.value.trim()
+  if (!isValidIPv4(ip)) {
+    armPiIpError.value = '请输入有效的 IPv4 地址，例如 192.168.137.64。'
+    return
+  }
+
+  localStorage.setItem(ARM_PI_IP_KEY, ip)
+  const desktopUrl = new URL(`/vnc.html?host=${encodeURIComponent(ip)}&port=6080&autoconnect=1`, `http://${ip}:6080`)
+  window.open(desktopUrl.toString(), '_blank', 'noopener,noreferrer')
+  showDesktopLauncher.value = false
+}
+
 // 登录页不渲染主布局（无顶栏/导航）
 const isLoginPage = computed(() => route.name === 'login')
 
@@ -317,13 +389,18 @@ function openNotif(n) {
 }
 
 function onDocumentPointerDown(event) {
-  if (!showNotif.value) return
-  if (!notifRef.value?.contains(event.target)) closeNotif()
+  if (showNotif.value && !notifRef.value?.contains(event.target)) closeNotif()
+  if (showDesktopLauncher.value && !desktopLauncherRef.value?.contains(event.target)) {
+    showDesktopLauncher.value = false
+    armPiIpError.value = ''
+  }
 }
 
 function onDocumentKeydown(event) {
   if (event.key === 'Escape') {
     closeNotif()
+    showDesktopLauncher.value = false
+    armPiIpError.value = ''
     showMore.value = false
     return
   }
@@ -577,6 +654,107 @@ onUnmounted(() => {
 .theme-toggle:hover {
   color: var(--c-primary);
   border-color: var(--c-primary-dim);
+}
+
+/* ---------- ArmPi 浏览器桌面入口 ---------- */
+.desktop-launcher {
+  position: relative;
+  z-index: 350;
+}
+
+.desktop-launcher__button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--bg-panel-2);
+  color: var(--text-main);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.desktop-launcher__button:hover {
+  background: var(--bg-hover);
+  color: var(--c-primary);
+}
+
+.desktop-launcher__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 360;
+  width: min(360px, calc(100vw - 24px));
+  padding: 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--bg-panel);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.desktop-launcher__label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.desktop-launcher__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.desktop-launcher__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--separator);
+  border-radius: 9px;
+  outline: none;
+  background: var(--bg-panel-2);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 13px;
+}
+
+.desktop-launcher__input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary) 16%, transparent);
+}
+
+.desktop-launcher__connect {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desktop-launcher__connect:hover {
+  filter: brightness(1.06);
+}
+
+.desktop-launcher__help,
+.desktop-launcher__error {
+  margin: 9px 0 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.desktop-launcher__error {
+  color: var(--c-danger);
 }
 
 /* ---------- 通知铃铛 ---------- */
@@ -1102,6 +1280,12 @@ onUnmounted(() => {
     width: auto;
     max-height: min(72dvh, 560px);
     overscroll-behavior: contain;
+  }
+
+  .desktop-launcher__panel {
+    position: fixed;
+    top: 58px;
+    right: 12px;
   }
 
   .layout__main {
