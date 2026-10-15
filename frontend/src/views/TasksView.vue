@@ -13,6 +13,12 @@
         <span class="status-chip__num" :style="{ color: s.color }">{{ s.count }}</span>
       </div>
       <div class="status-bar__spacer"></div>
+      <!-- 地图点船跳来的机器人筛选：给出可见、可清除的状态 -->
+      <span v-if="robotFilter" class="robot-chip">
+        筛选机器人：{{ robotFilter }}
+        <em v-if="!boardTotal" class="robot-chip__none">该船暂无工单</em>
+        <button class="robot-chip__clear" type="button" title="清除筛选" @click="clearRobotFilter">×</button>
+      </span>
       <button v-if="canWriteOps" class="btn" @click="openManual">人工建单</button>
       <button v-if="canWriteOps" class="btn" @click="dispatchPending" :disabled="dispatching">
         {{ dispatching ? '派单中…' : '触发补派' }}
@@ -29,14 +35,16 @@
             <i class="kanban__dot" :style="{ background: col.color }"></i>
             {{ col.label }}
           </span>
-          <span class="kanban__count">{{ grouped[col.status]?.length || 0 }}</span>
+          <span class="kanban__count">{{ boardGrouped[col.status]?.length || 0 }}</span>
         </div>
 
         <div class="kanban__body">
           <article
-            v-for="t in grouped[col.status] || []"
+            v-for="t in boardGrouped[col.status] || []"
             :key="t.task_id"
             class="tcard"
+            :class="{ 'is-highlighted': highlightTaskId === t.task_id }"
+            :ref="(el) => setCardRef(t.task_id, el)"
             @click="openDetail(t)"
           >
             <div class="tcard__head">
@@ -87,7 +95,7 @@
             </div>
           </article>
 
-          <div v-if="!grouped[col.status]?.length" class="kanban__empty">暂无工单</div>
+          <div v-if="!boardGrouped[col.status]?.length" class="kanban__empty">暂无工单</div>
         </div>
       </section>
     </div>
@@ -99,11 +107,11 @@
          永远越不过兄弟节点 .layout__header 的 z-index:300。
          结果：抽屉标题行与右上角「×」被顶栏完整盖住，既看不见也点不到。 -->
     <Teleport to="body">
-      <div v-if="detail" class="drawer" @click.self="detail = null">
+      <div v-if="detail" class="drawer" @click.self="closeDetail">
         <div class="drawer__panel panel">
           <div class="panel-title">
             <span>工单详情 · {{ detail.task_id }}</span>
-            <button class="drawer__close" @click="detail = null">×</button>
+            <button class="drawer__close" @click="closeDetail">×</button>
           </div>
           <div class="panel-body drawer__body">
             <div class="kv" v-for="kv in detailRows" :key="kv.label">
@@ -121,7 +129,8 @@
               </div>
             </div>
 
-            <!-- 主操作：进入机械臂执行页（三维作业仿真 + 机械臂执行端控制台） -->
+            <!-- 主操作：进入机械臂作业台（三维作业仿真 + 机械臂执行端控制台；
+                 控制台内可输 IP 直连树莓派上的训练作业台） -->
             <div class="drawer__cta">
               <button
                 class="btn btn--primary drawer__cta-btn"
@@ -129,7 +138,7 @@
                 :title="simulationHint(detail)"
                 @click="openSimulation(detail)"
               >
-                打开执行仿真 · 机械臂作业 ▸
+                打开机械臂作业台 · 输 IP 接入 ▸
               </button>
               <span v-if="!canSimulate(detail)" class="drawer__cta-hint">
                 {{ simulationHint(detail) }}
@@ -215,6 +224,10 @@
                   {{ r.name || r.robot_id }}（{{ r.status === 'online' ? '在线' : '离线' }}）
                 </option>
               </select>
+              <!-- 演示便利：换了机器人就能一键把目标点对齐到它的位置 -->
+              <button class="btn manual-form__locate" type="button" @click="useRobotPosition">
+                用该机器人位置
+              </button>
             </div>
             <div class="form-row">
               <label class="form-label">优先级</label>
@@ -242,8 +255,8 @@
  * 工单看板 —— 用看板而不是纯表格，是因为工单是有"流动"的：
  * 从待派单一路走到完成，看板能一眼看出一堆积压在哪一列。
  */
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, watch, nextTick, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { tasksApi, downloadBlob } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import {
@@ -253,9 +266,11 @@ import {
 } from '@/utils/constants'
 import { fmtCoord, fmtRelative, fmtTime } from '@/utils/format'
 import { canWrite } from '@/utils/auth'
+import { toast } from '@/utils/toast'
 
 const store = useRealtimeStore()
 const router = useRouter()
+const route = useRoute()
 
 // viewer / 匿名只读：隐藏写操作（后端 require_operator 才是最终裁决）
 const canWriteOps = canWrite()
@@ -264,6 +279,16 @@ const tasks = ref([])
 const detail = ref(null)
 const dispatching = ref(false)
 const filters = reactive({ status: '' })
+// 来自 ?robot= 的机器人筛选（3D 地图点船无活跃工单时会带过来）
+const robotFilter = ref('')
+// 深链 ?task= 命中时高亮的那张卡（"一堆工单里到底点的是哪张"）
+const highlightTaskId = ref('')
+const cardRefs = new Map()
+let highlightTimer = null
+function setCardRef(taskId, el) {
+  if (el) cardRefs.set(taskId, el)
+  else cardRefs.delete(taskId)
+}
 // 完成工单的录入表单：打捞重量必须由操作员如实填写，不再伪造随机数
 const completing = ref(null)
 const completion = reactive({ weight: '', review: 'confirmed' })
@@ -279,6 +304,9 @@ const COLUMNS = [
   { status: 'navigating', label: '前往中', color: '#007aff' },
   { status: 'collecting', label: '作业中', color: '#007aff' },
   { status: 'done', label: '已完成', color: '#34c759' },
+  // 已取消单独成列：此前不在 COLUMNS 里，取消的工单在**任何视图**都看不到，
+  // 数据其实在库里（t_task.status='cancelled'）——「看板少一列」看起来像丢数据。
+  { status: 'cancelled', label: '已取消', color: '#ff3b30' },
 ]
 
 const columns = computed(() =>
@@ -293,6 +321,22 @@ const grouped = computed(() => {
   }
   return g
 })
+
+/** 看板实际渲染的数据：叠加 ?robot= 筛选 */
+const boardGrouped = computed(() => {
+  if (!robotFilter.value) return grouped.value
+  const g = {}
+  for (const c of COLUMNS) g[c.status] = []
+  for (const t of tasks.value) {
+    if (g[t.status] && t.robot_id === robotFilter.value) g[t.status].push(t)
+  }
+  return g
+})
+
+/** 看板当前渲染的工单总数（机器人筛选后为 0 时给出"该船暂无工单"提示） */
+const boardTotal = computed(() =>
+  Object.values(boardGrouped.value || {}).reduce((n, list) => n + (list?.length || 0), 0),
+)
 
 const statusSummary = computed(() =>
   COLUMNS.map((c) => ({
@@ -384,6 +428,17 @@ function openDetail(task) {
   detail.value = task
 }
 
+/** 关闭抽屉时顺手摘掉 URL 上的 ?task=：
+    否则刷新页面会"抽屉自己又弹出来"，像是关不掉 */
+function closeDetail() {
+  detail.value = null
+  if (route.query.task) {
+    const rest = { ...route.query }
+    delete rest.task
+    router.replace({ query: rest }).catch(() => {})
+  }
+}
+
 async function changeStatus(task, target) {
   // 完成工单需要操作员真实录入打捞量与复核结果，不再伪造随机数
   if (target === 'done') {
@@ -421,10 +476,31 @@ async function confirmDone() {
 
 function openManual() {
   manual.value = true
-  manualForm.lng = ''
-  manualForm.lat = ''
-  manualForm.robot_id = ''
   manualForm.priority = 5
+  // ★ 演示便利：默认选中「机械臂」并把它的坐标预填进目标点。
+  //   人工建单原本要手填经纬度 + 从 7 台设备里挑一台，现场容易点错/填错；
+  //   预填之后整个动作就是「打开 → 派单」两下。
+  //   选不到机械臂时退回第一台在线机器人，再退回第一台。
+  const robots = store.robots || []
+  const picked =
+    robots.find((r) => String(r.chassis || '') === 'arm') ||
+    robots.find((r) => r.status === 'online') ||
+    robots[0]
+  manualForm.robot_id = picked ? picked.robot_id : ''
+  const hasCoord = picked && picked.lng != null && picked.lat != null
+  manualForm.lng = hasCoord ? String(picked.lng) : ''
+  manualForm.lat = hasCoord ? String(picked.lat) : ''
+}
+
+/** 把目标点对齐到「当前选中的机器人」所在位置（演示时手边的快捷操作）。 */
+function useRobotPosition() {
+  const picked = (store.robots || []).find((r) => r.robot_id === manualForm.robot_id)
+  if (!picked || picked.lng == null || picked.lat == null) {
+    store.error = '该机器人没有可用坐标'
+    return
+  }
+  manualForm.lng = String(picked.lng)
+  manualForm.lat = String(picked.lat)
 }
 
 async function submitManual() {
@@ -457,7 +533,13 @@ async function dispatchPending() {
     const res = await tasksApi.dispatchPending()
     await load()
     const n = res?.dispatched ?? res?.length ?? 0
-    if (n === 0) store.error = '当前无待派单事件（可能无可用机器人）'
+    // 成功也要给反馈：此前只在不为 0 时静默改列（列表刷新），补派到底派没派
+    // 出去，操作员只能自己数「已派单」列的变化 —— 与「触发补派」的语义不符。
+    if (n === 0) {
+      toast.warning('当前无待派单对象（可能无可用机器人）')
+    } else {
+      toast.success(`完成补派 ${n} 个任务`)
+    }
   } catch (err) {
     store.error = err.message
   } finally {
@@ -465,7 +547,58 @@ async function dispatchPending() {
   }
 }
 
-onMounted(load)
+/**
+ * 处理深链参数（闭环入口）：
+ *   ?task=<task_id> —— 从事件详情/通知/智能体跳来，自动展开该工单抽屉；
+ *   ?robot=<robot_id> —— 3D 地图点船（无活跃工单时）跳来，筛选该船的工单。
+ * 目标在列表外时回退单查接口，避免"跳过来发现列表里没有"的死胡同。
+ */
+async function applyQuery() {
+  const taskId = typeof route.query.task === 'string' ? route.query.task : ''
+  const robotId = typeof route.query.robot === 'string' ? route.query.robot : ''
+  robotFilter.value = robotId
+  if (!taskId) return
+
+  let task = tasks.value.find((t) => t.task_id === taskId)
+  if (!task) {
+    try {
+      task = await tasksApi.detail(taskId)
+    } catch (err) {
+      store.error = err.message
+      return
+    }
+  }
+  if (task) {
+    detail.value = task
+    // 除了展开抽屉，把对应的卡高亮一下并滚动到视野内 ——
+    // 沙盘点船/事件跳过来时，用户要能一眼认出"是这一张"
+    highlightTaskId.value = taskId
+    clearTimeout(highlightTimer)
+    await nextTick()
+    cardRefs.get(taskId)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    highlightTimer = setTimeout(() => {
+      if (highlightTaskId.value === taskId) highlightTaskId.value = ''
+    }, 6000)
+  }
+}
+
+function clearRobotFilter() {
+  robotFilter.value = ''
+  const rest = { ...route.query }
+  delete rest.robot
+  router.replace({ query: rest }).catch(() => {})
+}
+
+onMounted(async () => {
+  await load()
+  await applyQuery()
+})
+
+// 同一路由内再次带参数跳入（如从事件详情连点两条工单）也要生效
+watch(
+  () => [route.query.task, route.query.robot],
+  () => applyQuery(),
+)
 
 // 有新工单推送时自动刷新列表。
 // 不能订阅整个 store：任何字段（stats/devices/error…）变化都会触发 load，
@@ -536,7 +669,7 @@ watch(
 /* ---------- 看板 ---------- */
 .kanban {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   flex: 1;
   min-height: 0;
@@ -596,6 +729,29 @@ watch(
 }
 
 /* ---------- 工单卡 ---------- */
+/* 深链命中的目标卡：发光描边 + 三次呼吸，确保"一堆卡里一眼认出是哪张" */
+.tcard.is-highlighted {
+  border-color: #18a999 !important;
+  box-shadow:
+    0 0 0 2px rgba(24, 169, 153, 0.5),
+    0 0 20px rgba(24, 169, 153, 0.45);
+  animation: tcard-highlight 1.1s ease-in-out 3;
+}
+
+@keyframes tcard-highlight {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgba(24, 169, 153, 0.5),
+      0 0 20px rgba(24, 169, 153, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(24, 169, 153, 0.28),
+      0 0 30px rgba(24, 169, 153, 0.7);
+  }
+}
+
 .tcard {
   background: var(--bg-panel-2);
   border: 1px solid var(--border);
@@ -693,7 +849,43 @@ watch(
   background: rgba(242, 86, 76, 0.18);
 }
 
-/* ---------- 抽屉 ---------- */
+/* ---------- 机器人筛选 chip（?robot= 深链） ---------- */
+.robot-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-primary) 35%, transparent);
+  border-radius: 999px;
+}
+
+.robot-chip__none {
+  font-style: normal;
+  color: var(--text-sub);
+}
+
+.robot-chip__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-primary);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.robot-chip__clear:hover {
+  background: color-mix(in srgb, var(--c-primary) 20%, transparent);
+}
+
 /* 900 必须大于 .layout__header 的 300（见 App.vue）。
    这里能生效的前提是模板里用了 <Teleport to="body">：
    只有挂到 body 的抽屉才真正脱离了 .layout__main 的层叠上下文。 */
@@ -744,6 +936,14 @@ watch(
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--separator);
+}
+
+/* 人工建单里的「用该机器人位置」：贴着下拉框，不抢视觉重心 */
+.manual-form__locate {
+  margin-top: 6px;
+  font-size: 12px;
+  min-height: 28px;
+  padding: 0 10px;
 }
 
 .drawer__cta-btn {
