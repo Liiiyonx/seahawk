@@ -63,8 +63,10 @@ AGENT_STATE_REVISION = "20260919_1600_agent_state"
 TASK_ACK_REVISION = "20260919_1700_task_ack"
 APPROVER_ROLE_REVISION = "20260919_1800_approver_role"
 KNOWLEDGE_REVISION = "20260919_1900_knowledge_assets"
-# 对话助手迁移接在知识域之后，是当前唯一 head。
+# 对话助手迁移接在知识域之后。
 CHAT_SESSION_REVISION = "20260922_1000_chat_session"
+# 舵机遥测列迁移接在对话助手之后，是当前唯一 head。
+SERVO_REVISION = "20260905_0100_servo_telemetry"
 
 KNOWLEDGE_TABLES = (
     "t_decision_evidence",
@@ -263,7 +265,7 @@ class TestMigrationStatic:
 
         cfg = _alembic_config()
         script = ScriptDirectory.from_config(cfg)
-        assert script.get_heads() == [CHAT_SESSION_REVISION], "迁移链应保持单一 head"
+        assert script.get_heads() == [SERVO_REVISION], "迁移链应保持单一 head"
         ack = script.get_revision(TASK_ACK_REVISION)
         assert ack.down_revision == AGENT_STATE_REVISION, "1700 必须从 1600_agent_state 线性升级"
         approver = script.get_revision(APPROVER_ROLE_REVISION)
@@ -276,6 +278,10 @@ class TestMigrationStatic:
         assert (
             chat.down_revision == KNOWLEDGE_REVISION
         ), "20260922 必须从 1900_knowledge_assets 线性升级"
+        servo = script.get_revision(SERVO_REVISION)
+        assert (
+            servo.down_revision == CHAT_SESSION_REVISION
+        ), "servo_telemetry 必须从 20260922_chat_session 线性升级"
 
 
 def _alembic_config():
@@ -483,8 +489,8 @@ def ack_db():
         ver = _query_rows(
             {**params, "dbname": scratch}, "SELECT version_num FROM alembic_version"
         )
-        assert ver == [(CHAT_SESSION_REVISION,)], (
-            f"alembic_version 应为 {CHAT_SESSION_REVISION}，实际 {ver}"
+        assert ver == [(SERVO_REVISION,)], (
+            f"alembic_version 应为 {SERVO_REVISION}，实际 {ver}"
         )
         # 列集合与冻结契约一致（真实库验证）
         cols = {
@@ -1134,8 +1140,8 @@ def test_real_migration_roundtrip_on_scratch_db() -> None:
         command.upgrade(cfg, "head")
 
         ver = _query_rows({**params, "dbname": scratch}, "SELECT version_num FROM alembic_version")
-        assert ver == [(CHAT_SESSION_REVISION,)], (
-            f"alembic_version 应为 {CHAT_SESSION_REVISION}，实际 {ver}"
+        assert ver == [(SERVO_REVISION,)], (
+            f"alembic_version 应为 {SERVO_REVISION}，实际 {ver}"
         )
 
         # 列集合

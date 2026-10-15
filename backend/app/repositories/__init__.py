@@ -410,8 +410,14 @@ class TaskRepository:
         return list(rows.scalars().all()), total
 
     async def list_active_tasks_for_robot(self, robot_id: str) -> list[Task]:
-        stmt = select(Task).where(
-            and_(Task.robot_id == robot_id, Task.status.in_(TaskStatus.ACTIVE))
+        # ★ 必须显式排序：调用方（/robots 的 current_task_id、派单的类别加权）
+        #   假定「第一条」有确定含义。不写 ORDER BY 时 PostgreSQL 按物理行序
+        #   返回，同一批数据在 UPDATE/DELETE 后可能换序 —— 表现为机器人的
+        #   「当前任务」在两台设备/两个接口之间随机漂移。取最新创建的一条。
+        stmt = (
+            select(Task)
+            .where(and_(Task.robot_id == robot_id, Task.status.in_(TaskStatus.ACTIVE)))
+            .order_by(Task.created_at.desc(), Task.id.desc())
         )
         rows = await self.session.execute(stmt)
         return list(rows.scalars().all())
