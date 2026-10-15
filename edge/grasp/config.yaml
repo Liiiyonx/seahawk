@@ -1,0 +1,154 @@
+# ============================================================
+# Oceanus 机械臂智能拾取子系统 · 统一配置（edge/grasp）
+# ============================================================
+# 覆盖三个组件：
+#   1. vision_driver  —— 视觉驱动（ArmDriver 实现，注册名 oceanus_vision）
+#   2. vision/        —— 现场再训练管线（数据集 / 训练 / 评估 / 原子部署）
+#   3. web/           —— 树莓派上的训练作业台（FastAPI :8090）
+#
+# 设备口径与 edge/arm_bridge/config.yaml 保持一致：
+#   site_id = lianjiang，device_id = RBT-ARM-01
+# ★ 标记「需真机核对」的字段来自厂商源码推断，上真机前必须实测确认。
+
+site_id: "lianjiang"
+device_id: "RBT-ARM-01"
+
+web:
+  host: "0.0.0.0"
+  port: 8090
+  # mock=true 时不需要 ROS：用合成画面 + 模拟舵机把 UI 跑通，
+  # 便于在演示笔记本上开发调试（命令行 --mock 可覆盖）。
+  mock: false
+
+arm:
+  # ---------- 舵机 ID 映射（依据厂商源码核对）----------
+  #   ID1 夹爪：**脉宽越大越闭**（warehouse/in.py：夹住 450、松开 75；
+  #            Sensor/AIColorsorting.py 注释：张开 = servo1-280、闭合 = servo1）
+  #   ID2 腕部旋转：500 为中位（in.py 用 500 + F*gripper_rotation 对齐夹取角）
+  #   ID3-6 逆运动学解算的四个关节（ROS 版 kinematics.ArmIK 返回 servo3..servo6）
+  gripper_servo: 1
+  wrist_servo: 2
+  ik_servos: [3, 4, 5, 6]
+  # 开合脉宽：默认取保守的 开 200 / 闭 450（薄膜袋通常夹不到 450 就停，
+  # 由 gripper_close_adaptive 的回读停滞判定收住）。厂商用过的组合：
+  #   75/450（in.py 袋/块）、220/500（AIColorsorting）、150/450（ApriltagStacking）
+  gripper_open: 200
+  gripper_close: 450
+  # 夹爪自适应渐闭：每步脉宽与步间等待（秒）；方向由 open/close 大小自动决定
+  gripper_step: 20
+  gripper_step_wait: 0.12
+  wrist_center: 500
+  default_duration_ms: 800
+  # 控制话题（与厂商节点共用的同一份 ROS 契约；已按源码核对）
+  #   hiwonder_servo_serialproxy 订阅 multi_id_pos_dur、发布 servo_states
+  servo_topic: "/servo_controllers/port_id_1/multi_id_pos_dur"
+  servo_states_topic: "/servo_controllers/port_id_1/servo_states"
+  joint_states_topic: "/joint_states"
+  camera_topic: "/usb_cam/image_raw"
+  # ★ 水面/台面高度（绝对 z，m；原点 = 臂座安装面，与厂商 IK 的「云台中心
+  #   在地面的投影」同口径）。厂商桌面抓取用 z=0.01~0.015，因为台面≈原点平面。
+  #   **船上不是这样**：甲板高于水面，水面 z 应为负值（例：甲板高出水面 8cm
+  #   → plane_z ≈ -0.08）。这个值不准，爪子就压不到袋子。留空 = 用标定文件里的值
+  #   （或 0.02），也可以在作业台「5 · 9 点标定」里直接填。
+  plane_z: null
+  # 待命位（取自厂商 face.py initMove：坐标 m，俯仰角 -65°，范围 [-180, 0]）
+  home:
+    coord: [0.0, 0.17, 0.30]
+    pitch: -65
+    pitch_range: [-180, 0]
+
+vision:
+  # NCNN / ONNX 模型目录（由 vision/deploy.py 原子切换）
+  model_dir: "models/active"
+  # ★ 部署尺寸：与导出的 ONNX 输入边长必须一致，否则 cv2.dnn 会报维度不匹配。
+  #   416 → 640 是实测出来的硬结论（不是折中取整）：训练本来是 768，当年却导了 416，
+  #   白丢了近半分辨率 —— 在演示场景域（仿真海面）上 416 几乎全盲（帧级命中 11/160，
+  #   R@0.5 0.021），640 起才稳定出框；公开基准 AP50 也从 0.306 → 0.402。
+  #   ⚠️ Pi4 上 640 会更慢，真机视觉伺服 ~4Hz 的实时性需现场复核，不保则回退 416。
+  input_size: 640
+  # ★ 阈值口径（tools/eval_robustness.py + _work 实测选定，不是拍脑袋）：
+  #   域内微调后模型 v20261015_190359 在演示场景域 conf=0.50 → P 1.000 / R 0.836。
+  #   机械臂场景「误抓代价高」，取 0.50 作平衡点。
+  #   另有两道决策层兜底：grasp_loop 的连续 3 帧锁定（滤偶发误检）
+  #   + HSV 饱和度校验（滤高饱和物体）。
+  conf_threshold: 0.50
+  iou_threshold: 0.45
+
+  # ---------- 两个「类别」口径必须分开，否则会互相打架 ----------
+  # classes：**标注口径**（作业台采集/标注时可选类别）。这里必须保留 buoy ——
+  #          现场再训练时要把彩色浮标标成 buoy，它是抗干扰的负样本来源。
+  classes: ["plastic_bag", "buoy"]
+  # model_classes：**部署模型口径**（已部署权重实际输出的类别，顺序即索引）。
+  #          v20261015_190359 起部署的是「域内微调」2 类模型：plastic_bag 抓取目标
+  #          + buoy 显式负类 —— 彩色浮标检出后按类名门控直接挡在抓取候选之外
+  #          （抗彩色干扰第一道防线）。顺序即索引，改动必须与训练口径一致。
+  model_classes: ["plastic_bag", "buoy"]
+  # 只有目标类进入抓取候选；其余类别（浮标等）检出也不动手
+  target_class: "plastic_bag"
+
+data:
+  root: "data"
+  capture_frames: 200
+  val_ratio: 0.2
+
+# 作业台只读订阅平台派单，用于页面显示工单上下文（不改平台契约）
+mqtt:
+  enabled: true
+  host: "localhost"
+  port: 1883
+  client_id: "oceanus_grasp_web"
+  # ★ 与平台 backend/.env 的 robot_device 凭证一致
+  username: "robot_device"
+  password: "CHANGE_ME"
+  keepalive: 30
+
+agent:
+  frame_period_ms: 250          # 视觉伺服周期：总线舵机慢，250ms 足够
+  max_retry: 3                  # 单目标最大重试，超限上报异常
+  grasp_depth_offset: 0.005     # 抓取点相对目标平面的下压量（m）
+  work_radius: 0.20             # 工作半径上限（m），收窄以规避舵机重复精度不足
+  approach_height: 0.08         # 接近点抬高量（m）
+  lock_min_hits: 3              # 目标锁定最少连续命中帧数（轨迹去抖）
+  grip_stall_threshold: 8       # 「夹到东西」的脉宽停滞阈值
+  # ★ 抓取俯仰角（夹持器与水平面夹角，度；区间 [-180, 0]，-180 = 竖直朝下）。
+  #   厂商在桌面/水面上抓取用 -175（warehouse/in.py、object_sorting/sorting.py），
+  #   不是待命位的 -65。改成 -65 你会看到爪子斜着压不住目标。
+  grasp_pitch: -175
+
+  # ============================================================
+  # 放置点：把夹到的塑料袋放进「旁边那个料槽」（side_hopper）
+  # ------------------------------------------------------------
+  # 抓取点每帧都靠视觉现算，但**放置点是固定工位**（料槽装在臂座旁），
+  # 所以只需给一次。几何默认值取自厂商 warehouse/in.py 的侧向货架
+  # （x=±0.275、y=0、底层 z=0.02、俯仰 -130）—— 臂座两侧的料槽是同一类工位。
+  # 两种给法二选一，coord 优先：
+  #   coord —— 工作平面坐标 [x, y]（m，标定坐标系；原点由 9 点标定定义）
+  #   pose  —— 示教舵机脉宽 {舵机ID: 0..1000}，直接回放该位姿
+  #            现场示教最省事：作业台「手动点动」把臂摆到槽口上方 →
+  #            点「用当前姿态作放置点」→ 写进 calibration.json。
+  # ⚠️ 两个都为空时闭环**直接报错**「未配置料槽放置点」，不会把袋子随手
+  #    丢在原地假装放好了 —— 「没放进去」和「放进去了」必须能区分。
+  # 现场示教/输入的放置点写在 calibration.json（与设备绑定），
+  # 这里的值只是兜底；重跑标定后需重新示教。
+  place:
+    coord: [0.275, 0.0]         # 右舷料槽（厂商货架同口径）；左舷填 [-0.275, 0.0]
+    pose: null                  # 例：{1: 500, 2: 500, 3: 480, 4: 620, 5: 300, 6: 700}
+    pitch: -130                 # 放置俯仰角（度）；厂商货架底层用 -130
+    approach_z: 0.12            # 槽口上方接近高度（**绝对 z**，m）
+    drop_z: 0.02                # 松爪落料高度（**绝对 z**，m）；与货架底层同口径
+    retreat_z: 0.20             # 松爪后抬离高度（**绝对 z**，m）
+    settle_s: 0.5               # 松爪后停顿：等袋子真的落进槽里再抬臂
+    coord_move_ms: 900          # 槽口上方横移时长
+    drop_move_ms: 700           # 下探 / 抬离时长
+
+# ============================================================
+# 常驻作业监督器（grasp/supervisor.py）
+# ------------------------------------------------------------
+# 为什么要有它：GraspLoop.run() 是「抓一个就收工」，两个既有入口（平台派单 /
+# 作业台按钮）都是一次调一次。监督器在外面套一层循环，做成"开机后自己一直捡"。
+# ⚠️ 与 arm_bridge 互斥：两者都会驱动同一台机械臂，同一时刻只能跑一个。
+# ============================================================
+supervisor:
+  idle_interval_s: 5.0            # 视野里没目标时的轮询间隔
+  cooldown_s: 3.0                 # 抓成功后的冷却（给放置/回位留时间）
+  max_consecutive_failures: 5     # 连续失败到这个数就停并退出（由 systemd 决定是否重启）

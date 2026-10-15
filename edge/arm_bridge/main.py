@@ -19,6 +19,7 @@ pickup evidence and does not imply detection accuracy.
 from __future__ import annotations
 
 import argparse
+import os
 import signal
 import sys
 import time
@@ -139,11 +140,20 @@ def main(argv: list[str] | None = None) -> int:
     site_id = args.site_id or str(cfg["site_id"])
     mqtt_cfg = cfg.get("mqtt", {})
 
+    # ★ broker 地址/凭证允许用环境变量覆盖：同一份 config.yaml 会被部署到不同
+    #   机器上，而 broker 的位置天然不同（笔记本上它在 localhost 的 Docker 里，
+    #   树莓派上它在平台那侧）。写死在共享配置里会让两边互相打架，所以留一个
+    #   env 覆盖口，现场由 systemd 单元的 Environment= 注入。
+    host = os.environ.get("OCEANUS_MQTT_HOST") or str(mqtt_cfg.get("host", "localhost"))
+    port = int(os.environ.get("OCEANUS_MQTT_PORT") or mqtt_cfg.get("port", 1883))
+    username = os.environ.get("OCEANUS_MQTT_USER") or mqtt_cfg.get("username")
+    password = os.environ.get("OCEANUS_MQTT_PASSWORD") or mqtt_cfg.get("password")
+
     transport = MqttTransport(
-        host=str(mqtt_cfg.get("host", "localhost")),
-        port=int(mqtt_cfg.get("port", 1883)),
-        username=mqtt_cfg.get("username"),
-        password=mqtt_cfg.get("password"),
+        host=host,
+        port=port,
+        username=username,
+        password=password,
         client_id=f"robot-{device_id}",
         keepalive=int(mqtt_cfg.get("keepalive", 60)),
         use_lwt=bool(mqtt_cfg.get("use_lwt", True)),

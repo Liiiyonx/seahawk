@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Oceanus 机械臂训练作业台</title>
+<style>
+  /* 设计 token 与主平台（frontend/src/assets/main.css）保持一致：
+     浅色 iOS 风格 —— 系统蓝 #007aff、分组背景 #f2f2f7、白色圆角卡片。 */
+  :root {
+    color-scheme: light;
+
+    --c-primary: #007aff;
+    --c-primary-dim: #0066d6;
+    --grad-primary: linear-gradient(180deg, #1688ff 0%, #007aff 100%);
+
+    --c-danger: #ff3b30;
+    --c-warn: #ff9500;
+    --c-success: #34c759;
+
+    --bg-page: #f2f2f7;
+    --bg-panel: #ffffff;
+    --bg-panel-2: #f7f7fa;
+    --bg-hover: rgba(0, 0, 0, .045);
+    --bg-active: rgba(0, 122, 255, .1);
+
+    --text-main: #1c1c1e;
+    --text-sub: #636366;
+    --text-dim: #8e8e93;
+
+    --border: rgba(60, 60, 67, .16);
+    --border-bright: rgba(60, 60, 67, .28);
+    --separator: rgba(60, 60, 67, .12);
+    --panel-border: rgba(60, 60, 67, .12);
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, .035), 0 6px 20px rgba(0, 0, 0, .035);
+
+    --radius: 10px;
+    --radius-lg: 14px;
+
+    --ease: cubic-bezier(.22, 1, .36, 1);
+    --dur: .2s;
+
+    /* 深色底衬（视频流 / 日志 / 帧缩略图）专用固定色：
+       这些面上的文字必须是固定浅色，不得用 --text-* 变量。 */
+    --stage-bg: #0b1f28;
+    --stage-text: #cfe7ee;
+    --stage-text-strong: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg-page);
+    color: var(--text-main);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+      "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(60, 60, 67, .24);
+    border: 2px solid transparent; border-radius: 999px; background-clip: padding-box;
+  }
+
+  /* ---------- 顶栏：与平台一致的玻璃拟态 + 品牌锁定 ---------- */
+  /* 品牌区与分区导航一起吸顶，玻璃背景与底部分隔线统一挂在 .topbar 上 */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255, 255, 255, .88);
+    backdrop-filter: blur(20px) saturate(1.35);
+    -webkit-backdrop-filter: blur(20px) saturate(1.35);
+    border-bottom: 1px solid var(--separator);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .02);
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    min-height: 64px; padding: 8px 18px;
+  }
+  .brand-lockup { display: inline-flex; align-items: center; gap: 11px; min-width: 0; }
+  .brand-lockup__copy { display: flex; flex-direction: column; min-width: 0; }
+  .brand-lockup__title { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .brand-lockup__cn {
+    color: var(--text-main); font-size: 18px; font-weight: 700;
+    letter-spacing: .2px; white-space: nowrap;
+  }
+  .brand-lockup__en {
+    color: var(--text-dim); font-size: 10px; font-weight: 700;
+    letter-spacing: 1.4px; line-height: 1; text-transform: uppercase; white-space: nowrap;
+  }
+  .brand-lockup__sub {
+    color: var(--text-dim); font-size: 11px; letter-spacing: .2px;
+    line-height: 1.35; white-space: nowrap;
+  }
+  .logo-mark {
+    display: block; flex: 0 0 auto;
+    filter: drop-shadow(0 5px 12px rgba(0, 92, 190, .2));
+  }
+
+  /* ---------- 状态徽标：与平台 .badge 同款（软色填充、无描边） ---------- */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 26px; padding: 3px 11px; border: 0; border-radius: 999px;
+    background: rgba(142, 142, 147, .14); color: var(--text-sub);
+    font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+  }
+  .pill b { color: var(--text-main); font-weight: 600; }
+  .pill.ok { background: rgba(52, 199, 89, .14); color: var(--c-success); }
+  .pill.ok b { color: inherit; }
+  .pill.warn { background: rgba(255, 149, 0, .14); color: var(--c-warn); }
+  .pill.warn b { color: inherit; }
+  .pill.bad { background: rgba(255, 59, 48, .13); color: var(--c-danger); }
+  .pill.bad b { color: inherit; }
+
+  /* ---------- 页面骨架：分区视图，一次只显示一个 ---------- */
+  main { padding: 16px; }
+  .view { display: none; }
+  .view.is-active { display: grid; gap: 16px; align-items: start; }
+  .view--split { grid-template-columns: minmax(400px, 1.25fr) minmax(340px, 1fr); }
+  .view--stack { grid-template-columns: minmax(0, 1fr); max-width: 960px; margin-inline: auto; }
+  .view > .card { margin-bottom: 0; }
+  @media (max-width: 1080px) { .view--split { grid-template-columns: 1fr; } }
+
+  /* ---------- 分区导航（按钮跳转，页面不再拉长） ---------- */
+  .tabs {
+    display: flex; gap: 8px; padding: 0 18px 10px;
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 34px; padding: 6px 14px;
+    border: 0; border-radius: var(--radius);
+    background: var(--bg-panel-2); color: var(--text-sub);
+    font-size: 13px; font-weight: 500; line-height: 1.2; white-space: nowrap; cursor: pointer;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .tab:hover { background: var(--bg-hover); color: var(--text-main); }
+  .tab.is-active, .tab.is-active:hover { background: var(--bg-active); color: var(--c-primary); }
+  .tab i {
+    font-style: normal; font-size: 11px; font-weight: 600;
+    color: var(--text-dim); font-variant-numeric: tabular-nums;
+  }
+  .tab.is-active i { color: var(--c-primary); }
+
+  /* ---------- 面板：与平台 .panel 同款（白卡 + 标题分隔线） ---------- */
+  .card {
+    background: var(--bg-panel); border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+    padding: 16px; margin-bottom: 16px;
+  }
+  .card > h2 {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    min-height: 48px; margin: -16px -16px 14px; padding: 12px 16px;
+    border-bottom: 1px solid var(--separator);
+    color: var(--text-main); font-size: 15px; font-weight: 600; letter-spacing: 0;
+  }
+  .card > p.hint { margin: 0 0 12px; color: var(--text-sub); font-size: 12px; line-height: 1.6; }
+  .card > p.hint strong { color: var(--text-main); font-weight: 600; }
+
+  /* ---------- 实时画面（深色底衬：文字一律固定浅色） ---------- */
+  .stream-wrap {
+    position: relative; background: var(--stage-bg);
+    border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3;
+  }
+  .stream-wrap img { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .stream-tag {
+    position: absolute; left: 10px; top: 10px; padding: 3px 9px; border-radius: 999px;
+    background: rgba(11, 31, 40, .72); color: var(--stage-text-strong);
+    font-size: 12px; letter-spacing: .3px;
+  }
+
+  /* ---------- 行 / 按钮 / 表单 ---------- */
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .row + .row { margin-top: 10px; }
+  button {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 36px; padding: 7px 14px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--bg-panel); color: var(--text-main);
+    font-size: 13px; font-weight: 500; line-height: 1.2; white-space: nowrap; cursor: pointer;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+      color var(--dur) var(--ease), transform .12s var(--ease);
+  }
+  button:hover:not(:disabled) { border-color: var(--border-bright); background: var(--bg-hover); }
+  button:active:not(:disabled) { transform: scale(.98); }
+  button:disabled { opacity: .42; cursor: not-allowed; }
+  button.primary { border-color: transparent; background: var(--c-primary); color: #ffffff; }
+  button.primary:hover:not(:disabled) { border-color: transparent; background: var(--c-primary-dim); color: #ffffff; }
+  button.danger { border-color: rgba(255, 59, 48, .4); color: var(--c-danger); }
+  button.danger:hover:not(:disabled) { border-color: var(--c-danger); background: rgba(255, 59, 48, .08); color: var(--c-danger); }
+  input, select {
+    min-height: 36px; padding: 7px 11px;
+    border: 1px solid var(--border); border-radius: var(--radius); outline: none;
+    background: var(--bg-panel); color: var(--text-main); font-size: 13px;
+    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  input:focus, select:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(0, 122, 255, .12); }
+  input[type="number"] { width: 92px; }
+  input[type="checkbox"] {
+    min-height: 0; padding: 0; border: 0; background: none;
+    accent-color: var(--c-primary);
+  }
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 3px solid rgba(0, 122, 255, .22); outline-offset: 2px;
+  }
+  label.fld { display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: 12px; }
+  ::placeholder { color: var(--text-dim); }
+
+  /* ---------- 指标 / 舵机 ---------- */
+  .stat { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .stat div {
+    padding: 10px 12px; border: 1px solid var(--panel-border);
+    border-radius: var(--radius); background: var(--bg-panel-2);
+  }
+  .stat div span { display: block; color: var(--text-sub); font-size: 11px; }
+  .stat div b { font-size: 13px; font-weight: 600; }
+  .servos { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+  .servo {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+    border: 1px solid var(--panel-border); border-radius: var(--radius);
+    background: var(--bg-panel-2); font-size: 12px;
+  }
+  .servo b { color: var(--text-main); }
+  .servo code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; color: var(--c-primary); }
+
+  /* ---------- 进度条 ---------- */
+  .bar { height: 8px; border-radius: 999px; background: rgba(60, 60, 67, .1); overflow: hidden; margin: 8px 0 4px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--grad-primary); transition: width .3s var(--ease); }
+
+  /* ---------- 日志（深色底衬：固定浅色文字） ---------- */
+  pre.log {
+    margin: 8px 0 0; max-height: 190px; overflow: auto; padding: 10px 12px;
+    background: var(--stage-bg); color: var(--stage-text); border-radius: var(--radius);
+    font: 12px/1.65 "SF Mono", ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap;
+  }
+
+  /* ---------- 帧列表（缩略图深色底衬） ---------- */
+  .frames { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-top: 10px; }
+  .frames button {
+    padding: 0; overflow: hidden; border-radius: 8px; height: 66px;
+    border: 2px solid transparent; background: var(--stage-bg);
+  }
+  .frames button:hover:not(:disabled) { background: var(--stage-bg); border-color: var(--border-bright); }
+  .frames button.sel, .frames button.sel:hover:not(:disabled) { border-color: var(--c-primary); }
+  .frames img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* 帧列表一次只渲染前 N 帧，其余折叠到「显示更多」——避免整页被撑爆 */
+  .frames button.frames__more {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; height: 66px; padding: 0 6px;
+    border: 1px dashed var(--border-bright); border-radius: 8px;
+    background: var(--bg-panel-2); color: var(--text-sub);
+    font-size: 11px; line-height: 1.35;
+  }
+  .frames button.frames__more:hover:not(:disabled) {
+    background: var(--bg-hover); border-color: var(--c-primary); color: var(--c-primary);
+  }
+  .frames button.frames__more span { color: var(--text-dim); font-size: 10px; }
+  .frames button.frames__more:hover:not(:disabled) span { color: var(--c-primary); }
+  .frames .empty { grid-column: 1 / -1; }
+
+  /* ---------- 标注台 ---------- */
+  .editor { margin-top: 12px; }
+  .editor-stage {
+    position: relative; user-select: none; cursor: crosshair;
+    border-radius: 12px; overflow: hidden;
+  }
+  .editor-stage img { width: 100%; display: block; }
+  /* 还没选帧时 img 没 src，不隐藏的话会显示一个破图图标 + alt 文字 */
+  .editor-stage img:not([src]) { display: none; }
+  .box {
+    position: absolute; border: 2px solid var(--c-primary); background: rgba(0, 122, 255, .12);
+    font-size: 11px; color: var(--stage-text-strong);
+  }
+  .box.buoy { border-color: #9aa7ad; background: rgba(154, 167, 173, .16); }
+  .box em {
+    position: absolute; left: -2px; top: -18px; padding: 1px 6px; border-radius: 4px;
+    background: var(--c-primary-dim); color: var(--stage-text-strong); font-style: normal;
+  }
+  .box.buoy em { background: #6d7b82; }
+
+  /* ---------- 版本列表 ---------- */
+  .versions { margin-top: 10px; display: grid; gap: 6px; }
+  .versions div {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 11px; border: 1px solid var(--panel-border);
+    border-radius: var(--radius); background: var(--bg-panel-2); font-size: 12px;
+  }
+  .versions div.cur { border-color: var(--c-primary); background: var(--bg-active); }
+
+  /* ---------- 文本辅助 ---------- */
+  .muted { color: var(--text-sub); font-size: 12px; }
+
+  /* ---------- 空状态 ---------- */
+  .empty {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 64px; padding: 18px 12px;
+    color: var(--text-dim); font-size: 12px; text-align: center;
+  }
+  /* 空日志：深色底衬上给一句固定浅色提示（:empty 时显示） */
+  .log:empty::before {
+    content: attr(data-empty);
+    color: rgba(255, 255, 255, .42);
+  }
+  code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; color: var(--c-primary); }
+  .kv { display: grid; grid-template-columns: 84px 1fr; gap: 8px; font-size: 12px; }
+  .kv span { color: var(--text-sub); }
+  .kv b { color: var(--text-main); font-weight: 600; }
+
+  /* 窄屏：收敛品牌副标/英文名；状态胶囊改为横向滚动，不再换行挤压品牌 */
+  @media (max-width: 720px) {
+    header { padding: 8px 12px; gap: 10px; }
+    .brand-lockup { flex: 0 0 auto; }
+    .brand-lockup__en, .brand-lockup__sub { display: none; }
+    .pills {
+      flex: 1 1 auto; min-width: 0;
+      flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain;
+      justify-content: flex-end; justify-content: safe flex-end;
+      scrollbar-width: none;
+    }
+    .pills::-webkit-scrollbar { display: none; }
+    .pill { flex: 0 0 auto; }
+    .tabs { padding: 0 12px 10px; }
+    main { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+<header>
+  <div class="brand-lockup">
+    <svg class="logo-mark" viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
+      <defs>
+        <linearGradient id="oceanus-logo-bg" x1="7" y1="4" x2="41" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#0877e8" />
+          <stop offset="1" stop-color="#00a6c8" />
+        </linearGradient>
+        <linearGradient id="oceanus-logo-lens" x1="30" y1="15" x2="39" y2="25" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#e8fdff" />
+          <stop offset="0.48" stop-color="#71ebff" />
+          <stop offset="1" stop-color="#22b9dc" />
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#oceanus-logo-bg)" />
+      <rect x="2.75" y="2.75" width="42.5" height="42.5" rx="12.25" fill="none"
+            stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.5" />
+      <g transform="rotate(-20 24 20)">
+        <rect x="8.6" y="17.1" width="5.8" height="5.8" rx="2.9" fill="#ffffff" opacity="0.8" />
+        <rect x="12" y="15.3" width="22.6" height="9.4" rx="4.7" fill="#ffffff" />
+        <rect x="16.8" y="15.3" width="4.2" height="9.4" fill="#b9effb" opacity="0.92" />
+        <rect x="27.1" y="14.4" width="2.8" height="11.2" rx="1.4" fill="#d6f8ff" opacity="0.96" />
+        <circle cx="34.5" cy="20" r="6.3" fill="#07324f" stroke="#ffffff" stroke-width="2.55" />
+        <circle cx="34.5" cy="20" r="3.55" fill="url(#oceanus-logo-lens)" />
+        <path d="M32.7 18.2c0.8-0.9 1.9-1.35 3.1-1.2" fill="none"
+              stroke="#ffffff" stroke-width="1.25" stroke-linecap="round" opacity="0.9" />
+      </g>
+      <path d="M7.5 32.2c2.75-2.15 5.5-2.15 8.25 0s5.5 2.15 8.25 0 5.5-2.15 8.25 0 5.5 2.15 8.25 0"
+            fill="none" stroke="#ffffff" stroke-width="2.15" stroke-linecap="round" />
+      <path d="M13.5 38.2c1.75-1.45 3.5-1.45 5.25 0s3.5 1.45 5.25 0 3.5-1.45 5.25 0 3.5 1.45 5.25 0"
+            fill="none" stroke="#c9f8ff" stroke-opacity="0.72" stroke-width="1.7" stroke-linecap="round" />
+    </svg>
+    <div class="brand-lockup__copy">
+      <div class="brand-lockup__title">
+        <span class="brand-lockup__cn">探海灵眸</span>
+        <span class="brand-lockup__en">Oceanus</span>
+      </div>
+      <span class="brand-lockup__sub">机械臂现场再训练作业台 · 全自动拾取</span>
+    </div>
+  </div>
+  <div class="pills" id="pills"></div>
+</header>
+<nav class="tabs" id="tabs" aria-label="作业台分区">
+  <button class="tab is-active" data-view="live" onclick="showView('live')">实时监控</button>
+  <button class="tab" data-view="collect" onclick="showView('collect')"><i>1</i>数据采集</button>
+  <button class="tab" data-view="label" onclick="showView('label')"><i>2</i>标注台</button>
+  <button class="tab" data-view="train" onclick="showView('train')"><i>3</i>训练任务</button>
+  <button class="tab" data-view="deploy" onclick="showView('deploy')"><i>4</i>部署与回滚</button>
+  <button class="tab" data-view="calib" onclick="showView('calib')"><i>5</i>标定与点动</button>
+  <button class="tab" data-view="grasp" onclick="showView('grasp')"><i>6</i>抓取作业</button>
+</nav>
+</div>
+
+<main>
+  <section class="view view--split is-active" id="view-live" aria-label="实时监控">
+    <div class="card">
+      <h2>实时画面 <span class="muted" id="dets-age">—</span></h2>
+      <p class="hint">只有目标类（塑料袋）会被框出并标出抓取点十字；画面里的彩色浮标<strong>不会产生任何检出</strong>，也就不会进入抓取候选。若模型输出了非目标类（mock 模式的合成检测会有），才画成灰框并标「忽略」。</p>
+      <div class="stream-wrap">
+        <img id="stream" src="/stream" alt="实时画面" />
+        <div class="stream-tag" id="phase-tag">相位 idle</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>平台派单上下文</h2>
+      <p class="hint">只读订阅 <code>robot/{device_id}/task</code>，平台侧契约不改。</p>
+      <div class="kv" id="task-kv"></div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-collect" aria-label="数据采集">
+    <div class="card">
+      <h2>1 · 数据采集</h2>
+      <p class="hint">连拍若干帧，并让机械臂在几个观测姿态间轮换以增广视角。采集时请把彩色浮标一起放进画面 —— 抗干扰样本就来自这里。</p>
+      <div class="row">
+        <label class="fld" for="cap-frames">帧数 <input type="number" id="cap-frames" value="200" min="10" max="2000" /></label>
+        <label class="fld" for="cap-tag">标签 <input id="cap-tag" placeholder="可选，如 bag1" /></label>
+        <label class="fld" for="cap-augment"><input type="checkbox" id="cap-augment" checked /> 姿态增广</label>
+        <button class="primary" onclick="startCapture()">开始采集</button>
+      </div>
+      <div class="bar"><i id="cap-bar"></i></div>
+      <div class="muted" id="cap-note">未开始</div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-label" aria-label="标注台">
+    <div class="card">
+      <h2>2 · 标注台</h2>
+      <p class="hint">选一帧，先「预标注」拿模型建议，再拖动鼠标补框/修框；类别可选，浮标请标成 buoy（负类）。</p>
+      <div class="row">
+        <label class="fld" for="lab-session">会话 <select id="lab-session" onchange="onSessionChange()"></select></label>
+        <button onclick="loadFrames()">刷新帧列表</button>
+        <label class="fld" for="lab-cls">新框类别
+          <select id="lab-cls"><option>plastic_bag</option><option>buoy</option></select>
+        </label>
+        <button onclick="prelabel()">预标注</button>
+        <button class="primary" onclick="saveLabel()">保存标注</button>
+      </div>
+      <div class="frames" id="frame-list"></div>
+      <div class="editor">
+        <div class="editor-stage" id="stage">
+          <img id="stage-img" alt="待标注帧" />
+        </div>
+        <div class="muted" id="lab-note" style="margin-top:6px" aria-live="polite">未选择帧 · 点上方缩略图开始标注</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-train" aria-label="训练任务">
+    <div class="card">
+      <h2>3 · 训练任务</h2>
+      <p class="hint">三档可选：免训练校准（秒级，演示日兜底）／Pi 本地微调／局域网协同。推理不依赖训练栈。<strong>「训练会话」要选你要特化的那次采集</strong> —— 选「全部会话」会把历史会话（比如早期合成帧）一起拉进来稀释。</p>
+      <div class="row">
+        <label class="fld" for="train-session">训练会话 <select id="train-session"></select></label>
+        <label class="fld" for="train-tier">档位 <select id="train-tier"></select></label>
+        <button class="primary" onclick="startTrain()">开始训练</button>
+        <button onclick="api('/api/evaluate').then(r=>showEval(r)).catch(errToast)">评估当前模型</button>
+      </div>
+      <div class="bar"><i id="train-bar"></i></div>
+      <div class="muted" id="train-note">未开始</div>
+      <pre class="log" id="train-log" data-empty="暂无日志 · 开始训练后在此实时输出"></pre>
+    </div>
+
+    <div class="card">
+      <h2>场景特化（演示用）</h2>
+      <p class="hint">免训练、秒级：在<strong>当前已标注的帧</strong>上扫置信度阈值，并把所有标注框的并集写成 ROI（中心落在 ROI 外的检出不算抓取候选）。固定背景 + 固定光照 + 物体位置固定的场景里，ROI 比调阈值有效得多。也可以手动填下面的值，保存即生效。</p>
+      <div class="row">
+        <button class="primary" onclick="sceneCalibrate()">一键场景校准</button>
+        <button onclick="loadTuning()">读取当前调参</button>
+      </div>
+      <div class="muted" id="tuning-note" aria-live="polite">未读取</div>
+      <div class="row">
+        <label class="fld" for="tune-conf">置信度阈值 <input type="number" id="tune-conf" min="0" max="1" step="0.05" /></label>
+        <label class="fld" for="tune-iou">NMS IoU <input type="number" id="tune-iou" min="0" max="1" step="0.05" /></label>
+      </div>
+      <div class="row">
+        <label class="fld" for="tune-x">ROI x <input type="number" id="tune-x" min="0" max="1" step="0.01" /></label>
+        <label class="fld" for="tune-y">y <input type="number" id="tune-y" min="0" max="1" step="0.01" /></label>
+        <label class="fld" for="tune-w">w <input type="number" id="tune-w" min="0" max="1" step="0.01" /></label>
+        <label class="fld" for="tune-h">h <input type="number" id="tune-h" min="0" max="1" step="0.01" /></label>
+      </div>
+      <div class="row">
+        <button class="primary" onclick="saveTuning()">保存调参</button>
+        <button class="danger" onclick="clearTuningRoi()">取消 ROI</button>
+      </div>
+      <div class="muted" id="tune-sweep">—</div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-deploy" aria-label="部署与回滚">
+    <div class="card">
+      <h2>4 · 部署与回滚</h2>
+      <p class="hint">部署前跑留出集评估，不达标不放行；权重按版本落盘，一条命令回到上一版。在笔记本上训练好的权重，把产物路径填进来就能登记并部署。</p>
+      <div class="row">
+        <label class="fld" for="dep-gate">mAP50 门禁 <input type="number" id="dep-gate" value="0.5" min="0" max="1" step="0.05" /></label>
+        <button class="primary" onclick="doDeploy()">部署当前模型</button>
+        <button onclick="doRollback()">回滚上一版</button>
+        <button onclick="loadVersions()">刷新版本</button>
+      </div>
+      <div class="row">
+        <label class="fld" for="dep-src">训练产物路径
+          <input id="dep-src" placeholder="runs/xxx/weights/best.onnx" style="width:min(300px,55vw)" />
+        </label>
+        <button onclick="deployFromPath()">登记并部署</button>
+      </div>
+      <div class="muted" id="dep-note" aria-live="polite">—</div>
+      <div class="versions" id="versions"></div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-calib" aria-label="标定与手动点动">
+    <div class="card">
+      <h2>5 · 9 点标定</h2>
+      <p class="hint">固定观测姿态下采集。开始后请依次把塑料袋放到页面提示的网格点上；某点未检出会自动跳过。标定只做粗定位，精度由视觉伺服闭环逐帧吸收。</p>
+      <div class="row">
+        <label class="fld" for="cal-n">网格 <input type="number" id="cal-n" value="3" min="2" max="5" /></label>
+        <label class="fld" for="cal-span">半跨度(m) <input type="number" id="cal-span" value="0.10" min="0.02" max="0.4" step="0.01" /></label>
+        <button class="primary" onclick="startCalibrate()">开始标定</button>
+        <button onclick="api('/api/calibrate/save').then(()=>toast('标定已保存'))">保存标定</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label class="fld" for="cal-plane">水面高度 z(m) <input type="number" id="cal-plane" step="0.005" /></label>
+        <button onclick="savePlaneZ()">保存水面高度</button>
+        <span class="muted">标定只解出 (x, y)；<b>z 要单独给</b>。船上甲板高于水面 → 填负数（甲板高出水面 8cm 就填 -0.08），填错爪子压不到袋子。</span>
+      </div>
+      <div class="bar"><i id="cal-bar"></i></div>
+      <div class="muted" id="cal-note" aria-live="polite">—</div>
+    </div>
+
+    <div class="card">
+      <h2>手动点动</h2>
+      <p class="hint">调试与标定用。真机上所有下发都走同一份 ROS 舵机话题，与厂商节点共存。</p>
+      <div class="servos" id="servos"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="fld" for="jog-id">舵机 <input type="number" id="jog-id" value="1" min="1" max="6" /></label>
+        <label class="fld" for="jog-pos">脉宽 <input type="number" id="jog-pos" value="500" min="0" max="1000" /></label>
+        <button onclick="jog()">下发</button>
+        <button onclick="api('/api/gripper',{action:'open'})">夹爪张开</button>
+        <button onclick="api('/api/gripper',{action:'close'})">夹爪自适应闭合</button>
+        <button onclick="api('/api/home')">回待命位</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>放置点（料槽）</h2>
+      <p class="hint">
+        抓取闭环的最后一步：把袋子放进臂座旁边的料槽。抓取点每帧由视觉现算，
+        <b>放置点是固定工位，示教一次即可</b>。示教方法：用上面的「手动点动」把臂摆到槽口正上方
+        → 点「用当前姿态作放置点」。也可以直接填工作平面坐标（m，标定坐标系）。
+        没设放置点时抓取会直接拒绝开工 —— 夹起来没地方放比不抓更糟。
+      </p>
+      <div class="row">
+        <label class="fld" for="place-x">X(m) <input type="number" id="place-x" step="0.005" /></label>
+        <label class="fld" for="place-y">Y(m) <input type="number" id="place-y" step="0.005" /></label>
+        <button onclick="savePlaceCoord()">按坐标保存</button>
+        <button class="primary" onclick="teachPlacePose()">用当前姿态作放置点</button>
+        <button class="danger" onclick="clearPlace()">清除</button>
+      </div>
+      <div class="muted" id="place-state">—</div>
+      <div class="muted" id="place-note" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view view--stack" id="view-grasp" aria-label="抓取作业">
+    <div class="card">
+      <h2>6 · 抓取作业</h2>
+      <p class="hint">全自动闭环：检测 → 锁定（滤浮标）→ 视觉伺服逼近 → 精准夹取 → 双证据验证 → 放入旁边的料槽。平台派单后也可由桥接层自动触发同一套闭环（一次派单抓一袋，抓完即止）。</p>
+      <div class="row">
+        <button class="primary" onclick="startGrasp()">开始作业</button>
+        <button class="danger" id="grasp-stop" onclick="stopGrasp()" disabled>停止</button>
+      </div>
+      <div class="bar"><i id="grasp-bar"></i></div>
+      <div class="muted" id="grasp-note">—</div>
+      <pre class="log" id="grasp-log" data-empty="暂无日志 · 开始作业后在此实时输出"></pre>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let selectedFrame = null;
+let boxes = [];
+let imgNatural = { w: 1, h: 1 };
+let tiersLoaded = false;
+
+async function api(url, body) {
+  const opt = body === undefined
+    ? {}
+    : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+  const res = await fetch(url, opt);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+  return data;
+}
+function toast(text) { $('cap-note').textContent = text; }
+function errToast(err) { $('grasp-note').textContent = String(err.message || err); }
+
+/* ---------------- 状态轮询 ---------------- */
+let lastJob = '';
+async function tick() {
+  try {
+    const s = await api('/api/status');
+    renderStatus(s);
+  } catch (e) { /* 服务重启瞬间忽略 */ }
+}
+function renderStatus(s) {
+  // 顶部状态胶囊
+  const det = s.detector || {};
+  const cal = s.calibration || {};
+  const task = s.task || {};
+  const plc = s.place || {};
+  $('pills').innerHTML = [
+    s.mock ? '<span class="pill warn"><b>mock</b> 无 ROS 合成模式</span>'
+      : (s.ros_error
+        ? `<span class="pill bad"><b>硬件未接入</b> ${String(s.ros_error).slice(0, 72)}</span>`
+        : '<span class="pill ok"><b>真机</b> ROS 已接入</span>'),
+    `<span class="pill ${det.ready ? 'ok' : 'bad'}"><b>检测</b> ${det.backend || '—'}${det.tuned ? ' · 已调参' : ''}</span>`,
+    `<span class="pill ${cal.ready ? 'ok' : 'warn'}"><b>标定</b> ${cal.ready ? cal.points + ' 点 RMSE ' + (cal.rmse ?? 0).toFixed(3) + 'm' : '未就绪'}</span>`,
+    `<span class="pill ${plc.ready ? 'ok' : 'bad'}"><b>放置点</b> ${plc.ready ? (plc.kind === 'coord' ? '槽位已设' : '示教位姿') : '未设置'}</span>`,
+    `<span class="pill"><b>帧</b> ${s.frames} / 已标注 ${s.labeled}</span>`,
+  ].join('');
+
+  // 放置点（料槽）：状态行 + 坐标回填（正在输入时不覆盖）
+  $('place-state').textContent = '当前：' + fmtPlace(plc);
+  if (plc.ready && plc.kind === 'coord') {
+    const ax = document.activeElement;
+    if (ax !== $('place-x') && ax !== $('place-y')) {
+      $('place-x').value = Number(plc.target[0]).toFixed(3);
+      $('place-y').value = Number(plc.target[1]).toFixed(3);
+    }
+  }
+  // 水面高度：把当前值回填进输入框（正在输入时不覆盖）
+  if (cal.plane_z != null && document.activeElement !== $('cal-plane')) {
+    $('cal-plane').value = Number(cal.plane_z).toFixed(3);
+  }
+
+  $('phase-tag').textContent = '相位 ' + (s.phase || 'idle');
+  $('dets-age').textContent = s.dets_age == null ? '—' : `检测 ${s.dets_age}s 前`;
+  const t = det.target_class || 'plastic_bag';
+  const dets = (s.detections || []);
+  $('dets-age').textContent += ` · 检出 ${dets.length}（目标 ${dets.filter(d => d.cls === t).length}）`;
+
+  // 工单上下文
+  $('task-kv').innerHTML = Object.entries(task).map(([k, v]) =>
+    `<span>${k}</span><b>${v == null ? '—' : (typeof v === 'object' ? JSON.stringify(v) : v)}</b>`).join('');
+
+  // 舵机遥测
+  $('servos').innerHTML = Object.entries(s.servos || {}).map(([id, v]) =>
+    `<div class="servo"><b>#${id}</b><code>${(v.vin / 1000).toFixed(2)}V</code>` +
+    `<code>pos ${v.position ?? '—'}</code><code>err ${v.error ?? '—'}</code></div>`).join('')
+    || '<span class="muted">暂无回读</span>';
+
+  // 训练档位（只填一次）
+  if (!tiersLoaded && s.tiers) {
+    $('train-tier').innerHTML = s.tiers.map(x => `<option value="${x}">${x}</option>`).join('');
+    tiersLoaded = true;
+  }
+
+  // 任务进度
+  const job = s.job || {};
+  // 作业没在跑时「停止」不可点：点了也只会拿到 409
+  $('grasp-stop').disabled = !(job.running && job.kind === 'grasp');
+  const sig = JSON.stringify([job.kind, job.stage, job.detail, job.result]);
+  if (sig !== lastJob) {
+    lastJob = sig;
+    renderJob(job, s);
+  }
+}
+function renderJob(job, s) {
+  if (job.kind === 'capture') {
+    const done = job.detail?.saved || 0, total = job.detail?.target_frames || 1;
+    $('cap-bar').style.width = Math.min(100, 100 * done / total) + '%';
+    $('cap-note').textContent = `${job.stage} · ${done}/${total} 帧` + (job.error ? ' · ' + job.error : '');
+  }
+  if (job.kind === 'train') {
+    const ep = job.detail?.epoch || 0, tot = job.detail?.total_epochs || 1;
+    $('train-bar').style.width = job.stage === 'done' ? '100%' : Math.min(100, 100 * ep / tot) + '%';
+    $('train-note').textContent = `${job.stage}${job.detail?.loss != null ? ' · loss ' + Number(job.detail.loss).toFixed(4) : ''}` +
+      `${job.detail?.map50 ? ' · mAP50 ' + Number(job.detail.map50).toFixed(4) : ''}` + (job.error ? ' · ' + job.error : '');
+    $('train-log').textContent = (job.log || []).join('\n');
+    // 免训练校准（calibrate 档）跑完，把新阈值 / ROI 拉回界面显示
+    if (job.stage === 'done' && job.result?.tier === 'calibrate') loadTuning();
+  }
+  if (job.kind === 'calibrate') {
+    const pts = job.detail?.step || 0;
+    $('cal-bar').style.width = Math.min(100, 100 * pts / 9) + '%';
+    $('cal-note').textContent = `${job.stage} · 第 ${pts} 点` +
+      (job.detail?.pixel ? ` 像素 ${job.detail.pixel}` : '') + (job.error ? ' · ' + job.error : '');
+  }
+  if (job.kind === 'grasp') {
+    $('grasp-bar').style.width = job.stage === 'done' ? '100%' : (job.running ? '55%' : '0%');
+    $('grasp-note').textContent = `${job.stage}` + (job.result ? ` · ${JSON.stringify(job.result)}` : '') +
+      (job.error ? ' · ' + job.error : '');
+    $('grasp-log').textContent = (job.log || []).join('\n');
+  }
+}
+
+/* ---------------- 水面/台面高度 ---------------- */
+async function savePlaneZ() {
+  const v = Number($('cal-plane').value);
+  if ($('cal-plane').value === '' || !Number.isFinite(v)) {
+    $('cal-note').textContent = '请先填水面高度 z（m）；船上甲板高于水面时是负数';
+    return;
+  }
+  try {
+    const r = await api('/api/calibrate/plane_z', { plane_z: v });
+    $('cal-note').textContent = `水面高度已设为 ${r.plane_z} m` +
+      (r.persisted ? '（已写入 calibration.json）' : '（未落盘：演示标定 / 标定未就绪）');
+  } catch (e) { $('cal-note').textContent = String(e.message); }
+}
+
+/* ---------------- 放置点（料槽） ---------------- */
+function fmtPlace(p) {
+  if (!p || !p.ready) return '未设置 —— 抓取闭环会拒绝开工';
+  const src = p.source === 'taught' ? '示教'
+    : (p.source === 'demo' ? '演示值（非真机示教）' : '配置文件');
+  if (p.kind === 'coord') {
+    return `${src} · 坐标 (${Number(p.target[0]).toFixed(3)}, ${Number(p.target[1]).toFixed(3)}) m`;
+  }
+  const n = Object.keys(p.target || {}).length;
+  return `${src} · 示教位姿（${n} 个舵机脉宽）`;
+}
+function placeNote(r) {
+  $('place-note').textContent = (r.persisted === false)
+    ? '已生效但未落盘（演示标定 / 标定未就绪）：重启后失效，上真机请先跑完 9 点标定'
+    : '已写入 calibration.json（与设备绑定）';
+}
+async function savePlaceCoord() {
+  const x = Number($('place-x').value), y = Number($('place-y').value);
+  if (!Number.isFinite(x) || !Number.isFinite(y) || $('place-x').value === '' || $('place-y').value === '') {
+    $('place-note').textContent = '请先填 X / Y（m）';
+    return;
+  }
+  try { const r = await api('/api/place', { coord: [x, y] }); placeNote(r); }
+  catch (e) { $('place-note').textContent = String(e.message); }
+}
+async function teachPlacePose() {
+  try { const r = await api('/api/place', { pose: 'here' }); placeNote(r); }
+  catch (e) { $('place-note').textContent = String(e.message); }
+}
+async function clearPlace() {
+  try { const r = await api('/api/place', { clear: true }); placeNote(r); }
+  catch (e) { $('place-note').textContent = String(e.message); }
+}
+
+/* ---------------- 手动点动 ---------------- */
+async function jog() {
+  try {
+    await api('/api/jog', {
+      servo_id: Number($('jog-id').value),
+      position: Number($('jog-pos').value),
+      duration_ms: 600,
+    });
+  } catch (e) { errToast(e); }
+}
+
+/* ---------------- 采集 ---------------- */
+async function startCapture() {
+  try {
+    await api('/api/capture/start', {
+      frames: Number($('cap-frames').value),
+      tag: $('cap-tag').value,
+      augment: $('cap-augment').checked,
+    });
+    $('cap-note').textContent = '采集中…';
+    lastJob = '';
+  } catch (e) { $('cap-note').textContent = String(e.message); }
+}
+
+/* ---------------- 标注 ---------------- */
+let allFrames = [];
+// 帧列表一次最多渲染这么多缩略图，其余折叠到「显示更多」。
+// 实测 300+ 帧全量铺开会把右栏拉成几千像素，把后面几张卡全推到屏幕外。
+const FRAMES_PER_PAGE = 48;
+let visibleFrames = FRAMES_PER_PAGE;
+
+function renderFrames() {
+  const keep = $('lab-session').value;
+  const list = allFrames.filter(f => !keep || f.session === keep);
+  const shown = list.slice(0, visibleFrames);
+  let html = shown.map(f => {
+    const on = selectedFrame && selectedFrame.session === f.session && selectedFrame.name === f.name;
+    return `<button data-s="${f.session}" data-n="${f.name}" class="${on ? 'sel' : ''}"` +
+      ` onclick="pickFrame(this)"><img src="${f.url}" loading="lazy" alt="${f.name}" /></button>`;
+  }).join('');
+  const rest = list.length - shown.length;
+  if (rest > 0) {
+    html += `<button class="frames__more" onclick="showMoreFrames()">显示更多` +
+      `<span>剩余 ${rest} 帧</span></button>`;
+  }
+  $('frame-list').innerHTML = html || '<div class="empty">该会话暂无帧</div>';
+}
+function showMoreFrames() { visibleFrames += FRAMES_PER_PAGE; renderFrames(); }
+function onSessionChange() { visibleFrames = FRAMES_PER_PAGE; renderFrames(); }
+
+async function loadFrames() {
+  // 一次拉全量帧，会话筛选放本地做 —— 否则按会话请求会让下拉框"只剩一项"，
+  // 而且每切一次会话都要再打一次网络。
+  try {
+    const data = await api('/api/frames');
+    allFrames = data.frames || [];
+  } catch (e) {
+    $('frame-list').innerHTML = '<div class="empty">帧列表读取失败</div>';
+    return;
+  }
+  const sessions = [...new Set(allFrames.map(f => f.session))];
+  const keep = $('lab-session').value;
+  $('lab-session').innerHTML = ['<option value="">全部</option>']
+    .concat(sessions.map(s => `<option${s === keep ? ' selected' : ''}>${s}</option>`)).join('');
+  // 训练会话下拉共用同一份会话清单（「3 训练任务」用它把训练集限定到某次采集）
+  const keepTrain = $('train-session').value;
+  $('train-session').innerHTML = ['<option value="">全部会话</option>']
+    .concat(sessions.map(s => `<option value="${s}"${s === keepTrain ? ' selected' : ''}>${s}</option>`)).join('');
+  visibleFrames = FRAMES_PER_PAGE;
+  renderFrames();
+}
+function pickFrame(btn) {
+  selectedFrame = { session: btn.dataset.s, name: btn.dataset.n };
+  [...document.querySelectorAll('.frames button')].forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const img = $('stage-img');
+  img.onload = () => { imgNatural = { w: img.naturalWidth || 1, h: img.naturalHeight || 1 }; drawBoxes(); };
+  img.src = `/api/frames/${selectedFrame.session}/${selectedFrame.name}`;
+  const found = allFrames.find(f => f.session === selectedFrame.session && f.name === selectedFrame.name);
+  boxes = (found?.labels || []).map(b => ({ ...b }));
+  $('lab-note').textContent = `${selectedFrame.name} · ${boxes.length} 个框`;
+  drawBoxes();
+}
+function drawBoxes() {
+  const stage = $('stage');
+  [...stage.querySelectorAll('.box')].forEach(el => el.remove());
+  boxes.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = 'box' + (b.cls === 'buoy' ? ' buoy' : '');
+    el.style.left = ((b.cx - b.w / 2) * 100) + '%';
+    el.style.top = ((b.cy - b.h / 2) * 100) + '%';
+    el.style.width = (b.w * 100) + '%';
+    el.style.height = (b.h * 100) + '%';
+    el.innerHTML = `<em>${b.cls}${b.conf ? ' ' + b.conf : ''} ×</em>`;
+    el.querySelector('em').onclick = (ev) => { ev.stopPropagation(); boxes.splice(i, 1); drawBoxes(); };
+    stage.appendChild(el);
+  });
+}
+(function bindDraw() {
+  const stage = $('stage');
+  let start = null;
+  stage.addEventListener('mousedown', (e) => {
+    if (!selectedFrame) return;
+    const r = stage.getBoundingClientRect();
+    start = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+  });
+  stage.addEventListener('mouseup', (e) => {
+    if (!start || !selectedFrame) return;
+    const r = stage.getBoundingClientRect();
+    const end = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+    const x = Math.min(start.x, end.x), y = Math.min(start.y, end.y);
+    const w = Math.abs(end.x - start.x), h = Math.abs(end.y - start.y);
+    start = null;
+    if (w < 0.02 || h < 0.02) return;
+    boxes.push({ cls: $('lab-cls').value, cx: x + w / 2, cy: y + h / 2, w, h });
+    drawBoxes();
+  });
+})();
+async function prelabel() {
+  if (!selectedFrame) return;
+  try {
+    const r = await api('/api/frames/prelabel', selectedFrame);
+    boxes = r.boxes || [];
+    $('lab-note').textContent = `${selectedFrame.name} · 模型建议 ${boxes.length} 个框（未保存）`;
+    drawBoxes();
+  } catch (e) { $('lab-note').textContent = String(e.message); }
+}
+async function saveLabel() {
+  if (!selectedFrame) return;
+  try {
+    const r = await api('/api/label', { ...selectedFrame, boxes });
+    $('lab-note').textContent = `已保存 ${r.count} 个框 → ${r.path}`;
+    await loadFrames();
+  } catch (e) { $('lab-note').textContent = String(e.message); }
+}
+
+/* ---------------- 训练 / 评估 / 部署 ---------------- */
+async function startTrain() {
+  try {
+    await api('/api/train', {
+      tier: $('train-tier').value,
+      session: $('train-session').value,
+    });
+    $('train-log').textContent = '';
+    lastJob = '';
+  } catch (e) { $('train-note').textContent = String(e.message); }
+}
+function showEval(r) {
+  const m = r.metrics || {};
+  $('dep-note').textContent = `${r.ok ? '通过' : '未通过'}（${r.reason}） · mAP50 ${m.map50} P ${m.precision} R ${m.recall}`;
+}
+async function doDeploy() {
+  try {
+    const r = await api('/api/deploy', { min_map50: Number($('dep-gate').value), note: '作业台部署' });
+    $('dep-note').textContent = `已部署 ${r.version?.version}（${r.gate}）`;
+    loadVersions();
+  } catch (e) { $('dep-note').textContent = String(e.message); }
+}
+async function doRollback() {
+  try {
+    const r = await api('/api/rollback', { version: '' });
+    $('dep-note').textContent = `已回滚到 ${r.version?.version}`;
+    loadVersions();
+  } catch (e) { $('dep-note').textContent = String(e.message); }
+}
+async function deployFromPath() {
+  // 局域网协同那条路：笔记本上训练完，把产物路径填进来登记成新版本并切换 active
+  const p = $('dep-src').value.trim();
+  if (!p) {
+    $('dep-note').textContent = '请填训练产物的模型路径（如 runs/xxx/weights/best.onnx）';
+    return;
+  }
+  try {
+    const r = await api('/api/deploy-from', {
+      model_path: p,
+      min_map50: Number($('dep-gate').value),
+      note: '作业台登记',
+    });
+    $('dep-note').textContent = `已登记并部署 ${r.version?.version}（${r.gate}）`;
+    loadVersions();
+  } catch (e) { $('dep-note').textContent = String(e.message); }
+}
+async function loadVersions() {
+  try {
+    const r = await api('/api/versions');
+    $('versions').innerHTML = (r.versions || []).slice().reverse().map(v =>
+      `<div class="${v.active ? 'cur' : ''}"><span>${v.version} · mAP50 ${v.metrics?.map50 ?? '—'}</span>` +
+      `<span>${v.active ? '当前' : `<button onclick="activateVersion('${v.version}')">切到此版</button>`}</span></div>`
+    ).join('') || '<div class="empty">暂无版本记录 · 部署一次后即可在此按版本回滚</div>';
+  } catch (e) { /* ignore */ }
+}
+async function activateVersion(v) {
+  try { await api('/api/rollback', { version: v }); loadVersions(); } catch (e) { $('dep-note').textContent = String(e.message); }
+}
+
+/* ---------------- 场景特化（免训练校准 + 手动调参） ---------------- */
+function _num(id) {
+  const v = $(id).value.trim();
+  return v === '' ? null : Number(v);
+}
+async function sceneCalibrate() {
+  try {
+    await api('/api/train', { tier: 'calibrate' });
+    $('tuning-note').textContent = '场景校准中（秒级：扫阈值 + 推 ROI）…';
+    lastJob = '';
+  } catch (e) { $('tuning-note').textContent = String(e.message); }
+}
+async function loadTuning() {
+  try {
+    const t = await api('/api/tuning');
+    $('tune-conf').value = t.conf_threshold;
+    $('tune-iou').value = t.iou_threshold;
+    const roi = t.roi || ['', '', '', ''];
+    ['x', 'y', 'w', 'h'].forEach((k, i) => { $('tune-' + k).value = roi[i]; });
+    $('tuning-note').textContent =
+      (t.exists ? '已加载 tuning.json' : '暂无 tuning.json（用配置默认值）') +
+      ` · conf ${t.conf_threshold} · IoU ${t.iou_threshold}` +
+      (t.roi ? ` · ROI ${t.roi.map(v => Number(v).toFixed(2)).join(', ')}` : ' · 无 ROI（全画面）');
+    $('tune-sweep').textContent = (t.sweep || []).length
+      ? '上次扫描：' + t.sweep.map(r => `conf ${r.conf} → F1 ${r.f1}`).join('  |  ')
+      : '—';
+  } catch (e) { $('tuning-note').textContent = String(e.message); }
+}
+async function saveTuning() {
+  const body = { conf_threshold: _num('tune-conf'), iou_threshold: _num('tune-iou') };
+  const roi = ['x', 'y', 'w', 'h'].map(k => _num('tune-' + k));
+  const filled = roi.filter(v => v !== null).length;
+  if (filled === 4) body.roi = roi;
+  else if (filled > 0) {
+    $('tuning-note').textContent = 'ROI 要么 4 个值全填（x y w h），要么全部留空';
+    return;
+  }
+  try {
+    const r = await api('/api/tuning', body);
+    $('tuning-note').textContent =
+      `已保存并立即生效 · conf ${r.conf_threshold} · IoU ${r.iou_threshold}` +
+      (r.roi ? ` · ROI ${r.roi.join(', ')}` : ' · 无 ROI');
+  } catch (e) { $('tuning-note').textContent = String(e.message); }
+}
+async function clearTuningRoi() {
+  try {
+    await api('/api/tuning', { clear_roi: true });
+    $('tuning-note').textContent = '已取消 ROI（全画面都参与候选）';
+    await loadTuning();
+  } catch (e) { $('tuning-note').textContent = String(e.message); }
+}
+
+/* ---------------- 标定 / 抓取 ---------------- */
+async function startCalibrate() {
+  try {
+    await api('/api/calibrate/start', { grid_size: Number($('cal-n').value), span: Number($('cal-span').value) });
+    $('cal-note').textContent = '标定中，请按提示放置目标…';
+    lastJob = '';
+  } catch (e) { $('cal-note').textContent = String(e.message); }
+}
+async function startGrasp() {
+  try {
+    await api('/api/grasp/start', { task_id: '' });
+    $('grasp-log').textContent = '';
+    lastJob = '';
+  } catch (e) { errToast(e); }
+}
+async function stopGrasp() {
+  try {
+    await api('/api/grasp/stop');
+    lastJob = '';
+  } catch (e) { errToast(e); }
+}
+
+/* ---------------- 分区切换（按钮跳转，页面不再拉长） ---------------- */
+const VIEWS = ['live', 'collect', 'label', 'train', 'deploy', 'calib', 'grasp'];
+function showView(name) {
+  if (!VIEWS.includes(name)) name = VIEWS[0];
+  VIEWS.forEach(v => {
+    const el = $('view-' + v);
+    if (el) el.classList.toggle('is-active', v === name);
+  });
+  [...document.querySelectorAll('.tab')].forEach(b =>
+    b.classList.toggle('is-active', b.dataset.view === name));
+  // 把当前分区写进 hash：刷新/换设备后还停在同一页，也方便演示直接跳 #grasp
+  if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
+}
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+
+/* ---------------- 启动 ---------------- */
+showView(location.hash.slice(1));
+setInterval(tick, 1000);
+tick();
+loadFrames();
+loadVersions();
+loadTuning();
+</script>
+</body>
+</html>

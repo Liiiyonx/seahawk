@@ -1,0 +1,25 @@
+[Unit]
+Description=Oceanus 机械臂常驻自检拾取（不依赖平台派单）
+# ★ 与 oceanus-arm-bridge 互斥：两者都会调用同一个 GraspLoop 驱动同一台机械臂，
+#   同时跑两个进程会互相抢舵机总线。同一时刻只启用其中一个。
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__PI_USER__
+WorkingDirectory=__REPO__/edge
+Environment=PYTHONUNBUFFERED=1
+Environment=OCEANUS_MQTT_HOST=__BROKER__
+# 厂商 ROS 工作空间必须先 source，否则看不到 rospy / IK / 舵机话题
+ExecStart=/bin/bash -lc 'source __ROS_SETUP__ && exec python3 -m grasp.supervisor'
+Restart=on-failure
+RestartSec=10
+# 2 = 前置不满足（缺标定 / 缺模型），3 = 连续失败超限。
+# 这两种都是「要人去修」的状态，不能让 systemd 无脑重启刷日志。
+RestartPreventExitStatus=2 3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -164,3 +164,7 @@ driver:
 - 真机械臂 + 仿真海面 / 受控实验只能标 **E2**，不得写成 E3/E4。
 - 感知精度保持 `not_evaluated`，不把「链路跑通」写成「识别准了」。
 - 本目录所有模拟、内存 transport 和自测输出都不代表现场验收。
+- 用 `oceanus_vision`（视觉闭环）驱动时，除 9 点标定外还必须有**料槽放置点**
+  （在 `edge/grasp` 作业台示教一次，或填 `agent.place.coord`）。缺失时 `pick()`
+  明确报错 → 桥接层记 `pick_failed` 且 `review_result=recheck`，**不会假装成功**；
+  抓到了但没放进槽（`placed=False`）同样报 `recheck`，等人工复核。

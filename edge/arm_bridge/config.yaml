@@ -21,6 +21,27 @@ driver:
   # http      = generic HTTP adapter example for an arm HTTP SDK
   backend: "simulated"
 
+  # ---- 真机：视觉闭环抓取（推荐，无预设动作）----
+  # 走 edge/grasp 子系统：YOLO 检出 → 像素↔世界坐标 → IK 现算 → 总线舵机。
+  # 与厂商节点共存（只发 /servo_controllers/... 话题，不抢串口），
+  # 舵机回读读厂商已发布的 servo_states 话题。
+  # 前置：edge/grasp 的 active 目录已部署模型（best.onnx）+ 完成 9 点标定，
+  #       否则 pick() 会明确报「未部署模型 / 未标定」而不是假装成功。
+  #       上真机前先跑 `python edge/grasp/tools/precheck.py` 把这四项前置验一遍。
+  # 训练作业台（采集/标注/训练/部署/标定）在 http://<IP>:8090。
+  #
+  # ★ 故意**不改** backend 默认值：main.py 的 --dry-run 自测与部分联测都按
+  #   simulated 跑，把默认切过去会把它们一起带到「需要 ROS」的路径上。
+  #   真机改为显式选择（systemd 部署脚本已按这个写法生成）：
+  #     python -m arm_bridge.main --config edge/arm_bridge/config.yaml \
+  #            --driver oceanus_vision
+  oceanus_vision:
+    config_path: null          # 默认读 edge/grasp/config.yaml
+    calibration_path: null     # 默认读 edge/grasp/calibration.json
+    mock: false                # true = 合成画面，不接 ROS
+    collected_weight: 0.05
+    review_result: "recheck"
+
   simulated:
     battery: 100
     bins:

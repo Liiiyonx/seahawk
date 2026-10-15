@@ -80,6 +80,9 @@ class ArmDriver(Protocol):
 #: 需要额外运行时依赖的驱动 -> 模块路径。惰性加载，见 build_arm_driver。
 _OPTIONAL_DRIVER_MODULES = {
     "ros_arm_control": "arm_bridge.ros_driver",
+    # 视觉闭环抓取驱动：复用 edge/grasp 子系统（IK 现算，无预设动作序列）。
+    # 它 import rospy，只在真正选用时才加载，因此不影响其它驱动的测试环境。
+    "oceanus_vision": "grasp.vision_driver",
 }
 
 ArmDriverFactory = Callable[..., Any]
