@@ -17,9 +17,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "20260905_0100_servo_telemetry"
@@ -29,11 +27,14 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "t_track",
-        sa.Column("servo_telemetry", postgresql.JSONB(), nullable=True),
-    )
+    # ★ 幂等写法（双轨制的硬要求，与 20260919_1200_coverage_nullable 同口径）：
+    #   轨道 A 的 01_schema.sql 已经带 servo_telemetry 列，而本迁移会在
+    #   「01_schema.sql 建库 → upgrade head」的流程里被执行（生产
+    #   `make prod-migrate-stamp/prod-migrate`、以及迁移测试的 scratch 库
+    #   都走这条路）。普通 add_column 会直接 DuplicateColumn 报错，
+    #   把整条迁移链卡死在最后一步。
+    op.execute("ALTER TABLE t_track ADD COLUMN IF NOT EXISTS servo_telemetry JSONB")
 
 
 def downgrade() -> None:
-    op.drop_column("t_track", "servo_telemetry")
+    op.execute("ALTER TABLE t_track DROP COLUMN IF EXISTS servo_telemetry")

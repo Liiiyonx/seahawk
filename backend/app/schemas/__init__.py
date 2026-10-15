@@ -253,6 +253,9 @@ class RobotOut(BaseModel):
     bins: dict[str, float] = Field(default_factory=dict)
     current_task_id: str | None = None
     last_heartbeat: datetime | None = None
+    # 底盘类型："boat"（双体水面）| "tracked"（履带滩涂车）——
+    # 3D 沙盘据此选择模型；缺省按 boat 处理
+    chassis: str | None = None
 
     @property
     def available(self) -> bool:

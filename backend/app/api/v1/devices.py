@@ -45,6 +45,21 @@ async def _to_device_out(session: AsyncSession, device) -> DeviceOut:
     ).first()
     lng = float(row[0]) if row and row[0] is not None else 0.0
     lat = float(row[1]) if row and row[1] is not None else 0.0
+
+    meta = dict(device.meta or {})
+    # ★ 机器人「当前任务」的单一真源是 t_task 里的活跃工单（与 /robots 同口径）。
+    #   meta.current_task_id 只是派单那一刻写的快照 —— 任务终结后它不会自动清、
+    #   多任务并存时又只记住最后一次写入，于是同一艘船在设备页与机器人接口
+    #   显示两个不同的任务号。这里统一用派生值覆盖，两边永远一致。
+    if device.device_type == "robot":
+        active_tasks = await TaskRepository(session).list_active_tasks_for_robot(
+            device.device_id
+        )
+        if active_tasks:
+            meta["current_task_id"] = active_tasks[0].task_id
+        else:
+            meta.pop("current_task_id", None)
+
     return DeviceOut(
         device_id=device.device_id,
         device_type=device.device_type,
@@ -58,7 +73,7 @@ async def _to_device_out(session: AsyncSession, device) -> DeviceOut:
             if device.device_type == "shore_camera"
             else device.stream_url
         ),
-        meta=device.meta or {},
+        meta=meta,
     )
 
 

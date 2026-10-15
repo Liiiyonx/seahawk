@@ -124,6 +124,12 @@ async def finalize_dispatch(task: Task) -> None:
         2. `services.consumer._process_entry`    —— Streams 消费者
         3. `services.consumer.pending_dispatcher`—— 定时补派
         4. `DispatchEngine.assign_pending_tasks` —— 手动补派 API
+        5. `api.v1.tasks.create_task`            —— 人工建单**并指定机器人**
+                                                    （2026-10-15 E2E 实测漏掉过：
+                                                     接口 200、库里 assigned、机器人
+                                                     一条指令没收到，30s 后 ACK 超时
+                                                     打回 pending 且 robot_id 仍占着，
+                                                     补派也扫不到 → 永久卡住）
 
     ★ 为什么必须收成一处（这是本函数的全部理由）：
         曾经只有前两个入口做了收尾，后两个只创建任务就返回。后果是
@@ -436,6 +442,18 @@ class DispatchEngine:
             event = await self.events.get_by_event_id(task.event_id)
             if event is not None:
                 event.status = EventStatus.RESOLVED
+
+        # 任务终结（done/cancelled）→ 摘掉机器人身上的「当前任务」指针。
+        # 不摘的话，设备接口返回的 meta.current_task_id 会永远停在最近一次
+        # 派单上（派单写、终结不清），与 /robots 按活跃任务推导的结果互相
+        # 矛盾 —— 同一艘船在两个页面显示两个不同的「当前任务」。
+        if target_status in (TaskStatus.DONE, TaskStatus.CANCELLED) and task.robot_id:
+            robot = await self.devices.get_robot_by_id(task.robot_id)
+            if robot is not None:
+                meta: dict[str, Any] = dict(robot.meta or {})
+                if meta.get("current_task_id") == task.task_id:
+                    meta.pop("current_task_id", None)
+                    robot.meta = meta
 
         return task
 

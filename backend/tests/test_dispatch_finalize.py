@@ -99,6 +99,27 @@ def collect_calls(node: ast.AST) -> list[str]:
     return names
 
 
+def calls_transition_to_assigned(node: ast.AST) -> bool:
+    """子树里是否出现 ``…transition(task, TaskStatus.ASSIGNED, robot_id=…)``。
+
+    认两种写法：常量 ``"assigned"`` 与属性 ``TaskStatus.ASSIGNED``。
+    """
+    for sub in ast.walk(node):
+        if not isinstance(sub, ast.Call):
+            continue
+        fn = sub.func
+        name = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", None)
+        if name != "transition":
+            continue
+        args = list(sub.args) + [kw.value for kw in sub.keywords]
+        for arg in args:
+            if isinstance(arg, ast.Constant) and arg.value == "assigned":
+                return True
+            if isinstance(arg, ast.Attribute) and arg.attr == "ASSIGNED":
+                return True
+    return False
+
+
 def make_task(**overrides: object) -> Task:
     """构造一个内存中的 Task（不需要数据库）。"""
     fields: dict[str, object] = {
@@ -305,9 +326,54 @@ class TestEveryDispatchEntryFinalizes:
 
 
 # ======================================================================
-# 四、★ ACK 超时处理必须真的被接上
+# 四、★ 人工指派（API 层）也必须收尾
+# ======================================================================
+class TestManualAssignmentFinalizes:
+    """API 入口层凡是指派了机器人，就必须调用 `finalize_dispatch`。
+
+    ★ 为什么单独盯 API 层：内部辅助函数（`dispatch_for_event`、
+      `_assign_unassigned_pending`）由各自的调用方统一收尾，逐个断言会误报；
+      而 **API 路由**是"用户点一下按钮"的入口，必须自己走完三步。
+
+    ★ 这条守卫来自 2026-10-15 的端到端实测：`POST /tasks {robot_id}`
+      （工单看板的「人工建单」并选了机器人）只调 `transition(ASSIGNED)`：
+      接口 200、库里 assigned、**机器人一条指令都没收到**；30 秒后 ACK 超时
+      把工单打回 pending（`robot_id` 仍占着），而补派只扫
+      `status='pending' AND robot_id IS NULL` —— 于是工单永久卡在 pending，
+      看板显示"已派单"、机械臂一动不动，全程不报错。
+    """
+
+    def test_api_assignment_sites_finalize(self) -> None:
+        offenders: list[str] = []
+        sites: list[str] = []
+
+        for path in sorted((APP_DIR / "api").rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for func_name, node in enclosing_functions(tree):
+                if not calls_transition_to_assigned(node):
+                    continue
+                rel = path.relative_to(BACKEND.parent).as_posix()
+                sites.append(f"{rel}::{func_name}")
+                if "finalize_dispatch" not in collect_calls(node):
+                    offenders.append(f"{rel}::{func_name}")
+
+        assert sites, (
+            "扫描器没有扫到任何「API 层指派机器人」的调用点 —— "
+            "这不是'没问题'，是'没在检查'（写法变了要修守卫）。"
+        )
+        assert not offenders, (
+            "下列 API 入口指派了机器人却没有收尾（机器人收不到指令、看板不刷新，"
+            "且不报错；工单会在 30 秒后被 ACK 超时打回 pending 并永久卡住）：\n  "
+            + "\n  ".join(offenders)
+            + "\n\n派单成功 = 建任务 + 下发 MQTT + 推送看板，三步缺一不可。"
+        )
+
+
+# ======================================================================
+# 五、★ ACK 超时处理必须真的被接上
 # ======================================================================
 class TestAckTimeoutIsWired:
+
     """`handle_ack_timeout` 曾经**零调用点**。
 
     它是文档里「五步筛选」的第五步（ACK 超时换车重派）。

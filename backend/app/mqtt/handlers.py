@@ -138,13 +138,42 @@ async def _try_dispatch(event_id: str) -> Task | None:
         return task
 
 
+def _normalize_servos(raw: Any) -> dict[str, Any] | None:
+    """把 telemetry 里的 ``servos`` 收敛成可落库的形状（``None`` = 没有舵机数据）。
+
+    只收数值字段：电压(mV) / 位置 / 目标 / 误差 / 温度。真机驱动回读的是厂商
+    ``ServoState``（voltage / position / goal / error）；温度只有部分固件上报，
+    没上报就不编造字段。非 dict、空 dict、坏值一律当作"没有舵机数据"。
+    """
+    if not isinstance(raw, dict) or not raw:
+        return None
+    out: dict[str, dict[str, Any]] = {}
+    for servo_id, item in raw.items():
+        if not isinstance(item, dict):
+            continue
+        row: dict[str, Any] = {}
+        for key in ("vin", "temp", "temperature"):
+            if key in item:
+                value = _safe_float(item[key])
+                if value is not None:
+                    row[key] = value
+        for key in ("position", "goal", "error"):
+            if key in item:
+                value = _safe_int(item[key])
+                if value is not None:
+                    row[key] = value
+        if row:
+            out[str(servo_id)] = row
+    return out or None
+
+
 async def handle_telemetry(
     topic: str,
     payload: dict[str, Any],
     *,
     session_factory: Any | None = None,
 ) -> None:
-    """处理设备遥测（心跳、电量、仓容）。
+    """处理设备遥测（心跳、电量、仓容、逐舵机回读）。
 
     主题：marine/{site_id}/{device_id}/telemetry
     QoS0 —— 丢一帧无所谓，但要更新在线状态。
@@ -162,6 +191,12 @@ async def handle_telemetry(
     bins = payload.get("bins")
     if not isinstance(bins, dict):
         bins = {}
+    # ★ 逐舵机遥测（机械臂驱动从舵机回读后随 telemetry 上报）。
+    #   它是「机械臂真的动了」的硬证据：数字来自舵机本身，而 status/battery 是
+    #   平台侧自报。此前**只有本地仿真路径**（simulations.py 读这一列）有数据，
+    #   真机经 MQTT 上来的 servos 没人落库，t_track.servo_telemetry 永远是 NULL ——
+    #   到了要举证"真机执行过"的时候反而拿不出数据。这里补上写入端。
+    servo_telemetry = _normalize_servos(payload.get("servos"))
 
     async with session_factory()() as session:
         from app.repositories import DeviceRepository
@@ -207,6 +242,7 @@ async def handle_telemetry(
                             bin_plastic=_safe_float(bins.get("plastic")),
                             bin_mixed=_safe_float(bins.get("mixed")),
                             speed=_safe_float(payload.get("speed")),
+                            servo_telemetry=servo_telemetry,
                         )
                     )
 

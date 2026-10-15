@@ -19,7 +19,7 @@ from app.db.session import get_session
 from app.models.task import ReviewResult, TaskStatus
 from app.repositories import TaskRepository
 from app.schemas import TaskCreate, TaskOut, TaskStatusUpdate
-from app.services.dispatch import DispatchEngine, _parse_point
+from app.services.dispatch import DispatchEngine, _parse_point, finalize_dispatch
 from app.ws.manager import ws_manager
 
 router = APIRouter()
@@ -104,7 +104,13 @@ async def create_task(
     # 若指定了机器人，直接派单
     if payload.robot_id:
         engine = DispatchEngine(session)
-        await engine.transition(task, TaskStatus.ASSIGNED, robot_id=payload.robot_id)
+        task = await engine.transition(task, TaskStatus.ASSIGNED, robot_id=payload.robot_id)
+        # ★ 收尾（下发 MQTT 指令 + 推送看板）必须调用 —— 与其余四个派单入口用
+        #   同一个函数。这里曾漏掉：接口返回 200、库里状态是 assigned，而机器人
+        #   **一条指令都没收到**；30s 后 ACK 超时把工单打回 pending（robot_id 仍
+        #   占着），补派只扫 `robot_id IS NULL` 的工单 —— 于是它永久卡在 pending。
+        #   看板上"已派单"，机械臂一动不动，且不报错。E2E 实测复现。
+        await finalize_dispatch(task)
 
     return ApiResponse.ok(_to_out(task), message="任务已创建")
 

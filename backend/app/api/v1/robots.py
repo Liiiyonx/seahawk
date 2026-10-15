@@ -43,6 +43,7 @@ async def list_robots(session: AsyncSession = Depends(get_session)):
                 bins={k: float(v) for k, v in (meta.get("bins") or {}).items()},
                 current_task_id=active_tasks[0].task_id if active_tasks else None,
                 last_heartbeat=device.last_heartbeat,
+                chassis=str(meta.get("chassis") or "boat"),
             )
         )
 
