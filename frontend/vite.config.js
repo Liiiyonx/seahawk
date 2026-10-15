@@ -39,6 +39,22 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    // ★ preview 也要同样的代理：`npm run preview` 是**演示时最稳的起法**
+    //   （直接服务已构建产物，没有 HMR、不会中途重编译）。少了这段代理，
+    //   前端请求 /api/v1 会落到 5173 自己身上 → 404，表现为"登录没反应"。
+    preview: {
+      port: 5173,
+      host: true,
+      proxy: {
+        '/api': { target: backendHttp, changeOrigin: true, ws: true },
+        '/stream': {
+          target: streamHttp,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/stream/, ''),
+          ws: true,
+        },
+      },
+    },
     build: {
       outDir: 'dist',
       chunkSizeWarningLimit: 1200,

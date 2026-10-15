@@ -1,7 +1,7 @@
 # 探海灵眸 Oceanus — 常用命令
 # 用法：make <target>     查看全部：make help
 
-.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
+.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend demo-arm demo-arm-live demo-arm-real demo-arm-check demo-arm-fix arm-e2e nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
 
 SHELL := /bin/bash
 
@@ -117,6 +117,31 @@ dev-backend:  ## 本地启动后端（热重载，需先 make up）
 
 dev-frontend:  ## 本地启动前端开发服务器
 	cd frontend && npm run dev
+
+# ---------- 机械臂演示 ----------
+ifeq ($(OS),Windows_NT)
+ARM_PYTHON ?= .venv-analysis/Scripts/python.exe
+else
+ARM_PYTHON ?= .venv-analysis/bin/python
+endif
+
+demo-arm:  ## 机械臂演示一键起栈（临时 broker + 后端 + 前端 + 桥接层，控制台见演示动线卡）
+	$(ARM_PYTHON) verify/arm_chain_e2e/demo_arm.py
+
+demo-arm-live:  ## 机械臂演示（清场 + 只让机械臂在线：自动派单必落机械臂）
+	$(ARM_PYTHON) verify/arm_chain_e2e/demo_arm.py --clean --arm-only --event
+
+demo-arm-real:  ## 机械臂演示（真机：不起本机桥接层，打印树莓派上要跑的命令）
+	$(ARM_PYTHON) verify/arm_chain_e2e/demo_arm.py --real --clean --arm-only
+
+demo-arm-check:  ## 演示前自检（只读，10 秒）：库/端口/前端产物/作业台配置/模型/标定/残留状态
+	$(ARM_PYTHON) verify/arm_chain_e2e/demo_arm.py --check
+
+demo-arm-fix:  ## 恢复上次演示临时置为 offline 的机器人
+	$(ARM_PYTHON) verify/arm_chain_e2e/demo_arm.py --fix-status
+
+arm-e2e:  ## 机械臂链路端到端验收（真 PG/broker/后端/桥接 + mock 执行端，32 项断言）
+	$(ARM_PYTHON) verify/arm_chain_e2e/run_e2e.py
 
 # ---------- Nexent MCP（可选，独立于机器人） ----------
 ifeq ($(OS),Windows_NT)
