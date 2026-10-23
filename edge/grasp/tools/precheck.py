@@ -45,7 +45,7 @@ for _p in (str(EDGE), str(GRASP)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from grasp.arm_io import ArmIo                                    # noqa: E402
+from grasp.arm_io import build_arm_io                             # noqa: E402
 from grasp.calibration import (                                   # noqa: E402
     DEFAULT_CALIBRATION_PATH,
     describe_place,
@@ -142,7 +142,8 @@ def check_place(cfg: dict[str, Any], mock: bool) -> tuple[bool, str]:
 
 
 def check_camera(cfg: dict[str, Any], mock: bool) -> tuple[bool, str]:
-    io = ArmIo(cfg, mock=mock)
+    # ★ 同 supervisor：远端模式下自检也要走板上代理，否则开发机上永远 ✗ 相机/ROS
+    io = build_arm_io(cfg, mock=mock)
     try:
         io.start()
     except Exception as exc:                             # noqa: BLE001

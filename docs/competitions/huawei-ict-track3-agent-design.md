@@ -145,6 +145,18 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 当前库内数据为**演示数据**（total=4），用于打通往返链路与截图取证，不表述为
 真实脱敏行业数据。真实脱敏数据的评测状态见 §9。
 
+**知识域 LLM 通道（2026-10-24 上线，登记号 R-LLM-01）**：OpenAI 兼容端点
+（`KNOWLEDGE_LLM_*` 独立配置，默认关闭）承担两件事，规则与检索通道始终兜底：
+
+| 通道 | 行为 | 兜底 |
+| --- | --- | --- |
+| 本体候选抽取主通道 | LLM 按严格 JSON schema 抽取节点/关系（关系类型限定 8 词表、实体类型限定 6 词表、引文必摘原文），经校验后与规则候选按 canonical 去重合并 | 调用失败/输出非法 → 整体回退规则通道，`extraction_fallback_reason` 落版本 metadata |
+| 检索-生成问答（R-KN-06） | `POST /api/v1/knowledge/qa`：先多跳检索，模型只允许依据检索证据作答，回答内嵌 [c:编号] 引用 | 模型失败 → 降级输出原始证据列表并明示“未生成模型结论”；证据不足 → `insufficient_evidence=true` 拒答 |
+
+通道机制由 20 项专项测试与确定性评测守卫（`make ontology-llm-eval` /
+`make knowledge-llm-qa-trace`）；**当前已采集轨迹均来自确定性脚本客户端，
+真实模型评测须配置端点后加 `--real` 重跑**，不得把脚本客户端表述为模型能力。
+
 ### 3.5 调用关系图
 
 Agent 在平台内的真实调用关系由 `GET /api/agent/call_relationship/1` 返回，
@@ -285,6 +297,16 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 | R-KN-04 | 知识域前端“检索结果 + 引用”截图 | `artifacts/knowledge-qa-trace/01-检索结果-本体图检索与引用.png` |
 | R-KN-04 | 知识域前端“决策证据链 + 资产版本引用”截图 | `artifacts/knowledge-qa-trace/02-决策证据链-资产版本引用.png` |
 | R-KN-04 | 问答轨迹 API JSON（问题 → 检索 → 决策 → 证据链） | `artifacts/knowledge-qa-trace/latest.json` |
+| R-KN-05 | 知识域前端“跨文档多跳检索结果 + 引用”截图（命中带 2 跳路径） | `artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png` |
+| R-KN-05 | 知识域前端“决策证据链 + 资产版本引用”截图 | `artifacts/knowledge-qa-trace-multihop/02-决策证据链-资产版本引用.png` |
+| R-KN-05 | 多跳问答轨迹 API JSON（hop=0/1/2 三档证据，跨 6 份资产版本） | `artifacts/knowledge-qa-trace-multihop/latest.json` |
+
+R-KN-06（2026-10-24）**检索-生成问答轨迹**：两个问题在已发布本体上先走
+ontology_graph 多跳检索（命中带 hop=1 路径与引用），再生成带 [c:1] 引用的
+回答；第二个问题（疑似漏油）在语料无适用条款时明示
+`insufficient_evidence=true` 并建议人工升级——与 R-NX-09 的本地 Nexent 拒答
+案例同一叙事。轨迹见 `artifacts/knowledge-llm-qa-trace/latest.json`。
+口径：确定性脚本客户端（非真实模型），E1；真实模型轨迹待端点配置。
 
 **待补**：华为 AgentArts 托管平台内的完整 Skill 问答截图（R-NX-07 `blocked`）。
 解除账号欠费并按 `huawei-agentarts-vpc-target-runbook.md` 创建 Target、绑定
@@ -293,6 +315,14 @@ Agent、发布后，在平台内跑一次完整问答并另存为 `evidence/host
 
 R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检索**，不是多跳
 路径问答，也不是 LLM 生成式问答，不得与 R-NX-09 混写。
+
+R-KN-05（2026-10-23）补齐**真实多跳实例**：同一问题在已发布本体上执行跨文档
+多跳检索，命中 6 条，其中 3 条为 `hop=2`（路径如“泡沫垃圾 [触发] → 岸线巡查
+[生成] → 打捞任务”）；决策证据链 6 条证据覆盖 hop=0/1/2 三档、引用 6 份不同
+资产版本（事件/表格/文档/遥测/图像/数据集）。轨迹与截图见
+`artifacts/knowledge-qa-trace-multihop/`。口径：确定性“检索-推理”链路
+（本体图检索 + 决策证据链），演示资产、E1/E2 证据等级；不是 LLM 生成式问答，
+不得表述为真实脱敏行业数据或现场验证。
 
 ## 七、随附文件说明
 
@@ -339,12 +369,22 @@ R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检�
 截图 → 按 `hosted-skill-qa.template.yaml` 登记。完成前，全部对外材料维持
 “本地已验收、托管平台未验收”的口径。
 
+**2026-10-24 复跑探测（R-NX-08-PROBE-20261024）**：账号解冻后用重建的自包含
+复跑脚本（`scripts/rnx08_hosted_qa_run.py`，按官方 managed_agents 协议）发起
+一次探测：网关与鉴权层在线、域名公网可解析，但 WebSocket 握手 401——形态与
+10-02 成功记录一致的 API Key 被服务端拒绝。卡点从「账号欠费」收敛为「控制台
+身份鉴权核验」（API Key 轮换 / runtime 变更 / 账号受限记录，三者只能在控制台
+确认）。核验通过后执行同一脚本即可按模板登记 R-NX-08 完成；详见
+`artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`
+与 runbook §13.8。
+
 ## 九、诚实边界与不可宣称项
 
 - 感知精度 `not_evaluated`；`76%` 仅指时序链路误报抑制率；
 - 演示数据（total=4）不等于真实脱敏行业数据集；公开开放数据替代评测
   （R-OD-01，8 份生态环境部公开通知）也只是 E1 替代证据，不代表领域准确率；
-- R-KN-04 为 `hop=0` 直接引用检索，不是多跳问答；
+- R-KN-04 为 `hop=0` 直接引用检索；跨文档多跳实例由 R-KN-05 补齐
+  （hop=0/1/2 三档证据、演示资产、E1/E2），两者均非 LLM 生成式问答；
 - 本文档所有“已跑通”仅指**本地官方源码部署 Nexent**，不含华为 AgentArts
   托管平台内验收；
 - 本体抽取评测（R-KN-02）、增量维护对比（R-KN-03）、多行业迁移（R-MG-01）
@@ -354,4 +394,5 @@ R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检�
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-10-24 | 新增 §3.4 知识域 LLM 通道（R-LLM-01 抽取主通道 + R-KN-06 检索-生成问答，脚本客户端口径）；§六补 R-KN-06 轨迹索引；§八补 R-NX-08 复跑探测（401，卡点收敛为鉴权核验） | liyongxiang + ZCode |
 | 2026-09-30 | 建立「材料 2」独立提交件底稿：整体设计思路、Agent 配置完整细节、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界 | WP-15 |

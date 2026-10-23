@@ -50,6 +50,75 @@ HEADER_TEXT = (
     f"软件著作权源程序鉴别材料 · {SOFTWARE_FULL_NAME} · {VERSION}"
 )
 
+# ── 变体：拆分登记第 2 篇「海洋治理智能体决策与审批软件」───────────────
+# 见《方案书_02_海洋治理智能体决策与审批软件V1.0》。与主软著共用同一套
+# 排版管线（每页 50 行 / 行号列 / 页眉页脚），只替换软件名、页眉与取材清单。
+AGENT_FULL_NAME = "探海灵眸海洋治理智能体决策与审批软件"
+AGENT_SHORT_NAME = "Oceanus Agent"
+AGENT_HEADER_TEXT = (
+    f"软件著作权源程序鉴别材料 · {AGENT_FULL_NAME} · {VERSION}"
+)
+
+# ── 变体：拆分登记第 3 篇「海域治理三维数字沙盘软件」─────────────────
+# 见《方案书_03_海域治理三维数字沙盘软件V1.0》。与主软著**零重合**：
+# 主软著 22 个核心模块均为后端/边缘 Python 文件，未含 sandbox 三维组件；
+# 本篇全为 JavaScript/Vue 前端模块，与主软著材料观感完全不同。
+SANDBOX_FULL_NAME = "探海灵眸海域治理三维数字沙盘软件"
+SANDBOX_SHORT_NAME = "Oceanus SandBox"
+SANDBOX_HEADER_TEXT = (
+    f"软件著作权源程序鉴别材料 · {SANDBOX_FULL_NAME} · {VERSION}"
+)
+
+# ── 变体：拆分登记第 4 篇「水面垃圾打捞机械臂控制软件」────────────────
+# 见《方案书_04_水面垃圾打捞机械臂控制软件V1.0》。本篇是唯一「跑在机器人
+# 本体上」的嵌入式控制软件，取材整目录 edge/arm_bridge/ + 手眼标定脚本。
+#
+# ★ 与主软著的零重合论证（2026-10-13 实测复核，勿凭印象改写）：
+#   主软著提交的 60 页 PDF 里出现的文件横幅只有 5 个 ——
+#     backend/app/main.py、services/agents/runtime.py、services/dispatch.py、
+#     edge/detector/detector.py、edge/main.py。
+#   其中**没有任何 arm_bridge 文件**，故零重合成立。
+#   ⚠️ 但理由**不是**「主软著 CURATED_FILES 未收录 arm_bridge」—— 实际上
+#   CURATED_FILES 里就有 edge/arm_bridge/ros_driver.py 与 bridge.py（位列
+#   第 12、13 个文件）。二者之所以不进提交材料，是因为落在拼接序列的中段，
+#   被「前 30 + 后 30」两个窗口挤出去了。结论一样，理由必须写对，否则日后
+#   有人照「未收录」的口径去重排素材就会真的撞车。
+#
+# ★ 全量提交：本篇剔空后 2,787 行 ≤ 3,000（60 页），pick_front_back 的
+#   `len(concat) <= need * 2` 分支会自动返回全量，无需任何开关。
+ARM_FULL_NAME = "探海灵眸水面垃圾打捞机械臂控制软件"
+ARM_SHORT_NAME = "Oceanus Arm"
+ARM_HEADER_TEXT = (
+    f"软件著作权源程序鉴别材料 · {ARM_FULL_NAME} · {VERSION}"
+)
+
+# ── 变体：拆分登记第 1 篇「海漂垃圾边缘智能感知软件」──────────────────
+# 见《方案书_01_海漂垃圾边缘智能感知软件V1.0》。本篇只取 edge/ 下的
+# 感知链路（取流、双通道检测、时序校验、上报缓存、设备仿真），
+# 与第 4 篇 arm_bridge（机器人本体控制）取材清单互斥。
+#
+# ★ 与主软著的重合控制（2026-10-14 实测复核）：
+#   主软著后 30 页落在 edge/main.py 与 edge/detector/detector.py，本篇
+#   把这两个文件各自挪出「后 30 页」窗口：main.py 前移到拼接序列中部、
+#   detector.py 放在前段中后部，后 30 页改以 device_sim/ 与 simulator.py
+#   收尾。前段开篇改由 detector/world_detector.py 打头（开放词汇零样本
+#   通道，主软著从未用作开篇），与主软著前 30 页零文件重合。
+#
+# 落点实测（拼接后按非空行 + 每文件 1 行横幅计，共 6,689 行）：
+#   前 1,500 行 = world_detector.py(531) + test_world_detector.py(629)
+#              + clip_shim.py(144) + label_map.py(159) + test_metrics.py 前 37 行
+#              → 开篇为开放词汇检测与其单测，主软著未用作开篇。
+#   后 1,500 行 = test_seq_persistence.py(229) + test_detector.py(248)
+#              + simulator.py(1,037) → 末页为设备序号持久化与事件仿真器收尾。
+#   中段（第 1,500~5,189 行，不提交）= detector.py + main.py + config.yaml
+#              + device.py + protocol.py + faults.py 等，即主软著后 30 页的
+#              detector.py / main.py 全部落在不提交区。
+EDGE_FULL_NAME = "探海灵眸海漂垃圾边缘智能感知软件"
+EDGE_SHORT_NAME = "Oceanus Edge"
+EDGE_HEADER_TEXT = (
+    f"软件著作权源程序鉴别材料 · {EDGE_FULL_NAME} · {VERSION}"
+)
+
 # 行号列：参考材料每页左侧都有连续行号（聆心 1→2940，BlindGuard 1→2003）。
 # 这是程序鉴别材料的标准做法，便于审查员核对「前后各 30 页」的原始行位置。
 LINE_NUMBER_COLUMN = True
@@ -183,6 +252,211 @@ CURATED_FILES: list[SourceFile] = [
     SourceFile("edge/detector/detector.py", "边缘双通道检测器"),
     SourceFile("edge/main.py", "边缘感知程序入口（取流→检测→时序→上报）"),
 ]
+
+# ── 变体取材清单：拆分登记第 2 篇（决策支柱）──────────────────────────
+# 选材原则与主软著**同源不同落点**：主软著提交的前 30 页 =
+#   main.py + dispatch.py + runtime.py 头部，后 30 页 = edge/main.py +
+#   detector.py + simulator.py 尾部。本篇只要把 runtime.py 与 dispatch.py
+#   挤出前后两个窗口（放进中段不提交区），提交页便与主软著**零重合**。
+#
+# 落点实测（拼接后按非空行 + 每文件 1 行横幅计，共 5,008 行）：
+#   前 1500 行 = persistent_repository.py(645) + model_adapter.py(819)
+#              + policy.py 前 36 行 → 开篇是运行持久化，主软著未用作开篇。
+#   后 1500 行 = memory.py 后 48 行 + schema.py + model.py + repositories.py
+#              + factory.py + errors.py + event.py + lessons.py + consumer.py
+#              → 末页为 MQTT 消费与 ACK 闭环，收尾干净。
+#   中段（第 1500~3508 行，不提交）= policy.py 余部 + runtime.py + dispatch.py
+#              + planner.py + tools.py + memory.py 前部。
+#   即：runtime.py（主软著前 30 页）与 dispatch.py（主软著前 30 页）全部
+#       落在不提交区；主软著后 30 页的边缘感知链路本篇不收，双向无交集。
+CURATED_FILES_AGENT: list[SourceFile] = [
+    # ── 前段：开篇落点（运行持久化 → 模型适配 → 策略门禁）──────────
+    SourceFile("backend/app/services/agents/persistent_repository.py",
+               "智能体运行状态持久化仓储（开篇文件）"),
+    SourceFile("backend/app/services/agents/model_adapter.py",
+               "大模型多后端适配层"),
+    SourceFile("backend/app/services/agents/policy.py",
+               "策略门禁（写操作审批与 policy_denied）"),
+    # ── 中段：不提交区（运行时内核与派单引擎刻意置于此）────────────
+    SourceFile("backend/app/services/agents/runtime.py", "多角色智能体运行时内核"),
+    SourceFile("backend/app/services/dispatch.py", "事件派单引擎（五步筛选 + 防抖合并）"),
+    SourceFile("backend/app/services/agents/planner.py", "任务规划器"),
+    SourceFile("backend/app/services/agents/tools.py", "工具注册与调用编排"),
+    SourceFile("backend/app/services/agents/memory.py", "运行记忆"),
+    # ── 后段：收尾落点（仓储 → 错误体系 → 研判 → 经验 → 消费闭环）──
+    SourceFile("backend/app/services/agents/schema.py", "运行协议 schema"),
+    SourceFile("backend/app/services/agents/model.py", "智能体领域模型"),
+    SourceFile("backend/app/services/agents/repositories.py", "仓储接口定义"),
+    SourceFile("backend/app/services/agents/factory.py", "智能体工厂"),
+    SourceFile("backend/app/services/agents/errors.py", "智能体错误体系"),
+    SourceFile("backend/app/services/event.py", "事件研判服务"),
+    SourceFile("backend/app/services/agents/lessons.py", "处置经验沉淀与复用"),
+    SourceFile("backend/app/services/consumer.py", "MQTT 消费与 ACK 闭环（收尾文件）"),
+]
+
+# ── 变体取材清单：拆分登记第 3 篇（呈现支柱）──────────────────────────
+# 选材原则：只取三维沙盘与仿真推演模块，与主软著**零交集**（主软著
+# 前后 30 页全为 Python，本篇全为 JavaScript/Vue，观感天然不同）。
+#
+# 落点实测（拼接后按非空行 + 每文件 1 行横幅计，共 9,513 行）：
+#   前 1500 行 = SandBoxMap.vue(1456) + TerrainLayer.js 前 44 行
+#              → 开篇是沙盘主容器（三维场景编排入口），主软著未用作开篇。
+#   后 1500 行 = SimulationView.vue 后 68 行 + MapPanelPrecision.vue(1371)
+#              + PostFX.js(61) → 末页为三维后处理特效（泛光管线），收尾干净。
+#   中段（第 1500~8013 行，不提交）= 载具调度、航线、垃圾图层、交互图层、
+#              标注、礁体设施、仿真场景与地图等模块。
+#   落点设计（方案书 03 第四节）：第 1 页 SandBoxMap.vue（沙盘主容器），
+#              末页 PostFX.js（后处理特效）—— 首尾页与主软著完全不同。
+CURATED_FILES_SANDBOX: list[SourceFile] = [
+    # ── 前段：开篇落点（沙盘主容器 → 地形建模）──────────────────────
+    SourceFile("frontend/src/components/sandbox/SandBoxMap.vue",
+               "三维沙盘主容器（场景编排与渲染循环，开篇文件）"),
+    SourceFile("frontend/src/components/sandbox/TerrainLayer.js",
+               "真实海岸线三维地形建模与水陆判定"),
+    # ── 中段：不提交区（载具/航线/图层族刻意置于此）──────────────────
+    SourceFile("frontend/src/components/sandbox/VesselManager.js",
+               "打捞机器人与履带式滩涂车双载具调度"),
+    SourceFile("frontend/src/components/sandbox/RouteManager.js",
+               "作业航线规划与历史轨迹回放"),
+    SourceFile("frontend/src/components/sandbox/DebrisLayer.js",
+               "海漂垃圾漂移分布图层"),
+    SourceFile("frontend/src/components/sandbox/InteractionLayer.js",
+               "事件点选交互层"),
+    SourceFile("frontend/src/components/sandbox/LabelLayer.js",
+               "三维标注图层"),
+    SourceFile("frontend/src/components/sandbox/ReefLayer.js",
+               "渔排养殖区与礁体设施图层"),
+    SourceFile("frontend/src/components/SimulationScene.vue",
+               "仿真场景编排"),
+    SourceFile("frontend/src/components/SimulationMap.vue",
+               "仿真推演地图"),
+    # ── 后段：收尾落点（仿真推演页 → 高精度地图面板 → 后处理特效）────
+    SourceFile("frontend/src/views/SimulationView.vue",
+               "仿真推演沙盒页（不消耗真实工单）"),
+    SourceFile("frontend/src/components/MapPanelPrecision.vue",
+               "高精度地图面板"),
+    SourceFile("frontend/src/components/sandbox/PostFX.js",
+               "三维后处理特效（泛光管线，收尾文件）"),
+]
+
+# ── 变体取材清单：拆分登记第 4 篇（执行支柱）──────────────────────────
+# 选材原则：取整目录 edge/arm_bridge/（机器人本体控制软件）＋ 手眼标定脚本，
+# 一字不含平台/边缘感知代码，与方案一（edge/ 其余部分）取材清单互斥。
+#
+# 落点设计（方案书 04 第四节）：
+#   第 1 页 = main.py（桥接服务入口），末页 = calibrate_camera.py（手眼标定），
+#   首尾页与前三篇均无重合。
+# 顺序即正文叙述顺序：入口 → 指令桥接 → 驱动抽象 → ROS 运动学 → MQTT 通道
+#   → 示教工具 → 本体配置 → 三个单测 → 手眼标定收尾。
+# 行数实测（2026-10-13）：原始 3,299 行 / 剔空后 2,787 行（含 11 行文件横幅）
+#   → 56 页，不足 60 页，触发全量提交分支。
+CURATED_FILES_ARM: list[SourceFile] = [
+    # ── 开篇：服务入口与指令桥接核心 ──────────────────────────────
+    SourceFile("edge/arm_bridge/main.py",
+               "机械臂桥接服务入口（开篇文件）"),
+    SourceFile("edge/arm_bridge/bridge.py",
+               "指令桥接核心（指令解析、动作编排、幂等与重试）"),
+    # ── 中段：驱动层（舵机厂商协议 / ROS 运动学 / 消息通道）──────────
+    SourceFile("edge/arm_bridge/drivers.py",
+               "舵机驱动抽象与 Hiwonder 厂商协议适配"),
+    SourceFile("edge/arm_bridge/ros_driver.py",
+               "ROS 机械臂运动学驱动（关节空间与笛卡尔空间）"),
+    SourceFile("edge/arm_bridge/mqtt_transport.py",
+               "MQTT 指令/ACK 可靠通道"),
+    SourceFile("edge/arm_bridge/tools/teach_hiwonder_sequence.py",
+               "动作序列示教工具（真机示教取点）"),
+    SourceFile("edge/arm_bridge/config.yaml",
+               "机器人本体配置（串口、关节、限位）"),
+    # ── 后段：验证与标定，末页收尾 ────────────────────────────────
+    SourceFile("edge/arm_bridge/test_bridge.py",
+               "指令桥接单测（幂等去重与超时重试用例）"),
+    SourceFile("edge/arm_bridge/test_ros_driver.py",
+               "ROS 驱动单测（运动学与限位保护）"),
+    SourceFile("edge/arm_bridge/test_hiwonder_vendor_format.py",
+               "厂商协议格式单测（串口帧编解码）"),
+    SourceFile("ml/scripts/calibrate_camera.py",
+               "手眼标定与视觉引导定位（收尾文件）"),
+]
+
+# ── 变体取材清单：拆分登记第 1 篇（感知支柱）──────────────────────────
+# 选材原则：只取 edge/ 感知链路（取流 / 双通道检测 / 时序校验 / 上报缓存 /
+# 设备仿真），不含 arm_bridge（那属于第 4 篇「机械臂控制软件」）。
+#
+# 排布即正文叙述顺序，也是「首尾页重排」的实现：
+#   开放词汇检测 → 语义校验适配 → 标签映射 → 单测
+#   → CV 检测器（中段，不提交）→ 取流主程序（中段，不提交）
+#   → 配置与仿真 → 时序校验与设备仿真 → 设备单测 → 仿真器收尾。
+# 关键是让 detector.py 与 main.py 落在不提交的中段，从而与主软著
+# 后 30 页（正是这两个文件）避开；同时首行取自 world_detector.py、
+# 末行取自 simulator.py，首尾页与主软著完全不同。
+CURATED_FILES_EDGE: list[SourceFile] = [
+    # ── 前段：开篇落点（开放词汇检测 → 语义适配 → 标签映射 → 单测）──
+    SourceFile("edge/detector/world_detector.py",
+               "YOLO-World 开放词汇零样本检测（开篇文件）"),
+    SourceFile("edge/detector/test_world_detector.py",
+               "开放词汇检测单测（提示词契约与权重解析）"),
+    SourceFile("edge/detector/clip_shim.py",
+               "CLIP 语义校验适配层（缺依赖时的降级路径）"),
+    SourceFile("edge/detector/label_map.py",
+               "标签映射与中文类别名称归一"),
+    SourceFile("edge/detector/test_metrics.py",
+               "检测指标统计单测（精确率/召回率口径）"),
+    # ── 中段：不提交区（主软著后 30 页的 detector.py / main.py 刻意置于此）──
+    SourceFile("edge/detector/detector.py",
+               "边缘双通道检测器（背景差分 + 颜色/暗目标通道）"),
+    SourceFile("edge/main.py",
+               "边缘感知程序入口（取流→检测→时序→上报）"),
+    SourceFile("edge/config.yaml",
+               "真实边缘盒配置（路数/阈值/上报/缓存）"),
+    SourceFile("edge/simulator/config.yaml",
+               "视频/事件仿真配置（多设备点位与速率）"),
+    SourceFile("edge/simulator/test_temporal.py",
+               "时序校验专项测试（连续命中与误报抑制）"),
+    SourceFile("edge/device_sim/device.py",
+               "设备状态仿真（指令/遥测/任务状态机）"),
+    SourceFile("edge/device_sim/protocol.py",
+               "设备协议编解码（指令与遥测报文契约）"),
+    SourceFile("edge/device_sim/transport.py",
+               "设备 MQTT 通道（QoS 与断线重连）"),
+    SourceFile("edge/device_sim/test_device.py",
+               "设备仿真单测（指令幂等与状态迁移）"),
+    SourceFile("edge/device_sim/faults.py",
+               "故障注入（乱序/超时/断网口径）"),
+    # ── 后段：收尾落点（故障与序号持久化单测 → 时序专项 → 仿真器）──
+    SourceFile("edge/device_sim/test_faults.py",
+               "故障注入单测（断网 Outbox 与乱序恢复）"),
+    SourceFile("edge/device_sim/test_seq_persistence.py",
+               "遥测序号持久化单测（重启后序号不回退）"),
+    SourceFile("edge/detector/test_detector.py",
+               "检测器单测（四类别规则与时序校验用例）"),
+    SourceFile("edge/simulator/simulator.py",
+               "时序校验与边端模拟器（收尾文件）"),
+]
+
+
+def select_variant(key: str) -> None:
+    """按拆分登记篇目切换软件名、页眉与取材清单（默认主软著）。"""
+    global SOFTWARE_FULL_NAME, SOFTWARE_SHORT_NAME, HEADER_TEXT, CURATED_FILES
+    if key == "agent":
+        SOFTWARE_FULL_NAME = AGENT_FULL_NAME
+        SOFTWARE_SHORT_NAME = AGENT_SHORT_NAME
+        HEADER_TEXT = AGENT_HEADER_TEXT
+        CURATED_FILES = CURATED_FILES_AGENT
+    elif key == "sandbox":
+        SOFTWARE_FULL_NAME = SANDBOX_FULL_NAME
+        SOFTWARE_SHORT_NAME = SANDBOX_SHORT_NAME
+        HEADER_TEXT = SANDBOX_HEADER_TEXT
+        CURATED_FILES = CURATED_FILES_SANDBOX
+    elif key == "arm":
+        SOFTWARE_FULL_NAME = ARM_FULL_NAME
+        SOFTWARE_SHORT_NAME = ARM_SHORT_NAME
+        HEADER_TEXT = ARM_HEADER_TEXT
+        CURATED_FILES = CURATED_FILES_ARM
+    elif key == "edge":
+        SOFTWARE_FULL_NAME = EDGE_FULL_NAME
+        SOFTWARE_SHORT_NAME = EDGE_SHORT_NAME
+        HEADER_TEXT = EDGE_HEADER_TEXT
+        CURATED_FILES = CURATED_FILES_EDGE
 
 
 def load_lines(path: Path) -> list[str]:
@@ -418,6 +692,14 @@ AI_FLAVOR_RULES: list[tuple[str, str]] = [
     (r"WP-\d+[A-Z]?\s*）", "）"),
     # 斜杠串联的工单号区间（WP-03/WP-05）→ 后续
     (r"WP-\d+[A-Z]?(?:/WP-\d+[A-Z]?)+\s*", "后续"),
+    # ★ 破折号引出的工单号（"— WP-13"）→ 连破折号一起去掉。
+    #   上面四条只覆盖「括号内」与「斜杠串联」，实测第 4 篇第 55 页
+    #   calibrate_camera.py 的 argparse description 里有一条 `...非训练模型）— WP-13",`
+    #   正是这种形态，一路漏到提交材料里。内部工单号出现在公开登记文件上，
+    #   一眼可辨是内部工程流程的残留。
+    (r"\s*[—–]\s*WP-\d+[A-Z]?(?![-\w])", ""),
+    # 其余裸工单号兜底（行首 / 句中 / 行尾，含后面紧跟标点的情形）
+    (r"\bWP-\d+[A-Z]?(?![-\w])\s*", ""),
     # 紧贴中文/全角标点的残余 **（跨行加粗的断口）
     (r"\*\*(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])"
      r"|(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])\*\*", ""),
@@ -493,7 +775,17 @@ def main() -> int:
         default=r"C:\Users\Liii\Desktop\Oceanus软著材料",
         help="输出目录",
     )
+    parser.add_argument(
+        "--variant",
+        choices=("main", "agent", "sandbox", "arm", "edge"),
+        default="main",
+        help="main=主软著（整体覆盖）；agent=拆分登记第 2 篇（决策与审批）；"
+             "sandbox=拆分登记第 3 篇（三维数字沙盘）；"
+             "arm=拆分登记第 4 篇（机械臂控制，不足 60 页自动全量提交）；"
+             "edge=拆分登记第 1 篇（海漂垃圾边缘智能感知）",
+    )
     args = parser.parse_args()
+    select_variant(args.variant)
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -522,11 +814,77 @@ def main() -> int:
     doc.save(docx_path)
     print(f"已生成: {docx_path}")
 
-    # 源程序量统计（申请表填报用）
-    stats = count_repo_lines()
+    # 源程序量统计（申请表填报用）。
+    # ★ 口径差异：主软著覆盖全仓，故填全量自研代码（git ls-files 统计）；
+    #   拆分登记篇只申报**本篇模块自身**的代码量 —— 若也填 107,690，
+    #   就与「本篇是决策与审批子软件」的独立性叙述自相矛盾。
+    if args.variant == "agent":
+        stats = {
+            "Python": curated_total,
+            "文件数": len(CURATED_FILES),
+            "合计": curated_total,
+        }
+        basis = "本篇模块自研代码（agents 服务包 + 派单/事件/消费链路）"
+        seam = "（前者为策略门禁 policy.py，后者为运行记忆 memory.py）"
+    elif args.variant == "sandbox":
+        # 本篇全为前端模块，语言构成按 .vue / .js 拆分直报 —— 申请表
+        # 「编程语言」栏填「JavaScript（Vue 3）」，「源程序量」填本模块合计。
+        _lang_of = {".vue": "Vue", ".js": "JavaScript"}
+        _lang_counts: dict[str, int] = {}
+        for sf in CURATED_FILES:
+            _lang = _lang_of.get(Path(sf.path).suffix.lower())
+            if _lang:
+                _lang_counts[_lang] = (
+                    _lang_counts.get(_lang, 0) + len(load_lines(ROOT / sf.path))
+                )
+        stats = {
+            **_lang_counts,
+            "文件数": len(CURATED_FILES),
+            "合计": curated_total,
+        }
+        basis = "本篇模块自研代码（三维沙盘组件 + 仿真推演视图与地图面板）"
+        seam = ("（前者为真实海岸线地形建模 TerrainLayer.js，"
+                "后者为仿真推演页 SimulationView.vue）")
+    elif args.variant == "arm":
+        # 本篇为机器人本体控制软件，只申报 arm_bridge 包 + 手眼标定脚本的
+        # 代码量；若填仓库全量（107,690）会与「本篇是本机执行子软件」的
+        # 独立性叙述自相矛盾。
+        #
+        # ★ 口径取「剔空后的代码行数」而非源文件原始行数（3,299，含 512 行
+        #   空行），这是 2026-10-13 定下的：本篇不足 60 页走全量提交，若申报
+        #   3,299 行，折算 3,299 ÷ 50 = 66 页 > 60 页，审查员在申请表上会看到
+        #   「申报规模超过 60 页，却做了全量提交」这一自相矛盾的数字（尽管
+        #   差额只是空行）。填 2,787 行则两个数字严格互相印证：
+        #     2,787 ÷ 50 = 56 页（= 55 页 × 50 行 + 末页 37 行）< 60 页 → 全量提交。
+        #   这也与鉴别材料里「每页 50 行全部是有字行」的排版口径同源。
+        code_lines = len(non_blank)
+        stats = {
+            "Python": code_lines,
+            "文件数": len(CURATED_FILES),
+            "合计": code_lines,
+        }
+        basis = ("本篇模块自研代码行数（arm_bridge 机械臂桥接包 + 手眼标定脚本，"
+                 "不含源码空行）")
+        seam = ("（前者为厂商舵机驱动 drivers.py，"
+                "后者为厂商协议格式单测 test_hiwonder_vendor_format.py）")
+    elif args.variant == "edge":
+        # 本篇为边缘感知前端软件，只申报 edge/ 感知链路的代码量；
+        # 若填仓库全量会与「本篇是独立部署的边缘感知单元」叙述矛盾。
+        stats = {
+            "Python": curated_total,
+            "文件数": len(CURATED_FILES),
+            "合计": curated_total,
+        }
+        basis = "edge/ 边缘感知：检测器 + 时序校验 + 设备仿真"
+        seam = ("（前者为开放词汇检测 world_detector.py，"
+                "后者为边缘模拟器 simulator.py）")
+    else:
+        stats = count_repo_lines()
+        basis = "仓库全量自研代码（git ls-files 统计，不含开源依赖与 node_modules）"
+        seam = "（前者为智能体运行时内核，后者为边缘感知时序校验）"
     # 提交序列实际包含的模块数（前后各 30 页可能只覆盖部分精选文件）。
-    # 按裸路径匹配：横幅与正文 docstring 里的路径引用都算（simulator.py
-# 的 676 行在后段但横幅被截掉，靠 detector.py docstring 的路径引用命中）。
+    # 按裸路径匹配：横幅与正文 docstring 里的路径引用都算（末尾文件的
+    # 横幅可能被截掉，靠同模块其它文件 docstring 的路径引用命中）。
     submitted_modules = sorted(
         {sf.path for sf in CURATED_FILES
          if any(sf.path in ln for ln in front + back)}
@@ -534,9 +892,64 @@ def main() -> int:
     submit_lines = len(front) + len(back)
     submit_pages = -(-submit_lines // LINES_PER_PAGE)
 
+    # ★ 口径说明必须跟着「全量 / 前 30 + 后 30」分支走。此前这段是写死的
+    #   「前 30 + 后 30」模板，拆分登记第 4 篇（不足 60 页走全量提交）套上去
+    #   会印出自相矛盾的数字 —— 例如「共 60 页 × 50 行 = 2,787 行」。
+    #   审查员拿申请表与这段说明对照，矛盾当场可见。
+    if is_full:
+        # 全量提交时源程序量与提交行数取同一口径（剔空后的代码行），
+        # 故这里两个数字必然相等 —— 说明文字据此写成「严格互相印证」，
+        # 而不是「节选覆盖 X%」。若后续有人改回「源文件原始行数」口径，
+        # 需同步改写本段，否则会印出与实际提交不符的覆盖率。
+        same = submit_lines == stats["合计"]
+        caliber_note = [
+            f"  · 本篇折算 {submit_pages} 页，不足 60 页，按《计算机软件著作权",
+            "    登记办法》「不足 60 页的全部提交」，故提交**全部源代码**；",
+            "    不存在「前 30 + 后 30」两段拼接，也就没有中缝的模块跳变。",
+            f"  · 文档内行号 1→{submit_lines:,} 连续无缺失，首行即程序入口、",
+            "    末行即程序结尾，与源码文件顺序完全一致，可直接逐行对照。",
+        ]
+        if same:
+            caliber_note += [
+                "  · 源程序量口径 = 提交材料中的**代码行数**（已按排版口径剔除",
+                "    源码空行，每页 50 行全部是有字行）。两个数字严格互相印证：",
+                f"    {submit_lines:,} 行 ÷ {LINES_PER_PAGE} 行/页 = {submit_pages} 页"
+                f"（{submit_pages - 1} × {LINES_PER_PAGE}"
+                f" + 末页 {submit_lines - (submit_pages - 1) * LINES_PER_PAGE} 行），",
+                "    既是申报的源程序量，也是鉴别材料的实际行数 —— 审查员数一遍",
+                "    文档即可核对，不存在「申报规模折算超过 60 页却全量提交」的",
+                "    口径矛盾。",
+            ]
+        else:
+            caliber_note += [
+                "  · 排版时剔除了源码空行（每页 50 行全部是有字行）。故提交行数 "
+                f"{submit_lines:,}",
+                f"    与源程序量 {stats['合计']:,} 行的差额**全部是源码空行**，"
+                "不是内容缺失。",
+            ]
+        structure_note = (
+            f"  提交结构: 全量提交（共 {submit_pages:,} 页，不足 60 页）"
+        )
+    else:
+        caliber_note = [
+            "  · 申请表「源程序量」填上述行数，即本软件全部自研代码规模。",
+            "  · 提交的鉴别材料是「前 30 页 + 后 30 页」的**节选**（软著规范要求），",
+            f"    共 {PAGES_EACH_SIDE * 2} 页 × {LINES_PER_PAGE} 行 = {submit_lines:,} 行，",
+            f"    仅覆盖全量的约 {submit_lines * 100 // stats['合计']}%。"
+            "因此第 30 页末尾与第 31 页开头",
+            f"    存在模块跳变{seam}，",
+            "    **这是「前 30 + 后 30」规则下的正常现象，不构成材料自相矛盾**。",
+            "  · 反之，若把申请表「源程序量」填成 3,000 行（即提交页数），",
+            "    而正文宣称的架构明显跨模块，前后 30 页又明显跨模块跳变，",
+            "    反而会自曝口径矛盾。填上述行数才是唯一自洽的口径。",
+        ]
+        structure_note = (
+            f"  提交结构: 前 {PAGES_EACH_SIDE} 页 + 后 {PAGES_EACH_SIDE} 页"
+        )
+
     lines = [
         f"{SOFTWARE_FULL_NAME}[简称:{SOFTWARE_SHORT_NAME}] {VERSION} 源程序量统计",
-        "生成方式: git ls-files 全量自研代码统计（不含开源依赖与 node_modules）",
+        f"生成方式: {basis}",
         f"统计文件数: {stats.get('文件数', 0)} 个",
         "",
     ]
@@ -548,7 +961,9 @@ def main() -> int:
         "═" * 64,
         "【申请表填报口径】",
         "═" * 64,
-        f"  源程序量 = {stats['合计']:,} 行（仓库全量自研代码，git ls-files 统计）",
+        # 用破折号引出口径，不套括号 —— basis 自身常含括号，
+        # 套上去会印成「（…（…））」这种嵌套，一眼廉价。
+        f"  源程序量 = {stats['合计']:,} 行 —— {basis}",
         "  语言构成: " + " / ".join(
             f"{lang} {stats[lang]:,}"
             for lang in ("Python", "Vue", "JavaScript", "TypeScript")
@@ -557,16 +972,7 @@ def main() -> int:
         f"  折算总页数 = {stats['合计'] // LINES_PER_PAGE + (1 if stats['合计'] % LINES_PER_PAGE else 0):,} 页",
         "",
         "  口径说明（重要，避免自相矛盾）:",
-        "  · 申请表「源程序量」填上述全量行数，即本软件全部自研代码规模。",
-        "  · 提交的鉴别材料是「前 30 页 + 后 30 页」的**节选**（软著规范要求），",
-        f"    共 {PAGES_EACH_SIDE * 2} 页 × {LINES_PER_PAGE} 行 = {submit_lines:,} 行，",
-        "    仅覆盖全量的约 "
-        f"{submit_lines * 100 // stats['合计']}%。因此第 30 页末尾与第 31 页开头",
-        "    存在模块跳变（前者为智能体运行时内核，后者为边缘感知时序校验），",
-        "    **这是「前 30 + 后 30」规则下的正常现象，不构成材料自相矛盾**。",
-        "  · 反之，若把申请表「源程序量」填成 3,000 行（即提交页数），",
-        "    而正文宣称 6 个子系统的三端架构，前后 30 页又明显跨模块跳变，",
-        "    反而会自曝口径矛盾。填全量行数才是唯一自洽的口径。",
+        *caliber_note,
         "",
         "═" * 64,
         "【提交材料明细】",
@@ -581,7 +987,7 @@ def main() -> int:
         "",
         f"  提交文档行数 {submit_lines:,} 行 / 折算 {submit_pages:,} 页"
         f"（每页 {LINES_PER_PAGE} 行，剔除空行保证每行均有可见内容）",
-        f"  提交结构: 前 {PAGES_EACH_SIDE} 页 + 后 {PAGES_EACH_SIDE} 页",
+        structure_note,
         f"  排版口径: 行距 {LINE_SPACING_PT}pt，字号 {FONT_SIZE}pt Consolas，"
         f"左侧行号列 1→{submit_lines:,} 跨页连续",
     ]

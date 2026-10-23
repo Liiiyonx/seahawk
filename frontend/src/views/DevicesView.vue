@@ -54,7 +54,7 @@
             </div>
             <div class="dev-item__meta">
               <span class="mono">{{ d.device_id }}</span>
-              <span>{{ DEVICE_TYPE[d.device_type] || d.device_type }}</span>
+              <span>{{ typeLabel(d) }}</span>
             </div>
             <div class="dev-item__meta">
               <span class="mono">{{ fmtCoord(d.lng, d.lat) }}</span>
@@ -86,7 +86,7 @@
             </div>
             <div class="kv">
               <span class="kv__k">设备类型</span>
-              <span class="kv__v">{{ DEVICE_TYPE[selected.device_type] || selected.device_type }}</span>
+              <span class="kv__v">{{ typeLabel(selected) }}</span>
             </div>
             <div class="kv">
               <span class="kv__k">坐标</span>
@@ -155,6 +155,21 @@ import { DEVICE_STATUS, DEVICE_TYPE } from '@/utils/constants'
 import { fmtCoord, fmtRelative, fmtTime, fmtUsage, batteryColor } from '@/utils/format'
 
 const store = useRealtimeStore()
+
+/**
+ * 设备类型展示名：机器人按底盘细化（履带=滩涂清除车，其余=打捞机器人），
+ * 与 3D 沙盘点选卡的口径一致；非机器人沿用 DEVICE_TYPE 映射。
+ */
+function typeLabel(d) {
+  if (!d) return ''
+  if (d.device_type === 'robot') {
+    const c = d.meta?.chassis
+    if (c === 'tracked') return '滩涂清除车'
+    if (c === 'arm') return '机械臂作业端'
+    return '打捞机器人'
+  }
+  return DEVICE_TYPE[d.device_type] || d.device_type
+}
 
 const selected = ref(null)
 const filterType = ref('')

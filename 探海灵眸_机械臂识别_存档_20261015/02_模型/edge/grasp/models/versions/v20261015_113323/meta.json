@@ -1,0 +1,25 @@
+{
+  "version": "v20261015_113323",
+  "created_at": "2026-10-15T11:33:23",
+  "source": "D:\\seahawk-work\\runs\\plastic_color_v4\\weights\\best.onnx",
+  "files": [
+    "best.onnx"
+  ],
+  "metrics": {
+    "map50": 0.357,
+    "map50_95": 0.216,
+    "precision": 0.539,
+    "recall": 0.383,
+    "imgsz": 416,
+    "split": "test",
+    "images": 400,
+    "instances": 940,
+    "train_imgsz": 768,
+    "epochs_best": 65,
+    "model": "yolo11s",
+    "color_injection_delta_pct": -2.4,
+    "color_injection_note": "v2 为 +103%；v4 用彩色负样本把颜色干扰压到 -2.4%",
+    "dataset": "SC-FloatWaste + 彩色干扰负样本增强(train/val 注入 2287 个未标注彩色物体)"
+  },
+  "note": "抗彩色干扰版：优先不被颜色误导，代价是整体精度下降"
+}

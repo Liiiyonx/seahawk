@@ -1,39 +1,22 @@
 {
   "artifact_type": "huawei_ict_track3_submission_package",
-  "generated_at": "2026-09-30T02:44:56+08:00",
+  "generated_at": "2026-10-24T03:01:40+08:00",
   "source": {
     "branch": "huawei-ict-2026",
-    "head_commit": "be6a3d0",
     "packager": "scripts/package_huawei_track3_submission.py"
   },
   "zip": {
     "path": "dist/huawei-ict-track3-submission.zip",
-    "size_bytes": 730709,
-    "entry_count": 37,
-    "sha256": "bcb79f6759d65ffffde1adae2a9040c56dfb8db03f2c020401101de59559df2e"
+    "size_bytes": 30908309,
+    "entry_count": 47,
+    "sha256": "242b14eff3030bf7f722cc7214a36f3fd8bbce002f1e5c6465f006d4896c8a47"
   },
   "staging_dir": "dist/huawei-ict-track3-submission",
-  "documents": [
-    {
-      "path": "01_开发设计文档.docx",
-      "size_bytes": 60262,
-      "sha256": "09f4df883969aea0ce22a64ad214537932ef2a871a21d6eab7b0574d8a88aaa9"
-    },
-    {
-      "path": "02_Nexent智能体设计说明.docx",
-      "size_bytes": 56148,
-      "sha256": "e07826ba93bcd696c2bc9d1f5d514de650c7bfd2a6b7f42abe21610ee58cd2d4"
-    }
-  ],
-  "checks": {
-    "secret_scan": "clean",
-    "docx_payload_matches_head": true,
-    "zip_entry_count_expected": 37
-  },
-  "known_external_blocker": {
-    "id": "R-NX-07",
-    "status": "blocked",
-    "reason": "Huawei Cloud account arrears prevents creating the private VPC target; hosted AgentArts complete Skill QA cannot be evidenced."
-  },
-  "claim_boundary": "Package readiness does not imply hosted AgentArts Skill QA, field validation, perception accuracy, or real desensitized industry-data evaluation."
+  "notes": [
+    "2026-10-24 重建（02:43）：新增 R-LLM-01 知识域 LLM 抽取通道评测、R-KN-06 检索-生成问答轨迹（脚本客户端口径）、R-NX-08-PROBE-20261024 探测记录（握手 401，卡点收敛为控制台鉴权核验）",
+    "含 R-KN-05 跨文档多跳、R-OD-02 公开语料端到端、R-OD-03 NOAA 22530 行、07_演示视频（1080p 转码）",
+    "宣称门禁 exit 0；密钥扫描 clean；开源快照已推送 GitHub Liiiyonx/seasight f84e5c2（R-OS-01）",
+    "R-NX-08 托管平台完整 Skill 问答仍未验收：复跑包 scripts/rnx08_hosted_qa_run.py 就绪，待控制台核验身份鉴权后一键复跑",
+    "初赛开发设计文档优化版在提交目录（官方模板骨架 + 真实项目内容 + 团队合照/真实截图），随材料单独上传"
+  ]
 }

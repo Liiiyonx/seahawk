@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>探海灵眸 · 章节页（浅色版）</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     探海灵眸 · 章节页（浅色版）—— 对齐平台「浅色模式」视觉语言
+     取色来自 frontend/src/assets/main.css（light 主题）：
+       --c-primary:#007aff  --bg-page:#f2f2f7  --text-main:#1c1c1e
+       --text-sub:#636366   --text-dim:#8e8e93  --separator:rgba(60,60,67,.12)
+     Logo 取色：frontend/src/components/LogoMark.vue（#0877e8 → #00a6c8）
+
+     渲染约定：
+       普通浏览        → 完整版（文字在页面里，可截图直接用）
+       地址加 ?bg=1    → 背景版（隐藏 .ov 文字层，供 PPT 叠可编辑文字用）
+  ═══════════════════════════════════════════════════════════ */
+  :root{
+    --blue:#007aff;        /* 平台主色 */
+    --grad:linear-gradient(180deg,#1688ff 0%,#007aff 100%);
+    --ink:#1c1c1e;
+    --sub:#636366;
+    --dim:#8e8e93;
+    --line:rgba(60,60,67,.12);
+    --card-border:rgba(60,60,67,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;
+    background:#c8ccd4}
+  .page{display:none;width:1920px;height:1080px;position:relative;overflow:hidden;
+    background:linear-gradient(165deg,#FFFFFF 0%,#F4F6F9 46%,#E9EFF6 100%)}
+  .page.active{display:block}
+
+  /* 环境靛蓝柔光（浅色模式的空气感） */
+  .glow{position:absolute;pointer-events:none;border-radius:50%}
+  .glow--tr{top:-320px;right:-240px;width:980px;height:980px;
+    background:radial-gradient(circle,rgba(0,122,255,.09),rgba(0,122,255,0) 68%)}
+  .glow--bl{bottom:-360px;left:-280px;width:900px;height:900px;
+    background:radial-gradient(circle,rgba(0,166,200,.08),rgba(0,166,200,0) 70%)}
+
+  /* 白色圆角「卡片」—— 浅色模式的内容面 */
+  .sheet{position:absolute;left:72px;top:56px;width:1776px;height:968px;
+    border-radius:28px;background:linear-gradient(180deg,#FFFFFF 0%,#FCFDFF 100%);
+    border:1px solid var(--card-border);
+    box-shadow:0 20px 60px rgba(16,42,77,.10),0 2px 8px rgba(16,42,77,.05);
+    overflow:hidden}
+
+  /* 章节大数字水印（被卡片裁剪） */
+  .bignum{position:absolute;top:-96px;right:-14px;font-size:520px;font-weight:700;
+    line-height:1;color:rgba(0,122,255,.055);letter-spacing:-14px;user-select:none}
+
+  /* 顶栏：品牌（与平台顶栏同一识别） */
+  .topbar{position:absolute;top:104px;left:140px;right:140px;display:flex;
+    justify-content:space-between;align-items:center;z-index:3}
+  .brand{display:flex;align-items:center;gap:16px;font-size:21px;font-weight:600;
+    color:var(--ink);letter-spacing:2px}
+  .brand svg{display:block;flex:none;filter:drop-shadow(0 4px 10px rgba(0,92,190,.18))}
+  .brand em{font-style:normal;color:var(--blue);font-weight:300;letter-spacing:5px;
+    font-size:18px;margin-left:2px}
+  .topright{font-size:17px;letter-spacing:5px;color:var(--dim);font-weight:400}
+
+  /* 底部基线 */
+  .baseline{position:absolute;left:140px;right:140px;bottom:112px;display:flex;
+    justify-content:space-between;align-items:center;font-size:17px;color:var(--dim);
+    letter-spacing:3px;border-top:1px solid var(--line);padding-top:24px;z-index:3}
+  .baseline b{font-weight:600;color:var(--ink);letter-spacing:2px}
+
+  /* ── 章节页内容（左对齐；文字层坐标与 PPT 文本框一一对应） ── */
+  .eyebrow-bar{position:absolute;left:140px;top:610px;width:36px;height:5px;
+    border-radius:3px;background:var(--grad);z-index:3}
+  .eyebrow{position:absolute;left:202px;top:600px;font-size:22px;font-weight:600;
+    color:var(--blue);letter-spacing:6px;z-index:3}
+  .eyebrow span{color:var(--dim);font-weight:400;letter-spacing:4px}
+  h1{position:absolute;left:140px;top:660px;font-size:105px;font-weight:700;
+    color:var(--ink);line-height:1.12;letter-spacing:2px;z-index:3}
+  .sub{position:absolute;left:140px;top:812px;font-size:30px;color:var(--sub);
+    font-weight:400;letter-spacing:1px;z-index:3}
+
+  /* ── 片名页 / 结尾页（居中） ── */
+  .kicker{position:absolute;left:0;top:316px;width:100%;text-align:center;
+    font-size:21px;letter-spacing:11px;color:var(--dim);font-weight:400;z-index:3}
+  .bigname{position:absolute;left:0;top:368px;width:100%;text-align:center;
+    font-size:170px;font-weight:700;color:var(--ink);letter-spacing:22px;
+    line-height:1;text-indent:22px;z-index:3}
+  .engname{position:absolute;left:0;top:586px;width:100%;text-align:center;
+    font-size:46px;font-weight:300;color:var(--blue);letter-spacing:32px;
+    text-indent:32px;z-index:3}
+  .divider{position:absolute;left:910px;top:674px;width:100px;height:5px;
+    border-radius:3px;background:var(--grad);z-index:3}
+  .divider--outro{top:536px}
+  .tagline{position:absolute;left:0;top:722px;width:100%;text-align:center;
+    font-size:32px;color:var(--ink);font-weight:400;letter-spacing:5px;z-index:3}
+  .tagline span{color:var(--dim);font-weight:400}
+  .tagline em{font-style:normal;color:var(--blue)}
+
+  .outro-kicker{position:absolute;left:0;top:368px;width:100%;text-align:center;
+    font-size:21px;letter-spacing:11px;color:var(--dim);font-weight:400;z-index:3}
+  .outro-slogan{position:absolute;left:0;top:430px;width:100%;text-align:center;
+    font-size:46px;color:var(--ink);letter-spacing:8px;font-weight:600;z-index:3}
+  .outro-slogan em{font-style:normal;color:var(--blue);font-weight:700}
+  .outro-tagline{position:absolute;left:0;top:588px;width:100%;text-align:center;
+    font-size:30px;color:var(--sub);letter-spacing:3px;font-weight:400;z-index:3}
+  .badge{position:absolute;left:0;top:678px;width:100%;text-align:center;
+    font-size:20px;color:var(--dim);letter-spacing:6px;font-weight:400;z-index:3}
+
+  /* 背景版：隐藏可编辑文字层（.ov），其余装饰原样保留 */
+  body.render-bg .ov{visibility:hidden}
+</style>
+</head>
+<body>
+
+<!-- Logo symbol（只定义一次，各页 <use> 复用） -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo-mark" viewBox="0 0 48 48">
+    <defs>
+      <linearGradient id="lbg" x1="7" y1="4" x2="41" y2="44" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#0877e8"/><stop offset="1" stop-color="#00a6c8"/>
+      </linearGradient>
+      <linearGradient id="llens" x1="30" y1="15" x2="39" y2="25" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#e8fdff"/><stop offset="0.48" stop-color="#71ebff"/><stop offset="1" stop-color="#22b9dc"/>
+      </linearGradient>
+    </defs>
+    <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lbg)"/>
+    <rect x="2.75" y="2.75" width="42.5" height="42.5" rx="12.25" fill="none" stroke="#fff" stroke-opacity="0.2" stroke-width="1.5"/>
+    <g transform="rotate(-20 24 20)">
+      <rect x="8.6" y="17.1" width="5.8" height="5.8" rx="2.9" fill="#fff" opacity="0.8"/>
+      <rect x="12" y="15.3" width="22.6" height="9.4" rx="4.7" fill="#fff"/>
+      <rect x="16.8" y="15.3" width="4.2" height="9.4" fill="#b9effb" opacity="0.92"/>
+      <rect x="27.1" y="14.4" width="2.8" height="11.2" rx="1.4" fill="#d6f8ff" opacity="0.96"/>
+      <circle cx="34.5" cy="20" r="6.3" fill="#07324f" stroke="#fff" stroke-width="2.55"/>
+      <circle cx="34.5" cy="20" r="3.55" fill="url(#llens)"/>
+      <path d="M32.7 18.2c0.8-0.9 1.9-1.35 3.1-1.2" fill="none" stroke="#fff" stroke-width="1.25" stroke-linecap="round" opacity="0.9"/>
+    </g>
+    <path d="M7.5 32.2c2.75-2.15 5.5-2.15 8.25 0s5.5 2.15 8.25 0 5.5-2.15 8.25 0 5.5 2.15 8.25 0" fill="none" stroke="#fff" stroke-width="2.15" stroke-linecap="round"/>
+    <path d="M13.5 38.2c1.75-1.45 3.5-1.45 5.25 0s3.5 1.45 5.25 0 3.5-1.45 5.25 0 3.5 1.45 5.25 0" fill="none" stroke="#c9f8ff" stroke-opacity="0.72" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- ════ 片名页 ════ -->
+<section class="page" data-p="title">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="kicker ov">MULTI-AGENT COASTAL WASTE GOVERNANCE</div>
+  <div class="bigname ov">探海灵眸</div>
+  <div class="engname ov">O C E A N U S</div>
+  <div class="divider"></div>
+  <div class="tagline ov">海漂垃圾全链路智能治理平台 <em>·</em> <span>平台演示</span></div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>从发现到处置 · 全链路智能协同</span></div>
+</section>
+
+<!-- ════ 第一章 · 问题 ════ -->
+<section class="page" data-p="1">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"><div class="bignum">01</div></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="eyebrow-bar"></div>
+  <div class="eyebrow ov">CHAPTER 01 <span>· THE PROBLEM</span></div>
+  <h1 class="ov">近岸垃圾之困</h1>
+  <div class="sub ov">发现靠人、处置靠等 —— 传统治理方式跟不上垃圾涌入的速度</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 01 / 05</span></div>
+</section>
+
+<!-- ════ 第二章 · 平台 ════ -->
+<section class="page" data-p="2">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"><div class="bignum">02</div></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="eyebrow-bar"></div>
+  <div class="eyebrow ov">CHAPTER 02 <span>· THE PLATFORM</span></div>
+  <h1 class="ov">一屏观全局</h1>
+  <div class="sub ov">四路实时视频 + 3D 海域态势 —— 事件、工单、设备、报表尽在一屏</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 02 / 05</span></div>
+</section>
+
+<!-- ════ 第三章 · 人机协同 ════ -->
+<section class="page" data-p="3">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"><div class="bignum">03</div></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="eyebrow-bar"></div>
+  <div class="eyebrow ov">CHAPTER 03 <span>· HUMAN IN THE LOOP</span></div>
+  <h1 class="ov">人机协同 · 从工单到执行</h1>
+  <div class="sub ov">工单全生命周期与执行仿真全链路 —— 智能助手与知识智能体随问随答</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 03 / 05</span></div>
+</section>
+
+<!-- ════ 第四章 · 安全底线 ════ -->
+<section class="page" data-p="4">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"><div class="bignum">04</div></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="eyebrow-bar"></div>
+  <div class="eyebrow ov">CHAPTER 04 <span>· SAFETY GUARDRAIL</span></div>
+  <h1 class="ov">安全底线 · 审批与拦截</h1>
+  <div class="sub ov">高风险写入必须人工批准，证据不足主动拦截 —— 批准之前，智能体一步都不会动</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 04 / 05</span></div>
+</section>
+
+<!-- ════ 第五章 · 软硬闭环 ════ -->
+<section class="page" data-p="5">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"><div class="bignum">05</div></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="eyebrow-bar"></div>
+  <div class="eyebrow ov">CHAPTER 05 <span>· PLUGGABLE EXECUTION</span></div>
+  <h1 class="ov">软硬闭环 · 从决策到执行</h1>
+  <div class="sub ov">同一套任务与消息契约 —— 无人机、水面机器人、机械臂皆可插拔</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 05 / 05</span></div>
+</section>
+
+<!-- ════ 结尾标版 ════ -->
+<section class="page" data-p="outro">
+  <div class="glow glow--tr"></div><div class="glow glow--bl"></div>
+  <div class="sheet"></div>
+  <div class="topbar">
+    <div class="brand"><svg width="40" height="40"><use href="#logo-mark"/></svg>探海灵眸 <em>OCEANUS</em></div>
+    <div class="topright">平台演示 · 2026</div>
+  </div>
+  <div class="outro-kicker ov">OCEANUS · MULTI-AGENT PLATFORM</div>
+  <div class="outro-slogan ov">有据可依 <em>·</em> 有人把关 <em>·</em> 有迹可循</div>
+  <div class="divider divider--outro"></div>
+  <div class="outro-tagline ov">让每一次近岸垃圾处置，都有完整的智能协同闭环</div>
+  <div class="badge ov">探海灵眸 · 2026 平台演示</div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>THANKS FOR WATCHING</span></div>
+</section>
+
+<script>
+  /* 页面切换 + 背景版（?bg=1 隐藏 .ov 文字层） */
+  const q = new URLSearchParams(location.search);
+  const p = q.get('p') || 'all';
+  if (q.get('bg') === '1') document.body.classList.add('render-bg');
+  document.querySelectorAll('.page').forEach(el=>{
+    el.classList.toggle('active', p==='all' || el.dataset.p===p);
+  });
+</script>
+</body>
+</html>

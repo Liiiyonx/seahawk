@@ -1826,7 +1826,8 @@ class TestLessons:
             if item["scope_id"] == "foam" and item["kind"] == "merge_preferred"
         )
         assert lesson["hit_count"] == 1
-        # 置信度随命中单调上调，但永远封顶在 95% 以下（启发式不是定理）
+        # 置信度 = 贝叶斯平滑后验：引用后成功上调（此处 0.90）、失败下调，
+        # 封顶 95% 以下（启发式不是定理）
         assert 0.85 < lesson["confidence"] <= 0.95
         assert lesson["source_run_id"] == second["run_id"]
 
@@ -1911,6 +1912,36 @@ class TestLessons:
             headers=_headers("viewer", "viewer"),
         ).json()["data"]
         assert status["lessons"] == []
+
+    def test_runtime_status_exposes_lesson_calibration(
+        self,
+        client: TestClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """status 端点暴露校准报告：观测数对得上；样本不足时 ece=None（不编数字）。"""
+        runtime = _make_plan_runtime(lessons_enabled=True)
+        _inject_runtime(monkeypatch, runtime)
+        operator = _headers("operator", "operator")
+        viewer = _headers("viewer", "viewer")
+
+        # 两次成功 run：第一次沉淀经验，第二次引用 + 结算一条结果观测
+        for _ in range(2):
+            _patch_snapshot(
+                monkeypatch,
+                _team_snapshot(merge_task_id="task_existing"),
+            )
+            run = client.post(
+                f"{API}/runs",
+                json={"event_id": "evt_wp03"},
+                headers=operator,
+            ).json()["data"]
+            assert run["status"] == "succeeded"
+
+        status = client.get(f"{API}/runtime/status", headers=viewer).json()["data"]
+        calibration = status["lesson_calibration"]
+        assert calibration["observation_count"] == 1
+        assert calibration["ece"] is None  # 不足 8 条观测，诚实返回 None
+        assert calibration["buckets"], "分桶数据仍给出（可靠性曲线用）"
 
     def test_lesson_store_confidence_is_monotonic_and_capped(self) -> None:
         """纯内核单测：置信度随证据累积单调上调且封顶，绝不出现 1.0。"""

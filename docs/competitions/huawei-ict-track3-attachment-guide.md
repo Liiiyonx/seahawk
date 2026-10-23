@@ -1,7 +1,7 @@
 # 探海灵眸 Oceanus · 赛道三随附文件说明
 
-> 版本：1.0（提交件底稿）
-> 编制日期：2026-09-30
+> 版本：1.1（提交件底稿）
+> 编制日期：2026-09-30（1.1 修订：2026-10-23）
 > 用途：华为 ICT 大赛 创新赛道三【材料 3】——与开发设计文档、智能体设计说明
 > 同步提交的 json 文件、知识库文件与 MCP 文件说明。
 > 上位口径：《docs/competitions/huawei-ict-track3-submission-checklist.md》、
@@ -114,9 +114,19 @@ E3 真实业务方参与 / E4 真实运营。
 | `artifacts/ontology-eval/incremental-latest.json` | R-KN-03 | 本体全量重抽 vs 增量追加对比（节省 63.19%） | E1 相对对比 |
 | `artifacts/knowledge-qa-trace/latest.json` | R-KN-04 | 示例问答轨迹（问题 → 检索 → 决策 → 证据链） | `hop_count=0` 直接引用检索，非多跳、非 LLM 生成 |
 | `artifacts/knowledge-qa-trace/01-检索结果-本体图检索与引用.png`、`02-决策证据链-资产版本引用.png` | R-KN-04 | 知识域前端界面截图 | 同上 |
+| `artifacts/knowledge-qa-trace-multihop/latest.json` | R-KN-05 | **跨文档多跳实例**（2026-10-23）：同一问题命中 6 条，3 条 `hop=2`（路径如“泡沫垃圾 [触发] → 岸线巡查 [生成] → 打捞任务”）；决策证据链 6 条证据覆盖 hop=0/1/2、引用 6 份不同资产版本 | 确定性检索-推理链路，演示资产，E1/E2；非 LLM 生成式问答 |
+| `artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png`、`02-决策证据链-资产版本引用.png` | R-KN-05 | 知识域前端“跨文档多跳检索”（命中带“2 跳”标记与可视路径）与决策证据链界面截图 | 同上 |
 | `artifacts/open-data-eval/latest.json`、`corpus/manifest.json` | R-OD-01 | 8 份生态环境部公开通知的本体抽取评测，来源 URL 与 SHA256 可追溯 | E1 替代证据，**非真实脱敏行业数据** |
+| `artifacts/open-data-e2e/latest.json` | R-OD-02 | **真实公开语料端到端闭环**（2026-10-23）：8 份生态环境部公开文件登记为公开级资产（来源 URL 可追溯）→ 抽取 30 节点 / 47 关系 → 审核发布 → 多跳检索 9 命中（hop=0/1/2，6 条带路径）→ 决策证据链 5 条 | E1/E2 软件集成；语料为**公开数据、非真实脱敏行业数据**；不构成领域准确率或现场验证 |
+| `artifacts/real-industry-data/manifest.json`、`knowledge-e2e-trace.json` | R-OD-03 | **真实公开行业监测数据接入**（2026-10-24）：NOAA NCEI 全球海洋微塑料数据集（22,530 行，1986–2023，26 国家/地区，逐条带 DOI 与 NCEI 登记号）登记为公开级数据集资产，与公开标准语料交叉检索后生成决策证据链 4 条；获取脚本 `scripts/fetch_noaa_microplastics.py`，评测复现 `scripts/real_dataset_knowledge_e2e.py` | 数据免费公开使用（NOAA NCEI），SHA256 固化；**全球公开数据集、非真实脱敏企业内部数据、不含中国大陆点位**；不用于说明治理效果或识别精度 |
 | `artifacts/skill-migration/evidence/latest.json`、`skill-migration-mapping.md` | R-MG-01 | 海洋 / 医疗 / 政务三领域模板迁移，检索命中 3/3 | E1 演示级，非真实行业配置 |
 | `docs/competitions/standard-code-mapping.md` | — | `standard_codes` 到规范名称、条款、来源状态的映射表 | 未取得原文的规范标注“待获取真实规范条款” |
+
+### 4.5 演示视频
+
+| 文件 | 说明 | 边界 |
+| --- | --- | --- |
+| `07_演示视频/探海灵眸Oceanus_演示视频.mp4` | 系统操作演示录屏（2026-10 产制，1080p，约 4 分 39 秒）：登录 → 大屏 → 事件 → 工单 → 知识域 → 派单闭环 | 项目自产演示材料；演示环境为演示数据，不构成现场部署或真实海域验证。视频内容与本文档口径一致，不含未公开凭证 |
 
 ## 五、提交前自检
 
@@ -133,4 +143,5 @@ E3 真实业务方参与 / E4 真实运营。
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-10-23 | 新增 R-KN-05 跨文档多跳实例（`artifacts/knowledge-qa-trace-multihop/`，hop=0/1/2 三档证据）与 §4.5 演示视频说明；随包结构补 `04_示例问答截图/R-KN-05_*`、`05_证据包/R-KN-05_*` 与 `07_演示视频/` | liyongxiang |
 | 2026-09-30 | 建立【材料 3】独立《随附文件说明》提交件：MCP / Skill / Agent 配置与平台验收 / 知识库与评测四类随附文件逐项说明、证据等级与适用边界、提交前自检清单 | WP-15 |

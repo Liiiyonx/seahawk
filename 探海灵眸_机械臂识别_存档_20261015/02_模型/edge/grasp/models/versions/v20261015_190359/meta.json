@@ -1,0 +1,40 @@
+{
+  "version": "v20261015_190359",
+  "created_at": "2026-10-15T19:03:59",
+  "source": "D:\\seahawk-work\\runs\\grasp_domain_2cls\\stage\\best.onnx",
+  "files": [
+    "best.onnx"
+  ],
+  "metrics": {
+    "imgsz": 640,
+    "classes": [
+      "plastic_bag",
+      "buoy"
+    ],
+    "base": "plastic_color_v4/best.pt",
+    "demo_scene_synthetic": {
+      "tag": "演示场景域(合成)",
+      "ap50": 0.8361,
+      "p50": 1.0,
+      "r50": 0.8361,
+      "p30": 1.0,
+      "r30": 0.8361,
+      "frame_hit": 146,
+      "n_img": 160,
+      "n_gt": 238
+    },
+    "public_benchmark_real": {
+      "tag": "公开基准(真实)",
+      "ap50": 0.239,
+      "p50": 0.4519,
+      "r50": 0.25,
+      "p30": 0.3624,
+      "r30": 0.3096,
+      "frame_hit": 287,
+      "n_img": 400,
+      "n_gt": 940
+    },
+    "note": "演示场景域为合成渲染帧；公开基准为真实漂浮物照片。两者不可混算。"
+  },
+  "note": "域内微调：演示场景域(仿真海面+真实水面) 2 类，塑料袋+浮标负类，@640"
+}

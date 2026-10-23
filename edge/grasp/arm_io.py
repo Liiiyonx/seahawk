@@ -24,8 +24,12 @@ rospy 全部**惰性导入**，mock 模式下完全不碰 ROS —— 因此本�
 
 from __future__ import annotations
 
+import base64
+import json
 import logging
 import math
+import os
+import socket
 import threading
 import time
 from typing import Any
@@ -53,6 +57,12 @@ class ArmIo:
         )
         self.joint_states_topic = str(arm.get("joint_states_topic", "/joint_states"))
         self.camera_topic = str(arm.get("camera_topic", "/usb_cam/image_raw"))
+        # ★ USB/UVC 摄像头帧源（开发机 / 无 ROS 联调）。显式配了就用它，不再接
+        #   ROS 相机话题。与 ``mock`` **分离**：mock 管执行端（舵机下发与回读），
+        #   usb_camera 只管帧源 —— 这样「真摄像头画面 + 模拟舵机」这个开发机
+        #   组合才成立；真机上两者都留空/为假，行为与改动前一致。
+        cam = arm.get("usb_camera", None)
+        self.usb_camera: int | None = None if cam is None else int(cam)
 
         self.gripper_servo = int(arm.get("gripper_servo", 1))
         self.wrist_servo = int(arm.get("wrist_servo", 2))
@@ -84,6 +94,10 @@ class ArmIo:
         self._ik: Any = None
         self._frame: Any = None
         self._frame_ts: float = 0.0
+        #: USB 摄像头帧源运行态（取帧常驻线程 + 采集句柄）
+        self._cap: Any = None
+        self._cam_thread: threading.Thread | None = None
+        self._cam_stop = threading.Event()
         self._states: dict[str, dict[str, Any]] = {}
         self._started = False
         self._last_pulses: dict[int, int] = {}
@@ -107,6 +121,16 @@ class ArmIo:
         if self._started:
             return
         self._started = True
+        # 帧源优先：配了 USB 摄像头就用它，不接 ROS 相机。
+        # 摄像头打不开**不抛**（与 ROS 接入失败同一处理）—— 记到 ros_error，
+        # 让作业台照常打开并显示排障提示，而不是整页打不开。
+        if self.usb_camera is not None:
+            try:
+                self._start_usb_camera()
+            except ArmIoError as exc:
+                self.ros_error = str(exc)
+                logger.error("USB 摄像头帧源不可用（作业台仍可打开，但无画面）：%s", exc)
+            return
         if self.mock:
             logger.info("ArmIo 以 mock 模式启动（不接 ROS）")
             return
@@ -124,6 +148,90 @@ class ArmIo:
 
     def stop(self) -> None:
         self._started = False
+        self._cam_stop.set()
+        if self._cam_thread is not None:
+            self._cam_thread.join(timeout=1.0)
+            self._cam_thread = None
+        if self._cap is not None:
+            try:
+                self._cap.release()
+            except Exception:  # noqa: BLE001
+                logger.warning("摄像头释放失败", exc_info=True)
+            self._cap = None
+
+    # ------------------------------------------------------------------
+    # USB 摄像头帧源（与 ROS 相机话题二选一）
+    # ------------------------------------------------------------------
+    def _start_usb_camera(self) -> None:
+        """打开 USB/UVC 摄像头并起常驻取帧线程。
+
+        Windows 优先 DSHOW，其余情况退回默认后端；两者都失败才判定打不开。
+        """
+        try:
+            import cv2
+        except ImportError as exc:
+            raise ArmIoError(
+                "USB 摄像头帧源需要 opencv-python（pip install opencv-python）"
+            ) from exc
+        idx = int(self.usb_camera)
+        cap = None
+        for backend in (cv2.CAP_DSHOW, cv2.CAP_ANY):
+            candidate = cv2.VideoCapture(idx, backend)
+            if candidate.isOpened():
+                cap = candidate
+                break
+            candidate.release()
+        if cap is None:
+            raise ArmIoError(f"USB 摄像头 {idx} 打不开（被其它程序占用 / 索引不对）")
+        self._cap = cap
+        self._cam_stop.clear()
+        self._cam_thread = threading.Thread(target=self._camera_loop, daemon=True)
+        self._cam_thread.start()
+        # ★ 必须等**第一帧真的到手**才算成功。Windows 上设备被别的进程独占时，
+        #   ``VideoCapture.isOpened()`` 仍会返回 True，但 ``read()`` 一帧都出不来 ——
+        #   不校验就会带着一个"永远读不到帧"的帧源一路跑下去，表现为闭环
+        #   ``detecting × N → error``、日志里却查不出原因（与 MQTT 不等 CONNACK
+        #   就 publish 是同一类静默缺陷）。等不到就明确报错，并说明成因。
+        deadline = time.time() + 3.0
+        while time.time() < deadline and self._frame is None:
+            time.sleep(0.05)
+        if self._frame is None:
+            self._cam_stop.set()
+            self._cam_thread.join(timeout=1.0)
+            self._cam_thread = None
+            try:
+                cap.release()
+            except Exception:  # noqa: BLE001
+                logger.warning("摄像头释放失败", exc_info=True)
+            self._cap = None
+            raise ArmIoError(
+                f"USB 摄像头 {idx} 打开了但读不到帧：多半被其它程序独占 —— "
+                f"同一颗摄像头一次只能被一个进程用，作业台与机械臂桥接层不要同时开"
+            )
+        logger.info("ArmIo 帧源 = USB 摄像头 index=%s（不接 ROS 相机）", idx)
+
+    def _camera_loop(self) -> None:
+        """持续取帧。
+
+        ★ 为什么必须常驻读：``VideoCapture`` 内部有帧缓冲，只在
+        ``latest_frame()`` 时才 ``read()``，拿到的会是缓冲区里最旧的那帧 ——
+        视觉伺服会「看着几帧之前的画面」逼近，越走越偏。常驻读取保证
+        latest 永远是当前帧。
+        """
+        while not self._cam_stop.is_set():
+            cap = self._cap
+            if cap is None:
+                break
+            try:
+                ok, frame = cap.read()
+            except Exception:  # noqa: BLE001
+                ok, frame = False, None
+            if ok and frame is not None:
+                with self._lock:
+                    self._frame = frame
+                    self._frame_ts = time.time()
+            else:
+                time.sleep(0.05)
 
     # ------------------------------------------------------------------
     # ROS 惰性接入
@@ -210,8 +318,12 @@ class ArmIo:
     # 画面
     # ------------------------------------------------------------------
     def latest_frame(self) -> Any:
-        """最新一帧 BGR 图像（np.ndarray）或 None。"""
-        if self.mock:
+        """最新一帧 BGR 图像（np.ndarray）或 None。
+
+        合成画面只在「mock 执行端且没有真摄像头帧源」时使用 —— 一旦配了
+        USB 摄像头，画面就来自真实摄像头。
+        """
+        if self.mock and self.usb_camera is None:
             return self._mock_frame()
         with self._lock:
             return None if self._frame is None else self._frame.copy()
@@ -258,8 +370,8 @@ class ArmIo:
         return img
 
     def frame_age(self) -> float:
-        """最近一帧的年龄（秒）；mock 模式恒为 0。"""
-        if self.mock:
+        """最近一帧的年龄（秒）；合成画面恒为 0。"""
+        if self.mock and self.usb_camera is None:
             return 0.0
         with self._lock:
             return 0.0 if not self._frame_ts else max(0.0, time.time() - self._frame_ts)
@@ -438,3 +550,296 @@ class ArmIo:
             duration_ms=duration_ms,
             extra_pairs=[(self.wrist_servo, self.wrist_center)],
         )
+
+
+class _RemoteLink:
+    """一条与板上代理的「换行分隔 JSON」长连接（自带发送锁与读缓冲）。
+
+    共享一条连接时并发调用会串话，因此所有请求都在 ``lock`` 内完成
+    「发→收」一个来回；连接断开后下次调用自动重连（``connect`` 幂等）。
+    """
+
+    def __init__(self, host: str, port: int, timeout: float) -> None:
+        self.host = host
+        self.port = port
+        self.timeout = float(timeout)
+        self.sock: Any = None
+        self.buf = b""
+        self.lock = threading.RLock()
+        self._seq = 0
+
+    def connect(self) -> None:
+        if self.sock is not None:
+            return
+        sock = socket.create_connection((self.host, self.port), timeout=self.timeout)
+        sock.settimeout(self.timeout)
+        self.sock = sock
+        self.buf = b""
+
+    def close(self) -> None:
+        if self.sock is not None:
+            try:
+                self.sock.close()
+            except OSError:
+                pass
+            self.sock = None
+        self.buf = b""
+
+    def call(self, op: str, **params: Any) -> dict[str, Any]:
+        with self.lock:
+            try:
+                self.connect()
+                self._seq += 1
+                payload: dict[str, Any] = {"id": self._seq, "op": op}
+                payload.update(params)
+                self.sock.sendall((json.dumps(payload) + "\n").encode("utf-8"))
+                line = self._read_line()
+            except (OSError, ValueError) as exc:
+                self.close()
+                raise ArmIoError(
+                    "板上代理不可达（%s:%s）：%s" % (self.host, self.port, exc)
+                ) from exc
+        try:
+            resp = json.loads(line)
+        except ValueError as exc:
+            raise ArmIoError("板上代理返回不可解析：%r" % line[:200]) from exc
+        if not resp.get("ok"):
+            raise ArmIoError(str(resp.get("error") or "板上代理返回失败"))
+        return resp
+
+    def _read_line(self) -> str:
+        while b"\n" not in self.buf:
+            chunk = self.sock.recv(65536)
+            if not chunk:
+                raise OSError("连接被板上代理关闭")
+            self.buf += chunk
+        line, self.buf = self.buf.split(b"\n", 1)
+        return line.decode("utf-8", "replace")
+
+
+class ArmIoRemote(ArmIo):
+    """把执行端留在树莓派：本机只持 TCP 客户端（对应板上 ``deploy/board_agent.py``）。
+
+    为什么需要它：作业台（FastAPI）跑在开发机上，但机械臂只挂在树莓派的
+    ROS 与舵机总线上 —— 开发机既没有 ROS、也碰不到那根总线。板上代理用一条
+    换行分隔 JSON 的连接把「舵机下发 / 遥测回读 / 实时画面」暴露出来，本类与之
+    对应。**接口与 `ArmIo` 逐条对齐**，所以作业台 / 抓取闭环 / 标定代码不用改。
+
+    与 `ArmIo` 的两点差异：
+
+    * ``usb_camera`` 是字符串哨兵而非索引 —— 下游用「帧源是否真实」来决定检测
+      后端（真摄像头画面必须用真模型）。远端拿到的就是**真实摄像头画面**，
+      所以这里必须让调用方认为「有真实相机」；相机在本机并不存在，故不留索引。
+    * 夹爪自适应渐闭的**回读停滞判据在板上做**（板上 7Hz 直读 ``servo_states``，
+      比「远端每步回读一次」延迟低得多），本机只收结果脉宽。
+    """
+
+    def __init__(self, cfg: dict[str, Any], mock: bool = False) -> None:
+        super().__init__(cfg, mock=False)
+        arm = cfg.get("arm", {}) or {}
+        remote = arm.get("remote") or {}
+        self.remote_host = str(
+            os.environ.get("OCEANUS_ARM_HOST") or remote.get("host") or "192.168.149.1"
+        )
+        self.remote_port = int(
+            os.environ.get("OCEANUS_ARM_PORT") or remote.get("port") or 8093
+        )
+        self.remote_timeout = float(remote.get("timeout") or 30.0)
+        self.frame_period = float(remote.get("frame_period") or 0.12)
+        self.frame_width = int(remote.get("frame_width") or 640)
+        self.frame_quality = int(remote.get("frame_quality") or 70)
+
+        self.usb_camera = "remote"
+        self._cmd = _RemoteLink(self.remote_host, self.remote_port, self.remote_timeout)
+        self._frame_link = _RemoteLink(
+            self.remote_host, self.remote_port, min(8.0, self.remote_timeout)
+        )
+        self._remote_frame: Any = None
+        self._remote_frame_ts = 0.0
+        self._frame_stop = threading.Event()
+        self._frame_thread: threading.Thread | None = None
+        self._cached_states: dict[str, dict[str, Any]] = {}
+
+    # ------------------------------------------------------------------
+    # 生命周期
+    # ------------------------------------------------------------------
+    def start(self) -> None:
+        if self._started:
+            return
+        self._started = True
+        # 取帧线程**无论 ping 成败都起**：链路断了它会自己重连，代理后起来也能自愈。
+        self._frame_stop.clear()
+        self._frame_thread = threading.Thread(target=self._frame_loop, daemon=True)
+        self._frame_thread.start()
+        try:
+            self._call("ping")
+        except ArmIoError as exc:
+            logger.error("板上代理不可达（作业台仍可打开，但无画面/无舵机）：%s", exc)
+            return
+        logger.info("ArmIo 已接入板上代理 %s:%s", self.remote_host, self.remote_port)
+
+    def stop(self) -> None:
+        self._started = False
+        self._frame_stop.set()
+        if self._frame_thread is not None:
+            self._frame_thread.join(timeout=1.5)
+            self._frame_thread = None
+        self._cmd.close()
+        self._frame_link.close()
+
+    # ------------------------------------------------------------------
+    # 链路状态
+    # ------------------------------------------------------------------
+    def _mark(self, ok: bool, message: str | None = None) -> None:
+        """把「最近一次链路结果」记进 ``ros_error``（作业台顶栏据此显红胶囊）。"""
+        if ok:
+            if self.ros_error:
+                self.ros_error = None
+        else:
+            self.ros_error = message
+
+    def _call(self, op: str, **params: Any) -> dict[str, Any]:
+        try:
+            resp = self._cmd.call(op, **params)
+        except ArmIoError as exc:
+            self._mark(False, str(exc))
+            raise
+        self._mark(True)
+        return resp
+
+    # ------------------------------------------------------------------
+    # 画面（板上取帧线程 → 本机解码）
+    # ------------------------------------------------------------------
+    def _frame_loop(self) -> None:
+        import cv2
+        import numpy as np
+
+        while not self._frame_stop.is_set():
+            try:
+                resp = self._frame_link.call(
+                    "frame", max_width=self.frame_width, quality=self.frame_quality
+                )
+                raw = base64.b64decode(resp["jpeg_b64"])
+                frame = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+                if frame is not None:
+                    with self._lock:
+                        self._remote_frame = frame
+                        self._remote_frame_ts = time.time()
+                    self._mark(True)
+                else:
+                    self._mark(False, "远端帧解码失败（JPEG 数据损坏）")
+            except ArmIoError as exc:
+                self._mark(False, str(exc))
+                time.sleep(1.0)
+                continue
+            except Exception:  # noqa: BLE001
+                logger.exception("远端取帧异常")
+                time.sleep(0.5)
+                continue
+            time.sleep(self.frame_period)
+
+    def latest_frame(self) -> Any:
+        with self._lock:
+            return None if self._remote_frame is None else self._remote_frame.copy()
+
+    def frame_age(self) -> float:
+        with self._lock:
+            ts = self._remote_frame_ts
+        return 0.0 if not ts else max(0.0, time.time() - ts)
+
+    # ------------------------------------------------------------------
+    # 舵机下发 / 便读
+    # ------------------------------------------------------------------
+    def set_servos(self, duration_ms: int, pairs: list[tuple[int, int]]) -> None:
+        clean: list[list[int]] = []
+        for sid, pos in pairs:
+            sid_i, pos_i = int(sid), int(pos)
+            if not 0 <= pos_i <= 1000:
+                raise ArmIoError(f"舵机脉宽必须在 0..1000 之间，收到 {sid_i}:{pos_i}")
+            clean.append([sid_i, pos_i])
+        self._call("set_servos", duration_ms=int(duration_ms), pairs=clean)
+        with self._lock:
+            for sid_i, pos_i in clean:
+                self._last_pulses[sid_i] = pos_i
+
+    def servo_telemetry(self) -> dict[str, dict[str, Any]]:
+        try:
+            resp = self._call("telemetry")
+        except ArmIoError as exc:
+            logger.warning("远端遥测不可用，回退到最近一次成功值：%s", exc)
+            with self._lock:
+                return {k: dict(v) for k, v in self._cached_states.items()}
+        servos = {str(k): dict(v) for k, v in (resp.get("servos") or {}).items()}
+        with self._lock:
+            self._cached_states = servos
+        return servos
+
+    # ------------------------------------------------------------------
+    # 运动学动作
+    # ------------------------------------------------------------------
+    def move_to(
+        self,
+        x: float,
+        y: float,
+        z: float,
+        pitch: float | None = None,
+        pitch_range: tuple[float, float] | None = None,
+        duration_ms: int | None = None,
+        extra_pairs: list[tuple[int, int]] | None = None,
+    ) -> bool:
+        pitch = self.home_pitch if pitch is None else float(pitch)
+        rng = pitch_range or self.home_pitch_range
+        resp = self._call(
+            "move_to",
+            x=float(x),
+            y=float(y),
+            z=float(z),
+            pitch=float(pitch),
+            pitch_range=[float(rng[0]), float(rng[1])],
+            duration_ms=int(duration_ms or self.default_duration_ms),
+            extra_pairs=[[int(a), int(b)] for a, b in (extra_pairs or [])],
+        )
+        return bool(resp.get("reachable"))
+
+    def gripper_open(self, duration_ms: int | None = None) -> None:
+        self._call(
+            "gripper_open",
+            duration_ms=int(duration_ms or self.default_duration_ms),
+            pulse=self.gripper_open_pulse,
+        )
+        with self._lock:
+            self._last_pulses[self.gripper_servo] = self.gripper_open_pulse
+
+    def gripper_close_adaptive(
+        self, stall_threshold: int = 8, max_steps: int = 24
+    ) -> int:
+        """渐闭 + 回读停滞判据 —— 判据在板上跑（直读 `servo_states`，延迟最低）。"""
+        resp = self._call(
+            "gripper_close",
+            stall_threshold=int(stall_threshold),
+            max_steps=int(max_steps),
+            open_pulse=self.gripper_open_pulse,
+            close_pulse=self.gripper_close_pulse,
+            step=self.gripper_step,
+            step_wait=self.gripper_step_wait,
+        )
+        pulse = int(resp.get("pulse") or self.gripper_close_pulse)
+        with self._lock:
+            self._last_pulses[self.gripper_servo] = pulse
+        return pulse
+
+    def home(self, duration_ms: int = 1500) -> bool:
+        resp = self._call("home", duration_ms=int(duration_ms))
+        return bool(resp.get("reachable"))
+
+
+def build_arm_io(cfg: dict[str, Any], mock: bool = False) -> ArmIo:
+    """选执行端：配了 ``arm.remote.enabled`` 走板上代理，否则本机 ROS / mock。
+
+    远端模式存在的唯一理由：作业台跑在开发机上，而机械臂挂在树莓派上。
+    """
+    arm = cfg.get("arm", {}) or {}
+    remote = arm.get("remote") or {}
+    if not mock and remote.get("enabled"):
+        return ArmIoRemote(cfg, mock=False)
+    return ArmIo(cfg, mock=mock)

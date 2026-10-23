@@ -108,10 +108,44 @@ class GraspLoop:
         self.frame_period_s = float(agent.get("frame_period_ms", 250)) / 1000.0
         self.max_retry = int(agent.get("max_retry", 3))
         self.depth_offset = float(agent.get("grasp_depth_offset", 0.005))
-        self.work_radius = float(agent.get("work_radius", 0.20))
         self.approach_height = float(agent.get("approach_height", 0.08))
         self.lock_min_hits = int(agent.get("lock_min_hits", 3))
         self.grip_stall_threshold = int(agent.get("grip_stall_threshold", 8))
+
+        # ---------- 图像误差驱动视觉伺服 ----------
+        # ★ 为什么不靠标定的绝对坐标：标定的平移量在现场会漂 —— 实测把底座正前方
+        #   的袋子换算成了"臂座后方 8cm"的不可达点，闭环第一次 move_to 直接被 IK
+        #   拒掉（3 次尝试全在 1 秒内失败）。相机装在夹爪上，所以「把目标的
+        #   grasp_point 推到画面目标像素」等价于「夹爪对准目标」：只借用标定的
+        #   线性部分当雅可比（粗尺度），绝对位置由迭代收敛，不再依赖会漂的平移量。
+        tpx = agent.get("servo_target_px") or [320.0, 240.0]
+        self.servo_target_px = (float(tpx[0]), float(tpx[1]))
+        self.servo_damping = float(agent.get("servo_damping", 0.25))
+        self.servo_step_limit = float(agent.get("servo_step_limit", 0.04))
+        self.servo_max_iters = int(agent.get("servo_max_iters", 12))
+        self.servo_tol_px = float(agent.get("servo_tol_px", 12.0))
+        #: 跟踪跳变门限（px）。伺服每步只走几厘米，目标的像素位移有限 —— 超过这个
+        #: 距离就判"跟丢"，避免被**固定在相机上的东西**（夹爪本体也会被模型当成
+        #: plastic_bag）吸走：那种目标的像素随臂运动几乎不变，会让伺服一路走到底。
+        self.servo_track_gate = float(agent.get("servo_track_gate", 120.0))
+        #: 伺服机位相对「接近高度」再抬高多少（m）。★ 必须抬高：低机位俯视时
+        #: 相机自己的腕部/线缆就在画面里，模型会把它们也当成塑料袋（实测 conf 0.85，
+        #: 而且是全场最高）—— 那种目标随臂同步移动，伺服永远收敛不了。抬高到
+        #: 腕部之上，画面里就只剩地面目标了。
+        self.servo_lift = float(agent.get("servo_lift", 0.15))
+        #: 响应性判据的下限：预期像素位移小于这个值时不做判定（避免与噪声比大小）。
+        self.servo_min_expected_px = float(agent.get("servo_min_expected_px", 25.0))
+        #: 抓取瞄准点：center=检测框中心（「夹最中间」）；mouth=袋口（框下沿略上）。
+        self.grasp_point_mode = str(agent.get("grasp_point_mode", "center")).strip().lower()
+        #: 识别前是否先把臂摆到俯视观测位（现场＝低头看水面）。识别与伺服同一机位，
+        #: 画面口径一致 —— 否则会出现「在待命位锁定、到伺服位已经看不见目标」。
+        self.observe_look_down = bool(agent.get("observe_look_down", True))
+        fb = agent.get("servo_fallback") or [0.0, 0.10]
+        self.servo_fallback = (float(fb[0]), float(fb[1]))
+        box = agent.get("servo_box") or {}
+        bx = box.get("x") or [-0.30, 0.30]
+        by = box.get("y") or [-0.05, 0.30]
+        self.servo_box = ((float(bx[0]), float(bx[1])), (float(by[0]), float(by[1])))
 
         # ---------- 抓取姿态 ----------
         # ★ 俯仰角口径按厂商源码核对：ROS 版 IK（armpi_fpv_kinematics）里
@@ -155,9 +189,6 @@ class GraspLoop:
         self._phase = "idle"
         self._stop = False
         self._detect_rounds = max(8, int(6.0 / max(self.frame_period_s, 0.05)))
-        self._servo_iters = 6
-        self._converge_px = 12.0          # 像素收敛阈值
-        self._converge_m = 0.006          # 世界坐标收敛阈值（m）
 
         # mock 模式下没有真机标定 —— 造一个演示映射，让整条闭环可离线跑通
         if getattr(io, "mock", False) and not getattr(calibration, "ready", False):
@@ -231,6 +262,17 @@ class GraspLoop:
                         "或填 config.yaml 的 agent.place.coord / agent.place.pose",
             )
 
+        # ★ 低头观测：识别前先把臂摆到俯视观测位（现场＝低头看水面）。
+        #   与伺服用同一机位，保证「锁定时看得见」= 「伺服时也看得见」。
+        if self.observe_look_down:
+            ox, oy = self._clamp_box(*self.servo_fallback)
+            oz = self.cal.plane_z + self.approach_height + self.servo_lift
+            if not self.io.move_to(ox, oy, oz, pitch=self.grasp_pitch,
+                                   pitch_range=self.pitch_range):
+                logger.warning("观测位 (%+.2f,%+.2f,%.3f) 不可达，按当前姿态继续识别",
+                               ox, oy, oz)
+            time.sleep(max(0.4, self.frame_period_s * 2))
+
         for attempt in range(1, limit + 1):
             if self._stop:
                 break
@@ -243,22 +285,32 @@ class GraspLoop:
                 continue
             entry["lock"] = lock.to_dict()
 
-            if not self._servo_approach(lock, log):
+            servo = self._servo_approach(lock, log)
+            if servo is None:
                 entry["result"] = "servo_failed"
                 log.append(entry)
                 continue
 
-            grip_pulse = self._grasp(lock, log)
+            grip_pulse = self._grasp(servo[0], servo[1], log)
             target_gone, grip_stalled = self._verify(lock, grip_pulse, log)
             entry.update({"grip_pulse": grip_pulse, "target_gone": target_gone,
                           "grip_stalled": grip_stalled})
 
-            if not (target_gone and grip_stalled):
-                # 双证据不齐 → 视为不确定，回检测重试（并放下已夹物，避免叠压）
+            # ★「原位消失」这条证据只在**有真实执行端**时才是硬证据。执行端是
+            #   mock（开发机无真机，舵机只是模拟回读）时，物理上根本没有东西把
+            #   目标移走，该证据不可得 —— 此时自动降级为单证据（夹爪停滞），并在
+            #   日志里标明原因。真机（io.mock=False）行为一字未改，仍要求双证据。
+            require_gone = not bool(getattr(self.io, "mock", False))
+            verified = grip_stalled and (target_gone or not require_gone)
+
+            if not verified:
+                # 证据不齐 → 视为不确定，回检测重试（并放下已夹物，避免叠压）
                 self.io.gripper_open()
                 entry["result"] = "verify_failed"
                 log.append(entry)
                 continue
+            entry["verify"] = ("双证据（原位消失 + 夹爪停滞）" if target_gone
+                               else "单证据（mock 执行端：原位消失不可得，仅夹爪停滞）")
 
             placed = self._place(log)
             entry["result"] = "ok" if placed else "placed_failed"
@@ -269,7 +321,8 @@ class GraspLoop:
                        else f"抓取成功但未放入料槽（第 {attempt} 次尝试）")
             return GraspOutcome(ok=True, phase="done", attempts=attempt,
                                 detected=len(log), grip_pulse=grip_pulse,
-                                target_gone=True, grip_stalled=True, placed=placed,
+                                target_gone=target_gone, grip_stalled=grip_stalled,
+                                placed=placed,
                                 message=message, log=log)
 
         message = "已停止" if self._stop else f"重试 {limit} 次仍未成功"
@@ -347,89 +400,159 @@ class GraspLoop:
     # ------------------------------------------------------------------
     # ③ 视觉伺服逼近
     # ------------------------------------------------------------------
-    def _servo_approach(self, lock: Any, log: list[dict[str, Any]]) -> bool:
+    def _servo_approach(self, lock: Any, log: list[dict[str, Any]]) -> tuple[float, float] | None:
+        """把锁定目标的 grasp_point 推到画面目标像素，返回收敛后的臂位 (x, y)。
+
+        与「用标定绝对坐标算目标点」的本质区别：这里只把标定的**线性部分**当
+        雅可比（粗尺度），绝对位置靠逐帧迭代收敛。所以标定的平移量漂了也不影响
+        —— 像素偏差直接指示该往哪走多少，这正是「相机装在夹爪上」的用法。
+        """
         self._set_phase("servoing")
+        z = self.cal.plane_z + self.approach_height + self.servo_lift
+
         try:
-            wx, wy, _ = self.cal.pixel_to_world(*lock.grasp_point)
+            wx, wy, _ = self.cal.pixel_to_world(*self._aim_point(lock))
         except Exception as exc:  # noqa: BLE001
-            logger.warning("坐标换算失败: %s", exc)
-            return False
-
-        if self._radius(wx, wy) > self.work_radius:
-            logger.info("目标超出工作半径 %.3f > %.3f，跳过", self._radius(wx, wy), self.work_radius)
-            return False
-
-        # 先抬到接近高度，避免横向扫过时撞到水面/目标
-        if not self.io.move_to(wx, wy, self.cal.plane_z + self.approach_height,
-                               pitch=self.grasp_pitch, pitch_range=self.pitch_range):
-            return False
+            logger.warning("坐标换算失败，改用兜底起点: %s", exc)
+            wx, wy = self.servo_fallback
+        # ★ 不再用 work_radius 闸门：它依赖标定的绝对坐标，而那份标定本身就不可信
+        #   （实测把底座正前方的袋子算成"臂座后方 8cm"，闸门反而会把真目标拒掉）。
+        #   伺服的唯一安全边界是 servo_box —— 不管标定说什么，臂都不会跑出那个盒。
+        # ★ 起点用**配置的搜索起点**（现场＝底座正前方），不用标定估计：
+        #   标定的平移量本身就不可信（实测偏 16cm），而低机位视野只有约 ±5cm ——
+        #   从偏了 16cm 的估计点起步会直接看不到目标。标定估计只作兜底。
+        x, y = self._clamp_box(*self.servo_fallback)
+        if not self.io.move_to(x, y, z, pitch=self.grasp_pitch, pitch_range=self.pitch_range):
+            ex, ey = self._clamp_box(wx, wy)
+            logger.info("搜索起点不可达，退回标定估计 (%+.3f, %+.3f)", ex, ey)
+            if not self.io.move_to(ex, ey, z, pitch=self.grasp_pitch,
+                                   pitch_range=self.pitch_range):
+                logger.warning("起始点都不可达（搜索起点与标定估计）")
+                return None
+            x, y = ex, ey
         time.sleep(max(0.4, self.frame_period_s * 2))
 
+        j = self.cal.pixel_jacobian()          # d(world)/d(pixel) 的 2x2 线性部分
+        det_j = j[0][0] * j[1][1] - j[0][1] * j[1][0]
+        jinv = (None if abs(det_j) < 1e-12 else
+                ((j[1][1] / det_j, -j[0][1] / det_j), (-j[1][0] / det_j, j[0][0] / det_j)))
         prev_px: tuple[float, float] | None = None
-        prev_world: tuple[float, float] | None = None
-        for _ in range(self._servo_iters):
+        prev_step: tuple[float, float] | None = None
+        for k in range(self.servo_max_iters):
             if self._stop:
-                return False
+                return None
+            # 第 0 轮以锁定位置为参考；之后一律以**上一帧的像素**为参考并加门限，
+            # 避免被固定在相机上的东西（夹爪本体也被模型当成塑料袋）吸走。
             frame = self.io.latest_frame()
-            det = self._nearest_target(frame, lock)
+            det = (self._nearest_target(frame, lock) if prev_px is None
+                   else self._nearest_target(frame, prev_px, gate=self.servo_track_gate))
             if det is None:
-                return False          # 跟丢，回检测
-            px = det.grasp_point
-            wx, wy, _ = self.cal.pixel_to_world(*px)
-            if self._radius(wx, wy) > self.work_radius:
-                return False
-            # 往前走一小步（保留接近高度），再重检测 —— 边走边修正
-            if not self.io.move_to(wx, wy, self.cal.plane_z + self.approach_height,
-                                   pitch=self.grasp_pitch, pitch_range=self.pitch_range):
-                return False
+                logger.info("伺服第 %d 轮跟丢目标，回检测", k)
+                return None
+            u, v = self._aim_point(det)
+            # ★ 响应性判据：上一步臂确实移动了，但目标的像素没按预期移动 —— 说明
+            #   这个目标在被相机"带着走"（臂体/线缆的误检）。继续伺服只会一路撞到
+            #   工作盒边界然后抓空，所以这里明确放弃，让上层重新检测换目标。
+            if prev_px is not None and prev_step is not None and jinv is not None:
+                px, py = prev_step
+                exp_u = -(jinv[0][0] * px + jinv[0][1] * py)
+                exp_v = -(jinv[1][0] * px + jinv[1][1] * py)
+                exp_mag = (exp_u * exp_u + exp_v * exp_v) ** 0.5
+                obs_mag = ((u - prev_px[0]) ** 2 + (v - prev_px[1]) ** 2) ** 0.5
+                if exp_mag > self.servo_min_expected_px and obs_mag < 0.25 * exp_mag:
+                    logger.warning(
+                        "伺服第 %d 轮：臂移动 %.3fm，目标像素却只动 %.0fpx（预期 %.0fpx）"
+                        "→ 疑似固定在相机上的误检，放弃本目标",
+                        k, (px * px + py * py) ** 0.5, obs_mag, exp_mag)
+                    log.append({"servo_rejected": "camera_fixed_target",
+                                "observed_px": round(obs_mag, 1),
+                                "expected_px": round(exp_mag, 1)})
+                    return None
+            prev_px = (u, v)
+            eu = self.servo_target_px[0] - u       # 目标像素 - 当前像素
+            ev = self.servo_target_px[1] - v
+            if abs(eu) <= self.servo_tol_px and abs(ev) <= self.servo_tol_px:
+                log.append({"servo_converged": True,
+                            "residual_px": round(abs(eu) + abs(ev), 1),
+                            "arm_xy": [round(x, 4), round(y, 4)]})
+                return x, y
+            # Δ臂 = -J · 像素误差（J 为 d(world)/d(pixel)）；阻尼 + 限幅保证收敛
+            logger.info("伺服第 %d 轮：像素误差 (%+.0f, %+.0f) 臂位 (%+.3f, %+.3f)",
+                        k, eu, ev, x, y)
+            dx = -(j[0][0] * eu + j[0][1] * ev) * self.servo_damping
+            dy = -(j[1][0] * eu + j[1][1] * ev) * self.servo_damping
+            dx = max(-self.servo_step_limit, min(self.servo_step_limit, dx))
+            dy = max(-self.servo_step_limit, min(self.servo_step_limit, dy))
+            prev_step = (dx, dy)
+            x, y = self._clamp_box(x + dx, y + dy)
+            if not self.io.move_to(x, y, z, pitch=self.grasp_pitch,
+                                   pitch_range=self.pitch_range):
+                logger.info("伺服第 %d 轮不可达 (%+.3f, %+.3f)", k, x, y)
+                return None
             time.sleep(self.frame_period_s)
-            if prev_px is not None and prev_world is not None:
-                dpx = abs(px[0] - prev_px[0]) + abs(px[1] - prev_px[1])
-                dw = abs(wx - prev_world[0]) + abs(wy - prev_world[1])
-                if dpx <= self._converge_px and dw <= self._converge_m:
-                    log.append({"servo_converged": True, "residual_px": round(dpx, 1)})
-                    return True
-            prev_px, prev_world = px, (wx, wy)
-        # 迭代到上限仍未收敛：用最后一次的位置继续（闭环会再验证）
-        log.append({"servo_converged": False, "iters": self._servo_iters})
-        return True
+        log.append({"servo_converged": False, "iters": self.servo_max_iters,
+                    "arm_xy": [round(x, 4), round(y, 4)]})
+        return x, y      # 未收敛也用最后位置继续（抓取验证会兜底）
 
-    def _nearest_target(self, frame: Any, lock: Any) -> Any:
-        """在当前帧里找离锁定位置最近的目标（邻近跟踪）。"""
+    def _nearest_target(self, frame: Any, ref: Any, gate: float | None = None) -> Any:
+        """在当前帧里找离参考点最近的目标（邻近跟踪）。
+
+        ``ref`` 可以是 ``(u, v)`` 或带 ``.center`` 的检测对象。给了 ``gate`` 就要求
+        距离不超过它 —— 否则判「跟丢」，避免被画面里**固定在相机上**的东西吸走。
+        """
         if frame is None:
             return None
         cands = self._candidates(frame)
         if not cands:
             return None
-        lu, lv = lock.center
-        return min(cands, key=lambda d: (d.center[0] - lu) ** 2 + (d.center[1] - lv) ** 2)
+        if isinstance(ref, (tuple, list)):
+            ru, rv = float(ref[0]), float(ref[1])
+        else:
+            ru, rv = ref.center
+        best = min(cands, key=lambda d: (d.center[0] - ru) ** 2 + (d.center[1] - rv) ** 2)
+        if gate is not None:
+            dist = ((best.center[0] - ru) ** 2 + (best.center[1] - rv) ** 2) ** 0.5
+            if dist > float(gate):
+                return None
+        return best
 
-    @staticmethod
-    def _radius(x: float, y: float) -> float:
-        return (x * x + y * y) ** 0.5
+    def _clamp_box(self, x: float, y: float) -> tuple[float, float]:
+        """把臂位夹进伺服工作盒。
+
+        伺服不再依赖标定的绝对坐标，所以安全性由这个盒约束兜住 ——
+        保证机械臂不会为了追一个误检而跑出工作区。
+        """
+        (x0, x1), (y0, y1) = self.servo_box
+        return (min(max(x, x0), x1), min(max(y, y0), y1))
+
+    def _aim_point(self, det: Any) -> tuple[float, float]:
+        """抓取瞄准点：``center`` 用检测框中心（「夹最中间」），``mouth`` 用袋口。"""
+        if self.grasp_point_mode == "center":
+            return det.center
+        return det.grasp_point
 
     # ------------------------------------------------------------------
     # ④ 精准夹取
     # ------------------------------------------------------------------
-    def _grasp(self, lock: Any, log: list[dict[str, Any]]) -> int:
+    def _grasp(self, x: float, y: float, log: list[dict[str, Any]]) -> int:
+        """在伺服收敛到的 (x, y) 正上方下探夹取（IK 现算，非录制位）。"""
         self._set_phase("grasping")
-        wx, wy, _ = self.cal.pixel_to_world(*lock.grasp_point)
         z = self.cal.plane_z + self.depth_offset
         self.io.gripper_open()
         time.sleep(0.2)
-        # 下探到抓取高度（IK 现算，非录制位）
-        if not self.io.move_to(wx, wy, z, pitch=self.grasp_pitch,
+        # 下探到抓取高度
+        if not self.io.move_to(x, y, z, pitch=self.grasp_pitch,
                                pitch_range=self.pitch_range, duration_ms=700):
             logger.warning("下探不可达，按当前位置夹取")
         time.sleep(0.5)
         # 自适应渐闭：夹到东西就停，不靠固定脉宽
         pulse = self.io.gripper_close_adaptive(self.grip_stall_threshold)
         time.sleep(0.3)
-        # 抬起（同样由 IK 现算）
-        self.io.move_to(wx, wy, self.cal.plane_z + self.approach_height,
+        # 抬起
+        self.io.move_to(x, y, self.cal.plane_z + self.approach_height,
                         pitch=self.grasp_pitch, pitch_range=self.pitch_range,
                         duration_ms=700)
-        log.append({"grasp_point_world": [round(wx, 4), round(wy, 4)], "grip_pulse": pulse})
+        log.append({"grasp_point_world": [round(x, 4), round(y, 4)], "grip_pulse": pulse})
         return int(pulse)
 
     # ------------------------------------------------------------------

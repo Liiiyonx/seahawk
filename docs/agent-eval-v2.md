@@ -53,8 +53,8 @@ WP-12 在 WP-05 评测系统（v1，13 个固定场景 + 六项指标）之上�
 | --- | --- | --- |
 | `team_assessor_gate_blocks` | 研判门禁真的会拦单 | 研判结论 `recommended_action="manual_review"` → 期望校验终止 run（`failed` / `policy_denied`），调度四工具 handler 执行 **0** 次，计划摘要含「角色分工」，轨迹角色归属只有研判角色 |
 | `team_assessor_pass_then_dispatch` | 研判通过后调度照常闭环 | 研判两步 + 调度四步各执行 1 次且全部成功 → `succeeded`；轨迹同时含两类工具调用，角色归属覆盖研判 + 调度两个角色 |
-| `lessons_retro_and_reuse` | 经验闭环端到端可用 | 第一次同类事件 `no_robot_available` 失败 → 终态复盘提炼 `(foam, no_robot_standby)`（初始置信度 0.75、引用/确认计数为 0）；第二次同类事件的 plan 摘要出现 `summarize_hits` 的「本次引用经验」标记并引用该条经验，`hit_count=1`、`confirm_count=1`、置信度 0.81 |
-| `lessons_scoped_and_evict` | 经验库不会膨胀/串味 | 两个事件类别各自一条 `no_robot_standby`，按 scope + 谓词检索的结果精确等于本类别那条（不串用）；命中/确认分别计数且封顶 99，置信度随证据单调上调并封顶 0.95（永不到 1.0）；成功 run 不硬编新经验 |
+| `lessons_retro_and_reuse` | 经验闭环端到端可用 | 第一次同类事件 `no_robot_available` 失败 → 终态复盘提炼 `(foam, no_robot_standby)`（初始置信度 0.75、引用/确认计数为 0）；第二次同类事件的 plan 摘要出现 `summarize_hits` 的「本次引用经验」标记并引用该条经验，`hit_count=1`、`confirm_count=1`、置信度 0.6667（贝叶斯后验：引用后 run 失败下调 + 一次确认上调，净效果低于初始值 —— 只会涨的置信度不是置信度） |
+| `lessons_scoped_and_evict` | 经验库不会膨胀/串味 | 两个事件类别各自一条 `no_robot_standby`，按 scope + 谓词检索的结果精确等于本类别那条（不串用）；命中/确认分别计数且封顶 99；置信度为贝叶斯平滑后验（`calibration.bayesian_confidence`）—— 引用只计数不驱动置信度，确认与引用后真实结果驱动上调/下调，16 次确认后封顶 0.95（永不到 1.0）；成功 run 不硬编新经验 |
 
 **为什么用内核复刻而不是调 API。** 研判「角色」是 API 层的编排概念：API 层的研判依据
 来自知识库检索、事件快照与数据库，离线评测里都没有。门禁真正依赖的内核语义只有三条 ——

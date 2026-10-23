@@ -123,8 +123,17 @@ def fake_run_tool(monkeypatch: pytest.MonkeyPatch) -> None:
     """把引擎内的 run_tool 换成假实现（引擎是 ``from ... import run_tool``，
 
     故替换点在 engine 模块命名空间）。所有走 /chat 的测试因此不碰业务库。
+
+    ★ 同时强制规则兜底：``backend/.env`` 是开发私有配置（gitignore），
+    本地可能配了真实 LLM；模型路径会**覆盖**规则分支，让「规则兜底五分支」
+    的断言全部失效（回复人话由模型生成，不等于模板）。测试必须与宿主
+    .env 解耦 —— 清空模型三要素，保证走的是规则路径。
     """
     import app.services.assistant.engine as engine_mod
+
+    monkeypatch.setattr(engine_mod.settings, "assistant_model_base_url", "")
+    monkeypatch.setattr(engine_mod.settings, "assistant_model_name", "")
+    monkeypatch.setattr(engine_mod.settings, "assistant_model_api_key", "")
 
     async def _fake(
         name: str,

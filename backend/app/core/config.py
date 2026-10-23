@@ -131,6 +131,17 @@ class Settings(BaseSettings):
     # 单张上传图片大小上限（MB）。
     assistant_max_image_mb: int = 8
 
+    # ---------- 知识域 LLM 通道（本体抽取主通道 + 生成式问答；默认关闭） ----------
+    # 与 agent_model_* / assistant_model_* 相互独立。规则与检索通道始终兜底，
+    # 任何 LLM 失败都必须记录 fallback_reason 并回退，绝不伪装成功。
+    knowledge_llm_enabled: bool = False
+    # OpenAI-compatible Chat Completions 端点；base_url 可给根路径、/v1 或 /chat/completions。
+    knowledge_llm_base_url: str = ""
+    knowledge_llm_api_key: str = ""
+    knowledge_llm_model: str = ""
+    knowledge_llm_timeout_ms: int = 8000
+    knowledge_llm_max_output_tokens: int = 2048
+
     # ---------- 通知外发 ----------
     # 企业微信机器人 webhook；为空 = 不启用告警外发（只落日志）。
     # 这是刻意的降级：告警推送失败绝不能阻塞事件派单主流程。

@@ -525,7 +525,9 @@
             </form>
 
             <div class="knowledge__review-bar">
+              <!-- 审核意见输入框同样按审核权显隐：无权限账号留一个填不了也用不上的空输入框只会让人困惑 -->
               <input
+                v-if="canReview"
                 v-model.trim="reviewReason"
                 class="form-input"
                 type="text"

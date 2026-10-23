@@ -469,6 +469,41 @@ _TECHNICAL: list[EvidenceRecord] = [
         notes="用于连江独立评审材料中的参赛保障公开事实引用；官方公告与媒体转载"
         "交叉核验。",
     ),
+    _r(
+        "R-PC-01",
+        "神经网络感知通道（YOLO-World 开放词汇零样本 / YOLO11 微调）在**第三方公开漂浮垃圾"
+        "基准 SC-FloatWaste** 官方 val 划分独立测试集（400 张，覆盖印尼 Citarum 流域、"
+        "澳大利亚 NSW、塔斯马尼亚 Hobart）上的 mAP@0.5 / precision / recall 真实数字；"
+        "**不是连江现场验证，不是本项目设备实测精度**",
+        "E2",
+        "test_report",
+        "artifacts/metrics/public_floatwaste_*.json + ml/scripts/evaluate_public_litter.py + "
+        "ml/datasets/manifests_public/ + scripts/fetch_public_floatwaste.py + "
+        "docs/competitions/public-floatwaste-benchmark.md（数据源 DOI 10.5281/zenodo.21934286，"
+        "CC BY 4.0）",
+        "2026-10-08",
+        review_status="已复核",
+        owner="WP-06",
+        rule="unregistered_evidence_level",
+        matches=(
+            "公开数据集独立评测",
+            "公开漂浮垃圾基准",
+            "SC-FloatWaste",
+            "公开数据集、非连江现场",
+            "第三方公开数据集，非连江",
+        ),
+        notes=(
+            "口径分两层，**不得混为一谈**："
+            "(1) 数据集清单 ml/datasets/manifests_public/*.yaml 写 evidence_level: E3，"
+            "指的是「底层影像为真实场景数据」（data_type=real 的冻结映射），"
+            "**不是**「本项目已完成现场验证」；"
+            "(2) 登记表本条记 E2，指的是「本项目跑出该评测结果」这件事本身的证据等级——"
+            "它是软件评测报告，不是现场验证。"
+            "对外只能写「在公开漂浮垃圾基准独立测试集上的精度」，"
+            "禁止写成「连江现场验证」「真实海域验证」「本项目设备实测精度」；"
+            "76% 时序链路误报抑制率与本数字无关，禁止混用。"
+        ),
+    ),
 ]
 
 # ====================================================================

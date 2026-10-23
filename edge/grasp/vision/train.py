@@ -68,6 +68,22 @@ def _base_weights(cfg: dict[str, Any]) -> str:
     return "yolov8n.pt"
 
 
+def imgsz_for(cfg: dict[str, Any], tier: "Tier") -> tuple[int, int]:
+    """返回 ``(训练边长, 导出边长)``，两者**必须一致**且等于部署输入边长。
+
+    ★ 为什么不能按档位各用各的尺寸：``Detector`` 按 ``vision.input_size`` 做
+    letterbox，导出的 ONNX 若边长不同，``cv2.dnn`` 加载时直接报维度不匹配。
+    原先 ``lan`` 档是按 ``TIERS`` 的 416 训练**并导出 416**，而 config 写的是
+    640 —— 于是「作业台里训练完 → 部署 → 推理」必然崩，正是 ``config.yaml``
+    「训练本来是 768，却导了 416」那条注释警告过的失败类别。
+    档位里的 ``imgsz`` 现在只作为 config 没写 ``input_size`` 时的兜底。
+
+    抽成纯函数是为了能在没有 ultralytics 的机器上单测这条口径。
+    """
+    size = int((cfg.get("vision", {}) or {}).get("input_size", tier.imgsz))
+    return size, size
+
+
 def train(
     cfg: dict[str, Any],
     tier_key: str,
@@ -102,8 +118,7 @@ def train(
     if not yaml_path.exists():
         raise TrainingError(f"数据集描述文件不存在: {yaml_path}")
 
-    vision = cfg.get("vision", {}) or {}
-    imgsz = int(vision.get("input_size", tier.imgsz)) if tier.key == "local" else tier.imgsz
+    train_imgsz, export_imgsz = imgsz_for(cfg, tier)
 
     model = YOLO(_base_weights(cfg))
 
@@ -125,7 +140,7 @@ def train(
     results = model.train(
         data=str(yaml_path),
         epochs=tier.epochs,
-        imgsz=imgsz,
+        imgsz=train_imgsz,
         batch=tier.batch,
         freeze=tier.freeze,
         project=str(Path(dataset.root).parent / "runs"),
@@ -140,9 +155,11 @@ def train(
         raise TrainingError(f"训练结束但未找到 best.pt（{save_dir}）")
 
     if progress_cb:
-        progress_cb("export", {"stage": "export", "message": "导出 ONNX"})
+        progress_cb("export", {"stage": "export",
+                               "message": f"导出 ONNX imgsz={export_imgsz}"
+                                          f"（训练 {train_imgsz}）"})
 
-    onnx_path = _export_onnx(model, best_pt, imgsz)
+    onnx_path = _export_onnx(model, best_pt, export_imgsz)
 
     metrics = {
         "map50": float(getattr(results, "box", None).map50) if getattr(results, "box", None) else None,
@@ -154,6 +171,8 @@ def train(
         "onnx": str(onnx_path) if onnx_path else None,
         "best_pt": str(best_pt),
         "output_dir": str(save_dir),
+        "train_imgsz": train_imgsz,
+        "export_imgsz": export_imgsz,
         "metrics": metrics,
     }
     if progress_cb:

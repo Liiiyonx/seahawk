@@ -42,6 +42,23 @@ from app.services.agents.memory import (
     MemoryEntry,
     MemoryStore,
 )
+# 决策置信度校准（Jev/System One 路线的确定性落地）
+from app.services.agents.calibration import (
+    IsotonicCalibrator,
+    bayesian_confidence,
+    expected_calibration_error,
+    fit_temperature,
+    reliability_buckets,
+)
+# 类型化快判断层（快慢分工的「快」侧：Choice / Score / Noul 三原语）
+from app.services.agents.decisions import (
+    ChoiceAnswer,
+    LogitsTypedDecider,
+    NoulAnswer,
+    RuleTypedDecider,
+    ScoreAnswer,
+    TypedDecider,
+)
 # 跨 run 经验（lessons）：确定性「可进化」闭环，默认由 RuntimeConfig 控制开关
 from app.services.agents.lessons import (
     LESSON_KINDS,
@@ -175,6 +192,19 @@ __all__ = [
     "LESSON_MEMORY_TYPE",
     "LESSON_SCOPE_TYPE",
     "summarize_hits",
+    # 决策置信度校准
+    "IsotonicCalibrator",
+    "bayesian_confidence",
+    "expected_calibration_error",
+    "fit_temperature",
+    "reliability_buckets",
+    # 类型化快判断层
+    "ChoiceAnswer",
+    "LogitsTypedDecider",
+    "NoulAnswer",
+    "RuleTypedDecider",
+    "ScoreAnswer",
+    "TypedDecider",
     "ApprovalRecord",
     "InMemoryApprovalRepository",
     "InMemoryRunRepository",

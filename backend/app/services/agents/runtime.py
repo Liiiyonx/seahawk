@@ -800,7 +800,13 @@ class AgentRuntime:
         run.termination_reason = reason
         run.finished_at = self.clock.now()
         run.updated_at = self.clock.now()
-        self._harvest_lessons(run, outcome=self._outcome_of(status), reason=reason)
+        outcome = self._outcome_of(status)
+        # 先结算「本次引用过的经验」的结果观测（校准置信度的证据来源，
+        # 见 LessonStore.settle），再做复盘提炼 —— 顺序保证同一次终态
+        # 里 use 观测与 confirm 证据都计入同一个最终置信度。
+        if outcome in ("succeeded", "failed"):
+            self.lessons.settle(run_id=run.run_id, outcome=outcome)
+        self._harvest_lessons(run, outcome=outcome, reason=reason)
         self.runs.save(run)
         return self._result(run)
 

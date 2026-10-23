@@ -101,6 +101,36 @@ _OUTPUT_PROTOCOL = {
     "tool_call_key": "tool_call",
 }
 
+# 专家人设（多智能体直聊）：key 与前端专家列表一一对应。
+# 拼在基础 system prompt 前面 —— 基础 prompt 末尾的 JSON 输出协议必须保持最后，
+# 否则模型容易被"人设描述"带跑、忘记输出协议。
+_EXPERT_PERSONAS = {
+    "data": (
+        "当前你以「数据分析师」身份服务：回答聚焦统计口径、趋势对比、"
+        "聚类与异常分析，用数据说话、给出可复现的结论。"
+    ),
+    "dispatch": (
+        "当前你以「外业调度师」身份服务：回答聚焦就近派单、机器人调度、"
+        "作业窗口与优先级排序，结论必须可直接执行。"
+    ),
+    "env": (
+        "当前你以「环境评估师」身份服务：回答聚焦污染影响范围、生态风险，"
+        "并结合潮汐、风向等环境因素研判垃圾漂移与扩散。"
+    ),
+    "device": (
+        "当前你以「设备运维师」身份服务：回答聚焦摄像头/机器人/无人机的"
+        "状态排查、故障定位与维护建议，按排查步骤给方案。"
+    ),
+    "law": (
+        "当前你以「执法文书员」身份服务：回答聚焦处置台账、文书模板、"
+        "流程合规与证据链整理，用语规范严谨。"
+    ),
+    "emergency": (
+        "当前你以「应急响应员」身份服务：回答聚焦突发垃圾集聚事件的"
+        "响应分级、资源协调与处置时序，先给最紧急的动作。"
+    ),
+}
+
 _CAPABILITY_TEXT = (
     "我是探海灵眸对话助手，可以帮你：\n"
     "· 查询海漂垃圾事件（如「最新事件列表」）\n"
@@ -410,6 +440,7 @@ async def _chat_with_model(
     text: str,
     det_summaries: list[str],
     blocks: list[dict[str, Any]],
+    system_prompt: str = _CHAT_SYSTEM_PROMPT,
 ) -> tuple[str, str] | None:
     """返回 (reply_text, model_name)；失败返回 None。
 
@@ -430,7 +461,7 @@ async def _chat_with_model(
         api_key=settings.assistant_model_api_key,
         timeout_ms=settings.assistant_model_timeout_ms,
         max_output_tokens=settings.assistant_model_max_output_tokens,
-        system_prompt=_CHAT_SYSTEM_PROMPT,
+        system_prompt=system_prompt,
     )
     tools = tool_descriptors()
     tool_results: list[dict[str, Any]] = []
@@ -510,10 +541,12 @@ async def chat(
     session_id: str | None,
     text: str | None,
     images: list[bytes] | None,
+    expert: str | None = None,
 ) -> AssistantReply:
     """处理一轮对话：落库用户消息 → （图片检测）→ 模型/规则 → 落库回复。
 
     事务边界：只 add + flush，commit 由 get_session 依赖在请求成功时统一完成。
+    expert：多智能体直聊的专家 key（见 _EXPERT_PERSONAS），只影响模型路径的人设。
     """
     if not settings.assistant_enabled:
         raise AppException(
@@ -576,6 +609,9 @@ async def chat(
     fallback = True
     if _model_configured():
         pre_model_blocks = len(blocks)
+        # 专家人设前置拼进 system prompt（基础 prompt 的输出协议保持在末尾）
+        persona = _EXPERT_PERSONAS.get((expert or "").strip(), "")
+        system_prompt = f"{persona} {_CHAT_SYSTEM_PROMPT}" if persona else _CHAT_SYSTEM_PROMPT
         try:
             model_result = await _chat_with_model(
                 session,
@@ -583,6 +619,7 @@ async def chat(
                 text=text,
                 det_summaries=det_summaries,
                 blocks=blocks,
+                system_prompt=system_prompt,
             )
         except Exception as exc:  # noqa: BLE001 —— 模型路径绝不能打穿对话
             _LOG.warning("assistant model path crashed: %s", type(exc).__name__)

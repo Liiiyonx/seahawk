@@ -419,11 +419,11 @@ SCENARIOS: list[dict[str, Any]] = [
     {
         "id": "lessons_scoped_and_evict",
         "name": "经验按 (scope, kind) 键控：互不串用 + 计数与置信度封顶",
-        "description": "不同事件类别各自成条、条件不满足不引用；命中/确认计数分别递增且封顶，置信度随证据单调上调并封顶 0.95（永不到 1.0），成功 run 不硬编新经验",
+        "description": "不同事件类别各自成条、条件不满足不引用；命中/确认计数分别递增且封顶，置信度为贝叶斯平滑后验（引用只计数，确认与引用后真实结果驱动上调/下调）并封顶 0.95（永不到 1.0），成功 run 不硬编新经验",
         "expected": {
             "status": "succeeded",
             "error_code": None,
-            "shape": "foam/plastic 两次空池失败各自提炼一条 no_robot_standby；按 (scope,kind) 检索互不串用；note_hit/harvest 递增计数；置信度单调升至封顶；候选可用时成功闭环",
+            "shape": "foam/plastic 两次空池失败各自提炼一条 no_robot_standby；按 (scope,kind) 检索互不串用；note_hit 只计数（不动置信度）、harvest 递增确认；置信度由后验单调非降至封顶 0.95；候选可用时成功闭环",
         },
         "must_not_execute": [],
         "evidence_level": "E1",
@@ -2238,8 +2238,11 @@ def _judge_lessons_retro(env: ScenarioEnv, res: ScenarioResult) -> list[str]:
         notes.append(f"经验被引用后 hit_count 应为 1，实际 {foam.hit_count}")
     if foam.confirm_count != 1:
         notes.append(f"第二次同类失败应再次确认经验（confirm_count=1），实际 {foam.confirm_count}")
-    if foam.confidence != 0.81:
-        notes.append(f"一次引用+一次确认后置信度应为 0.81，实际 {foam.confidence}")
+    if foam.confidence != 0.6667:
+        notes.append(
+            f"一次引用（引用后 run 失败）+一次确认后置信度应为 0.6667"
+            f"（贝叶斯后验：失败下调盖过确认上调），实际 {foam.confidence}"
+        )
 
     # 计划摘要必须出现 summarize_hits 的命中标记，并引用真实经验的 scope/kind。
     marker = "本次引用经验"
@@ -2291,15 +2294,16 @@ def _run_lessons_scoped_and_evict() -> ScenarioResult:
     # ③ 条件不满足不引用：谓词 no_candidate 为假时，同类也不命中。
     unmatched = runtime.lessons.match(main_class="foam", context={})
 
-    # ④ 计数与置信度：引用递增 hit、再次确认递增 confirm；置信度按证据单调上调。
+    # ④ 计数与置信度：引用只递增 hit（审计），确认递增 confirm；
+    #    置信度 = 贝叶斯平滑后验，由确认与引用后真实结果驱动。
     foam = next(
         item for item in runtime.lessons.all_lessons()
         if item.scope_id == "foam" and item.kind == "no_robot_standby"
     )
     confidence_trace = [foam.confidence]                 # 0.75（初始，由种类证据强度决定）
     runtime.lessons.note_hit([foam], run_id="run_hit_direct")
-    confidence_trace.append(foam.confidence)             # 0.78
-    for i in range(8):                                   # 8 次再次确认
+    confidence_trace.append(foam.confidence)             # 0.75（引用只计数，不驱动置信度）
+    for i in range(16):                                  # 16 次再次确认 → 第 16 次触顶 0.95
         runtime.lessons.harvest(
             run_id=f"run_confirm_{i}",
             main_class="foam",
@@ -2365,18 +2369,19 @@ def _judge_lessons_scoped(env: ScenarioEnv, res: ScenarioResult) -> list[str]:
     # 命中/确认分开计数、各自封顶（防膨胀）。
     if foam.hit_count != 99:
         notes.append(f"hit_count 应封顶 99，实际 {foam.hit_count}")
-    if foam.confirm_count != 8:
-        notes.append(f"confirm_count 应等于确认次数 8，实际 {foam.confirm_count}")
+    if foam.confirm_count != 16:
+        notes.append(f"confirm_count 应等于确认次数 16，实际 {foam.confirm_count}")
     if plastic.hit_count != 0 or plastic.confirm_count != 0:
         notes.append("未被引用的另一类别经验计数不应被动到")
 
-    # 置信度单调上调且封顶 0.95，永不到 1.0。
+    # 置信度单调非降且封顶 0.95，永不到 1.0（本场景无失败 use 观测；
+    # 失败下调路径由 lessons_retro_and_reuse 与 test_agent_calibration 覆盖）。
     trace = extra.get("confidence_trace") or []
     if len(trace) < 3:
         notes.append(f"缺少置信度演化轨迹：{trace}")
     else:
         if any(later < earlier for earlier, later in zip(trace, trace[1:])):
-            notes.append(f"置信度应单调上调：{trace}")
+            notes.append(f"置信度应单调非降：{trace}")
         if max(trace) != 0.95:
             notes.append(f"置信度应封顶 0.95，实际峰值 {max(trace)}")
         if any(value >= 1.0 for value in trace) or foam.confidence >= 1.0:

@@ -239,6 +239,29 @@ class KnowledgeSearchOut(BaseModel):
     results: list[KnowledgeSearchHit] = Field(default_factory=list)
 
 
+class KnowledgeQARequest(BaseModel):
+    """检索-生成问答：先走知识域检索，再让模型只依据检索证据作答。"""
+
+    query: str = Field(..., min_length=1, max_length=1000)
+    ontology_version_id: str | None = Field(default=None, max_length=64)
+    hop_depth: int = Field(default=2, ge=1, le=3)
+    limit: int = Field(default=8, ge=1, le=20)
+
+
+class KnowledgeQAOut(BaseModel):
+    """生成式问答结果：answer 内的 [c:编号] 引用对应 results 的序号（1 起）。"""
+
+    answer: str
+    insufficient_evidence: bool = False
+    search_mode: str
+    ontology_version_id: str | None = None
+    results: list[KnowledgeSearchHit] = Field(default_factory=list)
+    cited_indexes: list[int] = Field(default_factory=list)
+    model: str | None = None
+    fallback_reason: str | None = None
+    channel: str = "llm"
+
+
 class DecisionEvidenceIn(BaseModel):
     asset_id: str | None = Field(default=None, max_length=64)
     asset_version_id: str | None = Field(default=None, max_length=64)

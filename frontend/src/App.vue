@@ -170,6 +170,9 @@
       <button class="error-bar__close" @click="store.error = ''">×</button>
     </div>
 
+    <!-- 全局Toast通知 -->
+    <ToastContainer />
+    
     <!-- 演示口径字幕（固定右下角；开关状态全局共享，见 utils/demoCaption.js） -->
     <DemoCaption />
 
@@ -228,12 +231,13 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { routes } from '@/router'
 import { useRealtimeStore } from '@/stores/realtime'
-import { getUser, clearAuth, isLoggedIn, roleLabel } from '@/utils/auth'
+import { getUser, clearAuth, isLoggedIn, roleLabel, currentRole } from '@/utils/auth'
 import { statsApi } from '@/api'
 import { fmtTime } from '@/utils/format'
 import { getTheme, toggleTheme } from '@/utils/theme'
 import BrandLockup from '@/components/BrandLockup.vue'
 import DemoCaption from '@/components/DemoCaption.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const store = useRealtimeStore()
 const route = useRoute()
@@ -293,7 +297,9 @@ const userRoleChip = computed(() => {
   const u = currentUser.value
   if (!u) return ''
   const name = String(u.full_name || u.username || '').trim()
-  const role = roleLabel(u.role).trim()
+  // 角色徽章与 canWrite() 同源（以令牌载荷为准）：否则会出现
+  // "徽章写着系统管理员、写按钮却藏着"的不一致
+  const role = roleLabel(currentRole()).trim()
   if (role && name.includes(role)) return String(u.township_scope || '').trim()
   return role
 })

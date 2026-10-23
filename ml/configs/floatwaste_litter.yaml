@@ -1,0 +1,31 @@
+# ============================================================
+# Ultralytics 数据集配置 —— SC-FloatWaste 单类（litter）微调
+#
+# 用途：探海灵眸 Oceanus WP-06 感知评测的**公开基准对照通道**。
+# 不是连江本地数据，不得据此声称本地精度（见清单里的口径边界）。
+#
+# 隔离：train/val 取自 SC-FloatWaste 官方 train 划分（Indonesia），
+#       test 取自官方 val 划分（Indonesia/NSW/Hobart）——官方声明两者不相交。
+#       清单见 ml/datasets/manifests_public/。
+#
+# 用法（GPU）：
+#   yolo detect train data=ml/configs/floatwaste_litter.yaml model=yolo11s.pt \
+#        epochs=80 imgsz=1280 batch=8 device=0 project=D:/seahawk-work/runs name=floatwaste_yolo11s
+# ============================================================
+
+path: ml/datasets/public_floatwaste
+train: images/train
+val: images/val
+test: images/test
+
+# 单类：公开基准只把「漂浮垃圾」作为一类标注（25 个细类见 PROVENANCE.json）
+names:
+  0: litter
+
+# 数据集统计（2026-10-08 由 scripts/fetch_public_floatwaste.py 构建）
+stats:
+  train_images: 600
+  val_images: 172
+  test_images: 400
+  instances:
+    litter: 7641

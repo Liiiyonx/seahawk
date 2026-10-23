@@ -35,14 +35,42 @@
       </section>
 
       <!-- 地图 -->
-      <MapPanel
-        class="col-map"
-        :heatmap="store.heatmap"
-        :devices="store.devices"
-        :robots="mapRobots"
-        :events="mapEvents"
-        :decision="agentDecision"
-      />
+      <section class="panel col-map">
+        <div class="panel-title">
+          <span>3D海域态势</span>
+          <div class="map-mode-switch">
+            <button
+              :class="{ on: use3DMap }"
+              @click="use3DMap = true"
+            >
+              3D
+            </button>
+            <button
+              :class="{ on: !use3DMap }"
+              @click="use3DMap = false"
+            >
+              2D
+            </button>
+          </div>
+        </div>
+        <SandBoxMap
+          v-if="use3DMap"
+          :robots="mapRobots"
+          :events="mapEvents"
+          :heatmap="store.heatmap"
+          :decision="agentDecision"
+          :routes="mapRoutes"
+          :center="{ lng: 119.86, lat: 26.35 }"
+        />
+        <MapPanel
+          v-else
+          :heatmap="store.heatmap"
+          :devices="store.devices"
+          :robots="mapRobots"
+          :events="mapEvents"
+          :decision="agentDecision"
+        />
+      </section>
 
       <!-- 实时事件流 -->
       <section class="panel col-feed">
@@ -142,9 +170,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import StatCards from '@/components/StatCards.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 import MapPanel from '@/components/MapPanelPrecision.vue'
+import SandBoxMap from '@/components/sandbox/SandBoxMap.vue'
 import ChartPanel from '@/components/ChartPanel.vue'
 import { useRealtimeStore } from '@/stores/realtime'
-import { statsApi, agentsApi } from '@/api'
+import { statsApi, agentsApi, tasksApi } from '@/api'
 import {
   classLabel,
   CLASS_ORDER,
@@ -155,6 +184,7 @@ import { fmtRelative, fmtConfidence, fmtUsage, batteryColor } from '@/utils/form
 
 const store = useRealtimeStore()
 const gridSize = ref(4)
+const use3DMap = ref(true) // 默认启用3D地图
 
 // 传给地图的事件必须是稳定引用：模板里直接 slice() 每次渲染都产生新数组，
 // 会触发 MapPanel 的 watch 重画覆盖物（哪怕内容一个字没变）
@@ -210,6 +240,36 @@ async function loadAgentDecision() {
     /* 决策联动是增强项：取不到就退回纯态势地图，不打断大屏 */
   }
 }
+
+// ---------- 活跃工单 → 3D 航线 ----------
+// 航线数据流：tasksApi.list 拿活跃工单（assigned/navigating/collecting），
+// 每单的 robot_id + 目标坐标（lng/lat）+ 状态就是一条航线。
+// 与派单决策同一套纪律：取不到就传空数组，3D 地图退化为纯态势，不打断大屏。
+const activeTasks = ref([])
+
+async function loadActiveTasks() {
+  try {
+    const res = await tasksApi.list({ page: 1, page_size: 50 })
+    const items = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : []
+    activeTasks.value = items.filter((t) =>
+      ['assigned', 'navigating', 'collecting'].includes(t?.status),
+    )
+  } catch {
+    activeTasks.value = []
+  }
+}
+
+const mapRoutes = computed(() =>
+  activeTasks.value
+    .filter((t) => t?.robot_id && Number.isFinite(Number(t.lng)) && Number.isFinite(Number(t.lat)))
+    .map((t) => ({
+      robotId: t.robot_id,
+      targetLng: Number(t.lng),
+      targetLat: Number(t.lat),
+      taskId: t.task_id,
+      phase: t.status,
+    })),
+)
 
 const STATUS_LABEL = {
   online: '在线',
@@ -334,6 +394,7 @@ const classOption = computed(() => {
 
 // ---------- 定时 ----------
 let chartTimer = null
+let taskTimer = null
 
 onMounted(async () => {
   await loadCharts()
@@ -342,12 +403,17 @@ onMounted(async () => {
   // 比实时告警慢，因为它是叠加在态势上的标注，不需要毫秒级跟随。
   await loadAgentDecision()
   decisionTimer = setInterval(loadAgentDecision, 20000)
+  // 活跃工单 15 秒一刷：航线目标点的变化频率介于决策与图表之间
+  await loadActiveTasks()
+  taskTimer = setInterval(loadActiveTasks, 15000)
 })
 
 onUnmounted(() => {
   clearInterval(chartTimer)
   if (decisionTimer) clearInterval(decisionTimer)
   decisionTimer = null
+  if (taskTimer) clearInterval(taskTimer)
+  taskTimer = null
 })
 </script>
 
@@ -467,6 +533,27 @@ onUnmounted(() => {
   font-family: 'SF Mono', Consolas, monospace;
 }
 
+.map-mode-switch {
+  display: flex;
+  gap: 4px;
+}
+
+.map-mode-switch button {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--text-sub);
+  background: var(--bg-panel-2);
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.map-mode-switch button.on {
+  color: var(--c-primary);
+  background: var(--bg-active);
+}
+
 /* 底部一行 */
 .dashboard__bottom {
   display: grid;
@@ -560,7 +647,12 @@ onUnmounted(() => {
   }
 
   .dashboard__grid { grid-template-columns: 1fr 1.3fr; }
-  .col-map { min-height: 368px; }
+  /* 地图面板高度改为确定性值（与地图高度下限一致 + 面板头）：
+     内容驱动高度在"地图全屏脱离文档流"时会让整列漂移、退出后回不来 */
+  .col-map {
+    height: calc(clamp(320px, 44vh, 560px) + 34px);
+    min-height: 0;
+  }
   .col-feed { grid-column: span 2; max-height: 220px; }
   .robot-panel { max-height: 230px; }
 }
@@ -594,7 +686,10 @@ onUnmounted(() => {
   }
 
   .col-map {
-    min-height: 360px;
+    /* 同 1180 断点：确定性高度，地图进出全屏不扰动弹性布局 */
+    flex: none;
+    height: calc(clamp(320px, 44vh, 560px) + 34px);
+    min-height: 0;
   }
 
   .col-feed {
@@ -623,7 +718,9 @@ onUnmounted(() => {
   }
 
   .col-map {
-    min-height: 330px;
+    flex: none;
+    height: calc(clamp(300px, 46vh, 480px) + 34px);
+    min-height: 0;
   }
 
   .bar {

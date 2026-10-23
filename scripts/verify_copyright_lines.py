@@ -29,7 +29,7 @@ TARGET_LINES = 50
 HEADER_KEY = "探海灵眸海洋环境治理智能体软件"
 
 
-def measure(docx_path: str):
+def measure(docx_path: str, header_key: str = HEADER_KEY):
     """返回 (每页有字行数分布, 总页数, 错误信息)。"""
     out_dir = tempfile.mkdtemp(prefix="_cpverify_")
     proc = subprocess.run(
@@ -88,7 +88,7 @@ def measure(docx_path: str):
             for ln in blk.get("lines", [])
             if ln["bbox"][1] < 55
         )
-        if HEADER_KEY not in hdr:
+        if header_key not in hdr:
             header_missing.append(i + 1)
     total = d.page_count
     d.close()
@@ -103,8 +103,13 @@ def main() -> int:
     if not os.path.isfile(docx):
         print("找不到文件：%s" % docx, file=sys.stderr)
         return 2
+    # 页眉软件名默认从文件名里取（「源代码鉴别材料_<全称>V1.0.docx」），
+    # 也可显式传第二个参数覆盖 —— 拆分登记各篇软件名不同，不能写死。
+    import re as _re
+    m = _re.match(r"^(?:源代码鉴别材料|软件说明书)_(.+?)V[\d.]+$", os.path.splitext(os.path.basename(docx))[0])
+    header_key = sys.argv[2] if len(sys.argv) > 2 else (m.group(1) if m else HEADER_KEY)
 
-    counts, total, err, detail = measure(docx)
+    counts, total, err, detail = measure(docx, header_key)
     if err:
         print("✗ %s" % err)
         return 1
@@ -129,13 +134,29 @@ def main() -> int:
         if body_counts[1] == 0:
             del body_counts[1]
 
+    # ★ CPC 是「每页不少于 50 行，**末页为程序结尾的除外**」。
+    #   末页豁免必须扣掉再判定，否则全量提交的材料会被误判。
+    #   为什么历史上从未触发：拆分登记前三篇与主软著都走「前 30 + 后 30」，
+    #   后段固定取 concat[-1500:]，末页恰好排满 50 行，天然不满不了。
+    #   第 4 篇（机械臂）剔空后 2,787 行不足 60 页，改走全量提交，总行数不是
+    #   50 的整数倍（2,787 = 55×50 + 37），末页 37 行正属豁免范围。
+    last_page_no, _, last_vis = detail[-1]
+    if last_page_no == total and 0 < last_vis < TARGET_LINES:
+        body_counts[last_vis] -= 1
+        if body_counts[last_vis] == 0:
+            del body_counts[last_vis]
+        print("")
+        print("（末页 p%d 为程序结尾，%d 行 < %d 行，按 CPC 末页豁免 —— 不计入判定）"
+              % (last_page_no, last_vis, TARGET_LINES))
+
     # CPC 规定是「每页**不少于** 50 行」，不是恰好 50 行。
     bad = {k: v for k, v in body_counts.items() if k < TARGET_LINES}
     print("")
     print("（已排除第 1 页封面 —— CPC 规范封面不计入行数要求）")
     if not bad:
-        print("✓ 正文 %d 页均 ≥ %d 行（实测 %d~%d）"
-              % (total - 1, TARGET_LINES,
+        ok_pages = sum(body_counts.values())
+        print("✓ 参与判定的 %d 页均 ≥ %d 行（实测 %d~%d）"
+              % (ok_pages, TARGET_LINES,
                  min(k for k in body_counts if k >= TARGET_LINES),
                  max(body_counts)))
         return 0

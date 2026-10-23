@@ -1,0 +1,54 @@
+acceptance:
+  record_id: R-NX-08-PROBE-20261024
+  related_record: R-NX-08（hosted-skill-qa-2026-10-02.yaml，状态仍为 blocked）
+  date: "2026-10-24"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: handshake_401_blocked_pending_console_verification
+  purpose: >-
+    账号解冻后的第一次复跑探测：验证托管平台调用通道现状，
+    为 R-NX-08 完整验收铺路。本次不构成验收，也未跑通 Skill 问答。
+
+  probe:
+    method: Managed Agents WebSocket（官方 managed_agents_client 协议）
+    official_client_copy: artifacts/nexent-platform-acceptance/deployment/managed_agents_client.py
+    rerun_kit: scripts/rnx08_hosted_qa_run.py（重建 10-02 被清理的 rnx08-run.mjs，
+      自包含：读密钥 → 握手 → chat.send → 自动授权 → 收帧落证）
+    endpoint_host: defaultgw-mztggyleha.cn-southwest-2.huaweicloud-agentarts.com
+    runtime_name: managed-seasight-governance-agent-vpc
+    api_key_shape: len=60, 前缀与 10-02 记录一致（sk-sea…）
+    question: 与 R-NX-08 标准问题一致（漏油事件按现有政策评估并给证据链）
+    result:
+      http_status: 401（WebSocket 握手被拒，未进入 watchdog/ack 阶段）
+      dns_resolution: 正常（域名公网可解析，defaultgw Public Access 仍在）
+      gateway_reachable: true（鉴权层有响应）
+    evidence:
+      - evidence/hosted-qa-2026-10-23/（探测产物目录）
+
+  interpretation:
+    - 网关与鉴权层在线；被拒发生在 Bearer API Key 校验。
+    - 密钥形态与 10-02 成功握手的记录一致，因此 401 最可能来自服务端状态变化：
+      ① Agent Identity API Key 被轮换或失效；
+      ② runtime / 智能体身份在 10-02 之后被修改或删除；
+      ③ 账号状态（欠费解冻过程）影响鉴权。
+    - 三者都只能在控制台核验，属 user 侧动作。
+
+  user_side_next_steps:
+    - 控制台确认账号欠费已结清、无受限记录；
+    - 智能体详情 → 版本与身份：确认 seasight-governance-agent-vpc v1 仍在、
+      API Key 有效（必要时新建 Key 并同步 D:\VeriCall_data\secrets\seasight_agentarts.env）；
+    - 治理与安全 → 网络配置：确认 defaultgw Public Access 与网关 Target
+      （seasight-mcp-vpc-target → http://192.168.0.65:8100/mcp）仍为 ready；
+    - 若模型仍走公网 DeepSeek（BLK-2），先按 FIX-1 在 ECS 部署
+      deployment/agentarts-vpc-model-relay.py 并把模型供应商 Base_url
+      改为 http://192.168.0.65:8080/v1（ECS 安全组需放行 VPC 内 8080；
+      SSH 22 当前仍被过滤，需在控制台放行或用 CloudShell）；
+    - 全部就绪后执行：
+      python scripts/rnx08_hosted_qa_run.py --max-seconds 840
+      产出 verdict=completed 即可按 hosted-skill-qa.template.yaml 登记 R-NX-08 完成。
+
+  boundaries:
+    - 本次探测不改变 R-NX-08 的 blocked 状态，live_skill_qa_completed 仍为 false。
+    - 探测只消耗一次握手，未产生模型调用与 LTS 长连接计费。
+  reviewed_by: liyongxiang

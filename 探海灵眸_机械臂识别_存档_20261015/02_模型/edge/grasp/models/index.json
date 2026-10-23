@@ -1,0 +1,133 @@
+{
+  "current": "v20261015_190359",
+  "history": [
+    {
+      "version": "v20261015_072725",
+      "created_at": "2026-10-15T07:27:25",
+      "source": "D:\\seahawk-work\\runs\\plastic_yolo11s\\weights\\best.onnx",
+      "files": [
+        "best.onnx"
+      ],
+      "metrics": {
+        "map50": 0.382,
+        "map50_95": 0.227,
+        "precision": 0.489,
+        "recall": 0.461,
+        "split": "test",
+        "imgsz": 416,
+        "instances": 940,
+        "images": 400,
+        "dataset": "SC-FloatWaste (FloatWaste) contract4-plastic -> 单类 plastic_bag",
+        "note": "独立测试集（官方 val 划分），未参与训练或调参"
+      },
+      "note": "公开基准单类塑料袋 YOLO11s@416"
+    },
+    {
+      "version": "v20261015_102048",
+      "created_at": "2026-10-15T10:20:48",
+      "source": "D:\\seahawk-work\\runs\\plastic_yolo11s_v2\\weights\\best.onnx",
+      "files": [
+        "best.onnx"
+      ],
+      "metrics": {
+        "map50": 0.423,
+        "map50_95": 0.266,
+        "precision": 0.512,
+        "recall": 0.498,
+        "imgsz": 416,
+        "split": "test",
+        "images": 400,
+        "instances": 940,
+        "train_imgsz": 768,
+        "epochs_best": 100,
+        "model": "yolo11s",
+        "dataset": "SC-FloatWaste (FloatWaste) contract4-plastic -> 单类 plastic_bag",
+        "note": "独立测试集（官方 val 划分），未参与训练或调参"
+      },
+      "note": "公开基准单类塑料袋 v2/YOLO11s/768训练->416部署"
+    },
+    {
+      "version": "v20261015_113323",
+      "created_at": "2026-10-15T11:33:23",
+      "source": "D:\\seahawk-work\\runs\\plastic_color_v4\\weights\\best.onnx",
+      "files": [
+        "best.onnx"
+      ],
+      "metrics": {
+        "map50": 0.357,
+        "map50_95": 0.216,
+        "precision": 0.539,
+        "recall": 0.383,
+        "imgsz": 416,
+        "split": "test",
+        "images": 400,
+        "instances": 940,
+        "train_imgsz": 768,
+        "epochs_best": 65,
+        "model": "yolo11s",
+        "color_injection_delta_pct": -2.4,
+        "color_injection_note": "v2 为 +103%；v4 用彩色负样本把颜色干扰压到 -2.4%",
+        "dataset": "SC-FloatWaste + 彩色干扰负样本增强(train/val 注入 2287 个未标注彩色物体)"
+      },
+      "note": "抗彩色干扰版：优先不被颜色误导，代价是整体精度下降"
+    },
+    {
+      "version": "v20261015_173526",
+      "created_at": "2026-10-15T17:35:26",
+      "source": "C:\\Users\\Liii\\Desktop\\seahawk\\edge\\grasp\\models\\active\\best.onnx",
+      "files": [
+        "best.onnx"
+      ],
+      "metrics": {
+        "model": "C:\\Users\\Liii\\Desktop\\seahawk\\edge\\grasp\\models\\active\\best.onnx",
+        "split": "val",
+        "map50": 0.3826,
+        "map50_95": 0.219,
+        "precision": 0.5083,
+        "recall": 0.4595,
+        "per_class": {}
+      },
+      "note": "审计"
+    },
+    {
+      "version": "v20261015_190359",
+      "created_at": "2026-10-15T19:03:59",
+      "source": "D:\\seahawk-work\\runs\\grasp_domain_2cls\\stage\\best.onnx",
+      "files": [
+        "best.onnx"
+      ],
+      "metrics": {
+        "imgsz": 640,
+        "classes": [
+          "plastic_bag",
+          "buoy"
+        ],
+        "base": "plastic_color_v4/best.pt",
+        "demo_scene_synthetic": {
+          "tag": "演示场景域(合成)",
+          "ap50": 0.8361,
+          "p50": 1.0,
+          "r50": 0.8361,
+          "p30": 1.0,
+          "r30": 0.8361,
+          "frame_hit": 146,
+          "n_img": 160,
+          "n_gt": 238
+        },
+        "public_benchmark_real": {
+          "tag": "公开基准(真实)",
+          "ap50": 0.239,
+          "p50": 0.4519,
+          "r50": 0.25,
+          "p30": 0.3624,
+          "r30": 0.3096,
+          "frame_hit": 287,
+          "n_img": 400,
+          "n_gt": 940
+        },
+        "note": "演示场景域为合成渲染帧；公开基准为真实漂浮物照片。两者不可混算。"
+      },
+      "note": "域内微调：演示场景域(仿真海面+真实水面) 2 类，塑料袋+浮标负类，@640"
+    }
+  ]
+}

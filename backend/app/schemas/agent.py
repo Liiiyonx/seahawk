@@ -154,8 +154,27 @@ class AgentLessonOut(BaseModel):
     confidence: float
     hit_count: int = 0
     confirm_count: int = 0
+    # 引用后已结算结果的 run 数与其中成功数（校准证据，LessonStore.settle）
+    use_total: int = 0
+    use_success: int = 0
     source_run_id: str | None = None
     updated_at: datetime | None = None
+
+
+class LessonCalibrationOut(BaseModel):
+    """经验置信度的校准报告（真源：LessonStore.calibration_report）。
+
+    - `ece`：期望校准误差（声明置信度 vs 引用后实际成功率的加权偏差），
+      观测不足时为 None —— 样本太少时给数字是虚报，不是证据；
+    - `buckets`：可靠性曲线分桶数据，前端可直接渲染成图。
+
+    ★ 这是「可进化」的量化证据线：随 run 累积，ECE 走势就是
+      「置信度声明越来越可信」的可回放记录。
+    """
+
+    observation_count: int = 0
+    ece: float | None = None
+    buckets: list[dict[str, float | int | str]] = Field(default_factory=list)
 
 
 class AgentRuntimeStatusOut(BaseModel):
@@ -183,6 +202,8 @@ class AgentRuntimeStatusOut(BaseModel):
     # 跨 run 经验库当前快照（进程内累积；重启清零 —— 见 agents.py 装配注释）。
     # 不可用时为空数组，前端按"经验库为空"渲染，不伪造条数。
     lessons: list[AgentLessonOut] = Field(default_factory=list)
+    # 经验置信度的校准报告（ECE + 可靠性曲线分桶）；观测不足时 ece=None。
+    lesson_calibration: LessonCalibrationOut = Field(default_factory=LessonCalibrationOut)
 
 
 class AgentToolOut(BaseModel):

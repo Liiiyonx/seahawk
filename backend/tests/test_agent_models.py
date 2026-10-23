@@ -64,8 +64,10 @@ TASK_ACK_REVISION = "20260919_1700_task_ack"
 APPROVER_ROLE_REVISION = "20260919_1800_approver_role"
 # 知识资产与本体迁移接在审批角色之后。
 KNOWLEDGE_REVISION = "20260919_1900_knowledge_assets"
-# 对话助手迁移接在知识域之后，是当前唯一 head。
+# 对话助手迁移接在知识域之后。
 CHAT_SESSION_REVISION = "20260922_1000_chat_session"
+# 舵机遥测列迁移接在对话助手之后，是当前唯一 head。
+SERVO_REVISION = "20260905_0100_servo_telemetry"
 
 # 01_schema.sql 会为新库创建这些表；模拟 1600 存量库时须先移除。
 KNOWLEDGE_TABLES = (
@@ -676,7 +678,7 @@ def test_alembic_script_directory_chain() -> None:
     from alembic.script import ScriptDirectory
     cfg = _alembic_config()
     script = ScriptDirectory.from_config(cfg)
-    assert script.get_heads() == [CHAT_SESSION_REVISION]
+    assert script.get_heads() == [SERVO_REVISION]
     agent = script.get_revision(AGENT_REVISION)
     assert agent.down_revision == BASELINE_REVISION
     baseline = script.get_revision(BASELINE_REVISION)
@@ -702,6 +704,9 @@ def test_alembic_script_directory_chain() -> None:
     # 对话助手：接在知识域之后，成为新的单一 head
     chat = script.get_revision(CHAT_SESSION_REVISION)
     assert chat.down_revision == KNOWLEDGE_REVISION
+    # 舵机遥测列：接在对话助手之后，成为当前唯一 head（幂等 ADD COLUMN IF NOT EXISTS）
+    servo = script.get_revision(SERVO_REVISION)
+    assert servo.down_revision == CHAT_SESSION_REVISION
 
 
 def test_approver_role_migration_identity_and_ddl() -> None:
@@ -788,8 +793,8 @@ def test_real_migration_roundtrip_on_scratch_db() -> None:
 
         ver = _query_rows({**params, "dbname": scratch},
                           "SELECT version_num FROM alembic_version")
-        assert ver == [(CHAT_SESSION_REVISION,)], (
-            f"alembic_version 应为 {CHAT_SESSION_REVISION}，实际 {ver}"
+        assert ver == [(SERVO_REVISION,)], (
+            f"alembic_version 应为 {SERVO_REVISION}，实际 {ver}"
         )
 
         # 字段集合

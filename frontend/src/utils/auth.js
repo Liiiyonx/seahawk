@@ -37,13 +37,20 @@ export function clearAuth() {
 }
 
 /**
- * 解码 JWT 载荷（不验签——验签是后端的事，前端只读 exp 做本地显隐）。
+ * 解码令牌载荷（不验签——验签是后端的事，前端只读 role/exp 做本地显隐）。
  * 手写 base64url：浏览器 atob 不认 -/_ 且无 padding，要先还原成标准 base64。
- * 任何一步失败都当"读不出有效期"返回 null，绝不抛错打断登录判断。
+ * 任何一步失败都当"读不出"返回 null，绝不抛错打断登录判断。
+ *
+ * 段数兼容两种格式：
+ *   - 本后端令牌是 2 段式 payload.signature（后端用 rsplit('.', 1) 验签，见 auth.py）；
+ *   - 标准 JWT 是 3 段式 header.payload.signature。
+ * 之前固定取 [1] 在本后端拿到的是签名 → 解析失败 → role 静默回退 localStorage，
+ * 于是"令牌只读 + 本地 user 是 admin"时写按钮照常显示、一提交就 403。
  */
 function decodePayload(token) {
   try {
-    const part = String(token).split('.')[1]
+    const parts = String(token).split('.')
+    const part = parts.length >= 3 ? parts[1] : parts[0]
     if (!part) return null
     const b64 = part.replace(/-/g, '+').replace(/_/g, '/')
     const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4)
@@ -72,10 +79,22 @@ export function isLoggedIn() {
   return !isTokenExpired(token)
 }
 
+/**
+ * 当前角色：**以令牌载荷为准**（与后端裁决同源）。
+ * 之前 UI 用 localStorage 里的 user.role，一旦令牌与用户对象不一致
+ * （换账号、令牌重签、手工改库），就会出现"按钮显示可写、一提交就 403"
+ * 的假闭环 —— 角色判断必须和令牌绑定。
+ */
+export function currentRole() {
+  const payload = decodePayload(getToken())
+  if (payload && typeof payload.role === 'string' && payload.role) return payload.role
+  return getUser()?.role || 'viewer'
+}
+
 /** 是否有写权限（仅前端显隐用，后端才是最终裁决） */
 export function canWrite() {
-  const u = getUser()
-  return !!u && (u.role === 'admin' || u.role === 'operator')
+  const role = currentRole()
+  return role === 'admin' || role === 'operator'
 }
 
 export function roleLabel(role) {

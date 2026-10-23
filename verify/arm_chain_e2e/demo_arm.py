@@ -487,7 +487,7 @@ async def main() -> int:
             banner("[5/5] 机械臂桥接层")
             if args.real:
                 print("""  真机模式：桥接层必须跑在树莓派上（那里才有 ROS 与该机械臂的驱动）。
-  请在树莓派上执行（已部署好 edge/ 时）：
+  请在树莓派上执行（edge/ 已就位时）：
 
     cd <repo>/edge && \\
       OCEANUS_MQTT_HOST=<平台 IP> OCEANUS_MQTT_PORT=1883 \\

@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.deps import CurrentUser, get_current_user, require_operator
 from app.core.exceptions import ApiResponse, AppException, ErrorCode
 from app.db.session import get_session
+from app.services.knowledge_llm import (
+    EXTRACTION_SYSTEM_PROMPT,
+    QA_SYSTEM_PROMPT,
+    build_knowledge_llm_client,
+)
 from app.models.knowledge import (
     DecisionEvidence,
     DecisionTrace,
@@ -31,6 +38,8 @@ from app.schemas import (
     KnowledgeAssetVersionCreate,
     KnowledgeAssetVersionOut,
     KnowledgePathStep,
+    KnowledgeQAOut,
+    KnowledgeQARequest,
     KnowledgeSearchHit,
     KnowledgeSearchOut,
     KnowledgeSearchRequest,
@@ -52,6 +61,7 @@ from app.services.knowledge import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 ONTOLOGY_REVIEW_ROLES = ("admin", "approver")
 
@@ -427,11 +437,17 @@ async def extract_ontology(
     session: AsyncSession = Depends(get_session),
     user: CurrentUser = Depends(require_operator),
 ):
+    llm_client, llm_missing = build_knowledge_llm_client(
+        system_prompt=EXTRACTION_SYSTEM_PROMPT
+    )
+    if settings.knowledge_llm_enabled and llm_client is None:
+        logger.warning("[Knowledge] LLM 抽取通道配置不完整，走规则通道: %s", llm_missing)
     version, nodes, relations, node_count, relation_count = (
         await KnowledgeService(session).extract_ontology(
             payload,
             username=user.username,
             township_scope=user.township_scope if user.role == "operator" else None,
+            llm_client=llm_client,
         )
     )
     await record_audit(
@@ -571,6 +587,47 @@ async def search_knowledge(
                 )
                 for hit in hits
             ],
+        )
+    )
+
+
+@router.post(
+    "/qa",
+    response_model=ApiResponse[KnowledgeQAOut],
+    summary="检索-生成问答（带引用；证据不足时明示，不编造政策依据）",
+)
+async def knowledge_qa(
+    payload: KnowledgeQARequest,
+    session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
+):
+    llm_client, llm_missing = build_knowledge_llm_client(system_prompt=QA_SYSTEM_PROMPT)
+    if settings.knowledge_llm_enabled and llm_client is None:
+        logger.warning("[Knowledge] QA LLM 配置不完整: %s", llm_missing)
+    result = await KnowledgeService(session).answer_question(
+        payload,
+        township_scope=user.township_scope if user.role == "operator" else None,
+        llm_client=llm_client,
+    )
+    return ApiResponse.ok(
+        KnowledgeQAOut(
+            answer=result.answer,
+            insufficient_evidence=result.insufficient_evidence,
+            search_mode=result.mode,
+            ontology_version_id=result.ontology_version_id,
+            results=[
+                KnowledgeSearchHit(
+                    **{
+                        **hit.__dict__,
+                        "path": [KnowledgePathStep(**step) for step in hit.path],
+                    }
+                )
+                for hit in result.hits
+            ],
+            cited_indexes=result.cited_indexes,
+            model=result.model,
+            fallback_reason=result.fallback_reason,
+            channel=result.channel,
         )
     )
 

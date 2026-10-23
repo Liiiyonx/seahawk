@@ -1,0 +1,780 @@
+{
+  "status": "verified",
+  "generated_at": "2026-10-23T16:26:47.800176+00:00",
+  "evidence_level": "E1/E2",
+  "registration": "R-OD-03",
+  "scope_note": "真实公开行业监测数据（NOAA NCEI Marine Microplastics，免费公开使用，逐条带 DOI 与 NCEI 登记号）登记入知识域并用于检索-推理-决策链路；数据为全球公开数据集、非真实脱敏企业内部数据、不含中国大陆点位，本结果不用于说明治理效果或识别精度。",
+  "base_url": "http://127.0.0.1:18000/api/v1",
+  "steps": [
+    {
+      "name": "login",
+      "at": "2026-10-23T16:26:48.106080+00:00",
+      "status": "ok",
+      "ids": [
+        "admin"
+      ]
+    },
+    {
+      "name": "reuse_dataset_asset",
+      "at": "2026-10-23T16:26:48.133989+00:00",
+      "status": "ok",
+      "ids": [
+        "OD-NOAA-MICROPLASTICS-2026",
+        "kav_20261023161637_6c58a366"
+      ],
+      "detail": {
+        "rows": 22530,
+        "sha256": "4024188bc73a79ca..."
+      }
+    },
+    {
+      "name": "cross_domain_search",
+      "at": "2026-10-23T16:26:48.200727+00:00",
+      "status": "ok",
+      "ids": [
+        "ont_20261023155808_fb2c1243"
+      ],
+      "detail": {
+        "mode": "ontology_graph",
+        "total": 5,
+        "top_hit": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据）"
+      }
+    },
+    {
+      "name": "create_decision",
+      "at": "2026-10-23T16:26:48.250397+00:00",
+      "status": "ok",
+      "ids": [
+        "dtr_20261023162648_4c4f8494"
+      ],
+      "detail": {
+        "evidence": 4
+      }
+    },
+    {
+      "name": "read_decision_evidence",
+      "at": "2026-10-23T16:26:48.279668+00:00",
+      "status": "ok",
+      "ids": [
+        "dtr_20261023162648_4c4f8494"
+      ],
+      "detail": {
+        "evidence_count": 4,
+        "rank_sequence_ok": true
+      }
+    }
+  ],
+  "ids": {
+    "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+    "asset_version_id": "kav_20261023161637_6c58a366",
+    "trace_id": "dtr_20261023162648_4c4f8494"
+  },
+  "queries_tried": [
+    {
+      "query": "海洋微塑料监测评价标准",
+      "total": 5
+    }
+  ],
+  "dataset": {
+    "name": "NOAA NCEI Marine Microplastics (1972-present)",
+    "rows": 22530,
+    "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc",
+    "citation": "Nyadjro, E. S., et al. (2023). The NOAA NCEI marine microplastics database. Scientific Data, 10(1). https://doi.org/10.1038/s41597-023-02632-y; data: NOAA NCEI Marine Microplastics, accessed via ArcGIS item c5dfb998f09e4d2b85d7da3f4c5b78ff on 2026-10-24."
+  },
+  "api_traces": [
+    {
+      "at": "2026-10-23T16:26:48.106080+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "elapsed_ms": 312.0,
+      "request": {
+        "username": "admin",
+        "password": "<redacted>"
+      },
+      "response": {
+        "code": 0,
+        "message": "ok",
+        "data": {
+          "access_token": "<redacted>",
+          "token_type": "bearer",
+          "expires_in": 86400,
+          "role": "admin",
+          "full_name": "系统管理员",
+          "township_scope": null
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "at": "2026-10-23T16:26:48.133989+00:00",
+      "method": "GET",
+      "path": "/knowledge/assets/OD-NOAA-MICROPLASTICS-2026",
+      "elapsed_ms": 16.0,
+      "request": null,
+      "response": {
+        "code": 0,
+        "message": "ok",
+        "data": {
+          "asset": {
+            "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+            "asset_type": "dataset",
+            "title": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据）",
+            "description": "NOAA NCEI Marine Microplastics 1972-present；本切片 22530 行（1986-2023，26 国家/地区、5 大洋），SHA256 见 manifest。",
+            "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+            "source_system": "NOAA National Centers for Environmental Information (NCEI)",
+            "mime_type": "text/csv",
+            "region": null,
+            "township": null,
+            "security_level": "public",
+            "status": "active",
+            "current_version": 1,
+            "standard_codes": [
+              "open-data",
+              "marine-environment-standard"
+            ],
+            "tags": [
+              "真实公开行业数据",
+              "微塑料",
+              "监测",
+              "NOAA NCEI"
+            ],
+            "attributes": {
+              "rows": 22530,
+              "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc",
+              "citation": "Nyadjro, E. S., et al. (2023). The NOAA NCEI marine microplastics database. Scientific Data, 10(1). https://doi.org/10.1038/s41597-023-02632-y; data: NOAA NCEI Marine Microplastics, accessed via ArcGIS item c5dfb998f09e4d2b85d7da3f4c5b78ff on 2026-10-24.",
+              "quick_stats": {
+                "note": "global monitoring dataset; no China-country rows (China seas not covered by contributors)",
+                "rows": 22530,
+                "units": [
+                  "pieces/m3",
+                  "pieces/10 mins",
+                  "pieces kg-1 d.w."
+                ],
+                "oceans": 5,
+                "countries": 26,
+                "years_max": 2023,
+                "years_min": 1986,
+                "dated_rows": 22485,
+                "top_countries": [
+                  "United States",
+                  "Mexico",
+                  "Taiwan",
+                  "Spain",
+                  "Bangladesh",
+                  "Thailand",
+                  "Canada",
+                  "Trinidad"
+                ],
+                "rows_with_measurement": 16713
+              },
+              "feature_service": "https://services2.arcgis.com/C8EMgrsFcRFL6LrL/arcgis/rest/services/Marine_Microplastics_WGS84/FeatureServer/0/query"
+            },
+            "created_by": "admin",
+            "created_at": "2026-10-23T16:16:37.210975Z",
+            "updated_at": "2026-10-23T16:16:37.210975Z"
+          },
+          "versions": [
+            {
+              "version_id": "kav_20261023161637_6c58a366",
+              "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+              "version_no": 1,
+              "status": "active",
+              "content_hash": "2e9f171f889e09d2f5e217dae616287a194ed7a1900e84f3b9939c8bca46a9f4",
+              "content_text": "NOAA NCEI 全球海洋微塑料监测数据集（1972 年至今，本次获取切片 1986-2023）：共 22530 条监测记录，覆盖 5 个大洋、26 个国家/地区，16713 条含定量测量值；计量单位含 pieces/m3（海水）、pieces/10 mins（海滩 Nurkle Patrol 巡查）、pieces/kg d.w.（沉积物）；介质含海水、海滩、海洋沉积物；每条记录带采样方法、 DOI 与 NCEI 登记号，可逐条溯源到原始文献。本数据集在治理决策中的用途：为污染热点分级、巡查频次设定与清理资源调度提供行业级参考基准。",
+              "content_json": null,
+              "extraction_method": "dataset_profiling",
+              "extraction_confidence": null,
+              "language": null,
+              "valid_from": null,
+              "valid_to": null,
+              "metadata": {
+                "registration": "R-OD-03"
+              },
+              "created_by": "admin",
+              "created_at": "2026-10-23T16:16:37.210975Z"
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "at": "2026-10-23T16:26:48.157442+00:00",
+      "method": "GET",
+      "path": "/knowledge/ontology/versions?page_size=50",
+      "elapsed_ms": 31.0,
+      "request": null,
+      "response": {
+        "code": 0,
+        "message": "ok",
+        "data": [
+          {
+            "version_id": "ont_20261023155808_fb2c1243",
+            "name": "海洋环境治理公开文件本体（真实公开语料 20261023235807）",
+            "version_no": 1,
+            "status": "published",
+            "parent_version_id": null,
+            "description": "由生态环境部 8 份公开文件经半自动抽取构建；候选经人工审核后发布",
+            "standard_codes": [
+              "marine-environment-standard",
+              "open-data"
+            ],
+            "metadata": {
+              "corpus": "mee-open-notifications",
+              "registration": "R-OD-02",
+              "last_extracted_at": "2026-10-23T15:58:08.673861+00:00",
+              "last_extracted_by": "admin"
+            },
+            "created_by": "admin",
+            "reviewed_by": "admin",
+            "reviewed_at": "2026-10-23T15:58:10.414025Z",
+            "published_by": "admin",
+            "published_at": "2026-10-23T15:58:10.414030Z",
+            "created_at": "2026-10-23T15:58:08.571994Z",
+            "updated_at": "2026-10-23T15:58:10.407009Z"
+          },
+          {
+            "version_id": "ONT-DEMO-MARINE-002",
+            "name": "连江海漂垃圾治理领域本体",
+            "version_no": 2,
+            "status": "in_review",
+            "parent_version_id": "ONT-DEMO-MARINE-001",
+            "description": "增加热区预警、生态敏感岸段和处置时限的候选本体，等待人工审核。",
+            "standard_codes": [
+              "DEMO-LJ-HP-2026",
+              "DEMO-ML-DATA-01",
+              "DEMO-RISK-2026"
+            ],
+            "metadata": {
+              "demo": true,
+              "change_request": "增加风险分级和时限约束",
+              "proposal_source": "operator"
+            },
+            "created_by": "operator",
+            "reviewed_by": null,
+            "reviewed_at": null,
+            "published_by": null,
+            "published_at": null,
+            "created_at": "2026-10-04T07:06:25.712906Z",
+            "updated_at": "2026-10-04T07:06:25.712906Z"
+          },
+          {
+            "version_id": "ONT-DEMO-MARINE-001",
+            "name": "连江海漂垃圾治理领域本体",
+            "version_no": 1,
+            "status": "published",
+            "parent_version_id": null,
+            "description": "覆盖垃圾类型、责任区域、巡查流程、打捞处置和环境影响因素的演示本体。",
+            "standard_codes": [
+              "DEMO-LJ-HP-2026",
+              "DEMO-ML-DATA-01"
+            ],
+            "metadata": {
+              "demo": true,
+              "domain": "海漂垃圾治理",
+              "node_count": 12,
+              "relation_count": 15
+            },
+            "created_by": "admin",
+            "reviewed_by": "approver",
+            "reviewed_at": "2026-09-07T07:06:25.712906Z",
+            "published_by": "admin",
+            "published_at": "2026-09-08T07:06:25.712906Z",
+            "created_at": "2026-09-05T07:06:25.712906Z",
+            "updated_at": "2026-09-08T07:06:25.712906Z"
+          }
+        ],
+        "trace_id": null
+      }
+    },
+    {
+      "at": "2026-10-23T16:26:48.200727+00:00",
+      "method": "POST",
+      "path": "/knowledge/search",
+      "elapsed_ms": 47.0,
+      "request": {
+        "query": "海洋微塑料监测评价标准",
+        "ontology_version_id": "ont_20261023155808_fb2c1243",
+        "hop_depth": 2,
+        "limit": 5
+      },
+      "response": {
+        "code": 0,
+        "message": "ok",
+        "data": {
+          "query": "海洋微塑料监测评价标准",
+          "mode": "ontology_graph",
+          "ontology_version_id": "ont_20261023155808_fb2c1243",
+          "total": 5,
+          "results": [
+            {
+              "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+              "asset_version_id": "kav_20261023161637_6c58a366",
+              "title": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据）",
+              "asset_type": "dataset",
+              "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+              "score": 115.5,
+              "snippet": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据） NOAA NCEI 全球海洋微塑料监测数据集（1972 年至今，本次获取切片 1986-2023）：共 22530 条监测记录，覆盖 5 个大洋、26 个国家/地区，16713 条含定量测量值；计量单位含 pieces/m3（海水）、pieces/10 mins（海滩 Nurkle Patrol 巡查）、pieces/kg d.w.（沉积物）；介质含海水、海滩、海洋沉积物；每条记录带采样方法、 DOI 与 NCEI 登记号，可逐条溯源到原始文献。本数据集在治理决策中的用途：为污染热点分级、巡查频次设定与清理资源调度提供行业级参考基准。",
+              "matched_node_ids": [],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据） [kav_20261023161637_6c58a366]"
+              ]
+            },
+            {
+              "asset_id": "OD-SEA-STD-2026-06",
+              "asset_version_id": "kav_20261023155808_bf3acf6f",
+              "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知",
+              "asset_type": "document",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163421.html",
+              "score": 40.5,
+              "snippet": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知 为贯彻《中华人民共和国生态环境法典》有关要求，指导和规范疏浚物海洋倾倒工作，我部组织修订了《海洋倾倒物质评价规范 疏浚物（征求意见稿）》，现公开征求意见。征求意见稿及其编制说明可登录我部网站（http://www.mee.gov.cn）“意见征集”栏目检索查阅。 各机关团体、企事业单位和个人均可提出意见和建议。请于2026年9月4日前将意见书面反馈我部，并注明联系人及联系方式。意见电子版请同时发送至联系人邮箱。 联系人：海洋生态环境司 宋爽 电话：（010）65645529 传真：（010）65645500 邮箱：hysjgyc@mee.gov.c...",
+              "matched_node_ids": [
+                "nod_20261023155808_bd46a233",
+                "nod_20261023155808_c98b9898",
+                "nod_20261023155808_d6fd4e58",
+                "nod_20261023155808_dcbdf01a"
+              ],
+              "matched_relation_ids": [
+                "rel_20261023155808_65460649"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_29a38fab",
+                  "relation_id": "rel_20261023155808_65460649",
+                  "target_node_id": "nod_20261023155808_bd46a233",
+                  "relation_type": "applies_to"
+                }
+              ],
+              "citations": [
+                "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知 [kav_20261023155808_bf3acf6f]",
+                "生态环境标准 -[applies_to]-> 疏浚物"
+              ]
+            },
+            {
+              "asset_id": "OD-SEA-STD-2026-02",
+              "asset_version_id": "kav_20261023155808_ae2b41f4",
+              "title": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告",
+              "asset_type": "document",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202603/t20260324_1147645.html",
+              "score": 40.5,
+              "snippet": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告 为贯彻《中华人民共和国生态环境法典》，加强海洋倾倒活动非现场监管，明确海洋倾倒在线监控技术要求，规范海洋倾倒在线监控设备的安装使用与数据传输等，现批准《海洋倾倒在线监控技术规范》为国家生态环境标准，并予发布。 标准名称、编号如下： 《海洋倾倒在线监控技术规范》（HJ 1466－2026）。 标准自2027年1月1日起实施。 标准内容可在生态环境部网站（http://www.mee.gov.cn）查询。 特此公告。 生态环境部 2026年3月18日 生态环境部办公厅2026年3月18日印发",
+              "matched_node_ids": [
+                "nod_20261023155808_18390b5a",
+                "nod_20261023155808_232ef69c",
+                "nod_20261023155808_2a0f5062",
+                "nod_20261023155808_a0c802e5",
+                "nod_20261023155808_c5d257a7",
+                "nod_20261023155808_ee059753"
+              ],
+              "matched_relation_ids": [
+                "rel_20261023155808_1fb98878",
+                "rel_20261023155808_a2f29fcc"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "relation_id": "rel_20261023155808_1fb98878",
+                  "target_node_id": "nod_20261023155808_a0c802e5",
+                  "relation_type": "monitors"
+                },
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "relation_id": "rel_20261023155808_a2f29fcc",
+                  "target_node_id": "nod_20261023155808_2a0f5062",
+                  "relation_type": "monitors"
+                }
+              ],
+              "citations": [
+                "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告 [kav_20261023155808_ae2b41f4]",
+                "规范海洋 -[monitors]-> 生态环境法典",
+                "规范海洋 -[monitors]-> 线监控"
+              ]
+            },
+            {
+              "asset_id": "OD-SEA-STD-2026-04",
+              "asset_version_id": "kav_20261023155808_c7885721",
+              "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》意见的通知",
+              "asset_type": "document",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202609/t20260904_1165188.html",
+              "score": 31.5,
+              "snippet": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》意见的通知 为贯彻《中华人民共和国生态环境法典》有关要求，指导和规范惰性无机地质材料海洋倾倒工作，我部组织修订了《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》，现公开征求意见。征求意见稿及其编制说明可登录我部网站（http://www.mee.gov.cn）“意见征集”栏目检索查阅。 各机关团体、企事业单位和个人均可提出意见和建议。请于2026年9月30日前将意见书面反馈我部，并注明联系人及联系方式。意见电子版请同时发送至联系人邮箱。 联系人：海洋生态环境司 宋爽 电话：（010）65645529 传真：（010）65645500 邮箱：h...",
+              "matched_node_ids": [
+                "nod_20261023155808_d89dbbf3"
+              ],
+              "matched_relation_ids": [
+                "rel_20261023155808_c4d7d5ef"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_29a38fab",
+                  "relation_id": "rel_20261023155808_c4d7d5ef",
+                  "target_node_id": "nod_20261023155808_d89dbbf3",
+                  "relation_type": "applies_to"
+                }
+              ],
+              "citations": [
+                "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》意见的通知 [kav_20261023155808_c7885721]",
+                "生态环境标准 -[applies_to]-> 惰性无机地质材料"
+              ]
+            },
+            {
+              "asset_id": "OD-SEA-STD-2026-05",
+              "asset_version_id": "kav_20261023155808_d346b0fe",
+              "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 渔业废料（征求意见稿）》意见的通知",
+              "asset_type": "document",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163420.html",
+              "score": 31.5,
+              "snippet": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 渔业废料（征求意见稿）》意见的通知 为贯彻《中华人民共和国生态环境法典》有关要求，指导和规范渔业废料海洋倾倒工作，我部组织制定了《海洋倾倒物质评价规范 渔业废料（征求意见稿）》，现公开征求意见。征求意见稿及其编制说明可登录我部网站（http://www.mee.gov.cn）“意见征集”栏目检索查阅。 各机关团体、企事业单位和个人均可提出意见和建议。请于2026年9月4日前将意见书面反馈我部，并注明联系人及联系方式。意见电子版请同时发送至联系人邮箱。 联系人：海洋生态环境司 宋爽 电话：（010）65645529 传真：（010）65645500 邮箱：hysjgyc@mee.go...",
+              "matched_node_ids": [
+                "nod_20261023155808_12fa8c5a"
+              ],
+              "matched_relation_ids": [
+                "rel_20261023155808_df6dcec0"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_29a38fab",
+                  "relation_id": "rel_20261023155808_df6dcec0",
+                  "target_node_id": "nod_20261023155808_12fa8c5a",
+                  "relation_type": "applies_to"
+                }
+              ],
+              "citations": [
+                "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 渔业废料（征求意见稿）》意见的通知 [kav_20261023155808_d346b0fe]",
+                "生态环境标准 -[applies_to]-> 渔业废料"
+              ]
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "at": "2026-10-23T16:26:48.249851+00:00",
+      "method": "POST",
+      "path": "/knowledge/decisions",
+      "elapsed_ms": 47.0,
+      "request": {
+        "question": "治理决策的行业级微塑料数据基础是否具备、如何引用？",
+        "answer_summary": "已具备：NOAA NCEI 全球海洋微塑料监测数据集（22530 行、1986-2023、26 国家/地区、逐条 DOI 可溯源）已登记为公开级数据资产，可与公开标准语料交叉引用，为污染热点分级与清理资源调度提供行业基准；该数据集为全球公开数据，不用于本地识别精度或现场效果宣称。",
+        "run_id": "rod03-20261024002647-42849b",
+        "policy_version": "open-data-v1",
+        "evidence": [
+          {
+            "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+            "asset_version_id": "kav_20261023161637_6c58a366",
+            "hop_no": 0,
+            "citation_text": "NOAA NCEI Marine Microplastics：22530 条监测记录（1986-2023，26 国家/地区），逐条带 DOI 与 NCEI 登记号。",
+            "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+            "score": 1.0,
+            "metadata": {
+              "role": "real_industry_dataset",
+              "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+            }
+          },
+          {
+            "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+            "asset_version_id": "kav_20261023161637_6c58a366",
+            "hop_no": 0,
+            "citation_text": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据） [kav_20261023161637_6c58a366]",
+            "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+            "score": 115.5,
+            "metadata": {
+              "role": "mee_standard_cross_reference",
+              "path": []
+            }
+          },
+          {
+            "asset_id": "OD-SEA-STD-2026-06",
+            "asset_version_id": "kav_20261023155808_bf3acf6f",
+            "hop_no": 1,
+            "citation_text": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知 [kav_20261023155808_bf3acf6f]",
+            "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163421.html",
+            "score": 40.5,
+            "metadata": {
+              "role": "mee_standard_cross_reference",
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_29a38fab",
+                  "relation_id": "rel_20261023155808_65460649",
+                  "target_node_id": "nod_20261023155808_bd46a233",
+                  "relation_type": "applies_to"
+                }
+              ]
+            }
+          },
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "kav_20261023155808_ae2b41f4",
+            "hop_no": 1,
+            "citation_text": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告 [kav_20261023155808_ae2b41f4]",
+            "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202603/t20260324_1147645.html",
+            "score": 40.5,
+            "metadata": {
+              "role": "mee_standard_cross_reference",
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "relation_id": "rel_20261023155808_1fb98878",
+                  "target_node_id": "nod_20261023155808_a0c802e5",
+                  "relation_type": "monitors"
+                },
+                {
+                  "hop_no": 1,
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "relation_id": "rel_20261023155808_a2f29fcc",
+                  "target_node_id": "nod_20261023155808_2a0f5062",
+                  "relation_type": "monitors"
+                }
+              ]
+            }
+          }
+        ],
+        "metadata": {
+          "registration": "R-OD-03",
+          "dataset_sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+        }
+      },
+      "response": {
+        "code": 0,
+        "message": "决策轨迹已记录",
+        "data": {
+          "trace_id": "dtr_20261023162648_4c4f8494",
+          "run_id": "rod03-20261024002647-42849b",
+          "question": "治理决策的行业级微塑料数据基础是否具备、如何引用？",
+          "answer_summary": "已具备：NOAA NCEI 全球海洋微塑料监测数据集（22530 行、1986-2023、26 国家/地区、逐条 DOI 可溯源）已登记为公开级数据资产，可与公开标准语料交叉引用，为污染热点分级与清理资源调度提供行业基准；该数据集为全球公开数据，不用于本地识别精度或现场效果宣称。",
+          "status": "completed",
+          "ontology_version_id": null,
+          "policy_version": "open-data-v1",
+          "metadata": {
+            "registration": "R-OD-03",
+            "dataset_sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+          },
+          "created_by": "admin",
+          "created_at": "2026-10-23T16:26:48.220029Z",
+          "evidence": [
+            {
+              "evidence_id": "evd_20261023162648_55f49b33",
+              "trace_id": "dtr_20261023162648_4c4f8494",
+              "rank_no": 1,
+              "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+              "asset_version_id": "kav_20261023161637_6c58a366",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "NOAA NCEI Marine Microplastics：22530 条监测记录（1986-2023，26 国家/地区），逐条带 DOI 与 NCEI 登记号。",
+              "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+              "score": 1.0,
+              "metadata": {
+                "role": "real_industry_dataset",
+                "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+              },
+              "created_at": "2026-10-23T16:26:48.220029Z"
+            },
+            {
+              "evidence_id": "evd_20261023162648_32395f19",
+              "trace_id": "dtr_20261023162648_4c4f8494",
+              "rank_no": 2,
+              "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+              "asset_version_id": "kav_20261023161637_6c58a366",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据） [kav_20261023161637_6c58a366]",
+              "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+              "score": 115.5,
+              "metadata": {
+                "path": [],
+                "role": "mee_standard_cross_reference"
+              },
+              "created_at": "2026-10-23T16:26:48.220029Z"
+            },
+            {
+              "evidence_id": "evd_20261023162648_21c5bd4e",
+              "trace_id": "dtr_20261023162648_4c4f8494",
+              "rank_no": 3,
+              "asset_id": "OD-SEA-STD-2026-06",
+              "asset_version_id": "kav_20261023155808_bf3acf6f",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 1,
+              "citation_text": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知 [kav_20261023155808_bf3acf6f]",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163421.html",
+              "score": 40.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "rel_20261023155808_65460649",
+                    "relation_type": "applies_to",
+                    "source_node_id": "nod_20261023155808_29a38fab",
+                    "target_node_id": "nod_20261023155808_bd46a233"
+                  }
+                ],
+                "role": "mee_standard_cross_reference"
+              },
+              "created_at": "2026-10-23T16:26:48.220029Z"
+            },
+            {
+              "evidence_id": "evd_20261023162648_bafe4773",
+              "trace_id": "dtr_20261023162648_4c4f8494",
+              "rank_no": 4,
+              "asset_id": "OD-SEA-STD-2026-02",
+              "asset_version_id": "kav_20261023155808_ae2b41f4",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 1,
+              "citation_text": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告 [kav_20261023155808_ae2b41f4]",
+              "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202603/t20260324_1147645.html",
+              "score": 40.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "rel_20261023155808_1fb98878",
+                    "relation_type": "monitors",
+                    "source_node_id": "nod_20261023155808_c5d257a7",
+                    "target_node_id": "nod_20261023155808_a0c802e5"
+                  },
+                  {
+                    "hop_no": 1,
+                    "relation_id": "rel_20261023155808_a2f29fcc",
+                    "relation_type": "monitors",
+                    "source_node_id": "nod_20261023155808_c5d257a7",
+                    "target_node_id": "nod_20261023155808_2a0f5062"
+                  }
+                ],
+                "role": "mee_standard_cross_reference"
+              },
+              "created_at": "2026-10-23T16:26:48.220029Z"
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "at": "2026-10-23T16:26:48.279668+00:00",
+      "method": "GET",
+      "path": "/knowledge/decisions/dtr_20261023162648_4c4f8494/evidence",
+      "elapsed_ms": 31.0,
+      "request": null,
+      "response": {
+        "code": 0,
+        "message": "ok",
+        "data": [
+          {
+            "evidence_id": "evd_20261023162648_55f49b33",
+            "trace_id": "dtr_20261023162648_4c4f8494",
+            "rank_no": 1,
+            "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+            "asset_version_id": "kav_20261023161637_6c58a366",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "NOAA NCEI Marine Microplastics：22530 条监测记录（1986-2023，26 国家/地区），逐条带 DOI 与 NCEI 登记号。",
+            "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+            "score": 1.0,
+            "metadata": {
+              "role": "real_industry_dataset",
+              "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+            },
+            "created_at": "2026-10-23T16:26:48.220029Z"
+          },
+          {
+            "evidence_id": "evd_20261023162648_32395f19",
+            "trace_id": "dtr_20261023162648_4c4f8494",
+            "rank_no": 2,
+            "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+            "asset_version_id": "kav_20261023161637_6c58a366",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数据） [kav_20261023161637_6c58a366]",
+            "source_uri": "https://www.ncei.noaa.gov/products/microplastics",
+            "score": 115.5,
+            "metadata": {
+              "path": [],
+              "role": "mee_standard_cross_reference"
+            },
+            "created_at": "2026-10-23T16:26:48.220029Z"
+          },
+          {
+            "evidence_id": "evd_20261023162648_21c5bd4e",
+            "trace_id": "dtr_20261023162648_4c4f8494",
+            "rank_no": 3,
+            "asset_id": "OD-SEA-STD-2026-06",
+            "asset_version_id": "kav_20261023155808_bf3acf6f",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 1,
+            "citation_text": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（征求意见稿）》意见的通知 [kav_20261023155808_bf3acf6f]",
+            "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk06/202608/t20260804_1163421.html",
+            "score": 40.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "rel_20261023155808_65460649",
+                  "relation_type": "applies_to",
+                  "source_node_id": "nod_20261023155808_29a38fab",
+                  "target_node_id": "nod_20261023155808_bd46a233"
+                }
+              ],
+              "role": "mee_standard_cross_reference"
+            },
+            "created_at": "2026-10-23T16:26:48.220029Z"
+          },
+          {
+            "evidence_id": "evd_20261023162648_bafe4773",
+            "trace_id": "dtr_20261023162648_4c4f8494",
+            "rank_no": 4,
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "kav_20261023155808_ae2b41f4",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 1,
+            "citation_text": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告 [kav_20261023155808_ae2b41f4]",
+            "source_uri": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202603/t20260324_1147645.html",
+            "score": 40.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "rel_20261023155808_1fb98878",
+                  "relation_type": "monitors",
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "target_node_id": "nod_20261023155808_a0c802e5"
+                },
+                {
+                  "hop_no": 1,
+                  "relation_id": "rel_20261023155808_a2f29fcc",
+                  "relation_type": "monitors",
+                  "source_node_id": "nod_20261023155808_c5d257a7",
+                  "target_node_id": "nod_20261023155808_2a0f5062"
+                }
+              ],
+              "role": "mee_standard_cross_reference"
+            },
+            "created_at": "2026-10-23T16:26:48.220029Z"
+          }
+        ],
+        "trace_id": null
+      }
+    }
+  ]
+}

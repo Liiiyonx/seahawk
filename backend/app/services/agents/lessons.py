@@ -13,6 +13,14 @@
       → 下一次 run 规划时按「条件」检索命中
       → 命中结果写进 plan 步骤的决策摘要，并按次递增命中计数
       → 轨迹里因此能看到「本次引用了哪条经验」
+      → run 终态时结算「引用之后的真实结果」（settle）
+      → 置信度 = 贝叶斯平滑后验：成功升、失败降（calibration.py）
+
+最后一环是置信度校准闭环（参考决策模型/System One 路线的核心主张：
+声明的置信度必须对齐实际成功率）。「被引用」只进审计计数，不进置信度；
+置信度的证据只有两种 —— 复盘再次确认，与引用后 run 的真实结果。
+`calibration_report()` 把全部「引用时置信度 → 结果」观测汇总成 ECE，
+样本不足时显式返回 None，不硬给数字。
 
 全程没有模型、没有向量、没有随机：同样的运行历史 + 同样的输入，
 永远得到同样的经验引用，可离线复现。
@@ -35,9 +43,11 @@
 
 1. 经验只由**确定性规则**从 run 的真实终态提炼 —— 失败就是失败，
    成功就是成功，不做「推测性归因」。
-2. 置信度不是拍脑袋的常数：初始值由经验种类的证据强度决定，
-   之后随命中次数单调上调并封顶，永远不到 1.0（规则模式的经验是启发式，
-   不是定理）。
+2. 置信度是**贝叶斯平滑后验**（calibration.bayesian_confidence）：
+   先验由经验种类的证据强度决定，观测是「复盘再确认 + 引用后真实
+   结果」。成功上调、失败下调，封顶 0.95（规则模式的经验是启发式，
+   不是定理，永远不到 1.0）。「被引用」本身不是正确性证据，只进
+   审计计数 —— 这是与旧「固定步长递增」公式的本质区别。
 3. 存储是**进程内**的（MemoryStore 目前只有内存实现），只在这一个后端
    进程活着期间累积。重启后经验清零 —— 这一点写在这里，也写在
    `agents.py` 的装配注释里，不假装它持久化了。
@@ -49,6 +59,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from app.services.agents.calibration import (
+    bayesian_confidence,
+    expected_calibration_error,
+    reliability_buckets,
+)
 from app.services.agents.memory import MemoryEntry, MemoryStore
 
 # 记忆命名空间（见模块 docstring）
@@ -79,9 +94,13 @@ _KIND_BASE_CONFIDENCE: dict[str, float] = {
     "evidence_insufficient": 0.90,
 }
 
-# 单次命中带来的置信度增量，以及封顶（永不到 1.0）
-_CONFIDENCE_STEP = 0.03
+# 置信度的先验等效样本数（α）：先验抵得过 α 次观测 —— 前几次失败不会
+# 把一条政策级经验一棍子打死，但长期结果始终压过先验。
+_CONFIDENCE_PRIOR_STRENGTH = 4.0
+# 封顶（永不到 1.0）：规则模式的经验是启发式，不是定理
 _CONFIDENCE_CEILING = 0.95
+# 校准报告给出 ECE 的最小观测数：样本更少时返回 None，不给虚数字
+_MIN_OBSERVATIONS_FOR_ECE = 8
 
 # 每种经验的「适用条件」谓词键（对应 lessons_context 里的字段）。
 # 条件不是装饰：match() 会真的按它过滤，不满足就不引用。
@@ -136,6 +155,11 @@ class Lesson:
     confidence: float
     hit_count: int = 0
     confirm_count: int = 0
+    # 引用后已结算结果的 run 数（use_total）与其中成功数（use_success）。
+    # ★ 这两个字段是校准证据：由 settle() 在 run 终态写入，不封顶
+    #   （封顶 = 校准数据失真）；hit/confirm 是审计计数，封顶 99。
+    use_total: int = 0
+    use_success: int = 0
     source_run_id: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
@@ -177,6 +201,13 @@ class LessonStore:
         self._clock = clock
         # key = (scope_id, kind) —— 同类同种经验只有一条，靠命中次数累积
         self._lessons: dict[tuple[str, str], _LessonState] = {}
+        # 校准状态（进程内）：
+        #   _pending_uses：run_id → [(scope_id, kind, 引用时声明的置信度)]
+        #     note_hit 时登记，run 终态由 settle() 结算（pop，天然幂等）；
+        #   _observations：全部已结算的 (引用时置信度, 结果是否成功)
+        #     —— calibration_report() 的 ECE 输入，「越用越聪明」的证据线。
+        self._pending_uses: dict[str, list[tuple[str, str, float]]] = {}
+        self._observations: list[tuple[float, bool]] = []
 
     # ------------------------------------------------------------------
     # 查询
@@ -264,14 +295,79 @@ class LessonStore:
         ★ 与 harvest 的再次确认分开计数（hit_count / confirm_count）：
           「被引用」和「被新证据再次确认」是两件事，混在一个计数里
           会让"引用 5 次"变成一句无法解释的数字。
+        ★ 同时登记校准待结算项（引用时声明的置信度）：run 终态由
+          settle() 把「引用之后的真实结果」补上。引用 ≠ 正确，引用后
+          的结果才是置信度的证据。
         """
         if not self.enabled:
             return
+        uses = self._pending_uses.setdefault(run_id, [])
         for lesson in lessons:
             state = self._lessons.get((lesson.scope_id, lesson.kind))
             if state is None:
                 continue
             self._bump(state, run_id=run_id, as_hit=True)
+            uses.append((state.lesson.scope_id, state.lesson.kind, state.lesson.confidence))
+
+    def settle(self, *, run_id: str, outcome: str) -> int:
+        """结算一个已到终态的 run「引用过的经验」的结果观测。
+
+        ★ 校准闭环的收口：`note_hit` 只记录「被引用」，本方法在 run
+          终态把「引用之后结果如何」补上 —— 这正是决策校准（System One
+          路线）的核心主张：声明的置信度必须对齐实际成功率，ECE 越
+          低越可信。
+        ★ 只接受 succeeded / failed（与 harvest 同口径）：取消与超时是
+          「人的决定」或「环境问题」，不构成经验的对错证据。
+        ★ 幂等：待结算项按 run_id 一次性 pop，重复调用返回 0。
+        ★ 「使用时声明的置信度」以引用时刻为准（note_hit 已登记），
+          不是结算时刻 —— ECE 衡量的是「当时的声明」对不对。
+
+        返回本次实际结算的观测条数。
+        """
+        if not self.enabled or outcome not in ("succeeded", "failed"):
+            return 0
+        settled = 0
+        for scope_id, kind, confidence_at_use in self._pending_uses.pop(run_id, []):
+            state = self._lessons.get((scope_id, kind))
+            if state is None:
+                # note_hit 时存在、结算前被移除：理论上不发生，防御性跳过
+                continue
+            lesson = state.lesson
+            lesson.use_total += 1
+            if outcome == "succeeded":
+                lesson.use_success += 1
+            self._observations.append((confidence_at_use, outcome == "succeeded"))
+            self._recompute_confidence(lesson)
+            lesson.updated_at = (
+                self._clock.now() if self._clock is not None else datetime.now(timezone.utc)
+            )
+            state.memory_id = self._append_memory(lesson, run_id=run_id)
+            settled += 1
+        return settled
+
+    def calibration_report(self, *, n_bins: int = 10) -> dict[str, Any]:
+        """汇总当前全部「引用时置信度 → 结果」观测的校准报告。
+
+        返回 `{observation_count, ece, buckets}`：
+        - `ece`：期望校准误差（声明置信度 vs 实际成功率的加权偏差），
+          观测数不足 `_MIN_OBSERVATIONS_FOR_ECE` 时为 None —— 样本太少
+          时给数字是虚报，不是证据；
+        - `buckets`：可靠性曲线分桶数据（range / count / avg_confidence /
+          success_rate），可直接渲染成图。
+
+        ★ 这是「可进化」的量化证据线：随观测累积，ECE 的走势就是
+          「置信度声明越来越可信」的可回放记录。
+        """
+        count = len(self._observations)
+        return {
+            "observation_count": count,
+            "ece": (
+                round(expected_calibration_error(self._observations, n_bins=n_bins), 4)
+                if count >= _MIN_OBSERVATIONS_FOR_ECE
+                else None
+            ),
+            "buckets": reliability_buckets(self._observations, n_bins=n_bins),
+        }
 
     # ------------------------------------------------------------------
     # 内部
@@ -312,17 +408,38 @@ class LessonStore:
             lesson.hit_count = min(_MAX_HIT_COUNT, lesson.hit_count + 1)
         else:
             lesson.confirm_count = min(_MAX_HIT_COUNT, lesson.confirm_count + 1)
-        # 置信度只由"证据累积"驱动（引用 + 确认），两种证据等价计入
-        evidence = lesson.hit_count + lesson.confirm_count
-        lesson.confidence = min(
-            _CONFIDENCE_CEILING,
-            round(_KIND_BASE_CONFIDENCE[lesson.kind] + _CONFIDENCE_STEP * evidence, 4),
-        )
+        self._recompute_confidence(lesson)
         lesson.updated_at = (
             self._clock.now() if self._clock is not None else datetime.now(timezone.utc)
         )
         lesson.source_run_id = run_id
         state.memory_id = self._append_memory(lesson, run_id=run_id)
+
+    def _recompute_confidence(self, lesson: Lesson) -> None:
+        """置信度 = 贝叶斯平滑后验（calibration.bayesian_confidence）。
+
+        ★ 「被引用」（hit_count）不参与置信度：引用本身不是正确性
+          证据，只进审计计数。证据只有两种 —— 复盘再次确认
+          （confirm_count，等价一次成功观测）与引用后 run 的真实结果
+          （use_success / use_total）。
+        ★ 失败会让置信度下降 —— 与旧「基准 + 步长 × 计数」公式的本质
+          区别：只会涨的置信度不是置信度，是计数器。
+        """
+        base = _KIND_BASE_CONFIDENCE[lesson.kind]
+        successes = lesson.use_success + lesson.confirm_count
+        trials = lesson.use_total + lesson.confirm_count
+        lesson.confidence = min(
+            _CONFIDENCE_CEILING,
+            round(
+                bayesian_confidence(
+                    base,
+                    successes,
+                    trials,
+                    prior_strength=_CONFIDENCE_PRIOR_STRENGTH,
+                ),
+                4,
+            ),
+        )
 
     def _append_memory(self, lesson: Lesson, *, run_id: str) -> str:
         """把经验当前态追加进 MemoryStore（只追加，不就地改写历史）。
@@ -342,6 +459,8 @@ class LessonStore:
                 "guidance": lesson.guidance,
                 "hit_count": lesson.hit_count,
                 "confirm_count": lesson.confirm_count,
+                "use_total": lesson.use_total,
+                "use_success": lesson.use_success,
             },
             confidence=lesson.confidence,
             source_type=LESSON_SOURCE_TYPE,

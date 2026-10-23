@@ -470,6 +470,27 @@ git diff --check
 > 记账提示：这一条也是 R-NX-07（09-30）与 10-01「只收到 keepalive」的真正原因，
 > 不是 Target 没建，也不是账号欠费本身。
 
+## 十三.8、一键复跑包（2026-10-24 重建）
+
+10-02 的复跑脚本 ``rnx08-run.mjs`` 随临时目录被清理，现已重建为自包含 Python 版：
+
+```bash
+python scripts/rnx08_hosted_qa_run.py --max-seconds 840
+# 密钥默认读 D:/VeriCall_data/secrets/seasight_agentarts.env（SEASIGHT_AGENTARTS_ENV 可覆盖）
+# 产物写入 artifacts/nexent-platform-acceptance/evidence/hosted-qa-<日期>/
+```
+
+脚本按官方 `managed_agents_client` 协议实现（副本留存于
+`artifacts/nexent-platform-acceptance/deployment/managed_agents_client.py`）：
+握手等待 `connection.ack` → `chat.send` → 自动授予工具权限/应答追问 →
+收流至 `chat.final/done/error`。`verdict=completed` 即可按
+`hosted-skill-qa.template.yaml` 登记 R-NX-08 完成。
+
+**2026-10-24 探测结果**（R-NX-08-PROBE-20261024）：握手 401。网关与鉴权层在线、
+域名公网可解析，但 10-02 的 API Key（形态一致）被拒——需在控制台核验
+身份/API Key、runtime 状态与账号受限记录（见
+`artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`）。
+
 ## 十四、变更记录
 
 | 日期 | 变更 | 操作人 |
@@ -477,3 +498,4 @@ git diff --check
 | 2026-09-30 | 建立充值后 VPC Target、完整 Skill 问答与 R-NX-08 登记 runbook | WP-15 + liyongxiang |
 | 2026-10-02 | 新增第 13 节实测更正：Skill 要求 VPC 环境且环境不可改、托管智能体只走 WebSocket、私网端点需开 Public Access、MCP 宿主 ECS 必须 Running、ws 需关压缩、账号余额风险 | liyongxiang |
 | 2026-10-02 | 新增 13.7：定位「私网环境无公网出口 → 公网模型必然超时」这一结构性互斥，给出 VPC 内模型中转的修复方案与脚本 | liyongxiang |
+| 2026-10-24 | 新增 13.8 一键复跑包（重建 rnx08-run.mjs 为 Python 版）+ 探测登记：握手 401，待控制台核验身份与账号状态 | ZCode |

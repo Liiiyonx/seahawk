@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "kind": "qualitative_backend_comparison",
+  "not_precision_recall": "本文件不含真实数据集的 precision/recall/F1。独立测试集清单 status=planned、真值标注为 0，这几个指标的分母为零，任何精度数字都会是编造的。定量评测请走 ml/scripts/evaluate_opencv.py（带清单门禁）。",
+  "generated_at": "2026-09-27T22:12:29+08:00",
+  "code_version": {
+    "source": "git",
+    "value": "1670ce9",
+    "fingerprint": "07e91af759aef95c94258b8390380721a7dffe8a6ad525ca6773ef907dd10bbb"
+  },
+  "caveats": [
+    "两条通道的置信度尺度不同（cv 为 0.30~0.95 的伪置信度，world 低一个量级），max_confidence 不可横向比较。",
+    "本对照只说明检出条数、类别分布与时延，不构成精度、召回或可用性结论。"
+  ],
+  "groups": {
+    "still_images": {
+      "input": ".wp-demo-originals",
+      "images": [
+        ".wp-demo-originals\\beach.jpg",
+        ".wp-demo-originals\\foam.jpg",
+        ".wp-demo-originals\\midway.jpg",
+        ".wp-demo-originals\\net.jpg",
+        ".wp-demo-originals\\plastic.jpg"
+      ],
+      "backends": {
+        "cv": {
+          "backend": "cv",
+          "available": true,
+          "status": "evaluated",
+          "input": "still_images",
+          "warmup_frames": 15,
+          "per_image": [
+            {
+              "name": "beach.jpg",
+              "width": 4896,
+              "height": 3264,
+              "count": 0,
+              "class_counts": {},
+              "max_confidence": 0.0,
+              "latency_ms": 628.97
+            },
+            {
+              "name": "foam.jpg",
+              "width": 6000,
+              "height": 4000,
+              "count": 0,
+              "class_counts": {},
+              "max_confidence": 0.0,
+              "latency_ms": 788.45
+            },
+            {
+              "name": "midway.jpg",
+              "width": 6000,
+              "height": 4000,
+              "count": 0,
+              "class_counts": {},
+              "max_confidence": 0.0,
+              "latency_ms": 678.61
+            },
+            {
+              "name": "net.jpg",
+              "width": 4608,
+              "height": 3456,
+              "count": 0,
+              "class_counts": {},
+              "max_confidence": 0.0,
+              "latency_ms": 418.88
+            },
+            {
+              "name": "plastic.jpg",
+              "width": 5184,
+              "height": 3434,
+              "count": 0,
+              "class_counts": {},
+              "max_confidence": 0.0,
+              "latency_ms": 426.66
+            }
+          ],
+          "detections_total": 0,
+          "images_with_detection": 0,
+          "images_total": 5,
+          "latency_ms": {
+            "mean": 588.31,
+            "max": 788.45,
+            "min": 418.88
+          }
+        }
+      },
+      "caveats": [
+        "cv 通道在本组检出 0 条。CvDetector 是**固定机位背景建模**方案：对单张 4K 照片做合成预热后，整幅画面与合成背景全不相同，会被并成一个巨型前景区域并被 max_area(40000 px²) 过滤掉。这是**适用范围之外**，不等于 cv 通道失效 —— 它在合成视频序列里可正常检出（见 --sequence）。"
+      ]
+    },
+    "synthetic_sequence": {
+      "frames": 60,
+      "note": "同一组帧同时喂给两条通道；真值为生成器的 3 个泡沫团外接框（程序化）",
+      "backends": {
+        "cv": {
+          "backend": "cv",
+          "input": "synthetic_sequence",
+          "status": "evaluated",
+          "frames": 60,
+          "gt_targets_total": 180,
+          "match_iou": 0.25,
+          "evidence_level": "E1/E2",
+          "not_generalizable": "合成序列 + 程序化真值，证据等级 E1/E2。合成帧里的泡沫是绘制出来的圆，与真实海面目标的表观分布不同，命中率不得外推为真实海域表现。",
+          "warmup_frames": 0,
+          "note": "一个检测器贯穿全序列，背景模型按真实用法逐帧收敛",
+          "detections_total": 172,
+          "frames_with_detection": 56,
+          "gt_targets_hit": 168,
+          "gt_hit_rate": 0.9333,
+          "latency_ms": {
+            "mean": 3.47,
+            "max": 9.26,
+            "min": 2.07
+          },
+          "per_frame_sample": [
+            {
+              "detections": 0,
+              "classes": {},
+              "gt_hits": 0,
+              "gt_targets": 3
+            },
+            {
+              "detections": 0,
+              "classes": {},
+              "gt_hits": 0,
+              "gt_targets": 3
+            },
+            {
+              "detections": 0,
+              "classes": {},
+              "gt_hits": 0,
+              "gt_targets": 3
+            },
+            {
+              "detections": 0,
+              "classes": {},
+              "gt_hits": 0,
+              "gt_targets": 3
+            },
+            {
+              "detections": 3,
+              "classes": {
+                "foam": 3
+              },
+              "gt_hits": 3,
+              "gt_targets": 3
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -68,14 +68,21 @@ class OceanusVisionArmDriver:
         battery: int = 100,
         bins: dict[str, float] | None = None,
         home: dict[str, float] | None = None,
+        usb_camera: int | None = None,
         **_: Any,
     ) -> None:
         self.cfg = load_config(config_path)
         self.mock = bool(mock)
         self.calibration_path = calibration_path
+        # 帧源覆盖：配了就走 USB 摄像头（与作业台 --camera 同口径）
+        if usb_camera is not None:
+            self.cfg.setdefault("arm", {})["usb_camera"] = int(usb_camera)
 
         self.io = ArmIo(self.cfg, mock=self.mock)
-        self.detector = Detector(self.cfg, mock=self.mock)
+        # ★ 有真实帧源（USB 摄像头）时用**真模型**检测：合成检测（HSV）是为合成
+        #   画面设计的，喂真摄像头画面会产出一堆垃圾框。与 web/server.py 同一条
+        #   口径 —— 平台派单（本驱动）与作业台两个入口行为一致。
+        self.detector = Detector(self.cfg, mock=(self.mock and self.io.usb_camera is None))
         # 水面/台面高度：标定文件优先，其次 config 的 arm.plane_z
         self.cal: Calibration = load_calibration(calibration_path,
                                                  plane_z=config_plane_z(self.cfg))

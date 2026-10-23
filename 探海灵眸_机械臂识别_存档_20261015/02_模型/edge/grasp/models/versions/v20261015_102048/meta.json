@@ -1,0 +1,24 @@
+{
+  "version": "v20261015_102048",
+  "created_at": "2026-10-15T10:20:48",
+  "source": "D:\\seahawk-work\\runs\\plastic_yolo11s_v2\\weights\\best.onnx",
+  "files": [
+    "best.onnx"
+  ],
+  "metrics": {
+    "map50": 0.423,
+    "map50_95": 0.266,
+    "precision": 0.512,
+    "recall": 0.498,
+    "imgsz": 416,
+    "split": "test",
+    "images": 400,
+    "instances": 940,
+    "train_imgsz": 768,
+    "epochs_best": 100,
+    "model": "yolo11s",
+    "dataset": "SC-FloatWaste (FloatWaste) contract4-plastic -> 单类 plastic_bag",
+    "note": "独立测试集（官方 val 划分），未参与训练或调参"
+  },
+  "note": "公开基准单类塑料袋 v2/YOLO11s/768训练->416部署"
+}

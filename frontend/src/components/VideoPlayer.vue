@@ -313,12 +313,12 @@ defineExpose({ play, destroy })
 
 .player__mask-icon {
   font-size: 26px;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .player__mask-text {
   font-size: 12px;
-  color: var(--text-sub);
+  color: rgba(255, 255, 255, 0.78);
   max-width: 100%;
   overflow-wrap: anywhere;
 }
@@ -362,11 +362,15 @@ defineExpose({ play, destroy })
   background: linear-gradient(0deg, rgba(5, 9, 14, 0.85), transparent);
 }
 
+/* ★ 叠加文字必须用**固定浅色**：它们的底衬是固定深色渐变/遮罩
+   （rgba(5,9,14,…)，与主题无关）。此前用 --text-* 变量，浅色模式下
+   变量变深色文字压在深色底上 —— 地区标题/占位提示全看不清。 */
 .player__name {
   min-width: 0;
   overflow: hidden;
-  color: var(--text-main);
+  color: #fff;
   font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -374,7 +378,7 @@ defineExpose({ play, destroy })
 .player__id {
   min-width: 0;
   overflow: hidden;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.75);
   font-family: 'SF Mono', Consolas, monospace;
   font-size: 11px;
   text-overflow: ellipsis;

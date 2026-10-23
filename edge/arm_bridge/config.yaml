@@ -25,7 +25,7 @@ driver:
   # 走 edge/grasp 子系统：YOLO 检出 → 像素↔世界坐标 → IK 现算 → 总线舵机。
   # 与厂商节点共存（只发 /servo_controllers/... 话题，不抢串口），
   # 舵机回读读厂商已发布的 servo_states 话题。
-  # 前置：edge/grasp 的 active 目录已部署模型（best.onnx）+ 完成 9 点标定，
+  # 前置：edge/grasp 的 active 目录已就位模型（best.onnx）+ 完成 9 点标定，
   #       否则 pick() 会明确报「未部署模型 / 未标定」而不是假装成功。
   #       上真机前先跑 `python edge/grasp/tools/precheck.py` 把这四项前置验一遍。
   # 训练作业台（采集/标注/训练/部署/标定）在 http://<IP>:8090。

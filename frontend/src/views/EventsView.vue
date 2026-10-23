@@ -52,6 +52,12 @@
       <button class="btn" @click="load">刷新</button>
     </div>
 
+    <!-- 深链落空自愈提示：从 3D 沙盘点垃圾/事件跳进来但默认时间窗内无数据时，
+         已自动放宽到近 30 天 —— 否则用户会以为"点击了却没有对应数据" -->
+    <div v-if="autoWidened" class="range-notice">
+      默认时间范围内没有数据，已自动扩大到「近 30 天」显示与筛选条件相符的事件。
+    </div>
+
     <!-- 列表 -->
     <div class="panel table-panel">
       <table class="data-table">
@@ -66,7 +72,7 @@
             <th style="width: 150px">坐标</th>
             <th style="width: 90px">状态</th>
             <th>关联工单</th>
-            <th v-if="canWriteOps" style="width: 80px">操作</th>
+            <th style="width: 170px">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -92,18 +98,26 @@
               </span>
             </td>
             <td class="text-dim" style="font-size: 12px">
-              {{ taskMap[e.event_id] ? taskMap[e.event_id] : '—' }}
-            </td>
-            <td v-if="canWriteOps" class="text-dim" style="font-size: 12px">
               <button
-                v-if="e.status === 'new'"
+                v-if="taskMap[e.event_id]"
+                class="link-btn link-btn--info"
+                @click="openTaskFor(e)"
+              >
+                {{ taskMap[e.event_id].task_id }}
+              </button>
+              <span v-else>—</span>
+            </td>
+            <td class="ops-cell">
+              <!-- 详情：只读入口，所有角色可见（viewer 也能看证据帧与处置链路） -->
+              <button class="link-btn link-btn--info" @click="openDetail(e)">详情</button>
+              <button
+                v-if="canWriteOps && e.status === 'new'"
                 class="link-btn"
                 :class="{ 'link-btn--armed': confirmIgnoreId === e.event_id }"
                 @click="ignoreEvent(e)"
               >
                 {{ confirmIgnoreId === e.event_id ? '确认忽略？' : '忽略' }}
               </button>
-              <span v-else>—</span>
             </td>
           </tr>
         </tbody>
@@ -143,20 +157,75 @@
         </button>
       </div>
     </div>
+
+    <!-- 事件详情抽屉 —— 同样必须 Teleport 到 body（层叠上下文见 TasksView 注释）。
+         闭环设计：地图/通知/智能体带 ?event=xxx 跳来时自动展开；
+         抽屉里可直达关联工单与执行仿真，不再只有"忽略"一个出口。 -->
+    <Teleport to="body">
+      <div v-if="detail" class="drawer" @click.self="detail = null">
+        <div class="drawer__panel panel">
+          <div class="panel-title">
+            <span>事件详情 · {{ detail.event_id }}</span>
+            <button class="drawer__close" @click="detail = null">×</button>
+          </div>
+          <div class="panel-body drawer__body">
+            <div class="kv" v-for="kv in detailRows" :key="kv.label">
+              <span class="kv__k">{{ kv.label }}</span>
+              <span class="kv__v">{{ kv.value }}</span>
+            </div>
+
+            <!-- 证据帧：识别留存的画面证据；种子数据未附图时给出明确说明 -->
+            <div class="evidence">
+              <div class="evidence__title">证据帧</div>
+              <img
+                v-if="detail.evidence_url && !evidenceError"
+                :src="detail.evidence_url"
+                class="evidence__img"
+                alt="事件证据帧"
+                @error="evidenceError = true"
+              />
+              <div v-else class="evidence__empty">
+                该事件未留存证据帧
+              </div>
+            </div>
+
+            <!-- 处置链路闭环：事件 → 工单 → 执行仿真 -->
+            <div class="drawer__cta">
+              <template v-if="linkedTaskId">
+                <button class="btn btn--primary drawer__cta-btn" @click="openLinkedTask">
+                  查看关联工单 · {{ linkedTaskId }} ▸
+                </button>
+                <button
+                  v-if="linkedTaskSimulatable"
+                  class="btn drawer__cta-btn"
+                  @click="openLinkedSimulation"
+                >
+                  进入执行仿真 · 机械臂作业 ▸
+                </button>
+              </template>
+              <span v-else class="drawer__cta-hint">
+                该事件尚未派单：{{ canWriteOps ? '可在「工单看板」触发补派，或在该行点「忽略」标记误报' : '等待操作员派单后可查看执行链路' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { eventsApi, tasksApi } from '@/api'
 import { useRealtimeStore } from '@/stores/realtime'
 import { CLASS_ORDER, EVENT_STATUS, classLabel, classColor } from '@/utils/constants'
 import { canWrite } from '@/utils/auth'
-import { fmtShortTime, fmtConfidence, fmtCoord } from '@/utils/format'
+import { fmtShortTime, fmtConfidence, fmtCoord, fmtTime } from '@/utils/format'
 
 const store = useRealtimeStore()
 const route = useRoute()
+const router = useRouter()
 
 // viewer / 匿名只读：隐藏「忽略」操作（后端 require_operator 才是最终裁决）
 const canWriteOps = canWrite()
@@ -168,8 +237,65 @@ const pageSize = ref(30)
 const loading = ref(false)
 const taskMap = ref({})
 const highlightEventId = ref('')
+const autoWidened = ref(false) // 深链落空后自动放宽到近 30 天（提示条用）
 const rowRefs = new Map()
 let highlightTimer = null
+
+// ---------- 详情抽屉 ----------
+const detail = ref(null)
+const evidenceError = ref(false)
+
+function openDetail(e) {
+  evidenceError.value = false
+  detail.value = e
+}
+
+const detailRows = computed(() => {
+  const d = detail.value
+  if (!d) return []
+  return [
+    { label: '事件编号', value: d.event_id || '—' },
+    { label: '发现时间', value: d.event_time ? fmtTime(d.event_time) : '—' },
+    { label: '来源设备', value: d.device_id || '—' },
+    { label: '垃圾类别', value: d.main_class_label || classLabel(d.main_class) },
+    { label: '目标数量', value: d.det_count ?? '—' },
+    { label: '最高置信度', value: fmtConfidence(d.max_confidence) },
+    { label: '目标坐标', value: fmtCoord(d.lng, d.lat) },
+    { label: '处理状态', value: EVENT_STATUS[d.status] || d.status || '—' },
+    { label: '模型版本', value: d.model_version || '—' },
+  ]
+})
+
+/** 关联工单（taskMap 存 { task_id, status }，供抽屉给出可仿真判断） */
+const linkedTask = computed(() =>
+  detail.value ? taskMap.value[detail.value.event_id] || null : null,
+)
+const linkedTaskId = computed(() => linkedTask.value?.task_id || '')
+const SIMULATABLE = ['assigned', 'navigating', 'collecting', 'done']
+const linkedTaskSimulatable = computed(() => SIMULATABLE.includes(linkedTask.value?.status))
+
+function openLinkedTask() {
+  // ★ 先取值再清 detail：linkedTaskId 是 computed，依赖 detail.value；
+  //   先置 null 会让它当场求值成空串，push 出去就是 /tasks?task=（空参数）
+  const taskId = linkedTaskId.value
+  if (!taskId) return
+  detail.value = null
+  router.push({ path: '/tasks', query: { task: taskId } })
+}
+
+function openLinkedSimulation() {
+  const taskId = linkedTaskId.value
+  if (!taskId) return
+  detail.value = null
+  router.push({ name: 'simulation', params: { taskId } })
+}
+
+/** 列表「关联工单」列 → 工单看板并自动展开该工单抽屉 */
+function openTaskFor(e) {
+  const task = taskMap.value[e.event_id]
+  if (!task?.task_id) return
+  router.push({ path: '/tasks', query: { task: task.task_id } })
+}
 
 // 「忽略」两段确认：记住已进入确认态的事件，3 秒无操作自动撤回
 const confirmIgnoreId = ref('')
@@ -209,14 +335,15 @@ async function load() {
   }
 }
 
-/** 把事件与工单关联起来，列表里直接能看出"这条有没有被处理" */
+/** 把事件与工单关联起来，列表里直接能看出"这条有没有被处理"；
+    存 { task_id, status } —— 抽屉要靠 status 判断能否直接进执行仿真 */
 async function buildTaskMap() {
   try {
     const res = await tasksApi.list({ page: 1, page_size: 200 })
     const tasks = res?.items || []
     const map = {}
     for (const t of tasks) {
-      if (t.event_id) map[t.event_id] = t.task_id
+      if (t.event_id) map[t.event_id] = { task_id: t.task_id, status: t.status }
     }
     taskMap.value = map
   } catch {
@@ -279,6 +406,11 @@ async function focusQueryEvent() {
   }
   if (!matched) return
 
+  // 带 ?event= 跳进来通常来自地图/通知/智能体的"点击查看事件"——
+  // 除了高亮行，直接把详情抽屉展开，链路才算真正到达目的地
+  const row = items.value.find((item) => item.event_id === eventId)
+  if (row) openDetail(row)
+
   await nextTick()
   rowRefs.get(eventId)?.scrollIntoView({
     behavior: 'smooth',
@@ -290,8 +422,31 @@ async function focusQueryEvent() {
   }, 4000)
 }
 
-onMounted(async () => {
+/** 带 ?class= 跳进来（3D 沙盘点垃圾点）：按类别预过滤（随后的 load 会带上该筛选） */
+function applyQueryClass() {
+  const cls = typeof route.query.class === 'string' ? route.query.class : ''
+  if (!cls || !CLASS_ORDER.includes(cls)) return false
+  filters.mainClass = cls
+  return true
+}
+
+/**
+ * 深链落空自愈：演示库的事件稀疏，"近 24h"（默认窗）经常为 0 条 ——
+ * 从沙盘点垃圾/事件跳进来的用户会以为"点了却没有对应数据"。
+ * 这里在默认窗查空时自动放宽到近 30 天重查（只对深链生效，不干扰手动筛选）。
+ */
+async function widenIfEmpty() {
+  const deepLinked = !!route.query.class || !!route.query.event
+  if (!deepLinked || items.value.length || filters.hours >= 720) return
+  filters.hours = 720
+  autoWidened.value = true
   await load()
+}
+
+onMounted(async () => {
+  applyQueryClass()
+  await load()
+  await widenIfEmpty()
   await focusQueryEvent()
 })
 
@@ -302,6 +457,18 @@ watch(
   },
 )
 
+// 沙盘上再点另一类垃圾 → 同页切换筛选并重载
+watch(
+  () => route.query.class,
+  async () => {
+    if (applyQueryClass()) {
+      autoWidened.value = false
+      await load()
+      await widenIfEmpty()
+    }
+  },
+)
+
 onUnmounted(() => {
   clearTimeout(highlightTimer)
   clearTimeout(confirmIgnoreTimer)
@@ -309,6 +476,17 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 深链自愈提示条（沙盘点垃圾跳进来、默认窗无数据时自动放宽时间范围） */
+.range-notice {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(24, 169, 153, 0.45);
+  border-radius: 8px;
+  background: rgba(24, 169, 153, 0.12);
+  color: var(--c-primary, #18a999);
+  font-size: 12px;
+}
+
 /* 空态要竖排：全局 .empty 是 flex 居中（横排），
    多行文案会挤在一行。 */
 .empty {
@@ -407,6 +585,134 @@ onUnmounted(() => {
 
 .link-btn:hover {
   background: rgba(242, 86, 76, 0.12);
+}
+
+/* 「详情」「关联工单」是只读入口，用主色弱化描边，与危险色的「忽略」区分开 */
+.link-btn--info {
+  color: var(--c-primary);
+  border-color: color-mix(in srgb, var(--c-primary) 40%, transparent);
+  margin-right: 6px;
+}
+
+.link-btn--info:hover {
+  background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+}
+
+.ops-cell {
+  white-space: nowrap;
+}
+
+/* ---------- 详情抽屉（Teleport 到 body，z-index 须大于顶栏 300） ---------- */
+.drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 10, 0.6);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 900;
+}
+
+.drawer__panel {
+  width: 420px;
+  max-width: 92vw;
+  height: 100%;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.drawer__close {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  font-size: 19px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.drawer__close:hover {
+  color: var(--text-main);
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--separator);
+  font-size: 13px;
+}
+
+.kv__k {
+  color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.kv__v {
+  color: var(--text-main);
+  text-align: right;
+  word-break: break-all;
+}
+
+.evidence {
+  margin-top: 16px;
+}
+
+.evidence__title {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 9px;
+}
+
+.evidence__img {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--separator);
+  display: block;
+}
+
+.evidence__empty {
+  padding: 22px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  border: 1px dashed var(--separator);
+  border-radius: var(--radius);
+}
+
+.drawer__cta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--separator);
+}
+
+.drawer__cta-btn {
+  width: 100%;
+  min-height: 44px;
+  font-size: 13.5px;
+}
+
+.drawer__cta-btn + .drawer__cta-btn {
+  margin-top: 8px;
+}
+
+.drawer__cta-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  text-align: center;
 }
 
 /* 进入「确认忽略？」状态：实心告警色，跟普通态在视觉上必须拉开，

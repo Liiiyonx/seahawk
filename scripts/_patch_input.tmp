@@ -1,0 +1,25 @@
+*** Begin Patch
+*** Add File: C:/Users/Liii/Desktop/seahawk/scripts/lj_extract_sections.py
++from pathlib import Path
++
++cases = [
+    (
+        r"C:\Users\Liii\Desktop\连江县创新创业大赛\源文件\探海灵眸Oceanus_国创路演_动效版.html",
+        '<section class="slide dk" id="s10"',
+    ),
+    (
+        r"C:\Users\Liii\Desktop\连江县创新创业大赛\路演PPT_国奖优化版\探海灵眸Oceanus_路演PPT_国奖版.html",
+        '<section class="slide" data-label="验证证据">',
+    ),
+]
++
++
++for path, start_marker in cases:
++    p = Path(path)
++    s = p.read_text(encoding="utf-8")
++    start = s.index(start_marker)
++    end = s.index("</section>", start) + len("</section>")
++    print("=" * 90)
++    print(p.name)
++    print(s[start:end])
+*** End Patch

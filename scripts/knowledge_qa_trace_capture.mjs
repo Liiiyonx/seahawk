@@ -35,7 +35,8 @@ try {
 const { chromium } = playwright
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const OUT_DIR = path.join(ROOT, 'artifacts', 'knowledge-qa-trace')
+const OUT_DIR =
+  process.env.SEASIGHT_TRACE_OUT_DIR || path.join(ROOT, 'artifacts', 'knowledge-qa-trace')
 const FRONTEND = process.env.SEASIGHT_FRONTEND_URL || 'http://127.0.0.1:5174'
 const BACKEND = process.env.SEASIGHT_BACKEND_URL || 'http://127.0.0.1:8001'
 const BROWSER_PATH =

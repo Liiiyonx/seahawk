@@ -115,6 +115,13 @@
 
 - R-KN-04：已采集本地知识域前端（问题 → 检索 → 决策 → 证据链，2 张截图 +
   API JSON）。该轨迹为 `hop_count=0` 的直接资产引用检索，不表述为多跳路径问答。
+- **R-KN-05（2026-10-23 新增）：跨文档多跳实例已采集**。同一问题在已发布本体上
+  命中 6 条，其中 3 条 `hop=2`（路径如“泡沫垃圾 [触发] → 岸线巡查 [生成] →
+  打捞任务”）；决策证据链 6 条证据覆盖 hop=0/1/2 三档、引用 6 份不同资产版本。
+  截图与 API 轨迹见 `artifacts/knowledge-qa-trace-multihop/`
+  （采集脚本 `scripts/knowledge_qa_trace_capture.mjs`，输出目录可用
+  `SEASIGHT_TRACE_OUT_DIR` 指定）。口径：确定性检索-推理链路、演示资产、
+  E1/E2；非 LLM 生成式问答，不得表述为真实脱敏数据或现场验证。
 - R-NX-09（2026-09-30 新增）：**本地官方源码部署 Nexent 控制台完整 Skill 问答
   已跑通**。Agent 版本 4 绑定 21 个 Oceanus MCP 只读工具与 5 个 Skill；
   `POST /agent/run` SSE HTTP 200、8 步、31 次工具调用、13 个唯一工具、
@@ -176,6 +183,8 @@ huawei-ict-track3-submission/
   04_示例问答截图/
     R-KN-04_01-检索结果-本体图检索与引用.png
     R-KN-04_02-决策证据链-资产版本引用.png
+    R-KN-05_01-跨文档多跳检索结果-2跳路径.png
+    R-KN-05_02-决策证据链-多跳证据引用.png
     R-NX-09_01-nexent-console-home.png
     R-NX-09_02-nexent-console-newchat.png
     （托管平台完整问答截图待 R-NX-08 补入）
@@ -184,7 +193,10 @@ huawei-ict-track3-submission/
     R-KN-02_ontology-eval.json
     R-KN-03_incremental-eval.json
     R-KN-04_knowledge-qa-trace.json
+    R-KN-05_knowledge-multihop-trace.json
     R-OD-01_open-data-eval.json
+    R-OD-02_open-data-e2e.json
+    R-OD-03_real-industry-dataset.json
     open-data-eval_corpus_manifest.json
     R-NX-03_recheck.yaml
     R-NX-04_agent-create.yaml
@@ -194,6 +206,8 @@ huawei-ict-track3-submission/
     evidence/
       llm-qa-2026-09-30/       # R-NX-09 完整 SSE/事件/工具轨迹摘要
   06_标准映射表.md
+  07_演示视频/
+    探海灵眸Oceanus_演示视频.mp4   # 1080p H.264 转码产物（源 4:39 母带 206MB → 29MB）
   integrations/nexent/        # MCP 与 Skills 源码
   artifacts/nexent-mcp-openapi.json
 ```
@@ -212,18 +226,28 @@ huawei-ict-track3-submission/
 
 ### 5.1 最近一次构建档案
 
-- 构建时间：2026-09-30 02:44:56（Asia/Shanghai）
-- ZIP：`dist/huawei-ict-track3-submission.zip`（730,709 bytes / 37 entries）
-- SHA256：`bcb79f6759d65ffffde1adae2a9040c56dfb8db03f2c020401101de59559df2e`
+- 构建时间：2026-10-23（Asia/Shanghai，同日第三次构建，最终版）
+- ZIP：`dist/huawei-ict-track3-submission.zip`（29.46 MB / 42 entries）
+- SHA256：`2f1762f9756d1074…`（完整值见 `artifacts/huawei-track3-submission/latest.json`）
 - 暂存目录：`dist/huawei-ict-track3-submission/`
-- 校验：密钥扫描 clean；两份 Word 的 `word/document.xml` 与 HEAD 一致，二进制差异仅来自重新打包时间戳
-- 构建档案：`artifacts/huawei-track3-submission/latest.json`
-- 边界：整包就绪不等于托管平台 Skill 问答完成；R-NX-07 仍为 `blocked`，必须按 runbook 完成 R-NX-08 后再刷新材料 2、附件说明 §4.3 与整包
+- 校验：密钥扫描 clean；宣称门禁 `check_claims.py` 退出码 0（自证通过）；
+  全量 pytest 1374 通过 / 17 跳过 / 0 失败（根 `conftest.py` 修复收集污染后，
+  1391 项收集）；两份 Word 自更新后底稿重建
+- 边界：整包就绪不等于托管平台 Skill 问答完成；R-NX-07 仍为 `blocked`，
+  必须按 runbook 完成 R-NX-08 后再刷新材料 2、附件说明 §4.3 与整包。
+  演示视频为项目自产材料的转码复用，跨赛使用规则向主办方确认后如有调整，
+  重跑打包脚本即可。
 
 ## 六、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-10-24（四） | 文档字体统一（h3 小标题西文由 Times New Roman 归入黑体；正文宋体/Times New Roman、代码 Consolas 审计确认 0 个失控 run）；两张架构图重排：画布从 12in 缩至 7.2in（贴合 15.5cm 页宽、缩放 85%），文字精简、字号放大、箭头正交化（消除原稿文字溢出与虚线交叉） | liyongxiang |
+| 2026-10-24（三） | 开发设计文档冲击国奖级补强：新增评审导览表（赛题关键词→落点→证据）、数据资产表、R-KN-05 逐步轨迹表、进化机制证据表、代码规模表（322 文件/11 万行）与贝叶斯校准代码片段；新增两张自绘架构图（`scripts/make_huawei_ict_doc_figures.py` → `artifacts/doc-figures/`，总体架构 + 运行时生命周期与三条进化回路）；**新增初赛代码附件**（模板标注“必选”）：`scripts/package_huawei_ict_code_attachment.py` → `dist/huawei-ict-code-attachment.zip`（4,990 文件 / 10.25MB，密钥扫描 + 宣称门禁双清，打包时对演示口令做 `<DEPLOYMENT-SECRET>` 占位脱敏、仓库原件不动）；全文 19 页逐页视觉核验通过 | liyongxiang |
+| 2026-10-24（二） | 修复开发设计文档截图准确性：原“图 1 控制台”实为未登录欢迎弹窗（R-NX-09 采集脚本在登录前截了首页）——重新登录本地 Nexent 截取登录态开始问答页与 DeepSeek 模型配置页（`artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/`，图注与图面严格对齐，问答运行数据只在文字引 R-NX-09 轨迹）；全文 16 页逐页视觉核验通过（无未登录图、无破版、无占位残留） | liyongxiang |
+| 2026-10-24 | 新增 R-OD-03 真实公开行业监测数据接入：NOAA NCEI 海洋微塑料数据集（22,530 行 / 1986–2023 / 26 国家/地区，逐条 DOI）下载入库（`scripts/fetch_noaa_microplastics.py` + `artifacts/real-industry-data/`）并接入知识域评测（`scripts/real_dataset_knowledge_e2e.py`，决策证据链 4 条）；初赛开发设计文档按官方模板重写为真实项目内容并嵌入团队合照与 3 张真实截图（`scripts/build_huawei_ict_final_docx.py`，输出至提交目录·优化版）；R-OD-03 证据纳入打包清单 | liyongxiang |
+| 2026-10-23（二） | 新增 R-OD-02 真实公开语料端到端闭环（`scripts/open_data_knowledge_e2e.py` + `artifacts/open-data-e2e/latest.json`：8 份生态环境部公开文件 → 30 节点/47 关系 → 发布 → 多跳检索 9 命中 → 决策 5 证据）；修复根测试收集污染（新增根 `conftest.py` collect_ignore_glob，派生副本目录不再进入 pytest 收集，收集恢复 1391 项）；R-OD-02 纳入打包清单 | liyongxiang |
+| 2026-10-23 | 采集并登记 R-KN-05 跨文档多跳实例（`artifacts/knowledge-qa-trace-multihop/`，hop=0/1/2 三档证据，采集脚本支持 `SEASIGHT_TRACE_OUT_DIR`）；打包清单纳入 R-KN-05 与 `07_演示视频/`（ffmpeg 转码 206MB→29MB）；宣称门禁恢复退出码 0（`check_claims.py` 排除派生副本目录 + 修正 13 处技术性“已部署”等措辞，自证 `selftest_evidence_gate.py` 通过）；整包重建（41 entries / 29.44 MB / SHA256 `4efb6fea…`）；R-NX-08 仍 blocked（账号冻结，唯一 user 侧待办） | liyongxiang |
 | 2026-09-30 | 一键打包复验成功：37 files、0.70 MB、密钥扫描 clean；新增构建档案 `artifacts/huawei-track3-submission/latest.json`（ZIP SHA256 `bcb79f…`）；托管平台完整 Skill 问答仍受账号欠费阻塞 | WP-15 |
 | 2026-09-30 | 新增【材料 3】独立提交件 `docs/competitions/huawei-ict-track3-attachment-guide.md`（MCP / Skill / Agent 配置与平台验收 / 知识库与评测四类随附文件逐项说明、证据等级、适用边界、提交前自检）；新增 `scripts/package_huawei_track3_submission.py` 一键打包（重建两个 Word → 重命名归位证据 → 密钥扫描 → 产出 ZIP）；材料 3 状态改为“独立提交件已生成” | WP-15 |
 | 2026-09-30 | 新增【材料 2】独立提交件：`项目文档/华为ICT赛道三_Nexent智能体设计说明.docx`（底稿 `docs/competitions/huawei-ict-track3-agent-design.md`，十章），覆盖整体设计思路、Agent 配置完整细节（模型 / 工具 / 知识库 / 调用关系图）、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界；材料 2 状态由“成册”改为“独立提交件已生成”，打包章节补两个 Word 的重建命令 | WP-15 |

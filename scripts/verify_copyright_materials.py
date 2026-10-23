@@ -62,20 +62,21 @@ def visual_rows(page, tol: float = ROW_TOLERANCE_PT) -> list[tuple[float, str]]:
     return out
 
 
-def body_rows(page, page_no: int) -> list[str]:
+def body_rows(page, page_no: int, header_key: str = HDR_SUB) -> list[str]:
     """返回去掉页眉页脚后的正文视觉行。"""
     rows = visual_rows(page)
     body = []
     for y, text in rows:
         if y <= HEADER_Y_MAX or y >= FOOTER_Y_MIN:
             continue
-        if HDR_SUB in text or re.fullmatch(rf"第\s*{page_no}\s*页", text.strip()):
+        if header_key in text or re.fullmatch(rf"第\s*{page_no}\s*页", text.strip()):
             continue
         body.append(text)
     return body
 
 
-def check(path: Path, expect_pages: int, lines_per_page: int | None) -> None:
+def check(path: Path, expect_pages: int, lines_per_page: int | None,
+          header_key: str = HDR_SUB) -> None:
     print(f"\n{'=' * 74}\n{path.name}\n{'=' * 74}")
     doc = fitz.open(path)
     n = doc.page_count
@@ -88,6 +89,7 @@ def check(path: Path, expect_pages: int, lines_per_page: int | None) -> None:
     empty: list[int] = []
     linenos: list[int] = []
     last_lineno = 0
+    last_body_len = 0
     probes: list[tuple[int, str]] = []
 
     for i in range(1, n + 1):
@@ -95,15 +97,17 @@ def check(path: Path, expect_pages: int, lines_per_page: int | None) -> None:
         if not rows:
             empty.append(i)
             continue
-        hdr = [t for _, t in rows if HDR_SUB in t]
+        hdr = [t for _, t in rows if header_key in t]
         ftr = [t for _, t in rows if re.fullmatch(rf"第\s*{i}\s*页", t.strip())]
         if not hdr:
             bad_hdr.append(i)
         if not ftr:
             bad_pageno.append(i)
-        body = body_rows(doc[i - 1], i)
+        body = body_rows(doc[i - 1], i, header_key)
         if lines_per_page:
             dist[len(body)] += 1
+            if i == n:
+                last_body_len = len(body)
         if body:
             # 取本页**首个带行号**的行：模块分隔注释行以「# =====」开头、
             # 行号与「#」之间无空格，用 r"^\d+\s" 会漏掉它。
@@ -121,8 +125,20 @@ def check(path: Path, expect_pages: int, lines_per_page: int | None) -> None:
 
     if lines_per_page:
         print(f"每页正文行数分布: {dict(sorted(dist.items()))}")
-        good = all(k == lines_per_page for k in dist)
-        print(f"  全部 {lines_per_page} 行: {'OK' if good else 'MISMATCH'}")
+        # ★ CPC：每页不少于 50 行，**末页为程序结尾的除外**。
+        #   节选模式（前 30 + 后 30）后段固定取 1500 行，末页恰好排满，故历史上
+        #   从未触发；全量提交（不足 60 页）总行数不是 50 的整数倍，末页必然
+        #   不满 —— 例如机械臂篇 2,787 = 55×50 + 37，末页 37 行属豁免范围。
+        exempt = last_body_len != lines_per_page and 0 < last_body_len < lines_per_page
+        judge = dict(dist)
+        if exempt:
+            judge[last_body_len] -= 1
+            if judge[last_body_len] == 0:
+                del judge[last_body_len]
+        good = all(k == lines_per_page for k in judge)
+        note = (f"（末页 {last_body_len} 行，程序结尾，按 CPC 末页豁免）"
+                if exempt else "")
+        print(f"  全部 {lines_per_page} 行: {'OK' if good else 'MISMATCH'}{note}")
     print(f"空白页: {empty or '无'}")
     print(f"页眉异常: {bad_hdr or '无'}")
     print(f"页码异常: {bad_pageno or '无'}")
@@ -137,6 +153,22 @@ def check(path: Path, expect_pages: int, lines_per_page: int | None) -> None:
 
 
 if __name__ == "__main__":
+    # 用法 1（默认）：主软著材料目录实测 src/man 两份 PDF。
+    # 用法 2：verify_copyright_materials.py <pdf 路径> [期望页数] [每页行数] [页眉关键词]
+    #   —— 拆分登记各篇软件名不同：页眉关键词默认从文件名推（「…<全称>V1.0.pdf」），
+    #      也可显式传第 4 个参数覆盖。
+    argv = sys.argv[1:]
+    if argv and argv[0].lower().endswith(".pdf"):
+        p = Path(argv[0])
+        expect = int(argv[1]) if len(argv) > 1 else 60
+        lpp = int(argv[2]) if len(argv) > 2 else 50
+        if len(argv) > 3:
+            key = argv[3]
+        else:
+            m = re.match(r"^(?:源代码鉴别材料|软件说明书)_(.+?)V[\d.]+$", p.stem)
+            key = m.group(1) if m else HDR_SUB
+        check(p, expect, lpp, key)
+        sys.exit(0)
     base = Path(r"C:\Users\Liii\Desktop\Oceanus软著材料")
     which = sys.argv[1] if len(sys.argv) > 1 else "both"
     if which in ("both", "src"):

@@ -1,0 +1,53 @@
+[Unit]
+Description=Oceanus 机械臂板上执行端（厂商 ROS 栈 + board_agent :8093）
+# 这块 ArmPi FPV 掉电/重启后不会自己把节点拉起来，笔记本侧作业台就只能报
+# 「板上代理不可达」，表现成机械臂失控。本单元负责开机自动恢复。
+#
+# 为什么不能复用 oceanus-arm-autopick.service：
+#   那个是「板子自己跑视觉闭环常驻自捡」，需要板上有 py3.7+（本板只有 3.6，
+#   跑不了 grasp 的 `from __future__ import annotations`）。
+#   本方案是「板子只当执行端」，视觉与决策跑在笔记本上，通过 TCP 8093 驱动。
+Documentation=file:/home/ubuntu/oceanus/edge/grasp/deploy/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__PI_USER__
+WorkingDirectory=/home/ubuntu/oceanus/edge
+Environment=PYTHONUNBUFFERED=1
+Environment=OCEANUS_LOG_DIR=/home/ubuntu/.oceanus-board-log
+# run_board_stack.sh 负责：清残留 → 起 roscore → 顺序起三个厂商 launch →
+# 等话题就绪 → 起 board_agent（py2.7，内部拉起 ik_worker py3.6）
+ExecStart=/bin/bash -lc 'exec bash /home/ubuntu/oceanus/edge/grasp/deploy/run_board_stack.sh --agent --log-dir /home/ubuntu/.oceanus-board-log'
+Restart=always
+RestartSec=10
+# 退出码语义（见 run_board_stack.sh）：
+#   2 = 前置不满足（缺 ROS / 厂商工作空间）
+#   4 = ROS 栈或话题超时未就绪
+# 这两种等一会重试通常能过（重启刚起来时串口/相机可能还没稳），
+# 所以这里不设 RestartPreventExitStatus，由 RestartSec 控制节奏。
+KillMode=mixed
+TimeoutStopSec=60
+# 启动本身要起 roscore + 三个 launch + board_agent，实测约 80s。
+# 默认 StartTimeout 是 90s，留够余量避免慢启动被误杀。
+TimeoutStartSec=180
+StandardOutput=journal
+StandardError=journal
+
+# ---------------------------------------------------------------
+# ★ 开机摆位不在这里做（踩过的坑，别改回去）
+# ---------------------------------------------------------------
+# 曾经用 `ExecStartPost=...board_apply_boot_pose.py`，结果是**服务起不来**：
+#   ExecStartPost 与 ExecStart 是**同时**开始的，不是"之后"。
+#   主进程（run_board_stack.sh）要 ~80s 才把 board_agent 拉起来，
+#   而摆位脚本一上来就连不上、要等它就绪；systemd 的 Start-post 超时
+#   远小于 80s → 判定 "Start-post operation timed out" → 把整组 SIGKILL，
+#   服务反复 failed、8093 根本不监听。
+#
+# 正确做法是**独立 oneshot 单元** + `After=oceanus-board-agent.service`：
+# 那才是真正的"之后"，而且摆位失败/超时不会连累执行端本身。
+# 见同目录 oceanus-board-agent-bootpose.service。
+
+[Install]
+WantedBy=multi-user.target

@@ -59,6 +59,7 @@ from app.schemas import (
     AgentDecisionOut,
     AgentEvalOut,
     AgentLessonOut,
+    LessonCalibrationOut,
     AgentRunCancel,
     AgentRunCreate,
     AgentRunOut,
@@ -989,11 +990,16 @@ def _runtime_status_out(runtime: AgentRuntime) -> AgentRuntimeStatusOut:
                 confidence=lesson.confidence,
                 hit_count=lesson.hit_count,
                 confirm_count=lesson.confirm_count,
+                use_total=lesson.use_total,
+                use_success=lesson.use_success,
                 source_run_id=lesson.source_run_id,
                 updated_at=lesson.updated_at,
             )
             for lesson in runtime.lessons.all_lessons()
         ],
+        lesson_calibration=LessonCalibrationOut(
+            **runtime.lessons.calibration_report()
+        ),
     )
 
 

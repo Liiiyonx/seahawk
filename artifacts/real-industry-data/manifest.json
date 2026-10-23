@@ -1,0 +1,50 @@
+{
+  "artifact_type": "real_industry_dataset_acquisition",
+  "registration": "R-OD-03",
+  "dataset": {
+    "name": "NOAA NCEI Marine Microplastics (1972-present)",
+    "provider": "NOAA National Centers for Environmental Information (NCEI)",
+    "access_point": "https://www.ncei.noaa.gov/products/microplastics",
+    "feature_service": "https://services2.arcgis.com/C8EMgrsFcRFL6LrL/arcgis/rest/services/Marine_Microplastics_WGS84/FeatureServer/0/query",
+    "arcgis_item": "c5dfb998f09e4d2b85d7da3f4c5b78ff",
+    "retrieved_at": "2026-10-23T16:15:24+00:00",
+    "license": "NOAA NCEI: free to access and use; NOAA distribution liability disclaimer applies",
+    "citation": "Nyadjro, E. S., et al. (2023). The NOAA NCEI marine microplastics database. Scientific Data, 10(1). https://doi.org/10.1038/s41597-023-02632-y; data: NOAA NCEI Marine Microplastics, accessed via ArcGIS item c5dfb998f09e4d2b85d7da3f4c5b78ff on 2026-10-24."
+  },
+  "file": {
+    "path": "artifacts/real-industry-data/noaa_marine_microplastics.csv",
+    "rows": 22530,
+    "columns": 34,
+    "size_bytes": 15843223,
+    "sha256": "4024188bc73a79ca96b2c8911a0e237ce65d3b19483ef37c70bd2bd987bc32bc"
+  },
+  "masking_and_compliance": {
+    "personal_identifier_fields": [],
+    "conclusion": "公开环境监测数据集，字段为测量值、采样元数据与文献引用（含 DOI/机构），不含个人姓名、联系方式等个人标识字段；符合项目证据纪律对真实行业数据的合规要求，登记为 public 安全级。"
+  },
+  "quick_stats": {
+    "rows": 22530,
+    "years_min": 1986,
+    "years_max": 2023,
+    "dated_rows": 22485,
+    "countries": 26,
+    "oceans": 5,
+    "rows_with_measurement": 16713,
+    "top_countries": [
+      "United States",
+      "Mexico",
+      "Taiwan",
+      "Spain",
+      "Bangladesh",
+      "Thailand",
+      "Canada",
+      "Trinidad"
+    ],
+    "units": [
+      "pieces/m3",
+      "pieces/10 mins",
+      "pieces kg-1 d.w."
+    ],
+    "note": "global monitoring dataset; no China-country rows (China seas not covered by contributors)"
+  }
+}

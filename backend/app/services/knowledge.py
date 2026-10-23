@@ -43,6 +43,7 @@ from app.schemas.knowledge import (
     DecisionEvidenceIn,
     KnowledgeAssetCreate,
     KnowledgeAssetVersionCreate,
+    KnowledgeQARequest,
     KnowledgeSearchRequest,
     OntologyExtractRequest,
     OntologyVersionCreate,
@@ -59,6 +60,7 @@ ONTOLOGY_NOT_PUBLISHABLE = 7007
 DECISION_TRACE_NOT_FOUND = 7008
 KNOWLEDGE_CONFLICT = 7009
 KNOWLEDGE_INPUT_INVALID = 7010
+KNOWLEDGE_QA_NOT_CONFIGURED = 7011
 
 
 _TERM_RE = re.compile(r"[A-Za-z][A-Za-z0-9_.\-]{1,63}|[\u4e00-\u9fff]{2,32}")
@@ -958,6 +960,7 @@ class KnowledgeService:
         *,
         username: str,
         township_scope: str | None = None,
+        llm_client: Any | None = None,
     ) -> tuple[OntologyVersion, list[OntologyNode], list[OntologyRelation], int, int]:
         version = await self.get_ontology_version(payload.ontology_version_id)
         if version.status not in (OntologyVersionStatus.DRAFT, OntologyVersionStatus.IN_REVIEW):
@@ -1014,11 +1017,17 @@ class KnowledgeService:
             )
             for asset_version, asset in rows
         ]
-        candidates = extract_term_candidates(
+        # LLM 主通道 + 规则兜底（未启用/失败时与历史纯规则行为逐位一致）。
+        # 延迟导入避免与 knowledge_llm 的反向依赖成环。
+        from app.services.knowledge_llm import extract_candidates
+
+        outcome = extract_candidates(
             documents,
             max_nodes=payload.max_nodes,
             min_term_length=payload.min_term_length,
+            client=llm_client,
         )
+        candidates = outcome.nodes
 
         existing_nodes = (
             await self.session.scalars(
@@ -1032,22 +1041,33 @@ class KnowledgeService:
         for candidate in candidates:
             if candidate.canonical_name in node_by_key:
                 continue
-            confidence = min(0.95, 0.45 + candidate.score * 0.05)
+            llm_confidence = outcome.confidence_by_canonical.get(candidate.canonical_name)
+            confidence = (
+                llm_confidence
+                if llm_confidence is not None
+                else min(0.95, 0.45 + candidate.score * 0.05)
+            )
+            entity_type = outcome.entity_type_by_canonical.get(
+                candidate.canonical_name
+            ) or _entity_type_for_asset(
+                next(
+                    doc.asset_type
+                    for doc in documents
+                    if doc.asset_version_id == candidate.source_version_id
+                )
+            )
             node = OntologyNode(
                 node_id=new_business_id("nod"),
                 ontology_version_id=version.version_id,
-                entity_type=_entity_type_for_asset(
-                    next(
-                        doc.asset_type
-                        for doc in documents
-                        if doc.asset_version_id == candidate.source_version_id
-                    )
-                ),
+                entity_type=entity_type,
                 name=candidate.term,
                 canonical_name=candidate.canonical_name,
                 description=f"从资产 {candidate.source_asset_id} 半自动抽取的候选实体",
                 aliases=[],
-                properties_json={"extraction_score": candidate.score},
+                properties_json={
+                    "extraction_score": candidate.score,
+                    "extraction_method": outcome.method_for(candidate.canonical_name),
+                },
                 source_asset_id=candidate.source_asset_id,
                 source_version_id=candidate.source_version_id,
                 confidence=Decimal(str(round(confidence, 4))),
@@ -1069,10 +1089,17 @@ class KnowledgeService:
             )
             for node in node_by_key.values()
         ]
-        relation_specs = cooccurrence_relations(
-            documents,
-            all_candidate_nodes,
-            max_relations=payload.max_relations,
+        from app.services.knowledge_llm import merge_relation_specs
+
+        relation_specs = merge_relation_specs(
+            outcome.llm_relation_specs,
+            cooccurrence_relations(
+                documents,
+                all_candidate_nodes,
+                max_relations=payload.max_relations,
+            ),
+            limit=payload.max_relations,
+            valid_keys={node.canonical_name for node in all_candidate_nodes},
         )
 
         existing_relations = (
@@ -1099,7 +1126,12 @@ class KnowledgeService:
             reverse_key = (target.node_id, source.node_id, relation_type)
             if key in relation_keys or reverse_key in relation_keys:
                 continue
-            confidence = min(0.9, 0.45 + spec["score"] * 0.015)
+            spec_confidence = spec.get("confidence")
+            confidence = (
+                spec_confidence
+                if spec_confidence is not None
+                else min(0.9, 0.45 + spec["score"] * 0.015)
+            )
             relation = OntologyRelation(
                 relation_id=new_business_id("rel"),
                 ontology_version_id=version.version_id,
@@ -1111,6 +1143,7 @@ class KnowledgeService:
                     "cooccurrence_count": spec["count"],
                     "extraction_score": spec["score"],
                     "min_distance": spec["distance"],
+                    "extraction_method": spec.get("extraction_method", "rule"),
                 },
                 evidence_json=spec["evidence"],
                 confidence=Decimal(str(round(confidence, 4))),
@@ -1121,10 +1154,16 @@ class KnowledgeService:
             created_relations.append(relation)
 
         version.status = OntologyVersionStatus.IN_REVIEW
+        channel_meta: dict[str, Any] = {"extraction_channel": outcome.channel}
+        if outcome.fallback_reason:
+            channel_meta["extraction_fallback_reason"] = outcome.fallback_reason
+        if outcome.model:
+            channel_meta["extraction_model"] = outcome.model
         version.metadata_json = {
             **dict(version.metadata_json or {}),
             "last_extracted_by": username,
             "last_extracted_at": datetime.now(timezone.utc).isoformat(),
+            **channel_meta,
         }
         await self.session.flush()
         # ``updated_at`` is populated by the database and may be expired after
@@ -1412,6 +1451,92 @@ class KnowledgeService:
             "ontology_graph" if ontology is not None else "keyword",
             ontology.version_id if ontology is not None else None,
             hits[: payload.limit],
+        )
+
+    async def answer_question(
+        self,
+        payload: KnowledgeQARequest,
+        *,
+        township_scope: str | None = None,
+        llm_client: Any | None = None,
+    ) -> Any:
+        """检索-生成问答：先检索后生成，模型只允许依据检索证据作答。
+
+        未配 LLM 客户端时抛 ``KNOWLEDGE_QA_NOT_CONFIGURED``；模型调用失败时
+        降级为确定性证据列表输出（channel="degraded"），绝不伪装成模型结论。
+        返回 ``knowledge_llm.EvidenceQAResult``。
+        """
+        from app.services.knowledge_llm import (
+            EvidenceQAResult,
+            LLMChannelError,
+            answer_question_with_evidence,
+        )
+
+        if llm_client is None:
+            raise AppException(
+                code=KNOWLEDGE_QA_NOT_CONFIGURED,
+                message="生成式问答未配置 LLM 端点（KNOWLEDGE_LLM_*），检索通道仍可用",
+                http_status=200,
+            )
+        mode, ontology_version_id, hits = await self.search(
+            KnowledgeSearchRequest(
+                query=payload.query,
+                ontology_version_id=payload.ontology_version_id,
+                hop_depth=payload.hop_depth,
+                limit=payload.limit,
+            ),
+            township_scope=township_scope,
+        )
+        search_payload = {
+            "mode": mode,
+            "results": [
+                {
+                    "title": hit.title,
+                    "asset_version_id": hit.asset_version_id,
+                    "hop_count": hit.hop_count,
+                    "snippet": hit.snippet,
+                    "citations": hit.citations,
+                }
+                for hit in hits
+            ],
+        }
+        try:
+            outcome = await answer_question_with_evidence(
+                complete=llm_client.complete,
+                question=payload.query,
+                search_payload=search_payload,
+            )
+        except LLMChannelError as exc:
+            evidence_lines = [
+                f"[c:{index}] {hit.title}：{hit.snippet[:160]}"
+                for index, hit in enumerate(hits[:5], start=1)
+            ]
+            degraded_answer = (
+                "模型调用失败，以下为检索通道返回的原始证据（未生成模型结论，"
+                "不作为政策依据）：\n"
+                + ("\n".join(evidence_lines) if evidence_lines else "（无检索命中）")
+            )
+            return EvidenceQAResult(
+                answer=degraded_answer,
+                insufficient_evidence=True,
+                mode=mode,
+                ontology_version_id=ontology_version_id,
+                hits=hits,
+                cited_indexes=[],
+                model=getattr(llm_client, "model", None),
+                fallback_reason=str(exc),
+                channel="degraded",
+            )
+        return EvidenceQAResult(
+            answer=outcome.answer,
+            insufficient_evidence=outcome.insufficient_evidence,
+            mode=mode,
+            ontology_version_id=ontology_version_id,
+            hits=hits,
+            cited_indexes=outcome.cited_indexes,
+            model=getattr(llm_client, "model", None),
+            fallback_reason=None,
+            channel="llm",
         )
 
     async def create_decision(

@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0",
+  "status": "evaluated",
+  "not_evaluated_reasons": [],
+  "command": "python ml/scripts/evaluate_public_litter.py --manifest-dir ml\\datasets\\manifests_public --split test --channel world --imgsz 1280 --device 0 --label-space litter --tag floatwaste_test_world_imgsz1280 --output artifacts\\metrics\\public_floatwaste_world_test_imgsz1280.json",
+  "date": "2026-10-08T14:51:49+08:00",
+  "label_space": "litter",
+  "iou_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "metrics": {
+    "per_class": {
+      "litter": {
+        "status": "evaluated",
+        "gt_boxes": 1490,
+        "detections": 8495,
+        "mAP50": 0.1155,
+        "mAP50_95": 0.0744,
+        "ap_by_iou": {
+          "0.5": 0.1155,
+          "0.55": 0.1144,
+          "0.6": 0.1115,
+          "0.65": 0.1047,
+          "0.7": 0.0955,
+          "0.75": 0.0755,
+          "0.8": 0.0597,
+          "0.85": 0.0425,
+          "0.9": 0.0218,
+          "0.95": 0.0029
+        },
+        "best_f1": {
+          "confidence_threshold": 0.0076,
+          "precision": 0.2255,
+          "recall": 0.2604,
+          "f1": 0.2417,
+          "tp": 388,
+          "fp": 1333,
+          "fn": 1102,
+          "status": "evaluated"
+        },
+        "at_conf_0.25": {
+          "status": "evaluated",
+          "confidence_threshold": 0.25,
+          "precision": 0.35,
+          "recall": 0.0094,
+          "f1": 0.0183,
+          "tp": 14,
+          "fp": 26,
+          "fn": 1476
+        },
+        "at_conf_0.10": {
+          "status": "evaluated",
+          "confidence_threshold": 0.1,
+          "precision": 0.3758,
+          "recall": 0.0376,
+          "f1": 0.0683,
+          "tp": 56,
+          "fp": 93,
+          "fn": 1434
+        },
+        "at_conf_0.05": {
+          "status": "evaluated",
+          "confidence_threshold": 0.05,
+          "precision": 0.3388,
+          "recall": 0.0691,
+          "f1": 0.1148,
+          "tp": 103,
+          "fp": 201,
+          "fn": 1387
+        }
+      }
+    },
+    "by_region": {
+      "Hobart": {
+        "images": 146,
+        "gt_boxes": 436,
+        "detections": 6072,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.1504,
+          "gt_boxes": 436,
+          "detections": 6072,
+          "best_f1": {
+            "confidence_threshold": 0.0127,
+            "precision": 0.2047,
+            "recall": 0.3601,
+            "f1": 0.261,
+            "tp": 157,
+            "fp": 610,
+            "fn": 279,
+            "status": "evaluated"
+          }
+        }
+      },
+      "Indonesia": {
+        "images": 90,
+        "gt_boxes": 850,
+        "detections": 893,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.1419,
+          "gt_boxes": 850,
+          "detections": 893,
+          "best_f1": {
+            "confidence_threshold": 0.0012,
+            "precision": 0.2996,
+            "recall": 0.2788,
+            "f1": 0.2888,
+            "tp": 237,
+            "fp": 554,
+            "fn": 613,
+            "status": "evaluated"
+          }
+        }
+      },
+      "NSW": {
+        "images": 164,
+        "gt_boxes": 204,
+        "detections": 1530,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.2033,
+          "gt_boxes": 204,
+          "detections": 1530,
+          "best_f1": {
+            "confidence_threshold": 0.0105,
+            "precision": 0.3035,
+            "recall": 0.3824,
+            "f1": 0.3384,
+            "tp": 78,
+            "fp": 179,
+            "fn": 126,
+            "status": "evaluated"
+          }
+        }
+      }
+    },
+    "headline": {
+      "mAP50": 0.1155,
+      "mAP50_95": 0.0744
+    }
+  },
+  "dataset": {
+    "manifest_dir": "ml\\datasets\\manifests_public",
+    "manifest_path": "ml\\datasets\\manifests_public\\test_floatwaste_2024.yaml",
+    "manifest_name": "test_2024_floatwaste_val_subset",
+    "split": "test",
+    "status": "ready",
+    "data_type": "real",
+    "evidence_level": "E3",
+    "isolation": {
+      "method": "physical",
+      "physical_note": "独立目录树 ml/datasets/public_floatwaste/images/test（与 images/train、 images/val 物理分离）；且按数据集官方划分隔离：test 全部来自官方 val， train/val 全部来自官方 train。评测脚本只读本目录。",
+      "logical_rule": "官方划分不相交；本清单不参与任何训练/调参。region 取自文件名前缀 <region>__<stem>，用于分区域（跨域）分层统计。"
+    },
+    "source": {
+      "device": "第三方公开数据集 SC-FloatWaste（HuggingFace OliviaWuYJ/sc-floatwaste； Zenodo DOI 10.5281/zenodo.21934286；CC BY 4.0）—— 现场摄像头与视频抽帧",
+      "region": "Indonesia（Citarum 流域）/ Australia NSW / Australia Tasmania Hobart",
+      "date_range": [
+        "2021-10-01",
+        "2024-11-01"
+      ],
+      "license": "CC BY 4.0；引用 Wu, Yujiao et al. FloatWaste benchmark"
+    },
+    "description": "SC-FloatWaste 官方 val 划分的确定性子集 400 张（Indonesia 90 / NSW 164 / Hobart 146）， 1,490 个真值框。用于评测开放词汇零样本通道与有监督微调通道。 E3 指底层影像为真实场景数据，不是本项目设备的现场验证。",
+    "sample_size": 400,
+    "images_root": ".\\ml\\datasets\\public_floatwaste\\images\\test",
+    "labels_root": ".\\ml\\datasets\\public_floatwaste\\labels\\test"
+  },
+  "channel": {
+    "channel": "world",
+    "kind": "open_vocabulary_zero_shot",
+    "model": "YOLO-World",
+    "weights": ".\\yolov8s-worldv2.pt",
+    "weights_sha256": "9b2c17ab6124a913e9b3a5c170617920d91b0f01111a8479da69f00e2cf27792",
+    "prompts": [
+      "plastic bottle",
+      "plastic waste",
+      "garbage",
+      "fishing net",
+      "foam debris",
+      "marine debris",
+      "discarded shoe"
+    ],
+    "imgsz": 1280,
+    "conf_floor": 0.001,
+    "device": "0",
+    "note": "零样本开放词汇：提示词即类别，未在目标数据集上训练。"
+  },
+  "denominators": {
+    "images": 400,
+    "gt_boxes": 1490,
+    "detections": 8495,
+    "images_missing": 0
+  },
+  "elapsed_seconds": 53.0,
+  "claim_boundary": "本结果是**第三方公开数据集**（SC-FloatWaste，非连江海域、非本项目设备）上的独立测试集精度。只能表述为『在公开漂浮垃圾基准上的独立评测精度』；不得表述为『连江现场验证』『真实海域验证』或『本项目设备实测精度』。开放词汇通道为零样本，未使用本测试集训练或调参。",
+  "tag": "floatwaste_test_world_imgsz1280"
+}

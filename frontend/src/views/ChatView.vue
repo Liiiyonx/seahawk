@@ -37,6 +37,41 @@ const HISTORY_PAGE_SIZE = 100
 
 const QUICK_PROMPTS = ['最新事件列表', '今天有多少事件', '平台运营统计']
 
+// 多智能体一键直聊：专家 key 必须与后端 _EXPERT_PERSONAS 一致；颜色仅用于徽章区分
+// greeting/prompts 用于"进入专家会话后主区空态"——点谁就显示谁，不能还是通用助手
+const EXPERTS = [
+  {
+    key: 'data', name: '数据分析师', badge: '数', desc: '统计口径 · 趋势 · 聚类分析', color: '#18a999',
+    greeting: '我是数据分析师，帮你用数据看平台：事件趋势、类别分布、区域对比。',
+    prompts: ['今天的运营统计', '近 7 天事件趋势', '哪类垃圾最多？'],
+  },
+  {
+    key: 'dispatch', name: '外业调度师', badge: '调', desc: '就近派单 · 调度 · 作业窗口', color: '#3b82f6',
+    greeting: '我是外业调度师，帮你把打捞任务派得又快又省。',
+    prompts: ['当前有多少待处理工单？', '给我最近的派单建议', '哪台机器人离得最近？'],
+  },
+  {
+    key: 'env', name: '环境评估师', badge: '环', desc: '污染影响 · 潮汐风向 · 扩散研判', color: '#22c55e',
+    greeting: '我是环境评估师，帮你研判污染影响与垃圾漂移方向。',
+    prompts: ['结合风向判断垃圾漂移？', '近岸聚集风险如何？', '今天适合出海作业吗？'],
+  },
+  {
+    key: 'device', name: '设备运维师', badge: '维', desc: '摄像头 · 机器人 · 无人机排障', color: '#f59e0b',
+    greeting: '我是设备运维师，帮你排查摄像头、机器人、无人机的状态与故障。',
+    prompts: ['设备在线情况如何？', '有哪些设备离线？', '机器人电量状态怎么样？'],
+  },
+  {
+    key: 'law', name: '执法文书员', badge: '法', desc: '处置台账 · 文书模板 · 合规', color: '#a855f7',
+    greeting: '我是执法文书员，帮你整理处置台账与规范文书。',
+    prompts: ['帮我拟一份处置记录模板', '最近的处置台账统计', '处置流程要注意什么？'],
+  },
+  {
+    key: 'emergency', name: '应急响应员', badge: '急', desc: '突发集聚 · 响应分级 · 资源协调', color: '#ef4444',
+    greeting: '我是应急响应员，帮你应对突发垃圾集聚事件。',
+    prompts: ['当前有没有需要紧急处理的事件？', '突发集聚怎么分级响应？', '应急资源怎么协调？'],
+  },
+]
+
 // ---------- 状态 ----------
 const sessions = ref([])
 const sessionsLoading = ref(false)
@@ -61,6 +96,66 @@ const dispatchState = ref({})
 const msgList = ref(null)
 const fileInput = ref(null)
 const composerTextarea = ref(null)
+
+// ---------- 多智能体直聊：会话 ↔ 专家绑定 ----------
+// ref(new Map())：Vue 3 对 Map 集合做了响应式代理，get/set 可被 computed 追踪
+const expertBySession = ref(new Map()) // session_id -> expert key
+const expertBusy = ref('') // 正在为某专家建会话时置 key，防重复点击
+
+const currentExpertKey = computed(() => {
+  const sid = activeSessionId.value
+  if (!sid) return ''
+  const bound = expertBySession.value.get(sid)
+  if (bound) return bound
+  // 刷新页面/直达 ?session= 时内存绑定会丢：从会话标题前缀恢复
+  //（"设备运维师 · 直聊"）—— 否则点专家进去会显示成通用助手
+  const title = sessions.value.find((s) => s.session_id === sid)?.title || ''
+  const hit = EXPERTS.find((e) => e.name && title.startsWith(e.name))
+  return hit ? hit.key : ''
+})
+const currentExpert = computed(
+  () => EXPERTS.find((e) => e.key === currentExpertKey.value) || null,
+)
+
+// 已存在标题以「专家名」开头的会话 → 视为该专家的直聊会话，直接复用（不重复建）
+function findExpertSession(expert) {
+  return sessions.value.find((s) => s.title && s.title.startsWith(expert.name))
+}
+
+async function startExpertChat(expert) {
+  if (expertBusy.value) return
+  const existing = findExpertSession(expert)
+  if (existing) {
+    expertBySession.value.set(existing.session_id, expert.key)
+    if (activeSessionId.value === existing.session_id) {
+      composerTextarea.value?.focus()
+      return
+    }
+    await openSession(existing.session_id)
+    composerTextarea.value?.focus()
+    return
+  }
+  expertBusy.value = expert.key
+  try {
+    const s = await assistantApi.createSession({ title: `${expert.name} · 直聊` })
+    const sid = s?.session_id
+    if (!sid) throw new Error('会话创建失败')
+    // 新会话插到列表头部（按 updated_at 排序本就该在最前）
+    sessions.value = [s, ...sessions.value.filter((x) => x.session_id !== sid)]
+    expertBySession.value.set(sid, expert.key)
+    await openSession(sid)
+    composerTextarea.value?.focus()
+  } catch (err) {
+    pageError.value = err.message || '创建专家会话失败'
+  } finally {
+    expertBusy.value = ''
+  }
+}
+
+function exitExpertMode() {
+  if (!activeSessionId.value) return
+  expertBySession.value.delete(activeSessionId.value)
+}
 
 // ---------- 会话列表 ----------
 async function loadSessions() {
@@ -218,6 +313,8 @@ async function send() {
       text,
       sessionId: activeSessionId.value,
       images: imgs.map((i) => i.file),
+      // 仅当前会话绑定了专家时才传 expert（空串 api 内部不带该字段）
+      expert: currentExpertKey.value,
     })
     // 新会话：服务端已建会话，记录 id 并后台刷新会话列表（标题/时间）
     if (!activeSessionId.value && reply.session_id) {
@@ -609,8 +706,28 @@ onUnmounted(() => {
     <!-- 会话侧栏 -->
     <aside v-show="!sideCollapsed" class="chat__side">
       <div class="chat__side-head">
-        <button class="btn btn--primary chat__new" type="button" @click="newChat">
-          ＋ 新建对话
+        <button class="chat__new" type="button" @click="newChat">
+          <svg class="chat__new-ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          新建对话
+        </button>
+      </div>
+      <!-- 专家智囊团：点卡片一键开启与该专家的直聊 -->
+      <div class="chat__experts">
+        <div class="chat__experts-title">专家智囊团</div>
+        <button
+          v-for="ex in EXPERTS"
+          :key="ex.key"
+          type="button"
+          class="expert"
+          :class="{ 'expert--on': currentExpertKey === ex.key }"
+          :disabled="expertBusy === ex.key"
+          @click="startExpertChat(ex)"
+        >
+          <span class="expert__badge" :style="{ background: ex.color }">{{ ex.badge }}</span>
+          <span class="expert__body">
+            <span class="expert__name">{{ ex.name }}</span>
+            <span class="expert__desc">{{ ex.desc }}</span>
+          </span>
         </button>
       </div>
       <div class="chat__sessions">
@@ -651,26 +768,55 @@ onUnmounted(() => {
           {{ sideCollapsed ? '»' : '«' }}
         </button>
         <span class="chat__topbar-title">智能助手</span>
-        <span class="chat__topbar-hint text-dim">拖入或粘贴图片即可自动检测</span>
+        <div v-if="currentExpert" class="chat__expertbar">
+          <span class="chat__expertbar-badge" :style="{ background: currentExpert.color }">{{ currentExpert.badge }}</span>
+          <span class="chat__expertbar-text">当前专家：{{ currentExpert.name }}</span>
+          <button class="chat__expertbar-exit" type="button" @click="exitExpertMode">退出专家模式</button>
+        </div>
+        <span v-else class="chat__topbar-hint text-dim">拖入或粘贴图片即可自动检测</span>
       </header>
 
       <div ref="msgList" class="chat__messages">
-        <!-- 空状态 -->
+        <div class="chat__stream">
+        <!-- 空状态：专家会话里必须显示该专家的身份，不能还是通用助手 -->
         <div v-if="!messages.length && !historyLoading" class="chat__empty">
-          <div class="chat__empty-logo">✦</div>
-          <p>我是探海灵眸智能助手，可以查询事件、统计运营数据、给出派单建议。</p>
-          <p class="text-dim">直接把海漂垃圾照片拖进来，我会自动检测。</p>
-          <div class="chat__prompts">
-            <button
-              v-for="q in QUICK_PROMPTS"
-              :key="q"
-              type="button"
-              class="chat__prompt"
-              @click="ask(q)"
-            >
-              {{ q }}
-            </button>
-          </div>
+          <template v-if="currentExpert">
+            <div
+              class="chat__empty-logo"
+              :style="{ background: currentExpert.color }"
+            >{{ currentExpert.badge }}</div>
+            <p class="chat__empty-title">{{ currentExpert.name }}</p>
+            <p>{{ currentExpert.greeting }}</p>
+            <p class="text-dim">{{ currentExpert.desc }} —— 直接提问即可，回答将按该专家视角给出。</p>
+            <div class="chat__prompts">
+              <button
+                v-for="q in currentExpert.prompts"
+                :key="q"
+                type="button"
+                class="chat__prompt"
+                @click="ask(q)"
+              >
+                {{ q }}
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="chat__empty-logo">灵</div>
+            <p class="chat__empty-title">我是探海灵眸智能助手</p>
+            <p>可以查询事件、统计运营数据、给出派单建议。</p>
+            <p class="text-dim">直接把海漂垃圾照片拖进来，我会自动检测；或从左侧「专家智囊团」选一位专家，一键开启直聊。</p>
+            <div class="chat__prompts">
+              <button
+                v-for="q in QUICK_PROMPTS"
+                :key="q"
+                type="button"
+                class="chat__prompt"
+                @click="ask(q)"
+              >
+                {{ q }}
+              </button>
+            </div>
+          </template>
         </div>
         <div v-if="historyLoading" class="chat__pad text-dim">正在加载会话…</div>
         <!-- 消息流 -->
@@ -680,6 +826,12 @@ onUnmounted(() => {
           class="msg"
           :class="`msg--${m.role}`"
         >
+          <div
+            v-if="m.role === 'assistant'"
+            class="msg__avatar"
+            :style="currentExpert ? { background: currentExpert.color } : {}"
+            aria-hidden="true"
+          >{{ currentExpert ? currentExpert.badge : '灵' }}</div>
           <div class="msg__bubble">
             <!-- 用户消息 -->
             <template v-if="m.role === 'user'">
@@ -731,6 +883,7 @@ onUnmounted(() => {
             </template>
           </div>
         </div>
+        </div>
       </div>
       <!-- 页面错误条 -->
       <div v-if="pageError" class="chat__err text-danger">⚠ {{ pageError }}</div>
@@ -748,23 +901,45 @@ onUnmounted(() => {
           <button class="composer__voice-close" type="button" @click="dismissMicError">知道了</button>
         </div>
         <div class="composer__row">
-          <button class="composer__attach" type="button" title="添加图片" @click="fileInput?.click()">📎</button>
-          <!-- 语音按钮：不支持 SpeechRecognition 的浏览器（Firefox 绝大多数版本、部分 Safari）保持 disabled 并说明原因 -->
-          <button
-            class="composer__mic"
-            :class="{ 'composer__mic--on': micState === 'listening' }"
-            type="button"
-            :disabled="!speechSupported"
-            :title="voiceButtonHint"
-            :aria-label="voiceButtonHint"
-            :aria-pressed="micState === 'listening'"
-            @click="toggleVoice"
-          >
-            🎤
-          </button>
-          <textarea ref="composerTextarea" v-model="inputText" class="composer__input" rows="1" placeholder="输入消息，或拖入/粘贴图片…" @keydown.enter.exact.prevent="send" @paste="onPaste"></textarea>
-          <button class="btn btn--primary composer__send" type="button" :disabled="sending || (!inputText.trim() && !pendingImages.length)" @click="send">{{ sending ? '发送中…' : '发送' }}</button>
+          <textarea
+            ref="composerTextarea"
+            v-model="inputText"
+            class="composer__input"
+            rows="1"
+            :placeholder="currentExpert ? `向${currentExpert.name}提问…` : '输入消息，或拖入/粘贴图片…'"
+            @keydown.enter.exact.prevent="send"
+            @paste="onPaste"
+          ></textarea>
+          <div class="composer__actions">
+            <button class="composer__icon" type="button" title="添加图片" aria-label="添加图片" @click="fileInput?.click()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M4 17l4.5-4.5 3 3L15 12l5 5"/></svg>
+            </button>
+            <!-- 语音按钮：不支持 SpeechRecognition 的浏览器（Firefox 绝大多数版本、部分 Safari）保持 disabled 并说明原因 -->
+            <button
+              class="composer__icon composer__mic"
+              :class="{ 'composer__mic--on': micState === 'listening' }"
+              type="button"
+              :disabled="!speechSupported"
+              :title="voiceButtonHint"
+              :aria-label="voiceButtonHint"
+              :aria-pressed="micState === 'listening'"
+              @click="toggleVoice"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+            </button>
+            <button
+              class="composer__send"
+              type="button"
+              :disabled="sending || (!inputText.trim() && !pendingImages.length)"
+              :title="sending ? '发送中…' : '发送'"
+              aria-label="发送"
+              @click="send"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>
+            </button>
+          </div>
         </div>
+        <div class="composer__hint">Enter 发送 · Shift+Enter 换行 · 支持拖入或粘贴图片</div>
         <input ref="fileInput" type="file" accept="image/*" multiple hidden @change="onPickFiles" />
       </footer>
     </section>
@@ -772,46 +947,98 @@ onUnmounted(() => {
   </div>
 </template>
 <style scoped>
-.chat { display: flex; height: 100%; position: relative; }
-.chat__side { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--separator); background: var(--bg-panel); }
-.chat__side-head { padding: 10px; border-bottom: 1px solid var(--separator); }
-.chat__new { width: 100%; }
-.chat__sessions { flex: 1; min-height: 0; overflow-y: auto; }
+/* Codex 风格：近黑底、极细分割线、弱化边框、大量留白；强调色用平台青绿 #18a999 */
+.chat {
+  --cx-accent: #18a999;
+  --cx-accent-dim: #12907f;
+  --cx-line: var(--separator);
+  display: flex;
+  height: 100%;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-main);
+}
+
+/* ---------- 侧栏（固定 260px） ---------- */
+.chat__side { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--cx-line); background: var(--bg-panel); }
+.chat__side-head { padding: 12px; }
+.chat__new {
+  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-panel-2); color: var(--text-main); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.chat__new:hover { border-color: var(--cx-accent); color: var(--cx-accent); }
+.chat__new-ico { flex-shrink: 0; }
+
+/* 专家智囊团 */
+.chat__experts { padding: 2px 12px 12px; border-bottom: 1px solid var(--cx-line); }
+.chat__experts-title { font-size: 11px; letter-spacing: 0.08em; color: var(--text-dim); margin: 2px 2px 8px; }
+.expert {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 4px;
+  border: 1px solid transparent; border-radius: 10px; background: transparent; text-align: left; cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.expert:hover { background: var(--bg-hover); }
+.expert:disabled { opacity: 0.5; cursor: progress; }
+.expert--on { background: var(--bg-active); border-color: var(--cx-accent); }
+.expert__badge { width: 28px; height: 28px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; }
+.expert__body { display: flex; flex-direction: column; min-width: 0; }
+.expert__name { font-size: 13px; color: var(--text-main); }
+.expert__desc { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.chat__sessions { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
 .chat__pad { padding: 16px 12px; }
-.sess { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--separator); transition: background var(--dur) var(--ease); }
+.sess { padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background var(--dur) var(--ease); }
 .sess:hover { background: var(--bg-hover); }
 .sess--active { background: var(--bg-active); }
 .sess__title { font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sess__meta { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: var(--text-dim); }
+.sess__meta { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; font-size: 11px; color: var(--text-dim); }
 .sess__del { border: none; background: none; color: var(--text-dim); cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1; }
 .sess__del:hover { color: var(--c-danger); }
 .sess__del--confirm { color: var(--c-danger); font-size: 12px; }
-.chat__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.chat__topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--separator); }
-.chat__collapse { border: 1px solid var(--border); background: var(--bg-panel-2); color: var(--text-sub); cursor: pointer; border-radius: var(--radius); width: 26px; height: 26px; }
-.chat__topbar-title { font-weight: 600; color: var(--text-main); }
+
+/* ---------- 主区 ---------- */
+.chat__main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg-page); }
+.chat__topbar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--cx-line); background: var(--bg-page); }
+.chat__collapse { border: 1px solid var(--border); background: transparent; color: var(--text-sub); cursor: pointer; border-radius: 8px; width: 28px; height: 28px; }
+.chat__collapse:hover { border-color: var(--cx-accent); color: var(--cx-accent); }
+.chat__topbar-title { font-weight: 600; color: var(--text-main); font-size: 14px; }
 .chat__topbar-hint { font-size: 12px; margin-left: auto; }
-.chat__messages { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px; }
-.chat__empty { text-align: center; padding: 48px 16px; color: var(--text-sub); }
-.chat__empty-logo { font-size: 40px; color: var(--c-primary); margin-bottom: 12px; }
-.chat__prompts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.chat__expertbar { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.chat__expertbar-badge { width: 22px; height: 22px; border-radius: 6px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+.chat__expertbar-text { font-size: 12px; color: var(--text-sub); }
+.chat__expertbar-exit { border: 1px solid var(--border); background: transparent; color: var(--text-dim); border-radius: 999px; padding: 3px 10px; font-size: 12px; cursor: pointer; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.chat__expertbar-exit:hover { color: var(--cx-accent); border-color: var(--cx-accent); }
+
+/* ---------- 消息流（居中 760px） ---------- */
+.chat__messages { flex: 1; min-height: 0; overflow-y: auto; }
+.chat__stream { max-width: 760px; margin: 0 auto; padding: 24px 24px 32px; }
+.chat__empty { text-align: center; padding: 56px 16px; color: var(--text-sub); }
+.chat__empty-logo { width: 46px; height: 46px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--cx-accent); color: #fff; font-size: 22px; font-weight: 600; }
+.chat__empty-title { color: var(--text-main); font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.chat__empty p { font-size: 13px; line-height: 1.7; }
+.chat__prompts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
 .chat__prompt { border: 1px solid var(--border); background: var(--bg-panel); color: var(--text-sub); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 13px; transition: all var(--dur) var(--ease); }
-.chat__prompt:hover { border-color: var(--c-primary); color: var(--c-primary); }
-.msg { display: flex; margin-bottom: 14px; }
+.chat__prompt:hover { border-color: var(--cx-accent); color: var(--cx-accent); }
+
+.msg { display: flex; gap: 12px; margin-bottom: 22px; }
 .msg--user { justify-content: flex-end; }
-.msg__bubble { max-width: 78%; padding: 10px 12px; border-radius: var(--radius-lg); background: var(--bg-panel); border: 1px solid var(--panel-border); }
-.msg--user .msg__bubble { background: var(--c-primary-dim); border-color: transparent; }
-.msg__text { white-space: pre-wrap; word-break: break-word; color: var(--text-main); font-size: 14px; line-height: 1.6; }
+.msg__avatar { width: 26px; height: 26px; flex-shrink: 0; margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--cx-accent); color: #fff; font-size: 13px; font-weight: 600; }
+.msg__bubble { min-width: 0; }
+.msg--assistant .msg__bubble { flex: 1; max-width: 100%; }
+.msg--user .msg__bubble { max-width: 76%; padding: 10px 14px; border-radius: 16px 16px 4px 16px; background: var(--bg-panel-2); border: 1px solid var(--panel-border); }
+.msg__text { white-space: pre-wrap; word-break: break-word; color: var(--text-main); font-size: 14px; line-height: 1.7; }
 .msg__imgs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .msg__img { max-width: 160px; max-height: 160px; border-radius: var(--radius); }
 .msg__imgchip { font-size: 12px; margin-bottom: 4px; }
-.msg__meta { margin-top: 6px; font-size: 11px; }
+.msg__meta { margin-top: 8px; font-size: 11px; }
 .msg__thinking { display: flex; align-items: center; gap: 4px; font-size: 13px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); animation: blink 1.2s infinite; }
 .dot:nth-child(2) { animation-delay: 0.2s; }
 .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink { 0%, 80%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
-.blk { margin-top: 8px; }
+.blk { margin-top: 10px; }
 .blk__head { font-size: 12px; margin-bottom: 6px; }
 .det-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .det-item { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-sub); background: var(--bg-panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
@@ -821,47 +1048,57 @@ onUnmounted(() => {
 .ev__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ev__row { font-size: 12px; margin-top: 4px; }
 .evl__row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; color: var(--text-main); cursor: pointer; }
-.evl__row:hover { color: var(--c-primary); }
+.evl__row:hover { color: var(--cx-accent); }
 .evl__time { margin-left: auto; font-size: 12px; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .tile { text-align: center; padding: 8px 4px; background: var(--bg-panel); border-radius: var(--radius); }
-.tile__v { font-size: 18px; font-weight: 600; color: var(--c-primary); }
+.tile__v { font-size: 18px; font-weight: 600; color: var(--cx-accent); }
 .tile__l { font-size: 11px; margin-top: 2px; }
 .dsp__row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); padding: 4px 0; }
 .dsp__hint { font-size: 12px; margin-top: 6px; }
 .dsp__foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .dsp__run { font-size: 12px; }
-.chat__err { padding: 8px 14px; font-size: 13px; border-top: 1px solid var(--separator); }
-.composer { border-top: 1px solid var(--separator); padding: 10px 14px; background: var(--bg-panel); }
-.composer__previews { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.pv { position: relative; }
-.pv__img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border); }
-.pv__del { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; border: none; background: var(--c-danger); color: #fff; font-size: 12px; line-height: 1; cursor: pointer; }
-.composer__row { display: flex; align-items: flex-end; gap: 8px; }
-.composer__attach { border: 1px solid var(--border); background: var(--bg-panel-2); border-radius: var(--radius); width: 36px; height: 36px; cursor: pointer; font-size: 16px; flex-shrink: 0; }
-.composer__mic { border: 1px solid var(--border); background: var(--bg-panel-2); border-radius: var(--radius); width: 36px; height: 36px; cursor: pointer; font-size: 15px; line-height: 1; flex-shrink: 0; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease); }
-.composer__mic:hover:not(:disabled) { border-color: var(--border-bright); background: var(--bg-hover); }
-.composer__mic:disabled { opacity: 0.42; cursor: not-allowed; }
-/* 聆听中用主色描边 + 脉冲环：状态靠"动效"表达，不依赖具体颜色值，浅色/深色主题都成立 */
-.composer__mic--on { border-color: var(--c-primary); background: var(--bg-active); animation: mic-pulse 1.4s ease-out infinite; }
+.chat__err { padding: 8px 20px; font-size: 13px; border-top: 1px solid var(--cx-line); }
+
+/* ---------- 输入区（圆角 composer 悬浮于内容下方） ---------- */
+.composer { flex-shrink: 0; padding: 0 20px 14px; background: var(--bg-page); }
+.composer__row { max-width: 760px; margin: 0 auto; display: flex; align-items: flex-end; gap: 8px; padding: 8px 8px 8px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-panel); transition: border-color var(--dur) var(--ease); }
+.composer__row:focus-within { border-color: var(--cx-accent); }
+.composer__input { flex: 1; min-width: 0; resize: none; max-height: 160px; padding: 6px 0; border: none; background: transparent; color: var(--text-main); font-size: 14px; font-family: inherit; line-height: 1.6; }
+.composer__input:focus { outline: none; }
+.composer__input::placeholder { color: var(--text-dim); }
+.composer__actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.composer__icon { width: 34px; height: 34px; border: none; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+.composer__icon:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-main); }
+.composer__icon:disabled { opacity: 0.42; cursor: not-allowed; }
+/* 聆听中用主色描边 + 脉冲环：状态靠"动效"表达，不依赖具体颜色值 */
+.composer__mic--on { color: var(--cx-accent); background: var(--bg-active); animation: mic-pulse 1.4s ease-out infinite; }
 @keyframes mic-pulse {
   0% { box-shadow: 0 0 0 0 var(--c-primary-glow); }
   70% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
   100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
 }
-.composer__voice { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+.composer__send { width: 34px; height: 34px; border: none; border-radius: 50%; background: var(--cx-accent); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background var(--dur) var(--ease), opacity var(--dur) var(--ease); }
+.composer__send:hover:not(:disabled) { background: var(--cx-accent-dim); }
+.composer__send:disabled { opacity: 0.35; cursor: not-allowed; }
+.composer__previews { max-width: 760px; margin: 0 auto 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.composer__voice { max-width: 760px; margin: 0 auto 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
 .composer__voice-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-danger); flex-shrink: 0; animation: blink 1.2s infinite; }
-.composer__voice-live { color: var(--c-primary); }
+.composer__voice-live { color: var(--cx-accent); }
 .composer__voice--err { justify-content: space-between; }
 .composer__voice-close { border: none; background: none; color: var(--text-dim); cursor: pointer; font-size: 12px; padding: 0; flex-shrink: 0; }
 .composer__voice-close:hover { color: var(--text-sub); }
-.composer__input { flex: 1; min-width: 0; resize: none; max-height: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel-2); color: var(--text-main); font-size: 14px; font-family: inherit; line-height: 1.5; }
-.composer__input:focus { outline: none; border-color: var(--c-primary); }
-.composer__send { flex-shrink: 0; }
-.chat__dropmask { position: absolute; inset: 0; z-index: 10; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.chat__dropbox { border: 2px dashed var(--c-primary); border-radius: var(--radius-xl); padding: 28px 40px; color: var(--c-primary); font-size: 16px; background: var(--bg-panel); }
-/* 窄屏手指触控：语音按钮触控区放大到 40×40，避免误触/点不中 */
-@media (max-width: 620px) {
-  .composer__mic { width: 40px; height: 40px; }
+.composer__hint { max-width: 760px; margin: 8px auto 0; font-size: 11px; color: var(--text-dim); text-align: center; }
+.pv { position: relative; }
+.pv__img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border); }
+.pv__del { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; border: none; background: var(--c-danger); color: #fff; font-size: 12px; line-height: 1; cursor: pointer; }
+.chat__dropmask { position: absolute; inset: 0; z-index: 10; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.chat__dropbox { border: 1.5px dashed var(--cx-accent); border-radius: var(--radius-xl); padding: 28px 40px; color: var(--cx-accent); font-size: 15px; background: var(--bg-panel); }
+
+@media (max-width: 720px) {
+  .chat__side { width: 220px; }
+  .chat__stream { padding: 18px 14px 24px; }
+  .composer { padding: 0 12px 12px; }
+  .msg--user .msg__bubble { max-width: 88%; }
 }
 </style>

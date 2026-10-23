@@ -176,7 +176,7 @@ def arrow(slide, x, y, w, h, *, color=TEAL):
 # 幻灯片内容
 # --------------------------------------------------------------------------
 
-TOTAL = 22
+TOTAL = 24
 
 
 def slide_cover(prs):
@@ -212,18 +212,19 @@ def slide_agenda(prs):
         ("02", "解决方案", "感知—决策—执行—核算的四层架构与三个核心创新"),
         ("03", "技术验证", "自动化测试、智能体评测与软件集成验收"),
         ("04", "应用价值", "对治理主体的价值、可推广性与能力边界"),
+        ("05", "加分项举证", "知识产权 · 用户需求验证 · 成本与供应链调研"),
     ]
-    y = Inches(1.75)
+    y = Inches(1.62)
     for i, (num, title, sub) in enumerate(items):
-        rect(s, Inches(0.85), y, Inches(11.6), Inches(1.06), LIGHT, radius=True)
-        rect(s, Inches(0.85), y, Inches(1.0), Inches(1.06), NAVY)
-        textbox(s, Inches(0.85), y + Inches(0.29), Inches(1.0), Inches(0.5),
-                num, size=25, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
-        textbox(s, Inches(2.15), y + Inches(0.2), Inches(9.9), Inches(0.4),
-                title, size=19, color=NAVY, bold=True)
-        textbox(s, Inches(2.15), y + Inches(0.6), Inches(9.9), Inches(0.36),
-                sub, size=13, color=GRAY)
-        y += Inches(1.22)
+        rect(s, Inches(0.85), y, Inches(11.6), Inches(0.92), LIGHT, radius=True)
+        rect(s, Inches(0.85), y, Inches(1.0), Inches(0.92), NAVY)
+        textbox(s, Inches(0.85), y + Inches(0.22), Inches(1.0), Inches(0.5),
+                num, size=22, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
+        textbox(s, Inches(2.15), y + Inches(0.15), Inches(9.9), Inches(0.4),
+                title, size=17.5, color=NAVY, bold=True)
+        textbox(s, Inches(2.15), y + Inches(0.52), Inches(9.9), Inches(0.34),
+                sub, size=12.5, color=GRAY)
+        y += Inches(1.04)
     return s
 
 
@@ -1019,6 +1020,133 @@ def slide_limits(prs):
     return s
 
 
+def slide_ip(prs):
+    s = blank(prs)
+    header(s, "05 加分项举证", "知识产权：已形成 5 项软件著作权登记材料", 21, TOTAL)
+    textbox(s, Inches(0.62), Inches(1.6), Inches(12.1), Inches(0.36),
+            "作品方案覆盖的五条子系统分别独立成篇，每项均含「文档鉴别材料（软件说明书）」"
+            "与「程序鉴别材料（源程序）」两部分，篇间不重复。",
+            size=13, color=GRAY, spacing=1.2)
+
+    items = [
+        ("海洋环境治理智能体", "主平台：事件接入 · 智能体调度 · 治理闭环"),
+        ("海漂垃圾边缘智能感知", "感知链路：检测 · 时序验证 · 事件生成"),
+        ("海洋治理智能体决策与审批", "决策内核：Planner · Policy · 审批 · 回放"),
+        ("海域治理三维数字沙盘", "态势呈现：三维沙盘 · 轨迹 · 点位联动"),
+        ("水面垃圾打捞机械臂控制", "执行末端：视觉伺服 · 抓取闭环 · 状态回传"),
+    ]
+    cw = Inches(2.32)
+    x = Inches(0.62)
+    for name, desc in items:
+        rect(s, x, Inches(2.12), cw, Inches(2.6), LIGHT, radius=True)
+        rect(s, x, Inches(2.12), cw, Inches(0.05), TEAL)
+        textbox(s, x + Inches(0.2), Inches(2.34), cw - Inches(0.4), Inches(1.0),
+                name, size=13, color=NAVY, bold=True, spacing=1.15)
+        textbox(s, x + Inches(0.2), Inches(3.42), cw - Inches(0.4), Inches(1.2),
+                desc, size=10.5, color=GRAY, spacing=1.2)
+        x += cw + Inches(0.12)
+
+    rect(s, Inches(0.62), Inches(5.14), Inches(12.1), Inches(1.86),
+         RGBColor(0xE9, 0xF6, 0xEF), radius=True)
+    rect(s, Inches(0.62), Inches(5.14), Inches(0.06), Inches(1.86), GREEN)
+    textbox(s, Inches(0.92), Inches(5.32), Inches(11.6), Inches(0.34),
+            "这份材料的价值：产权边界清晰", size=15, color=GREEN, bold=True)
+    textbox(s, Inches(0.92), Inches(5.72), Inches(11.6), Inches(1.1),
+            "五条子系统各自成篇，说明书与源程序一一对应，评审可以按篇核对"
+            "「哪段代码支撑哪个能力」，而不是面对一坨无法归属的代码。\n"
+            "当前 5 项均处于软件著作权登记申请流程中，登记材料（文档 + 源程序）已完成编制，可随时提供核验。",
+            size=12, color=DARK, spacing=1.3)
+    return s
+
+
+def slide_user_research(prs):
+    s = blank(prs)
+    header(s, "05 加分项举证", "需求验证：来自县级主管部门的一线访谈", 22, TOTAL)
+
+    rect(s, Inches(0.62), Inches(1.62), Inches(12.1), Inches(1.0), NAVY, radius=True)
+    textbox(s, Inches(0.95), Inches(1.74), Inches(11.4), Inches(0.32),
+            "访谈对象：县级海洋与渔业局 相关业务部门", size=13.5, color=WHITE, bold=True)
+    textbox(s, Inches(0.95), Inches(2.1), Inches(11.4), Inches(0.34),
+            "微信文字访谈 · 约 40 分钟 · 2026 年 10 月 · 全程截图存档（5 张） · 证据等级 E3 起点",
+            size=12, color=RGBColor(0xC9, 0xE4, 0xF0))
+    textbox(s, Inches(0.95), Inches(2.42), Inches(11.4), Inches(0.3),
+            "访谈目的：核实海漂垃圾治理的实际流程、发现方式、成本与考核口径、采购付费模式",
+            size=11, color=RGBColor(0x9F, 0xC4, 0xD8))
+
+    cards = [
+        ("痛点证实",
+         "现有模式为「人工巡查 + 视频监控」发现；海边受风向影响，垃圾多从其他县区飘入、大风时堆积；"
+         "县级层面即无确切清运量与费用台账。", RED),
+        ("需求验证",
+         "对「海上垃圾自动识别 + 清理」明确表态：乡镇「肯定非常的认可」；"
+         "同时提示需区分海上垃圾与沙滩礁石垃圾两类场景。", TEAL),
+        ("采购口径校准",
+         "现行采购为全县域 13 个乡镇「全年总包制」；我方按点位监测费 + 按吨清理费的测算价，"
+         "可作为总包定价的分解参考。", OCEAN),
+        ("下一步动作",
+         "向专业清理企业 / 劳务方询价以校准成本口径；向生态环境部门核实上级考核材料口径，"
+         "补齐成本证据链。", ACCENT),
+    ]
+    cw = Inches(2.92)
+    x = Inches(0.62)
+    for name, body, col in cards:
+        rect(s, x, Inches(2.78), cw, Inches(3.5), LIGHT, radius=True)
+        rect(s, x, Inches(2.78), cw, Inches(0.38), col)
+        textbox(s, x, Inches(2.85), cw, Inches(0.28), name,
+                size=13, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
+        textbox(s, x + Inches(0.2), Inches(3.28), cw - Inches(0.4), Inches(2.86),
+                body, size=11, color=GRAY, spacing=1.22)
+        x += cw + Inches(0.14)
+
+    footer(s, "需求不是替用户想象的：立项三个痛点（发现滞后、成效难量化、付费口径不明）均由真实用户侧证实；"
+              "文中引用统一标注为「县级海渔部门访谈（2026.10）」。")
+    return s
+
+
+def slide_cost_supply(prs):
+    s = blank(prs)
+    header(s, "05 加分项举证", "成本与供应链调研：13 家供应商 · 15 份询价", 23, TOTAL)
+
+    chips = [("供应商", "13 家"), ("询价记录", "15 份"), ("核心部件", "5 类"), ("盖章报价单", "2 份")]
+    x = Inches(0.62)
+    for label, value in chips:
+        chip(s, x, Inches(1.68), Inches(2.92), Inches(1.0), label, value, color=OCEAN)
+        x += Inches(3.06)
+
+    textbox(s, Inches(0.62), Inches(2.92), Inches(12.1), Inches(0.34),
+            "样机选型要点（暂定，供集成参考）", size=15, color=NAVY, bold=True)
+    rows = [
+        ("边缘计算盒", "触想智能 CX3588-Z　¥1,700 / 台",
+         "6TOPS NPU · -20~70℃ 宽温 · 定制三防（防盐雾/潮/尘） · 已取得正式盖章报价单", TEAL),
+        ("船体·推进器·电池", "浙江蓝舶整船方案　¥1,550 + ¥960 + ¥1,780",
+         "2.2m 折叠船 + 48 磅推进器 + 12V100A 磷酸电池，单一供应商打包，含盖章报价单", OCEAN),
+        ("摄像头", "明远 400 万 IPC 模组　¥135 / 个（含税）",
+         "固定点位可用；船载耐盐雾相机需求已提交，待书面报价后补入", OCEAN),
+        ("备选电池", "亿森能 51.2V　¥3,530 / ¥4,200 / ¥6,340",
+         "48 / 60 / 96Ah 三档，用于大容量续航方案", OCEAN),
+    ]
+    y = Inches(3.36)
+    for name, price, note, col in rows:
+        rect(s, Inches(0.62), y, Inches(2.6), Inches(0.66), NAVY, radius=True)
+        textbox(s, Inches(0.62), y + Inches(0.18), Inches(2.6), Inches(0.3),
+                name, size=11.5, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
+        rect(s, Inches(3.32), y, Inches(4.5), Inches(0.66), LIGHT, radius=True)
+        textbox(s, Inches(3.5), y + Inches(0.18), Inches(4.2), Inches(0.3),
+                price, size=11.5, color=NAVY, bold=True)
+        textbox(s, Inches(7.92), y + Inches(0.1), Inches(4.8), Inches(0.5),
+                note, size=10.5, color=GRAY, spacing=1.12)
+        y += Inches(0.76)
+
+    rect(s, Inches(0.62), Inches(6.48), Inches(12.1), Inches(0.52),
+         RGBColor(0xFD, 0xF3, 0xE7), radius=True)
+    rect(s, Inches(0.62), Inches(6.48), Inches(0.06), Inches(0.52), ACCENT)
+    textbox(s, Inches(0.92), Inches(6.57), Inches(11.6), Inches(0.36),
+            "口径声明：报价均为供应商询价结果，非成交价、非最终采购价；含税口径与交期以供应商报价为准；"
+            "15 份原始记录（截图 / PDF）可溯源、可复核。",
+            size=10.5, color=DARK)
+    return s
+
+
 def slide_ending(prs):
     s = blank(prs, bg=NAVY)
     rect(s, 0, 0, Inches(0.22), H, TEAL)
@@ -1046,7 +1174,9 @@ BUILDERS = [
     slide_architecture, slide_stack, slide_innovation1, slide_innovation2,
     slide_llm_role, slide_tools, slide_evidence_chain, slide_hardware,
     slide_compute, slide_validation, slide_evidence_level, slide_dataset,
-    slide_value, slide_social, slide_demo, slide_limits, slide_ending,
+    slide_value, slide_social, slide_demo, slide_limits,
+    slide_ip, slide_user_research, slide_cost_supply,
+    slide_ending,
 ]
 
 

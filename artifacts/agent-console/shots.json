@@ -1,0 +1,25 @@
+{
+  "frontend": "http://127.0.0.1:5199",
+  "backend": "http://127.0.0.1:8012",
+  "shots": [
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-full.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-agents-root.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-runs.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-tools.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\run-steps-viewport.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\run-steps.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\run-policy-denied-viewport.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\run-policy-denied.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-approvals.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-approvals-viewport.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\agent-console\\console-approvals-panel.png"
+  ],
+  "operator": {
+    "rowCount": 10,
+    "pendingApprovals": 5
+  },
+  "approver": {
+    "pending": 5,
+    "decided": 8
+  }
+}

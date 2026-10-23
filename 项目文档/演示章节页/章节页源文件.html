@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>探海灵眸 · 章节页</title>
+<style>
+  :root{
+    --ink:#0A3D62;      /* 深青 · 主文字 */
+    --blue:#0B6BB8;     /* 主蓝 */
+    --sky:#7FB3D8;      /* 浅蓝 */
+    --gray:#5B7A99;     /* 灰蓝 · 副文字 */
+    --line:#C9DFEF;     /* 细线 */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif;background:#DDE9F2}
+  .page{display:none;width:1920px;height:1080px;position:relative;overflow:hidden;
+    background:linear-gradient(155deg,#FDFEFF 0%,#F2F8FC 55%,#E6F1F9 100%)}
+  .page.active{display:block}
+
+  /* ── 通用装饰层 ─────────────────────────── */
+  .waves{position:absolute;left:0;right:0;bottom:0;height:430px;pointer-events:none}
+  .bignum{position:absolute;top:-90px;right:30px;font-size:560px;font-weight:100;
+    line-height:1;color:rgba(11,107,184,.075);letter-spacing:-20px;user-select:none}
+  .dots{position:absolute;top:96px;right:120px;width:340px;height:220px;opacity:.5;
+    background-image:radial-gradient(circle,rgba(11,107,184,.22) 1.6px,transparent 1.6px);
+    background-size:26px 26px}
+  .topbar{position:absolute;top:64px;left:140px;right:140px;display:flex;
+    justify-content:space-between;align-items:center}
+  .brand{display:flex;align-items:center;gap:14px;font-size:22px;font-weight:600;
+    color:var(--ink);letter-spacing:2px}
+  .brand .mark{width:34px;height:34px;border-radius:50%;position:relative;flex:none;
+    background:linear-gradient(135deg,var(--blue),var(--sky))}
+  .brand .mark::after{content:'';position:absolute;inset:5px;border-radius:50%;
+    border:2.5px solid #fff;border-top-color:transparent;transform:rotate(-35deg)}
+  .brand em{font-style:normal;color:var(--blue);font-weight:300;letter-spacing:4px}
+  .topright{font-size:19px;letter-spacing:5px;color:var(--gray);font-weight:300}
+  .baseline{position:absolute;left:140px;right:140px;bottom:58px;display:flex;
+    justify-content:space-between;align-items:center;font-size:19px;color:var(--gray);
+    letter-spacing:3px;border-top:1px solid var(--line);padding-top:26px;font-weight:300}
+  .baseline b{font-weight:600;color:var(--ink);letter-spacing:2px}
+
+  /* ── 章节页主体（左对齐版式）────────────── */
+  .content{position:absolute;left:140px;bottom:190px;max-width:1300px}
+  .eyebrow{display:flex;align-items:center;gap:18px;font-size:24px;font-weight:600;
+    color:var(--blue);letter-spacing:7px;margin-bottom:34px}
+  .eyebrow::before{content:'';width:52px;height:4px;background:var(--blue);flex:none}
+  .eyebrow span{color:var(--gray);font-weight:300;letter-spacing:5px}
+  h1{font-size:118px;font-weight:700;color:var(--ink);line-height:1.12;
+    letter-spacing:4px;margin-bottom:38px}
+  .sub{font-size:33px;color:var(--gray);font-weight:300;letter-spacing:2px;line-height:1.6}
+
+  /* ── 片名页 / 结尾页（居中版式）────────── */
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center}
+  .kicker{font-size:23px;letter-spacing:12px;color:var(--gray);font-weight:300;
+    margin-bottom:46px}
+  .bigname{font-size:185px;font-weight:700;color:var(--ink);letter-spacing:26px;
+    line-height:1;text-indent:26px}
+  .engname{font-size:54px;font-weight:100;color:var(--blue);letter-spacing:34px;
+    text-indent:34px;margin-top:26px}
+  .divider{width:120px;height:4px;background:var(--blue);margin:58px auto 50px}
+  .tagline{font-size:36px;color:var(--ink);font-weight:400;letter-spacing:6px}
+  .tagline span{color:var(--gray);font-weight:300}
+  .outro-slogan{font-size:46px;color:var(--ink);letter-spacing:8px;font-weight:400;
+    margin-bottom:14px}
+  .outro-slogan span{color:var(--blue);font-weight:600}
+  .badge{margin-top:70px;display:flex;align-items:center;gap:22px;font-size:23px;
+    color:var(--gray);letter-spacing:4px;font-weight:300}
+  .badge::before,.badge::after{content:'';width:70px;height:1px;background:var(--line)}
+</style>
+</head>
+<body>
+
+<!-- ════ 片名页 ════ -->
+<section class="page" data-p="title">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g1)" opacity=".55"/>
+      <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="center">
+    <div class="kicker">MULTI-AGENT COASTAL WASTE GOVERNANCE</div>
+    <div class="bigname">探海灵眸</div>
+    <div class="engname">O C E A N U S</div>
+    <div class="divider"></div>
+    <div class="tagline">多智能体近岸垃圾治理平台 <span>·</span> 演示成片</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>从发现到处置 · 全链路智能协同</span></div>
+</section>
+
+<!-- ════ 第一章 · 问题 ════ -->
+<section class="page" data-p="1">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g2)" opacity=".55"/>
+      <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="bignum">01</div><div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="content">
+    <div class="eyebrow">CHAPTER 01 <span>· THE PROBLEM</span></div>
+    <h1>近岸垃圾之困</h1>
+    <div class="sub">发现靠人、处置靠等 —— 传统治理方式跟不上垃圾涌入的速度</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 01 / 05</span></div>
+</section>
+
+<!-- ════ 第二章 · 平台 ════ -->
+<section class="page" data-p="2">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g3)" opacity=".55"/>
+      <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="bignum">02</div><div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="content">
+    <div class="eyebrow">CHAPTER 02 <span>· THE PLATFORM</span></div>
+    <h1>一屏观全局</h1>
+    <div class="sub">五路实时视频流，事件、工单、设备、报表 —— 尽在一张监测大屏</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 02 / 05</span></div>
+</section>
+
+<!-- ════ 第三章 · 人机协同 ════ -->
+<section class="page" data-p="3">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g4)" opacity=".55"/>
+      <defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="bignum">03</div><div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="content">
+    <div class="eyebrow">CHAPTER 03 <span>· HUMAN IN THE LOOP</span></div>
+    <h1>人机协同 · 审批把关</h1>
+    <div class="sub">高风险写入操作必须人工批准 —— 批准之前，智能体不敢动一步</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 03 / 05</span></div>
+</section>
+
+<!-- ════ 第四章 · 安全底线 ════ -->
+<section class="page" data-p="4">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g5)" opacity=".55"/>
+      <defs><linearGradient id="g5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="bignum">04</div><div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="content">
+    <div class="eyebrow">CHAPTER 04 <span>· SAFETY GUARDRAIL</span></div>
+    <h1>证据不足 · 主动拦截</h1>
+    <div class="sub">先查政策依据，再下研判结论 —— 不该自动派的单，一张都不会派出去</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 04 / 05</span></div>
+</section>
+
+<!-- ════ 第五章 · 软硬闭环 ════ -->
+<section class="page" data-p="5">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g6)" opacity=".55"/>
+      <defs><linearGradient id="g6" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="bignum">05</div><div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="content">
+    <div class="eyebrow">CHAPTER 05 <span>· PLUGGABLE EXECUTION</span></div>
+    <h1>软硬闭环 · 从决策到执行</h1>
+    <div class="sub">同一套任务与消息契约 —— 无人机、水面机器人、机械臂皆可插拔</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>CHAPTER 05 / 05</span></div>
+</section>
+
+<!-- ════ 结尾标版 ════ -->
+<section class="page" data-p="outro">
+  <div class="waves">
+    <svg viewBox="0 0 1920 430" preserveAspectRatio="none" width="100%" height="100%">
+      <path d="M0,285 C240,245 460,330 720,310 C980,290 1180,230 1440,255 C1660,276 1800,310 1920,290" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".45"/>
+      <path d="M0,335 C240,300 500,375 760,355 C1020,335 1200,282 1460,305 C1670,323 1810,352 1920,338" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".28"/>
+      <path d="M0,385 C260,358 520,420 780,402 C1040,384 1220,336 1470,355 C1690,371 1830,398 1920,388" fill="none" stroke="#0B6BB8" stroke-width="1.5" opacity=".14"/>
+      <path d="M0,430 L0,300 C240,268 470,348 720,330 C980,312 1180,255 1440,278 C1660,298 1800,330 1920,312 L1920,430 Z" fill="url(#g7)" opacity=".55"/>
+      <defs><linearGradient id="g7" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BFDCEF" stop-opacity=".35"/><stop offset="1" stop-color="#BFDCEF" stop-opacity=".08"/>
+      </linearGradient></defs>
+    </svg>
+  </div>
+  <div class="dots"></div>
+  <div class="topbar"><div class="brand"><div class="mark"></div>探海灵眸 <em>OCEANUS</em></div><div class="topright">DEMO FILM · 2026</div></div>
+  <div class="center">
+    <div class="kicker">OCEANUS · MULTI-AGENT PLATFORM</div>
+    <div class="outro-slogan">有据可依 <span>·</span> 有人把关 <span>·</span> 有迹可循</div>
+    <div class="divider"></div>
+    <div class="tagline" style="font-size:30px">让每一次近岸垃圾处置，都有完整的智能协同闭环</div>
+    <div class="badge">探海灵眸 · 2026 演示成片</div>
+  </div>
+  <div class="baseline"><b>探海灵眸 OCEANUS</b><span>THANKS FOR WATCHING</span></div>
+</section>
+
+<script>
+  const p = new URLSearchParams(location.search).get('p') || 'all';
+  document.querySelectorAll('.page').forEach(el=>{
+    el.classList.toggle('active', p==='all' || el.dataset.p===p);
+  });
+</script>
+</body>
+</html>

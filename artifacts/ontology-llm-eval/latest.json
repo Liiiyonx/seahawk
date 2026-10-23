@@ -1,0 +1,23 @@
+{
+  "artifact_type": "ontology_llm_channel_eval",
+  "generated_at": "2026-10-23T18:10:50.645161+00:00",
+  "corpus": "internal synthetic governance corpus（与 R-KN-02 同一语料）",
+  "honest_boundary": [
+    "scripted 模式只验证通道机制（校验/过滤/去重/兜底），不代表任何模型质量；",
+    "real 模式的数字来自所配模型在内部合成语料上的表现，非真实脱敏行业数据；",
+    "规则通道的历史评测数字（R-KN-02）不因本评测改变。"
+  ],
+  "scripted": {
+    "mechanics": {
+      "channel": "llm",
+      "llm_nodes_kept": 12,
+      "rule_nodes_filled": 18,
+      "junk_terms_leaked": [],
+      "llm_relations_kept": 1,
+      "llm_relations_all_valid_type": true,
+      "duplicate_reverse_relations": 0,
+      "fallback_reason": null
+    },
+    "passed": true
+  }
+}

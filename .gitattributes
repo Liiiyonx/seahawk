@@ -1,0 +1,14 @@
+# ============================================================
+# 行尾与可执行位（针对机械臂真机部署）
+# ============================================================
+# 为什么必须有这一条：本仓库在 Windows 上开发（core.autocrlf=true），
+# 而 `edge/grasp/deploy/run_autopick.sh` 是**在树莓派 Linux 上直接执行**的。
+# 少了这个声明，shell 脚本被 checkout 成 CRLF，Linux 下 bash 会报
+#     bash: run_autopick.sh: /bin/bash^M: bad interpreter: No such file or directory
+# —— 现场表现为「服务起了又立刻失败」，而脚本内容看着完全正常。
+# `git update-index --chmod=+x` 只把模式记在索引里，文件内容一行没变，
+# 靠它来防 CRLF 是防不住的；必须在这里声明。
+*.sh text eol=lf
+
+# systemd 单元不是脚本，但同样要求 LF（CRLF 会让 systemd 解析报错）
+edge/grasp/deploy/systemd/*.service text eol=lf

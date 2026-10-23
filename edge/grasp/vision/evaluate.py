@@ -101,8 +101,15 @@ def evaluate(
 
     names = getattr(results, "names", {}) or {}
     per_class: dict[str, dict[str, float]] = {}
-    maps = list(getattr(box, "maps", []) or [])
-    ap_index = list(getattr(box, "ap_class_index", []) or [])
+    # ★ 不能写 `getattr(box, "maps", []) or []`：maps 是 numpy 数组，`array or []`
+    #   会交给 numpy 判真值，元素多于一个就抛 "truth value of an array ... is
+    #   ambiguous"。单类模型恰好只有一个元素（size-1 数组可判真值）所以从没暴露；
+    #   换成 2 类（塑料袋子 + 浮标负类）后必炸 —— 训练全跑完、ONNX 也导出了，
+    #   却在最后一步评估崩掉，是很贵的失败。显式判 None 才是对的。
+    maps_attr = getattr(box, "maps", None)
+    maps = [float(v) for v in maps_attr] if maps_attr is not None else []
+    ap_attr = getattr(box, "ap_class_index", None)
+    ap_index = list(ap_attr) if ap_attr is not None else []
     for slot, cls_idx in enumerate(ap_index):
         name = names.get(int(cls_idx), str(cls_idx))
         per_class[name] = {
@@ -125,14 +132,27 @@ def evaluate(
     return metrics
 
 
-def passes(metrics: dict[str, Any], min_map50: float, min_recall: float = 0.0) -> tuple[bool, str]:
-    """部署门禁判断，返回 (是否通过, 原因)。"""
+def passes(metrics: dict[str, Any], min_map50: float, min_recall: float = 0.0,
+           min_precision: float = 0.0) -> tuple[bool, str]:
+    """部署门禁判断，返回 (是否通过, 原因)。
+
+    ★ 这是**唯一**的门禁实现：CLI（``finetune_pool.py``）、控制台训练后的评估、
+    控制台部署，三处都调它。精确率是机械臂场景的主指标（误抓代价高），
+    口径若在三处各写一遍，漂移一次就是「门禁说通过、其实不该抓」。
+
+    ``min_precision`` 默认 0.0（不卡）：既有调用点的行为与测试口径都不变，
+    想要精确率门禁的地方显式传值 —— 不做静默决策。
+    """
     map50 = float(metrics.get("map50") or 0.0)
     recall = float(metrics.get("recall") or 0.0)
+    precision = float(metrics.get("precision") or 0.0)
     if map50 < min_map50:
         return False, f"mAP50 {map50:.3f} 低于门禁 {min_map50:.3f}"
     if recall < min_recall:
         return False, f"召回 {recall:.3f} 低于门禁 {min_recall:.3f}"
+    if precision < min_precision:
+        return False, (f"精确率 {precision:.3f} 低于门禁 {min_precision:.3f}"
+                       f"（机械臂误抓代价高，精确率是主指标）")
     return True, f"mAP50 {map50:.3f} ≥ 门禁 {min_map50:.3f}"
 
 

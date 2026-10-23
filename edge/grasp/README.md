@@ -232,6 +232,29 @@ HSV 只作**辅证**：水面反光会破坏颜色稳定性，主判据始终是
 
 ## 快速开始
 
+### 真机一键自动抓取（识别 → 抓取 → 入槽，无需平台派单）
+
+树莓派上「开机后机械臂自己捡」是**一条命令**：
+
+```bash
+bash edge/grasp/deploy/run_autopick.sh          # 起厂商 ROS 节点 + 等话题就绪 + 自检 + 常驻自捡
+bash edge/grasp/deploy/run_autopick.sh --check  # 只做前置检查，不动机械臂（排障第一条）
+sudo systemctl enable --now oceanus-arm-autopick  # 交给 systemd，开机自启
+```
+
+开发机一侧的打包与部署也固化成了脚本（含 38MB 模型，默认只验证不动臂）：
+
+```powershell
+python scripts\deploy_autopick_to_pi.py --host 192.168.149.1 --dry-run   # 先看要拷什么
+python scripts\deploy_autopick_to_pi.py --host 192.168.149.1             # 部署 + 只读验证
+python scripts\deploy_autopick_to_pi.py --host 192.168.149.1 --apply     # 确认后才真开跑
+```
+
+> ★ 为什么需要 `run_autopick.sh` 这一层：`supervisor` 本身**不启动厂商 ROS 节点**，
+> 以前 `ExecStart` 直接跑 supervisor，板子重启后没人起那三组 launch，
+> 于是拿不到 ROS 链路、按设计 exit 2 —— 表现为「服务 failed、机械臂一动不动」。
+> 详见 **[deploy/README.md](deploy/README.md)**（含退出码语义、首次跑通清单、排障对照表）。
+
 ### 开发机（无 ROS，合成画面跑通 UI）
 
 ```bash

@@ -21,7 +21,7 @@ mAP 高但精确率低，等于"检出的一半是误报"，现场就是机械�
 * 图：``edge/grasp/data/public_plastic/images/test``（官方 val 划分，400 张）
 * 真值：``ml/datasets/public_floatwaste/labels_contract4/test``（4 类，
   用于区分"塑料袋"与"其他物体"）
-* 模型：默认用**已部署的** ``models/active/best.onnx``（测的就是实际在用的那个）
+* 模型：默认用**在用的** ``models/active/best.onnx``（测的就是实际在用的那个）
 
 > ⚠️ 结论仍是**公开数据集上的表现**，不是现场结论。彩色圆块是合成注入，
 > 只能证明"模型对这类高饱和色块的敏感度"，不能替代现场彩色浮标的真实测试。
@@ -52,46 +52,20 @@ import numpy as np  # noqa: E402
 
 from grasp.config import load_config  # noqa: E402
 from grasp.vision.detector import Detector  # noqa: E402
+# ★ 匹配口径统一来自 grasp/vision/metrics.py：本工具与部署链路扫描（sweep.py）必须
+#   共用同一套 IoU/贪心匹配，否则同一份预测两处算出两个数，谁也说不清谁对。
+from grasp.vision.metrics import (  # noqa: E402
+    SCAN_FLOOR,
+    iou,
+    load_yolo_gt,
+    match,
+    scan_rows,
+)
 
 CONTRACT4_NAMES = ("foam", "plastic", "fishing_gear", "other")
 PLASTIC_IDX = CONTRACT4_NAMES.index("plastic")
 DEFAULT_IMG_DIR = GRASP_DIR / "data" / "public_plastic" / "images" / "test"
 DEFAULT_GT_DIR = REPO_ROOT / "ml" / "datasets" / "public_floatwaste" / "labels_contract4" / "test"
-
-#: 扫阈值时使用的模型侧下限（要拿到完整 PR 曲线，必须比任何工作点都低）
-SCAN_FLOOR = 0.05
-
-
-def _iou(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
-    ax1, ay1, ax2, ay2 = a
-    bx1, by1, bx2, by2 = b
-    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
-    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
-    iw, ih = max(0.0, ix2 - ix1), max(0.0, iy2 - iy1)
-    inter = iw * ih
-    if inter <= 0:
-        return 0.0
-    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
-    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
-    union = area_a + area_b - inter
-    return inter / union if union > 0 else 0.0
-
-
-def load_gt(lbl_path: Path, w: int, h: int) -> dict[int, list[tuple[float, float, float, float]]]:
-    """读 4 类真值，返回 {类索引: [xyxy 像素]}。"""
-    out: dict[int, list[tuple[float, float, float, float]]] = {}
-    if not lbl_path.exists():
-        return out
-    for line in lbl_path.read_text(encoding="utf-8").splitlines():
-        parts = line.split()
-        if len(parts) != 5:
-            continue
-        ci = int(parts[0])
-        cx, cy, bw, bh = (float(x) for x in parts[1:])
-        x1, y1 = (cx - bw / 2) * w, (cy - bh / 2) * h
-        x2, y2 = (cx + bw / 2) * w, (cy + bh / 2) * h
-        out.setdefault(ci, []).append((x1, y1, x2, y2))
-    return out
 
 
 def inject_color_blobs(img: Any, rng: np.random.Generator, count: int = 4) -> Any:
@@ -112,29 +86,6 @@ def inject_color_blobs(img: Any, rng: np.random.Generator, count: int = 4) -> An
         cv2.circle(out, (cx, cy), r, (250, 250, 250), 2)
         cv2.circle(out, (cx - r // 3, cy - r // 3), max(2, r // 4), (255, 255, 255), -1)
     return out
-
-
-def match(preds: list[tuple[float, tuple]], gts: list[tuple], iou_thr: float) -> tuple[int, list[int]]:
-    """贪心匹配（按 conf 降序）。返回 (TP 数, 未匹配的 pred 下标)。"""
-    order = sorted(range(len(preds)), key=lambda i: -preds[i][0])
-    used = [False] * len(gts)
-    tp = 0
-    unmatched: list[int] = []
-    for pi in order:
-        box = preds[pi][1]
-        best_j, best_iou = -1, 0.0
-        for j, g in enumerate(gts):
-            if used[j]:
-                continue
-            v = _iou(box, g)
-            if v > best_iou:
-                best_iou, best_j = v, j
-        if best_j >= 0 and best_iou >= iou_thr:
-            used[best_j] = True
-            tp += 1
-        else:
-            unmatched.append(pi)
-    return tp, unmatched
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -184,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
         if img is None:
             continue
         h, w = img.shape[:2]
-        gt = load_gt(gt_dir / f"{p.stem}.txt", w, h)
+        gt = load_yolo_gt(gt_dir / f"{p.stem}.txt", w, h)
         preds = [(d.conf, (d.x1, d.y1, d.x2, d.y2)) for d in det.infer(img)]
         raw.append({"name": p.name, "w": w, "h": h, "gt": gt, "preds": preds,
                     "n_preds": len(preds)})
@@ -196,21 +147,11 @@ def main(argv: list[str] | None = None) -> int:
     # ---------- 1) 阈值扫描 ----------
     thresholds = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50,
                   0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]
-    rows = []
-    for t in thresholds:
-        tp = fp = 0
-        for r in raw:
-            preds = [(c, b) for c, b in r["preds"] if c >= t]
-            n_tp, unmatched = match(preds, r["gt"].get(PLASTIC_IDX, []), args.iou)
-            tp += n_tp
-            fp += len(unmatched)
-        fn = n_gt_plastic - tp
-        prec = tp / (tp + fp) if (tp + fp) else 0.0
-        rec = tp / (tp + fn) if (tp + fn) else 0.0
-        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
-        rows.append({"conf": t, "tp": tp, "fp": fp, "fn": fn,
-                     "precision": round(prec, 4), "recall": round(rec, 4),
-                     "f1": round(f1, 4)})
+    # 本工具的「误检」不分桶（它的归因在第 2 步单独做），所以 split_fp_by_other=False；
+    # 再把行投影回历史字段，保证 JSON 形态与本工具改造前逐字一致。
+    rows = [{k: r[k] for k in ("conf", "tp", "fp", "fn", "precision", "recall", "f1")}
+            for r in scan_rows(raw, thresholds=thresholds, iou=args.iou,
+                               target_idx=PLASTIC_IDX, split_fp_by_other=False)]
 
     print("\n[1] 阈值扫描（精度优先看 precision，别只看 mAP）")
     print("  conf |   TP |   FP |   FN |    P   |    R   |   F1")
@@ -249,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
             box = preds[pi][1]
             hit = None
             for ci, g in others:
-                if _iou(box, g) >= 0.30:
+                if iou(box, g) >= 0.30:
                     hit = ci
                     break
             if hit is None:

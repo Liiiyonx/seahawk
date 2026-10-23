@@ -254,13 +254,14 @@ export const agentsApi = {
 export const assistantApi = {
   /**
    * 一轮对话：文字 + 0..n 张图片（multipart/form-data）。
-   * images 为 File 数组；后端逐张做 OpenCV 检测，返回 AssistantReplyOut
-   * { message_id, session_id, text, blocks[], model_used, fallback }。
+   * images 为 File 数组；expert 为专家 key（多智能体直聊的人设，见后端 _EXPERT_PERSONAS）。
+   * 返回 AssistantReplyOut { message_id, session_id, text, blocks[], model_used, fallback }。
    */
-  chat({ text = '', sessionId = '', images = [] } = {}) {
+  chat({ text = '', sessionId = '', images = [], expert = '' } = {}) {
     const fd = new FormData()
     if (text) fd.append('text', text)
     if (sessionId) fd.append('session_id', sessionId)
+    if (expert) fd.append('expert', expert)
     for (const file of images) fd.append('images', file)
     return http.post('/assistant/chat', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },

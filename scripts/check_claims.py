@@ -60,6 +60,18 @@ DEFAULT_EXCLUDED_DIRS = {
     "artifacts",
     ".idea",
     ".vscode",
+    # 派生副本 / 工作区 / 存档：内容是仓库其他位置源文件的复制或草稿，
+    # 不是对外材料的真源；真源（docs/ 项目文档/ backend/ edge/ 等）正常扫描。
+    # 其中含打包审阅用解压副本，会连门禁自身的规则字面量一起命中。
+    "old_zip_review",
+    "submission_build",
+    "verify_zip_20261020_2346",
+    "_work",
+    ".work",
+    "tmp",
+    "restyle_work",
+    "unused_package_copies",
+    "探海灵眸_机械臂识别_存档_20261015",
 }
 DEFAULT_EXCLUDED_FILES = {
     "$null",

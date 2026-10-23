@@ -31,4 +31,4 @@
 | 边缘测试 | 86 项（时序 11 + 检测器 75） |
 | MCP 工具 | 32 个（只读默认启用，写入显式开启） |
 | 核心数据表 | t_event / t_task / t_device / t_track + Agent 5 表 + 知识 8 表 |
-| 检测通道 | cv（OpenCV，默认主链路）+ world（YOLO-World，对照演示） |
+| 检测通道 | cv（OpenCV 传统视觉，默认主链路）与 world（开放词汇零样本，对照演示） |

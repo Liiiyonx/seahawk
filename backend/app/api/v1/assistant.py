@@ -115,11 +115,12 @@ async def _get_owned_session(
 async def post_chat(
     text: str | None = Form(default=None),
     session_id: str | None = Form(default=None),
+    expert: str | None = Form(default=None),
     images: list[UploadFile] | None = File(default=None),
     session: AsyncSession = Depends(get_session),
     user: CurrentUser = Depends(get_current_user),
 ):
-    """一轮对话：文字 + 0..n 张图片。
+    """一轮对话：文字 + 0..n 张图片（可选 expert 指定专家人设直聊）。
 
     有图片必做 OpenCV 检测（引擎直调）；配齐模型三要素走真实 LLM 工具编排，
     否则规则兜底（响应里 fallback/model_used 如实标明，绝不假装有模型）。
@@ -131,6 +132,7 @@ async def post_chat(
         session_id=session_id or None,
         text=text,
         images=image_payloads,
+        expert=expert,
     )
     return ApiResponse.ok(
         AssistantReplyOut(

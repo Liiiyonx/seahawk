@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0",
+  "status": "evaluated",
+  "not_evaluated_reasons": [],
+  "command": "python ml/scripts/evaluate_public_litter.py --manifest-dir ml\\datasets\\manifests_public --split test --channel yolo11 --weights D:\\seahawk-work\\best_final.pt --imgsz 1280 --device 0 --label-space litter --conf 0.001 --max-det 300 --tag floatwaste_test_yolo11s_val_selected_ep48 --output artifacts\\metrics\\public_floatwaste_yolo11_test.json",
+  "date": "2026-10-08T15:41:19+08:00",
+  "label_space": "litter",
+  "iou_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "metrics": {
+    "per_class": {
+      "litter": {
+        "status": "evaluated",
+        "gt_boxes": 1490,
+        "detections": 44058,
+        "mAP50": 0.5135,
+        "mAP50_95": 0.3444,
+        "ap_by_iou": {
+          "0.5": 0.5135,
+          "0.55": 0.4955,
+          "0.6": 0.4782,
+          "0.65": 0.4515,
+          "0.7": 0.4215,
+          "0.75": 0.3859,
+          "0.8": 0.325,
+          "0.85": 0.2353,
+          "0.9": 0.1218,
+          "0.95": 0.0162
+        },
+        "best_f1": {
+          "confidence_threshold": 0.5276,
+          "precision": 0.5665,
+          "recall": 0.5114,
+          "f1": 0.5376,
+          "tp": 762,
+          "fp": 583,
+          "fn": 728,
+          "status": "evaluated"
+        },
+        "at_conf_0.25": {
+          "status": "evaluated",
+          "confidence_threshold": 0.25,
+          "precision": 0.3738,
+          "recall": 0.6289,
+          "f1": 0.4689,
+          "tp": 937,
+          "fp": 1570,
+          "fn": 553
+        },
+        "at_conf_0.10": {
+          "status": "evaluated",
+          "confidence_threshold": 0.1,
+          "precision": 0.2587,
+          "recall": 0.7094,
+          "f1": 0.3791,
+          "tp": 1057,
+          "fp": 3029,
+          "fn": 433
+        },
+        "at_conf_0.05": {
+          "status": "evaluated",
+          "confidence_threshold": 0.05,
+          "precision": 0.1953,
+          "recall": 0.755,
+          "f1": 0.3103,
+          "tp": 1125,
+          "fp": 4635,
+          "fn": 365
+        }
+      }
+    },
+    "by_region": {
+      "Hobart": {
+        "images": 146,
+        "gt_boxes": 436,
+        "detections": 20538,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.4029,
+          "gt_boxes": 436,
+          "detections": 20538,
+          "best_f1": {
+            "confidence_threshold": 0.5824,
+            "precision": 0.4656,
+            "recall": 0.4037,
+            "f1": 0.4324,
+            "tp": 176,
+            "fp": 202,
+            "fn": 260,
+            "status": "evaluated"
+          }
+        }
+      },
+      "Indonesia": {
+        "images": 90,
+        "gt_boxes": 850,
+        "detections": 5136,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.7229,
+          "gt_boxes": 850,
+          "detections": 5136,
+          "best_f1": {
+            "confidence_threshold": 0.3131,
+            "precision": 0.7655,
+            "recall": 0.6259,
+            "f1": 0.6887,
+            "tp": 532,
+            "fp": 163,
+            "fn": 318,
+            "status": "evaluated"
+          }
+        }
+      },
+      "NSW": {
+        "images": 164,
+        "gt_boxes": 204,
+        "detections": 18384,
+        "litter": {
+          "status": "evaluated",
+          "mAP50": 0.3341,
+          "gt_boxes": 204,
+          "detections": 18384,
+          "best_f1": {
+            "confidence_threshold": 0.6885,
+            "precision": 0.4677,
+            "recall": 0.4608,
+            "f1": 0.4642,
+            "tp": 94,
+            "fp": 107,
+            "fn": 110,
+            "status": "evaluated"
+          }
+        }
+      }
+    },
+    "headline": {
+      "mAP50": 0.5135,
+      "mAP50_95": 0.3444
+    }
+  },
+  "dataset": {
+    "manifest_dir": "ml\\datasets\\manifests_public",
+    "manifest_path": "ml\\datasets\\manifests_public\\test_floatwaste_2024.yaml",
+    "manifest_name": "test_2024_floatwaste_val_subset",
+    "split": "test",
+    "status": "ready",
+    "data_type": "real",
+    "evidence_level": "E3",
+    "isolation": {
+      "method": "physical",
+      "physical_note": "独立目录树 ml/datasets/public_floatwaste/images/test（与 images/train、 images/val 物理分离）；且按数据集官方划分隔离：test 全部来自官方 val， train/val 全部来自官方 train。评测脚本只读本目录。",
+      "logical_rule": "官方划分不相交；本清单不参与任何训练/调参。region 取自文件名前缀 <region>__<stem>，用于分区域（跨域）分层统计。"
+    },
+    "source": {
+      "device": "第三方公开数据集 SC-FloatWaste（HuggingFace OliviaWuYJ/sc-floatwaste； Zenodo DOI 10.5281/zenodo.21934286；CC BY 4.0）—— 现场摄像头与视频抽帧",
+      "region": "Indonesia（Citarum 流域）/ Australia NSW / Australia Tasmania Hobart",
+      "date_range": [
+        "2021-10-01",
+        "2024-11-01"
+      ],
+      "license": "CC BY 4.0；引用 Wu, Yujiao et al. FloatWaste benchmark"
+    },
+    "description": "SC-FloatWaste 官方 val 划分的确定性子集 400 张（Indonesia 90 / NSW 164 / Hobart 146）， 1,490 个真值框。用于评测开放词汇零样本通道与有监督微调通道。 E3 指底层影像为真实场景数据，不是本项目设备的现场验证。",
+    "sample_size": 400,
+    "images_root": "C:\\Users\\Liii\\Desktop\\seahawk\\ml\\datasets\\public_floatwaste\\images\\test",
+    "labels_root": "C:\\Users\\Liii\\Desktop\\seahawk\\ml\\datasets\\public_floatwaste\\labels\\test"
+  },
+  "channel": {
+    "channel": "yolo11",
+    "kind": "supervised_finetuned",
+    "model": "YOLO11",
+    "weights": "D:\\seahawk-work\\best_final.pt",
+    "weights_sha256": "e791274ed68680c502dcef66c57356ae2ef9dabe4d55f6cfbaafb6ced5112bc7",
+    "names": [
+      "litter"
+    ],
+    "imgsz": 1280,
+    "conf_floor": 0.001,
+    "device": "0"
+  },
+  "denominators": {
+    "images": 400,
+    "gt_boxes": 1490,
+    "detections": 44058,
+    "images_missing": 0
+  },
+  "elapsed_seconds": 36.3,
+  "claim_boundary": "本结果是**第三方公开数据集**（SC-FloatWaste，非连江海域、非本项目设备）上的独立测试集精度。只能表述为『在公开漂浮垃圾基准上的独立评测精度』；不得表述为『连江现场验证』『真实海域验证』或『本项目设备实测精度』。开放词汇通道为零样本，未使用本测试集训练或调参。",
+  "tag": "floatwaste_test_yolo11s_val_selected_ep48"
+}

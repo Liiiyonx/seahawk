@@ -463,7 +463,13 @@
           <span>审批队列加载失败：{{ approvalsError }}</span>
           <button class="btn" @click="loadApprovals()">重试</button>
         </div>
-        <div v-else-if="!approvals.length" class="empty">暂无审批记录</div>
+        <div v-else-if="!approvals.length" class="empty empty--stack">
+          <span>暂无审批记录</span>
+          <!-- 空态也要把权限说清楚：无审批权的账号不该误以为"审批功能坏了" -->
+          <span v-if="!canApprove" class="empty__sub">
+            当前账号无审批权限（需 admin 或 approver）；Agent 的高风险写操作会在这里等待人工放行
+          </span>
+        </div>
         <div v-else class="approvals">
           <!-- 待决定项 -->
           <div v-for="a in pendingApprovals" :key="a.approval_id" class="approval approval--pending">
@@ -485,19 +491,23 @@
             <div class="approval__actions">
               <button
                 class="btn btn--approve"
-                :disabled="!canApprove || deciding === a.approval_id"
+                :disabled="!canApprove || deciding === a.approval_id || approvalBtnState[a.approval_id] === 'loading'"
                 :title="!canApprove ? '需要 admin 或 approver 角色（后端强制校验）' : ''"
                 @click="decide(a, 'approved')"
               >
-                {{ deciding === a.approval_id ? '处理中…' : '同意' }}
+                <template v-if="approvalBtnState[a.approval_id] === 'loading'">处理中…</template>
+                <template v-else-if="approvalBtnState[a.approval_id] === 'success'">✓ 已批准</template>
+                <template v-else-if="approvalBtnState[a.approval_id] === 'error'">✗ 重试</template>
+                <template v-else>同意</template>
               </button>
               <button
                 class="btn btn--reject"
-                :disabled="!canApprove || deciding === a.approval_id"
+                :disabled="!canApprove || deciding === a.approval_id || approvalBtnState[a.approval_id] === 'loading'"
                 :title="!canApprove ? '需要 admin 或 approver 角色（后端强制校验）' : ''"
                 @click="decide(a, 'rejected')"
               >
-                拒绝
+                <template v-if="approvalBtnState[a.approval_id] === 'loading'">处理中…</template>
+                <template v-else>拒绝</template>
               </button>
               <span v-if="!canApprove" class="approval__hint">无审批权限（需 admin/approver）</span>
             </div>
@@ -744,16 +754,52 @@
             <div class="lesson__head">
               <span class="lesson__scope mono">{{ l.scope_id }}</span>
               <span class="lesson__kind mono">{{ l.kind }}</span>
-              <span class="lesson__conf" :title="`置信度由证据强度 + 命中次数单调上调，封顶 95%`">
+              <span class="lesson__conf" :title="`置信度 = 贝叶斯平滑后验：确认与引用后成功上调、引用后失败下调，封顶 95%`">
                 {{ (Number(l.confidence) * 100).toFixed(0) }}%
               </span>
               <span class="lesson__hits">
-                引用 {{ l.hit_count }} 次 · 确认 {{ l.confirm_count }} 次
+                引用 {{ l.hit_count }} 次 · 确认 {{ l.confirm_count }} 次<template v-if="l.use_total"> · 引用后成功 {{ l.use_success }}/{{ l.use_total }}</template>
               </span>
             </div>
             <div class="lesson__cond">适用条件：{{ l.condition }}</div>
             <div class="lesson__guide">{{ l.guidance }}</div>
           </article>
+        </div>
+
+        <!-- 置信度校准：声明置信度 vs 引用后实际成功率（「可进化」的量化证据线） -->
+        <div v-if="lessons.length && lessonCalibration" class="calib">
+          <div class="calib__head">
+            <span class="calib__title">置信度校准</span>
+            <span class="calib__ece">
+              <template v-if="lessonCalibration.ece != null">
+                ECE {{ Number(lessonCalibration.ece).toFixed(3) }}（越低越可信）
+              </template>
+              <template v-else>
+                观测 {{ lessonCalibration.observation_count }} 条，不足 8 条暂不给出 ECE —— 不硬给数字
+              </template>
+            </span>
+          </div>
+          <div v-if="lessonCalibration.buckets?.length" class="calib__rows">
+            <div v-for="b in lessonCalibration.buckets" :key="b.range" class="calib__row">
+              <span class="calib__range mono">{{ b.range }}</span>
+              <div class="calib__bars">
+                <div
+                  class="calib__bar calib__bar--claim"
+                  :style="{ width: `${(Number(b.avg_confidence) * 100).toFixed(1)}%` }"
+                ></div>
+                <div
+                  class="calib__bar calib__bar--actual"
+                  :style="{ width: `${(Number(b.success_rate) * 100).toFixed(1)}%` }"
+                ></div>
+              </div>
+              <span class="calib__count">{{ b.count }} 次</span>
+            </div>
+          </div>
+          <div class="calib__legend">
+            <span><i class="calib__dot calib__dot--claim"></i>声明置信度</span>
+            <span><i class="calib__dot calib__dot--actual"></i>实际成功率</span>
+            <span>两线越贴近，置信度越校准</span>
+          </div>
         </div>
       </section>
 
@@ -815,6 +861,7 @@ import { useRealtimeStore } from '@/stores/realtime'
 import { canWrite, getUser } from '@/utils/auth'
 import { palette } from '@/utils/palette'
 import { fmtTime, fmtShortTime } from '@/utils/format'
+import { toast } from '@/utils/toast'
 
 // ---------- query 直达支持（router props：?run=<run_id> 自动展开，?page=<n> 直达页码） ----------
 const props = defineProps({
@@ -1054,6 +1101,9 @@ const runsError = computed(() => modErrors.runs)
 const approvalsError = computed(() => modErrors.approvals)
 const toolsError = computed(() => modErrors.tools)
 const capabilitiesError = computed(() => modErrors.capabilities)
+// ★ 评测面板模板里引用了 evalsError，但这里漏了别名 —— Vue 会在渲染期
+//   访问不存在的属性并打 warn（评测模块一旦报错，页面还看不到具体原因）
+const evalsError = computed(() => modErrors.evals)
 
 // ======================= 权限（仅 UI 显隐，后端是最终裁决） =======================
 const canWriteOps = canWrite()
@@ -1496,9 +1546,11 @@ async function startRun() {
   const eventId = startForm.event_id.trim()
   if (!eventId) {
     store.error = '请输入事件编号（event_id）'
+    toast.warning('请输入事件编号（event_id）')
     return
   }
   starting.value = true
+  const closeLoading = toast.loading('正在启动智能体运行…')
   try {
     // mode 只在多角色受支持时才随请求发出：后端不认识 'single' 之外的取值
     // （rule_plans 里没有的键会响亮失败），不传即走默认单角色计划。
@@ -1509,7 +1561,16 @@ async function startRun() {
       mode,
     })
     startForm.idempotency_key = ''
-    store.error = run?.idempotent_replay ? '幂等重放：返回既有运行（重复提交）' : ''
+    closeLoading()
+    
+    if (run?.idempotent_replay) {
+      store.error = '幂等重放：返回既有运行（重复提交）'
+      toast.info('该事件已有运行记录，为您打开既有运行')
+    } else {
+      store.error = ''
+      toast.success(`运行 ${run?.run_id} 启动成功`)
+    }
+    
     // 武装自动回放：等这个 run 进终态（同步成功、或审批通过后）就自动起步。
     // 停在 waiting_approval 时不触发 —— 那时候该看的是审批队列。
     armAutoReplay(run?.run_id)
@@ -1523,37 +1584,83 @@ async function startRun() {
       syncQuery({ run: run.run_id, page: 1 })
     }
   } catch (err) {
+    closeLoading()
     store.error = agentErrText(err)
+    toast.error(agentErrText(err), {
+      actions: [
+        { label: '重试', onClick: () => startRun() },
+        ...(eventId ? [{ label: '查看事件', onClick: () => router.push({ name: 'events', query: { event: eventId } }) }] : []),
+      ],
+    })
   } finally {
     starting.value = false
   }
 }
 
 // ======================= 审批决定 =======================
+// 审批操作状态：跟踪每个审批项的按钮状态，防止重复点击
+const approvalBtnState = reactive({}) // approval_id → 'idle' | 'loading' | 'success' | 'error'
+
 async function decide(approval, decision) {
   if (deciding.value === approval.approval_id) return
+  
+  // 设置按钮状态
+  approvalBtnState[approval.approval_id] = 'loading'
   deciding.value = approval.approval_id
+  
+  const closeLoading = toast.loading(`正在${decision === 'approved' ? '批准' : '拒绝'}审批…`)
+  
   try {
     await agentsApi.decideApproval(approval.approval_id, {
       decision,
       reason: decision === 'approved' ? '控制台批准（高风险动作放行）' : '控制台拒绝',
     })
+    
+    closeLoading()
+    approvalBtnState[approval.approval_id] = 'success'
+    toast.success(`已${decision === 'approved' ? '批准' : '拒绝'}审批`)
+    
     store.error = ''
     await Promise.all([
       loadApprovals({ silent: true }),
       loadRuns({ page: runsMeta.page, silent: true }),
       loadRuntime({ silent: true }),
     ])
+    
+    // 审批人可能是另一台设备/另一个账号，他那边从没「启动」过这个 run，
+    // 也就没被武装过自动回放；批准这一刻补上，让「批准 → 逐步执行」连贯呈现。
     if (expandedRunId.value === approval.run_id) {
-      // 审批人可能是另一台设备/另一个账号，他那边从没「启动」过这个 run，
-      // 也就没被武装过自动回放；批准这一刻补上，让「批准 → 逐步执行」连贯呈现。
       armAutoReplay(approval.run_id)
       await loadRunDetail(approval.run_id)
     }
+    
+    // 成功后短暂显示，然后重置
+    setTimeout(() => {
+      if (approvalBtnState[approval.approval_id] === 'success') {
+        approvalBtnState[approval.approval_id] = 'idle'
+      }
+    }, 1500)
   } catch (err) {
+    closeLoading()
+    approvalBtnState[approval.approval_id] = 'error'
+    
     // 6003 已决策 → 刷新队列，把「已过期」的待决定项清掉
-    if (err.code === 6003) await loadApprovals({ silent: true })
+    if (err.code === 6003) {
+      await loadApprovals({ silent: true })
+      toast.warning('该审批已被处理，队列已刷新')
+    } else {
+      toast.error(agentErrText(err), {
+        actions: [{ label: '重试', onClick: () => decide(approval, decision) }],
+      })
+    }
     store.error = agentErrText(err)
+    
+    // 错误状态保持3秒后重置
+    setTimeout(() => {
+      if (approvalBtnState[approval.approval_id] === 'error') {
+        approvalBtnState[approval.approval_id] = 'idle'
+      }
+    }, 3000)
   } finally {
     deciding.value = ''
   }
@@ -1628,6 +1735,10 @@ const passedCount = computed(() => (evals.value?.scenarios || []).filter((s) => 
 // 跨 run 经验库：直接取运行时快照里的 lessons（真源在内核 LessonStore），
 // 拿不到就是空数组 —— 空态说明原因，不写死条数、不伪造占位。
 const lessons = computed(() => runtime.value?.lessons || [])
+
+// 置信度校准报告：ECE + 可靠性曲线分桶（真源 LessonStore.calibration_report）。
+// 观测不足时后端 ece=null —— 前端如实展示「样本不足」，不计算、不编数字。
+const lessonCalibration = computed(() => runtime.value?.lesson_calibration || null)
 
 // ---------- 评测：叙事抬头 ----------
 const evalScenarioGroups = computed(() => {
@@ -2279,6 +2390,74 @@ onBeforeUnmount(() => {
   line-height: 1.6;
 }
 
+/* ---------- 置信度校准报告 ---------- */
+.calib {
+  margin: 0 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-panel-2);
+  padding: 10px 12px;
+}
+
+.calib__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.calib__title { color: var(--text-main); font-weight: 600; }
+.calib__ece { color: var(--text-sub); }
+
+.calib__rows { margin-top: 8px; display: grid; gap: 6px; }
+
+.calib__row {
+  display: grid;
+  grid-template-columns: 64px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.calib__range { color: var(--text-dim); }
+
+.calib__bars { display: grid; gap: 2px; }
+
+.calib__bar { height: 6px; border-radius: 3px; min-width: 2px; }
+
+.calib__bar--claim {
+  background: color-mix(in srgb, var(--c-assigned) 55%, transparent);
+}
+
+.calib__bar--actual { background: var(--c-success); }
+
+.calib__count { color: var(--text-dim); text-align: right; }
+
+.calib__legend {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.calib__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+
+.calib__dot--claim {
+  background: color-mix(in srgb, var(--c-assigned) 55%, transparent);
+}
+
+.calib__dot--actual { background: var(--c-success); }
+
 /* ---------- 派单决策快照（Run 详情） ---------- */
 .run-decision {
   margin: 10px 16px 0;
@@ -2410,6 +2589,19 @@ onBeforeUnmount(() => {
 .btn--reject:hover:not(:disabled) { color: var(--c-danger); background: rgba(242, 86, 76, 0.18); border-color: var(--c-danger); }
 
 .approval__hint { font-size: 11px; color: var(--text-dim); }
+
+/* 空态竖排 + 权限说明副文案（审批队列空态用） */
+.empty--stack {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.empty__sub {
+  max-width: 460px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
 
 /* ---------- 工具目录 ---------- */
 .tools__name { font-size: 12.5px; color: var(--c-primary); }

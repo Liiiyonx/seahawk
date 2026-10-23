@@ -16,7 +16,7 @@
       >
         <UiIcon v-if="probing" name="loader-circle" class="arm-console__spin" />
         <UiIcon v-else name="external-link" />
-        {{ probing ? '探测中' : '打开仿真台' }}
+        {{ probing ? '探测中' : openLabel }}
       </button>
     </div>
 
@@ -54,6 +54,18 @@
     </div>
 
     <div class="arm-console__body">
+      <div v-if="useTemplate" class="arm-console__row">
+        <span>作业台 IP</span>
+        <input
+          v-model="ipInput"
+          class="arm-console__ip"
+          type="text"
+          inputmode="decimal"
+          spellcheck="false"
+          :placeholder="DEFAULT_ARM_IP"
+          aria-label="机械臂训练作业台 IP 地址"
+        />
+      </div>
       <div class="arm-console__row">
         <span>跳转目标</span>
         <code>{{ consoleTargetDisplay }}</code>
@@ -68,7 +80,7 @@
       </div>
       <div class="arm-console__row">
         <span>真机热点</span>
-        <code>192.168.149.1</code>
+        <code>{{ DEFAULT_ARM_IP }}</code>
       </div>
       <div class="arm-console__row">
         <span>登录账号</span>
@@ -120,7 +132,7 @@
         {{ copied ? '已复制' : '复制连接信息' }}
       </button>
       <span class="arm-console__footnote">
-        ArmPiFPV 树莓派远程桌面，不走平台 MQTT 闭环
+        {{ useTemplate ? `Oceanus 训练作业台 :${templatePort}，IP 可变` : 'ArmPiFPV 树莓派远程桌面，不走平台 MQTT 闭环' }}
       </span>
     </div>
 
@@ -128,7 +140,9 @@
       <summary>接入前准备</summary>
       <p>
         在 <code>frontend/.env.local</code> 配置
-        <code>VITE_ARM_CONSOLE_URL</code> 后，本按钮即变为可用。
+        <code>VITE_ARM_CONSOLE_URL_TEMPLATE</code>（如
+        <code>http://{ip}:8090</code>，可输 IP 的作业台模式），
+        或配置 <code>VITE_ARM_CONSOLE_URL</code>（固定地址）后，本按钮即变为可用。
       </p>
     </details>
   </div>
@@ -143,12 +157,17 @@
  * 报文契约，执行端是可替换层 —— 页面上的「执行后端」面板就是
  * 把这件事显示出来，而不是只靠口头说。
  *
- * 跳转分三档（到货后按可用性选一档，配置键始终是同一个）：
- *   C  ArmPiFPV Web 上位机   http://<IP>:<port>   最佳，原生 Web
- *   A  NoMachine Web Player  http://<IP>:4080      浏览器直连树莓派桌面
- *   B  nx:// 协议唤起        nx://<IP>             唤起本机客户端
+ * 跳转分三档（到货后按可用性选一档，配置键按需选一个）：
+ *   D  Oceanus 训练作业台    VITE_ARM_CONSOLE_URL_TEMPLATE=http://{ip}:8090
+ *                            ★ IP 可变 —— 面板上直接输 IP，最贴合「派单后输 IP 进新页面」
+ *   C  ArmPiFPV Web 上位机   VITE_ARM_CONSOLE_URL=http://<IP>:<port>   原生 Web
+ *   A  NoMachine Web Player  VITE_ARM_CONSOLE_URL=http://<IP>:4080      浏览器直连树莓派桌面
+ *   B  nx:// 协议唤起        VITE_ARM_CONSOLE_URL=nx://<IP>             唤起本机客户端
+ *
+ * 模板键（{ip} 占位）优先级高于固定 URL：配了模板就显示 IP 输入框，
+ * 未配则退回固定 URL 的老行为，两种模式互不干扰。
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import UiIcon from '@/components/UiIcon.vue'
 
 const props = defineProps({
@@ -167,8 +186,32 @@ const props = defineProps({
 const consoleLabel =
   import.meta.env.VITE_ARM_CONSOLE_LABEL || 'ArmPiFPV 仿真台'
 const consoleUrl = String(import.meta.env.VITE_ARM_CONSOLE_URL || '').trim()
+/**
+ * 作业台 URL 模板（如 http://{ip}:8090）。配了它就进入「可输 IP」模式：
+ * 演示时换一台树莓派只改面板上的 IP，不用重新构建前端。
+ */
+const consoleTemplate = String(
+  import.meta.env.VITE_ARM_CONSOLE_URL_TEMPLATE || '',
+).trim()
 /** 显式声明接入方式；不填则从 URL 协议自动推断 */
 const consoleMode = String(import.meta.env.VITE_ARM_CONSOLE_MODE || '').trim()
+
+/** 树莓派厂商默认 AP 地址，作为 IP 输入框的预填值与占位符 */
+const DEFAULT_ARM_IP = '192.168.149.1'
+
+const useTemplate = computed(() => consoleTemplate.includes('{ip}'))
+const ipInput = ref(DEFAULT_ARM_IP)
+/** 最终跳转地址：模板模式按 IP 拼，否则用固定 URL */
+const resolvedUrl = computed(() =>
+  useTemplate.value
+    ? consoleTemplate.replace('{ip}', ipInput.value.trim() || DEFAULT_ARM_IP)
+    : consoleUrl,
+)
+/** 作业台端口，从模板中解析（仅用于展示，缺省 8090） */
+const templatePort = computed(() => {
+  const m = consoleTemplate.match(/:(\d+)/)
+  return m ? m[1] : '8090'
+})
 
 const copied = ref(false)
 const probing = ref(false)
@@ -206,12 +249,19 @@ const DRIVERS = [
     hint: '真机执行端：直连串口按示教序列动作。'
       + '需先停掉厂商节点（它占着串口），与厂商 GUI 互斥',
   },
+  {
+    name: 'oceanus_vision',
+    label: 'Oceanus 视觉闭环',
+    sim: false,
+    hint: '真机执行端：YOLO 检出 → IK 现算 → 总线舵机，无预设动作序列；'
+      + '含浮标免疫三层防线与抓取验证。作业台 :8090 做现场再训练',
+  },
 ]
 const activeDriver = String(
   import.meta.env.VITE_ARM_DRIVER_BACKEND || 'simulated',
 ).trim()
 
-const isReady = computed(() => Boolean(consoleUrl))
+const isReady = computed(() => Boolean(resolvedUrl.value))
 const currentTask = computed(() => {
   if (!props.taskId) return ''
   return props.target ? `${props.taskId} · ${props.target}` : props.taskId
@@ -239,6 +289,7 @@ const fmtPos = (p) => (p == null ? '—' : String(Math.round(Number(p))))
 /** 接入方式：nx:// 走协议唤起，其余按 http(s) 浏览器直连 */
 const mode = computed(() => {
   if (consoleMode) return consoleMode
+  if (useTemplate.value) return '浏览器直连（Oceanus 训练作业台）'
   if (consoleUrl.startsWith('nx://')) return 'nx 协议唤起（本机客户端）'
   if (consoleUrl.startsWith('https://')) return '浏览器直连（HTTPS）'
   if (consoleUrl.startsWith('http://')) return '浏览器直连（NoMachine Web / Web 上位机）'
@@ -246,7 +297,10 @@ const mode = computed(() => {
 })
 const modeLabel = computed(() => mode.value)
 
-const consoleTargetDisplay = computed(() => consoleUrl || '未配置')
+const consoleTargetDisplay = computed(() => resolvedUrl.value || '未配置')
+
+/** 主按钮文案：模板模式叫「作业台」，固定 URL 模式沿用「仿真台」 */
+const openLabel = computed(() => (useTemplate.value ? '打开作业台' : '打开仿真台'))
 
 /**
  * 可达性预检。
@@ -255,8 +309,9 @@ const consoleTargetDisplay = computed(() => consoleUrl || '未配置')
  * 只对 http(s) 探测 —— nx:// 交给系统协议处理器，无法用 fetch 验证。
  */
 async function probe() {
-  if (!consoleUrl) return
-  if (!/^https?:\/\//i.test(consoleUrl)) {
+  const url = resolvedUrl.value
+  if (!url) return
+  if (!/^https?:\/\//i.test(url)) {
     lastProbe.value = { ok: null, at: Date.now() }
     return
   }
@@ -267,7 +322,7 @@ async function probe() {
     // 不可达时抛 TypeError —— 正好是我们要的信号。
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 2500)
-    await fetch(consoleUrl, { mode: 'no-cors', signal: ctrl.signal, cache: 'no-store' })
+    await fetch(url, { mode: 'no-cors', signal: ctrl.signal, cache: 'no-store' })
     clearTimeout(timer)
     lastProbe.value = { ok: true, at: Date.now() }
   } catch {
@@ -286,7 +341,7 @@ const reach = computed(() => {
     return {
       state: 'ready',
       text: '已配置跳转',
-      hint: '未检测。点击「打开仿真台」会先探测一次可达性。',
+      hint: `未检测。点击「${openLabel.value}」会先探测一次可达性。`,
     }
   }
   if (p.ok === null) {
@@ -309,26 +364,27 @@ const reach = computed(() => {
 })
 
 async function openConsole() {
-  if (!consoleUrl) return
+  const url = resolvedUrl.value
+  if (!url) return
   await probe()
-  if (consoleUrl.startsWith('nx://')) {
+  if (url.startsWith('nx://')) {
     // 协议唤起不能用 window.open 的 noopener（会拦协议），
     // 改为临时链接交给系统处理。
     const a = document.createElement('a')
-    a.href = consoleUrl
+    a.href = url
     a.rel = 'noopener'
     document.body.appendChild(a)
     a.click()
     a.remove()
     return
   }
-  window.open(consoleUrl, '_blank', 'noopener,noreferrer')
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
 
 async function copyConnection() {
   const text = [
-    'ArmPiFPV 远程桌面',
-    `地址：${consoleUrl || '192.168.149.1'}`,
+    useTemplate.value ? 'Oceanus 机械臂训练作业台' : 'ArmPiFPV 远程桌面',
+    `地址：${resolvedUrl.value || '192.168.149.1'}`,
     // ★ 树莓派厂商**公开默认**密码（资料包与官方文档都写明），不是平台凭证。
     //   演示后应收敛：改密码或改用密钥登录。它进包是因为「复制连接信息」
     //   的用途本身就是要给现场备用手段 —— 抹掉就没有应急价值了。
@@ -347,6 +403,11 @@ async function copyConnection() {
     copied.value = false
   }
 }
+
+// 改了 IP 就把上一次探测结果清掉，避免「换了地址还显示旧的可达状态」
+watch(ipInput, () => {
+  lastProbe.value = null
+})
 
 // 挂载即预检一次：评委还没点就该知道树莓派在不在线
 let timer = null
@@ -590,6 +651,24 @@ onBeforeUnmount(() => {
 .arm-console__row code {
   overflow: hidden;
   color: var(--text-main);
+}
+
+/* IP 输入框：等宽字体 + 中性底，与只读的 <code> 行视觉上明确区分开 */
+.arm-console__ip {
+  width: 100%;
+  min-height: 30px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg-panel-2);
+  color: var(--text-main);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+}
+
+.arm-console__ip:focus {
+  outline: none;
+  border-color: var(--c-primary);
 }
 
 /* ---------- 预检提示 ---------- */

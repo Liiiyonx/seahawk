@@ -41,7 +41,19 @@
       </div>
     </header>
 
-    <div class="sim-layout">
+    <!-- 工单不存在（编号有误/已删除）：给明确出口，避免空白死页 -->
+    <div v-if="!loading && !task" class="sim-missing panel">
+      <p class="sim-missing__title">未找到工单 {{ taskId || '—' }}</p>
+      <p class="sim-missing__desc">它可能已被删除，或链接中的编号有误。</p>
+      <div class="sim-missing__actions">
+        <button class="btn btn--primary" type="button" @click="router.push('/tasks')">
+          返回工单看板
+        </button>
+        <button class="btn" type="button" @click="loadState()">重试</button>
+      </div>
+    </div>
+
+    <div v-if="loading || task" class="sim-layout">
       <section class="sim-map panel">
         <div class="sim-map__viewbar">
           <span>作业可视化</span>
@@ -348,6 +360,10 @@ const WRITABLE = canWrite()
 const taskId = computed(() => String(route.params.taskId || ''))
 const task = ref(null)
 const run = ref(null)
+// 历史轨迹遥测：无实时仿真会话时，「机器人报文」页签从落库的 t_track 还原。
+// 此前只读 WS 实时流，历史工单打开后页签恒为 0 条 —— 而数据其实全在库里
+// （与「运行日志」页签同源的处境：页面看不到 ≠ 没落库）。
+const historyTelemetry = ref([])
 const loading = ref(true)
 const refreshing = ref(false)
 const busy = ref('')
@@ -355,7 +371,6 @@ const selectedSpeed = ref(1)
 const streamMode = ref('telemetry')
 const mapRef = ref(null)
 const viewMode = ref('console')
-const autoStartAttempted = ref(false)
 
 let pollTimer = null
 
@@ -531,13 +546,15 @@ const timeline = computed(() => {
 })
 
 const telemetryItems = computed(() => {
-  return store.telemetryFeed
-    .filter(
-      (item) =>
-        (robotId.value && item.robot_id === robotId.value) ||
-        (taskId.value && item.task_id === taskId.value),
-    )
-    .slice(0, 60)
+  const live = store.telemetryFeed.filter(
+    (item) =>
+      (robotId.value && item.robot_id === robotId.value) ||
+      (taskId.value && item.task_id === taskId.value),
+  )
+  // 实时报文优先（正在跑仿真/机器人正在上报）；
+  // 没有实时流时回落到历史轨迹（从 t_track 还原，只读回放）。
+  const items = live.length ? live : historyTelemetry.value
+  return items.slice(0, 60)
 })
 
 /**
@@ -624,7 +641,7 @@ function logKindLabel(kind) {
   }[kind] || kind || '日志'
 }
 
-async function loadState({ autoStart = false } = {}) {
+async function loadState() {
   if (!taskId.value || loading.value && task.value) return
   loading.value = true
   try {
@@ -634,13 +651,35 @@ async function loadState({ autoStart = false } = {}) {
     ])
     task.value = taskData
     run.value = runData
-    if (autoStart) await maybeAutoStart()
+    await loadHistoryTelemetry()
   } catch (err) {
     store.error = err.message
     task.value = null
     run.value = null
   } finally {
     loading.value = false
+  }
+}
+
+/** 从 t_track 还原历史遥测（「机器人报文」页签的只读回放数据源）。 */
+async function loadHistoryTelemetry() {
+  if (!taskId.value) return
+  try {
+    const points = await simulationApi.trajectory(taskId.value)
+    const phase = snapshot.value.phase
+    const status = ['navigating', 'collecting', 'returning', 'done'].includes(phase)
+      ? phase
+      : 'idle'
+    historyTelemetry.value = (points || []).map((p) => ({
+      ...p,
+      robot_id: robotId.value,
+      task_id: taskId.value,
+      status: p.status || status,
+      _receivedAt: p.ts,
+      _key: `hist-${taskId.value}-${p.seq}`,
+    }))
+  } catch {
+    historyTelemetry.value = []
   }
 }
 
@@ -663,12 +702,6 @@ async function refreshRun({ silent = true } = {}) {
   } finally {
     refreshing.value = false
   }
-}
-
-async function maybeAutoStart() {
-  if (autoStartAttempted.value || !canStart.value) return
-  autoStartAttempted.value = true
-  await startSimulation()
 }
 
 async function startSimulation() {
@@ -788,24 +821,25 @@ watch(
     if (item?.task_id !== taskId.value) return
     await refreshTask()
     if (!run.value || hasActiveSession.value) await refreshRun()
-    await maybeAutoStart()
   },
 )
 
 watch(taskId, async () => {
   clearInterval(pollTimer)
   pollTimer = null
-  autoStartAttempted.value = false
   selectedSpeed.value = 1
   streamMode.value = 'telemetry'
   task.value = null
   run.value = null
+  historyTelemetry.value = []
   loading.value = false
-  await loadState({ autoStart: true })
+  await loadState()
 })
 
+// 打开页面只加载状态，**不自动开跑** —— 是否开始仿真由操作者点「▶ 启动」决定。
+// 早期版本"打开即自动开跑"会消耗激活工单，导致彩排/重录无法进行（2026-10-10 修复）。
 onMounted(() => {
-  loadState({ autoStart: true })
+  loadState()
 })
 
 onUnmounted(() => {
@@ -956,6 +990,34 @@ onUnmounted(() => {
 .sim-head__action:hover {
   background: var(--bg-hover);
   color: var(--text-main);
+}
+
+/* 工单不存在的兜底页：标题 + 说明 + 两个出口按钮 */
+.sim-missing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.sim-missing__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.sim-missing__desc {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.sim-missing__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .sim-layout {

@@ -120,7 +120,13 @@ OOXML_EXT = {".docx", ".pptx", ".xlsx"}
 SKIP_DIR_NAMES = {
     "__pycache__", "node_modules", ".git", ".venv", "venv", ".pytest_cache",
     "dist", "build", ".mypy_cache", ".idea", ".vscode", "coverage", ".DS_Store",
+    # 训练与模型产物：数据集、权重、runs 不属于源码，且体积可达 GB 级
+    "models", "runs", "weights", "checkpoints", "outputs", "data",
+    "images", "labels", "annotations",
 }
+
+# 体积巨大的模型权重文件：不进提交包（源码可读性不依赖二进制权重）
+SKIP_FILE_EXT = {".pyc", ".pyo", ".log", ".onnx", ".pt", ".pth", ".ckpt", ".engine"}
 
 
 # ---------------------------------------------------------------------------
@@ -163,13 +169,10 @@ class SubmissionPlan:
 def build_plan(docs_dir: Path, *, with_video_placeholder: bool) -> SubmissionPlan:
     """构造提交树定义。
 
-    目录结构遵循规程的提交物顺序：
-      01 作品介绍
-      02 设计文档
-      03 源代码
-      04 演示材料
-      05 加分项举证
-      06 提交说明
+    目录结构遵循规程的提交物顺序（「源代码 / 设计文档」二选一，本包提交设计文档）：
+      01 作品介绍（研究报告 + 系统设计文档 + 作品介绍 PPT）
+      02 演示材料
+      03 提交说明
     """
     plan = SubmissionPlan(title="探海灵眸Oceanus")
     D = docs_dir
@@ -198,77 +201,25 @@ def build_plan(docs_dir: Path, *, with_video_placeholder: bool) -> SubmissionPla
         "01_作品介绍/03_作品介绍PPT.pptx", required=True,
         note="作品介绍 PPT"))
 
-    # 02 设计文档补充：源码说明与复现步骤（从仓库文档复制）
-    plan.items += [
-        SubmissionItem("README.md", "02_设计文档/项目README.md",
-                       required=False, note="项目总览"),
-        SubmissionItem("docs/architecture.md", "02_设计文档/architecture.md",
-                       required=False, note="架构说明"),
-        SubmissionItem("docs/device-interface.md", "02_设计文档/device-interface.md",
-                       required=False, note="设备接口定义"),
-        SubmissionItem("docs/software-design.md", "02_设计文档/software-design.md",
-                       required=False, note="软件设计"),
-        SubmissionItem("docs/mqtt-topics.md", "02_设计文档/mqtt-topics.md",
-                       required=False, note="MQTT 主题契约"),
-        SubmissionItem("docs/perception-data-protocol.md",
-                       "02_设计文档/perception-data-protocol.md",
-                       required=False, note="感知数据协议"),
-    ]
-
-    # 03 源代码：分模块复制，保留可读结构
-    src_tree = [
-        ("backend/app", "03_源代码/backend/app"),
-        ("backend/run_server.py", "03_源代码/backend/run_server.py"),
-        ("backend/requirements.txt", "03_源代码/backend/requirements.txt"),
-        ("backend/tests", "03_源代码/backend/tests"),
-        ("backend/db", "03_源代码/backend/db"),
-        ("backend/alembic", "03_源代码/backend/alembic"),
-        ("edge", "03_源代码/edge"),
-        ("ml", "03_源代码/ml"),
-        ("integrations", "03_源代码/integrations"),
-        ("frontend/src", "03_源代码/frontend/src"),
-        ("frontend/package.json", "03_源代码/frontend/package.json"),
-        ("frontend/vite.config.ts", "03_源代码/frontend/vite.config.ts"),
-        ("scripts", "03_源代码/scripts"),
-        ("docker-compose.prod.yml", "03_源代码/docker-compose.prod.yml"),
-        ("Makefile", "03_源代码/Makefile"),
-        (".env.example", "03_源代码/.env.example"),
-    ]
-    for src, dst in src_tree:
-        plan.items.append(SubmissionItem(
-            src, dst, required=False, note="源码模块"))
-
-    # 04 演示材料：分镜脚本 + 录制清单（视频本体由参赛队自行录制后按说明补入）
+    # 02 演示材料：分镜脚本 + 录制清单（视频本体由参赛队自行录制后按说明补入）
     src, _ = pick("03_演示视频分镜脚本")
     plan.items.append(SubmissionItem(
-        src, "04_演示材料/演示视频分镜脚本" + out_ext(src), required=True,
+        src, "02_演示材料/演示视频分镜脚本" + out_ext(src), required=True,
         note="分镜脚本与旁白文案"))
     src, _ = pick("04_演示视频录制清单")
     plan.items.append(SubmissionItem(
-        src, "04_演示材料/演示视频录制清单" + out_ext(src), required=False,
+        src, "02_演示材料/演示视频录制清单" + out_ext(src), required=False,
         note="录制操作清单"))
     if with_video_placeholder:
         plan.items.append(SubmissionItem(
             "__VIDEO_PLACEHOLDER__",
-            "04_演示材料/演示视频.mp4", required=False,
+            "02_演示材料/演示视频.mp4", required=False,
             note="演示视频（由参赛队录制后放入此路径）"))
 
-    # 05 加分项举证：可复现的评测与验收产物
-    evidence = [
-        ("artifacts/agent_evals/latest_v2.json", "05_加分项举证/agent_evals_latest_v2.json"),
-        ("artifacts/agent-real-state-acceptance/latest.json",
-         "05_加分项举证/agent_real_state_acceptance_latest.json"),
-        ("artifacts/metrics/opencv_latest.json", "05_加分项举证/opencv_latest.json"),
-        ("artifacts/ontology-eval/latest.json", "05_加分项举证/ontology_eval_latest.json"),
-        ("artifacts/knowledge-qa-trace/latest.json", "05_加分项举证/knowledge_qa_trace_latest.json"),
-    ]
-    for src, dst in evidence:
-        plan.items.append(SubmissionItem(src, dst, required=False, note="评测证据"))
-
-    # 06 提交说明
+    # 03 提交说明
     src, _ = pick("05_提交清单与自检表")
     plan.items.append(SubmissionItem(
-        src, "06_提交说明/提交清单与自检表" + out_ext(src), required=True,
+        src, "03_提交说明/提交清单与自检表" + out_ext(src), required=True,
         note="提交物清单与自检表"))
     return plan
 
@@ -403,7 +354,7 @@ def copy_tree(src: Path, dst: Path, report: AnonReport, *, anonymize: bool) -> N
     for r, dirs, files in os.walk(src):
         dirs[:] = [d for d in dirs if d not in SKIP_DIR_NAMES and not d.startswith(".env")]
         for name in files:
-            if name.endswith((".pyc", ".pyo", ".log")):
+            if name.endswith(tuple(SKIP_FILE_EXT)):
                 continue
             s = Path(r) / name
             d = dst / Path(r).relative_to(src) / name
@@ -538,53 +489,17 @@ def write_readme(stage: Path, plan: SubmissionPlan, report: AnonReport) -> None:
     01_研究报告.docx              问题提出 → 解决方案 → 应用价值
     02_系统设计文档.docx          架构 / 模块划分 / 接口定义 / 数据结构
     03_作品介绍PPT.pptx           现场路演用
-02_设计文档/
-    项目README.md                 项目总览与快速开始
-    architecture.md               架构说明
-    device-interface.md           设备接口定义
-    software-design.md            软件设计
-    mqtt-topics.md                MQTT 主题契约
-    perception-data-protocol.md   感知数据协议
-03_源代码/
-    backend/    后端服务（FastAPI + 智能体内核 + 业务模块 + 测试）
-    edge/       边缘侧（设备仿真、驱动桥接）
-    ml/         感知与模型工程（检测器、评测、ONNX 导出）
-    integrations/  外部平台集成
-    frontend/src/  前端业务控制台
-    scripts/    验证与打包脚本
-04_演示材料/
+02_演示材料/
     演示视频分镜脚本.md
     演示视频录制清单.md
     演示视频.mp4                 （由参赛队录制后放入）
-05_加分项举证/
-    agent_evals_latest_v2.json   智能体固定场景评测结果
-    agent_real_state_acceptance_latest.json  软件集成验收结果
-    opencv_latest.json           感知评测结果（当前为 not_evaluated）
-    ontology_eval_latest.json    本体评测结果
-    knowledge_qa_trace_latest.json  检索问答轨迹
-06_提交说明/
+03_提交说明/
     提交清单与自检表.md
-```
-
-## 复现步骤
-
-```bash
-# 1. 基础设施
-docker compose -f docker-compose.prod.yml up -d postgres redis emqx minio
-
-# 2. 后端服务
-cd backend && pip install -r requirements.txt && python run_server.py
-
-# 3. 自动化测试
-python -m pytest -q
-
-# 4. 智能体固定场景评测
-python scripts/run_agent_evals.py
 ```
 
 ## 能力边界说明
 
-本作品对自身能力采用 E0-E4 证据分级表述，不做越级宣称：
+本作品对自身能力采用 E0-E4 证据分级纪律表述，不做越级宣称：
 
 - 软件闭环与智能体内核：**E1**（自动化测试 + 固定场景评测）
 - 真实 HTTP / 鉴权 / 数据库 / 审批 / 幂等集成：**E2**

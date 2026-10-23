@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -77,7 +78,7 @@ class Detector:
 
     def __init__(self, cfg: dict[str, Any], mock: bool | None = None) -> None:
         vision = cfg.get("vision", {}) or {}
-        # ★ 两个口径分开：classes 是「标注可选类别」，model_classes 是「已部署模型
+        # ★ 两个口径分开：classes 是「标注可选类别」，model_classes 是「在用模型
         #   实际输出的类别」。标注台要能选 buoy（负类样本），但部署的单类模型只输出
         #   plastic_bag —— 若两者共用一个字段，要么标注台少了 buoy，要么类别索引错位。
         self.classes: list[str] = list(
@@ -105,6 +106,12 @@ class Detector:
         self._net: Any = None
         self._ncnn: Any = None
         self._yolo: Any = None
+        #: ★ cv2.dnn / ncnn 的 Net **不是线程安全的**。作业台有两处并发调用
+        #:   ``infer()``：后台推理线程（供 MJPEG 叠加）与抓取闭环。共用同一个
+        #:   Net 并发 forward() 会产出垃圾结果 —— 实测同一帧串行结果唯一，并发
+        #:   时能吐出几十个 conf=1.0 的假 buoy，表现为「抓取时好时坏、要重试
+        #:   多次甚至全失败」。这里把推理入口串行化。
+        self._infer_lock = threading.Lock()
 
     # ------------------------------------------------------------------
     # 加载
@@ -222,6 +229,15 @@ class Detector:
     # 推理
     # ------------------------------------------------------------------
     def infer(self, frame: Any) -> list[Detection]:
+        """推理入口（**线程安全**）。
+
+        ★ 加锁串行：见 ``_infer_lock`` 的说明。每帧多等一次锁的开销远小于
+        推理本身（几十~几百毫秒），换来的是结果不被并发污染。
+        """
+        with self._infer_lock:
+            return self._infer(frame)
+
+    def _infer(self, frame: Any) -> list[Detection]:
         if frame is None:
             return []
         if self.backend == "mock" or self.mock:
@@ -295,10 +311,22 @@ class Detector:
         boxes_xyxy[:, [0, 2]] = boxes_xyxy[:, [0, 2]].clip(0, w - 1)
         boxes_xyxy[:, [1, 3]] = boxes_xyxy[:, [1, 3]].clip(0, h - 1)
 
-        idx = cv2.dnn.NMSBoxes(boxes_xyxy.tolist(), confs.tolist(),
-                               self.conf_threshold, self.iou_threshold)
+        # ★ NMS 必须**按类各做一次**，不能对所有框做一次类别无关的 NMS。
+        #   ``cv2.dnn.NMSBoxes`` 是类别无关的：同一目标被同时预测成两个类时，
+        #   得分高的那个类会把另一个类**整框压掉**。2 类模型（plastic_bag +
+        #   buoy 显式负类）上实测过：泳池帧里同一个袋子被同时预测成
+        #   plastic_bag 0.96 与 buoy 0.97，一次类别无关的 NMS 把袋子框删掉 ——
+        #   留出集召回从 0.993 掉到 **0.776**（部署链路上少检 22% 的目标）。
+        #   ultralytics 默认 agnostic_nms=False（按类 NMS），这里与它对齐。
+        keep_idx: list[int] = []
+        for cls_id in np.unique(cls_ids):
+            m = cls_ids == cls_id
+            sub = np.array(cv2.dnn.NMSBoxes(boxes_xyxy[m].tolist(), confs[m].tolist(),
+                                            self.conf_threshold, self.iou_threshold)).flatten()
+            keep_idx.extend(int(i) for i in np.where(m)[0][sub])
+
         dets: list[Detection] = []
-        for i in (idx.flatten() if hasattr(idx, "flatten") else list(idx)):
+        for i in keep_idx:
             ci = int(cls_ids[i])
             name = self.classes[ci] if ci < len(self.classes) else f"cls{ci}"
             x1, y1, x2, y2 = boxes_xyxy[i]

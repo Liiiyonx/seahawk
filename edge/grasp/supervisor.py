@@ -46,7 +46,7 @@ for _p in (str(EDGE), str(HERE)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from grasp.arm_io import ArmIo                      # noqa: E402
+from grasp.arm_io import build_arm_io               # noqa: E402
 from grasp.calibration import demo_calibration, load_calibration  # noqa: E402
 from grasp.config import load_config                # noqa: E402
 from grasp.grasp_loop import GraspLoop              # noqa: E402
@@ -99,7 +99,9 @@ def run_forever(
     max_failures: int,
     once: bool = False,
 ) -> int:
-    io = ArmIo(cfg, mock=mock)
+    # ★ build_arm_io 而非直接 ArmIo：开发机跑常驻自捡时，执行端在树莓派上
+    #   （arm.remote.enabled=true → ArmIoRemote）；板上原生跑时行为与改动前一模一样。
+    io = build_arm_io(cfg, mock=mock)
     io.start()
 
     detector = Detector(cfg, mock=mock)

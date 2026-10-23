@@ -1,0 +1,115 @@
+# ============================================================
+# Oceanus 机械臂智能拾取子系统 · 统一配置（edge/grasp）
+# ============================================================
+# 覆盖三个组件：
+#   1. vision_driver  —— 视觉驱动（ArmDriver 实现，注册名 oceanus_vision）
+#   2. vision/        —— 现场再训练管线（数据集 / 训练 / 评估 / 原子部署）
+#   3. web/           —— 树莓派上的训练作业台（FastAPI :8090）
+#
+# 设备口径与 edge/arm_bridge/config.yaml 保持一致：
+#   site_id = lianjiang，device_id = RBT-ARM-01
+# ★ 标记「需真机核对」的字段来自厂商源码推断，上真机前必须实测确认。
+
+site_id: "lianjiang"
+device_id: "RBT-ARM-01"
+
+web:
+  host: "0.0.0.0"
+  port: 8090
+  # mock=true 时不需要 ROS：用合成画面 + 模拟舵机把 UI 跑通，
+  # 便于在演示笔记本上开发调试（命令行 --mock 可覆盖）。
+  mock: false
+
+arm:
+  # ---------- 舵机 ID 映射（依据厂商源码实测口径）----------
+  #   ID1 夹爪：脉宽越大越开（in.py 抓取时按 grasp_posture-80 → grasp_posture 渐进闭合）
+  #   ID2 腕部旋转：500 为中位（in.py 用 500 + F*gripper_rotation 对齐夹取角）
+  #   ID3-6 逆运动学解算的四个关节
+  gripper_servo: 1
+  wrist_servo: 2
+  ik_servos: [3, 4, 5, 6]
+  # ★ 需真机核对：开合脉宽（厂商 pick 用 200 作闭合态、500 作半开态）
+  gripper_open: 500
+  gripper_close: 200
+  # 夹爪自适应渐闭：每步脉宽与步间等待（秒）
+  gripper_step: 20
+  gripper_step_wait: 0.12
+  wrist_center: 500
+  default_duration_ms: 800
+  # 控制话题（与厂商节点共用的同一份 ROS 契约）
+  servo_topic: "/servo_controllers/port_id_1/multi_id_pos_dur"
+  servo_states_topic: "/servo_controllers/port_id_1/servo_states"
+  joint_states_topic: "/joint_states"
+  camera_topic: "/usb_cam/image_raw"
+  # 待命位（取自厂商 face.py initMove：坐标 m，俯仰角 -65°，范围 [-180, 0]）
+  home:
+    coord: [0.0, 0.17, 0.30]
+    pitch: -65
+    pitch_range: [-180, 0]
+
+vision:
+  # NCNN / ONNX 模型目录（由 vision/deploy.py 原子切换）
+  model_dir: "models/active"
+  # ★ 部署尺寸：与导出的 ONNX 输入边长必须一致，否则 cv2.dnn 会报维度不匹配。
+  #   416 → 640 是实测出来的硬结论（不是折中取整）：训练本来是 768，当年却导了 416，
+  #   白丢了近半分辨率 —— 在演示场景域（仿真海面）上 416 几乎全盲（帧级命中 11/160，
+  #   R@0.5 0.021），640 起才稳定出框；公开基准 AP50 也从 0.306 → 0.402。
+  #   ⚠️ Pi4 上 640 会更慢，真机视觉伺服 ~4Hz 的实时性需现场复核，不保则回退 416。
+  input_size: 640
+  # ★ 阈值口径（tools/eval_robustness.py + _work 实测选定，不是拍脑袋）：
+  #   域内微调后模型 v20261015_190359 在演示场景域 conf=0.50 → P 1.000 / R 0.836。
+  #   机械臂场景「误抓代价高」，取 0.50 作平衡点。
+  #   另有两道决策层兜底：grasp_loop 的连续 3 帧锁定（滤偶发误检）
+  #   + HSV 饱和度校验（滤高饱和物体）。
+  conf_threshold: 0.50
+  iou_threshold: 0.45
+
+  # ---------- 两个「类别」口径必须分开，否则会互相打架 ----------
+  # classes：**标注口径**（作业台采集/标注时可选类别）。这里必须保留 buoy ——
+  #          现场再训练时要把彩色浮标标成 buoy，它是抗干扰的负样本来源。
+  classes: ["plastic_bag", "buoy"]
+  # model_classes：**部署模型口径**（已部署权重实际输出的类别，顺序即索引）。
+  #          v20261015_190359 起部署的是「域内微调」2 类模型：plastic_bag 抓取目标
+  #          + buoy 显式负类 —— 彩色浮标检出后按类名门控直接挡在抓取候选之外
+  #          （抗彩色干扰第一道防线）。顺序即索引，改动必须与训练口径一致。
+  model_classes: ["plastic_bag", "buoy"]
+  # 只有目标类进入抓取候选；其余类别（浮标等）检出也不动手
+  target_class: "plastic_bag"
+
+data:
+  root: "data"
+  capture_frames: 200
+  val_ratio: 0.2
+
+# 作业台只读订阅平台派单，用于页面显示工单上下文（不改平台契约）
+mqtt:
+  enabled: true
+  host: "localhost"
+  port: 1883
+  client_id: "oceanus_grasp_web"
+  # ★ 与平台 backend/.env 的 robot_device 凭证一致
+  username: "robot_device"
+  password: "CHANGE_ME"
+  keepalive: 30
+
+agent:
+  frame_period_ms: 250          # 视觉伺服周期：总线舵机慢，250ms 足够
+  max_retry: 3                  # 单目标最大重试，超限上报异常
+  grasp_depth_offset: 0.005     # 抓取点相对目标平面的下压量（m）
+  work_radius: 0.20             # 工作半径上限（m），收窄以规避舵机重复精度不足
+  approach_height: 0.08         # 接近点抬高量（m）
+  lock_min_hits: 3              # 目标锁定最少连续命中帧数（轨迹去抖）
+  grip_stall_threshold: 8       # 「夹到东西」的脉宽停滞阈值
+  place_offset: [0.0, 0.0, 0.05]  # 放置点相对标定原点的偏移（m）；AprilTag 可用时以视觉为准
+
+# ============================================================
+# 常驻作业监督器（grasp/supervisor.py）
+# ------------------------------------------------------------
+# 为什么要有它：GraspLoop.run() 是「抓一个就收工」，两个既有入口（平台派单 /
+# 作业台按钮）都是一次调一次。监督器在外面套一层循环，做成"开机后自己一直捡"。
+# ⚠️ 与 arm_bridge 互斥：两者都会驱动同一台机械臂，同一时刻只能跑一个。
+# ============================================================
+supervisor:
+  idle_interval_s: 5.0            # 视野里没目标时的轮询间隔
+  cooldown_s: 3.0                 # 抓成功后的冷却（给放置/回位留时间）
+  max_consecutive_failures: 5     # 连续失败到这个数就停并退出（由 systemd 决定是否重启）

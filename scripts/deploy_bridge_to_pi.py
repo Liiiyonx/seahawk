@@ -141,6 +141,8 @@ def main() -> int:
     try:
         # ── 1. 上传 ──
         print('1) 上传 bridge（%d 个文件）→ %s' % (len(INCLUDE_FILES), args.remote_dir))
+        # 先递归建目录（首次部署时目标目录不存在，sftp.mkdir 不建父目录）
+        print('   ' + run('mkdir -p %s' % args.remote_dir).strip())
         sftp = cli.open_sftp()
         for rel in INCLUDE_FILES:
             local = os.path.join(BRIDGE_SRC, rel.replace('/', os.sep))

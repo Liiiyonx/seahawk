@@ -772,7 +772,7 @@ class TestNoChainOfThought:
         }
         client = FakeJsonClient(result=response)
         adapter = make_adapter(client)
-        with caplog.at_level(logging.INFO, logger="seasight.agents.model_adapter"):
+        with caplog.at_level(logging.INFO, logger="oceanus.agents.model_adapter"):
             proposal = adapter.plan(task=make_request(), tool_summary=summarize_tools(registry), role="operator")
 
         assert proposal.source == SOURCE_RULE_FALLBACK
@@ -807,7 +807,7 @@ class TestNoChainOfThought:
         registry, _ = make_registry()
         client = FakeJsonClient(result=valid_plan_response())
         adapter = make_adapter(client)
-        with caplog.at_level(logging.INFO, logger="seasight.agents.model_adapter"):
+        with caplog.at_level(logging.INFO, logger="oceanus.agents.model_adapter"):
             proposal = adapter.plan(task=make_request(), tool_summary=summarize_tools(registry), role="operator")
 
         assert proposal.source == SOURCE_MODEL

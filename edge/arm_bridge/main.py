@@ -19,6 +19,7 @@ pickup evidence and does not imply detection accuracy.
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import signal
 import sys
@@ -127,6 +128,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # ★ 入口配一次日志。不配的话 INFO 全被吞掉（只剩 WARNING+ 走 lastResort），
+    #   现场看到的现象是"启动后一行都不出" —— 抓取相位推进、检测后端、帧源
+    #   类型这些最关键的运行证据全都看不见。格式与 edge/grasp 侧保持一致。
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
     args = parse_args(argv)
     cfg = _load_config(Path(args.config))
 

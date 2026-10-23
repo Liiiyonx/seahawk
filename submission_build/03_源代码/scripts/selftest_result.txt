@@ -1,0 +1,52 @@
+======================================================================
+检查脚本自证 —— 逐个注入已知缺陷，确认能被抓到
+======================================================================
+
+[基线] 当前退出码 = 0（应为 0）
+
+--- 逐个注入 ---
+  [PASS] 缺陷A：robot cmd/ack 路由退回总段数判据（该主题实际只有 4 段）
+         注入后退出码 1，证据：[FAIL] robot/+/cmd/ack → 实际主题 robot/RBT01/cmd/ack 路由不到任何处理器（消息会被静默丢弃）
+  [PASS] 缺陷B：ROBOT_STATUS_MAP 漏掉 done（文档 §5.6 要求有）
+         注入后退出码 1，证据：[FAIL] 文档声明但映射表缺失：['done']（★ 最恶劣的一类缺陷：dict.get 返 None 被 if 静默吞掉，任务永久卡住且无日志）
+  [PASS] 缺陷C：returning→navigating（合法值但文档要求 collecting）
+         注入后退出码 1，证据：[FAIL] 映射目标与文档不符：returning（文档要求 → collecting，实现 → navigating）
+  [PASS] 缺陷D：EventAggregate.main_class 退回裸 str（枚举约束丢失）
+         注入后退出码 1，证据：[FAIL] EventAggregate.main_class 放行了非法类别 —— 缺枚举约束（前端配色/派单/入库会同时静默失效）
+  [PASS] 缺陷E：派单白名单硬编码回字面量（与 HIGH_PRIORITY 脱钩）
+         注入后退出码 1，证据：[FAIL] 派单白名单在 handlers.py 里硬编码 —— 应改用 WasteClass.HIGH_PRIORITY（api/v1/events.py 用的是常量，两处各写一份必然漂移）
+  [PASS] 缺陷F：前端 CLASS_ORDER 多出一类（与后端枚举漂移）
+         注入后退出码 1，证据：[FAIL] frontend/src/utils/constants.js CLASS_ORDER 不一致：('foam', 'plastic', 'fishing_gear', 'other', 'gho
+  [PASS] 缺陷G：DB waste_class_enum 少一类（'other' 丢字段）
+         注入后退出码 1，证据：[FAIL] db/init/01_schema.sql waste_class_enum 不一致：('foam', 'plastic', 'fishing_gear')
+  [PASS] 缺陷H：SUBSCRIBE_PLAN 漏掉 robot/+/cmd/ack（文档 §7.2 要求订阅）
+         注入后退出码 1，证据：[FAIL] 文档声明平台应订阅但代码未订阅：['robot/+/cmd/ack']（消息会被 broker 挡在门外，设备侧表现为「发了没人理」）
+
+--- 测试型守卫（WS 推送负载）---
+  [基线] tests/test_ws_contract.py 退出码 = 0（应为 0）
+  [PASS] 缺陷I：handlers 的 task_update 负载漏掉 event_id
+         注入后退出码 1，证据：f"{relpath}:{lineno} 的 {mtype} 负载缺少 {sorted(missing)}"
+  [PASS] 缺陷J：WS_MESSAGE_CONTRACT 漏掉 pong
+         注入后退出码 1，证据：f"契约常量缺少文档声明的消息类型 {sorted(missing)} —— "
+  [PASS] 缺陷K：task_update 契约少声明 event_id（校验会漏掉真正的缺失）
+         注入后退出码 1，证据：(未找到证据行，但退出码非 0)
+  [PASS] 缺陷L：前端丢了 robot_status 处理分支（消息被无声丢弃）
+         注入后退出码 1，证据：f"后端会推送但这些类型前端没有处理分支：{sorted(missing)}"
+
+--- 还原复检 ---
+  check_contract_drift.py 退出码 = 0（应为 0）
+  tests/test_ws_contract.py 退出码 = 0（应为 0）
+  [PASS] 所有注入均已还原，两类守卫都回到全绿
+
+--- 字节级还原自证 ---
+  [PASS] 注入→还原后字节完全一致，SHA256 一致（df6bdfd7f020cdf6…）
+
+======================================================================
+自证汇总
+======================================================================
+  注入项总数 : 12
+  成功捕获   : 12
+  未被捕获   : 0  
+  锚点失效   : 0  
+
+  全部注入均被捕获，且工作区干净。检查脚本可信。

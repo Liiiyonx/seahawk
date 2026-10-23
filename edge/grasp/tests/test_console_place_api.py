@@ -32,7 +32,14 @@ from grasp.web.server import create_app         # noqa: E402
 
 
 @pytest.fixture()
-def client() -> TestClient:
+def client(monkeypatch, tmp_path) -> TestClient:
+    # ★ 隔离标定文件路径。默认路径是 edge/grasp/calibration.json（.gitignore 的本地文件）：
+    #   开发者本机残留一份真标定，会让作业台把它判成「真机标定」而不是演示标定，
+    #   本文件的演示/不落盘断言就会**误失败**；反过来，这里调 /api/calibrate/plane_z
+    #   也会**写坏开发者本机那份标定**（实测踩到）。指到临时目录后两边都干净。
+    from grasp import calibration as calib_mod
+    monkeypatch.setattr(calib_mod, "DEFAULT_CALIBRATION_PATH",
+                        tmp_path / "calibration.json")
     # 用仓库里**真实的那份** config.yaml：顺带校验 place 段落能被解析
     cfg = load_config()
     assert "place" in (cfg.get("agent") or {}), "config.yaml 缺 agent.place 段落"

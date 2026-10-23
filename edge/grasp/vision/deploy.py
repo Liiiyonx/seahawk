@@ -152,7 +152,7 @@ class ModelStore:
         index.setdefault("history", []).append(meta)
         self._write_index(index)
 
-        logger.info("已部署模型版本 %s（文件 %s）", meta["version"], meta["files"])
+        logger.info("在用模型版本 %s（文件 %s）", meta["version"], meta["files"])
         return meta
 
     def _create_version_dir(self) -> Path:

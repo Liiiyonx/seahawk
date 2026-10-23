@@ -44,6 +44,14 @@ FILES: tuple[tuple[str, str], ...] = (
         "04_示例问答截图/R-KN-04_02-决策证据链-资产版本引用.png",
     ),
     (
+        "artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png",
+        "04_示例问答截图/R-KN-05_01-跨文档多跳检索结果-2跳路径.png",
+    ),
+    (
+        "artifacts/knowledge-qa-trace-multihop/02-决策证据链-资产版本引用.png",
+        "04_示例问答截图/R-KN-05_02-决策证据链-多跳证据引用.png",
+    ),
+    (
         "artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/nexent-console-home.png",
         "04_示例问答截图/R-NX-09_01-nexent-console-home.png",
     ),
@@ -53,6 +61,9 @@ FILES: tuple[tuple[str, str], ...] = (
     ),
     ("artifacts/evolution-demo/latest.json", "05_证据包/R-KN-01_latest.json"),
     ("artifacts/ontology-eval/latest.json", "05_证据包/R-KN-02_ontology-eval.json"),
+    ("artifacts/ontology-llm-eval/latest.json", "05_证据包/R-LLM-01_ontology-llm-eval.json"),
+    ("artifacts/knowledge-llm-qa-trace/latest.json", "05_证据包/R-KN-06_knowledge-llm-qa-trace.json"),
+    ("artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml", "05_证据包/R-NX-08-PROBE_2026-10-24.yaml"),
     (
         "artifacts/ontology-eval/incremental-latest.json",
         "05_证据包/R-KN-03_incremental-eval.json",
@@ -61,10 +72,26 @@ FILES: tuple[tuple[str, str], ...] = (
         "artifacts/knowledge-qa-trace/latest.json",
         "05_证据包/R-KN-04_knowledge-qa-trace.json",
     ),
+    (
+        "artifacts/knowledge-qa-trace-multihop/latest.json",
+        "05_证据包/R-KN-05_knowledge-multihop-trace.json",
+    ),
     ("artifacts/open-data-eval/latest.json", "05_证据包/R-OD-01_open-data-eval.json"),
     (
         "artifacts/open-data-eval/corpus/manifest.json",
         "05_证据包/open-data-eval_corpus_manifest.json",
+    ),
+    (
+        "artifacts/open-data-e2e/latest.json",
+        "05_证据包/R-OD-02_open-data-e2e.json",
+    ),
+    (
+        "artifacts/real-industry-data/manifest.json",
+        "05_证据包/R-OD-03_real-industry-dataset.json",
+    ),
+    (
+        "artifacts/real-industry-data/knowledge-e2e-trace.json",
+        "05_证据包/R-OD-03_knowledge-e2e-trace.json",
     ),
     (
         "artifacts/nexent-platform-acceptance/recheck-2026-09-29.yaml",
@@ -116,6 +143,12 @@ FILES: tuple[tuple[str, str], ...] = (
     ),
     ("artifacts/skill-migration/evidence/latest.json", "05_证据包/R-MG-01_skill-migration.json"),
     ("docs/competitions/standard-code-mapping.md", "06_标准映射表.md"),
+    # 演示视频：ffmpeg 转码产物（构建步骤见 docs/competitions/
+    # huawei-ict-track3-submission-checklist.md §5.1），原始 4K 母带不入包。
+    (
+        "dist/huawei-track3-video/探海灵眸Oceanus_演示视频.mp4",
+        "07_演示视频/探海灵眸Oceanus_演示视频.mp4",
+    ),
     ("artifacts/nexent-mcp-openapi.json", "artifacts/nexent-mcp-openapi.json"),
 )
 

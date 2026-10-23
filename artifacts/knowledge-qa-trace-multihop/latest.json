@@ -1,0 +1,978 @@
+{
+  "status": "ok",
+  "generated_at": "2026-10-23T15:44:40.275Z",
+  "evidence_level": "E1/E2",
+  "scope_note": "确定性检索-推理链路演示：本体图检索 + 决策证据链，非 LLM 生成式问答；资产为演示资产，非真实脱敏行业数据评测，不代表感知精度或真实部署。",
+  "question": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+  "search": {
+    "mode": "ontology_graph",
+    "ontology_version_id": "ONT-DEMO-MARINE-001",
+    "total": 6,
+    "results": [
+      {
+        "title": "马鼻镇泡沫塑料聚集事件（演示）",
+        "asset_id": "KA-DEMO-EVENT-001",
+        "asset_version_id": "KAV-DEMO-EVENT-001-V1",
+        "hop_count": 2,
+        "score": 47.5,
+        "path": [
+          {
+            "hop_no": 1,
+            "relation_type": "触发"
+          },
+          {
+            "hop_no": 2,
+            "relation_type": "生成"
+          }
+        ],
+        "citations": [
+          "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+          "泡沫垃圾 -[触发]-> 岸线巡查",
+          "岸线巡查 -[生成]-> 打捞任务"
+        ]
+      },
+      {
+        "title": "马鼻镇海漂垃圾监测汇总（演示）",
+        "asset_id": "KA-DEMO-MONITOR-001",
+        "asset_version_id": "KAV-DEMO-MONITOR-001-V1",
+        "hop_count": 0,
+        "score": 31.5,
+        "path": [],
+        "citations": [
+          "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]"
+        ]
+      },
+      {
+        "title": "连江县海漂垃圾巡查处置指南（演示样本）",
+        "asset_id": "KA-DEMO-POLICY-001",
+        "asset_version_id": "KAV-DEMO-POLICY-001-V1",
+        "hop_count": 1,
+        "score": 16.5,
+        "path": [
+          {
+            "hop_no": 1,
+            "relation_type": "包含类型"
+          },
+          {
+            "hop_no": 1,
+            "relation_type": "触发"
+          }
+        ],
+        "citations": [
+          "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+          "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+          "泡沫垃圾 -[触发]-> 岸线巡查"
+        ]
+      },
+      {
+        "title": "黄岐渔港泡沫垃圾识别记录（演示）",
+        "asset_id": "KA-DEMO-IMAGE-001",
+        "asset_version_id": "KAV-DEMO-IMAGE-001-V1",
+        "hop_count": 2,
+        "score": 9.5,
+        "path": [
+          {
+            "hop_no": 1,
+            "relation_type": "触发"
+          },
+          {
+            "hop_no": 2,
+            "relation_type": "责任区域"
+          },
+          {
+            "hop_no": 1,
+            "relation_type": "包含类型"
+          },
+          {
+            "hop_no": 2,
+            "relation_type": "包含类型"
+          }
+        ],
+        "citations": [
+          "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+          "泡沫垃圾 -[触发]-> 岸线巡查",
+          "岸线巡查 -[责任区域]-> 黄岐渔港",
+          "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+          "海漂垃圾 -[包含类型]-> 废弃渔具"
+        ]
+      },
+      {
+        "title": "黄岐渔港风浪与潮汐遥测记录（演示）",
+        "asset_id": "KA-DEMO-TELEMETRY-001",
+        "asset_version_id": "KAV-DEMO-TELEMETRY-001-V1",
+        "hop_count": 1,
+        "score": 6,
+        "path": [
+          {
+            "hop_no": 1,
+            "relation_type": "影响"
+          },
+          {
+            "hop_no": 1,
+            "relation_type": "影响"
+          }
+        ],
+        "citations": [
+          "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+          "泡沫垃圾 -[影响]-> 潮汐",
+          "泡沫垃圾 -[影响]-> 风向"
+        ]
+      },
+      {
+        "title": "连江岸线多模态训练集 v1（演示）",
+        "asset_id": "KA-DEMO-DATASET-001",
+        "asset_version_id": "KAV-DEMO-DATASET-001-V1",
+        "hop_count": 2,
+        "score": 2.5,
+        "path": [
+          {
+            "hop_no": 1,
+            "relation_type": "触发"
+          },
+          {
+            "hop_no": 2,
+            "relation_type": "使用的设备"
+          }
+        ],
+        "citations": [
+          "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+          "泡沫垃圾 -[触发]-> 岸线巡查",
+          "岸线巡查 -[使用的设备]-> 无人机巡查"
+        ]
+      }
+    ]
+  },
+  "decision": {
+    "trace_id": "dtr_20261023154439_63672815",
+    "status": "completed",
+    "answer_summary": "根据治理方案与月度台账，由值班研判人员复核后派单，调度岸基机械臂或打捞机器人拾取，并回传拾取回执形成闭环。",
+    "ontology_version_id": null
+  },
+  "evidence": [
+    {
+      "rank_no": 1,
+      "asset_id": "KA-DEMO-MONITOR-001",
+      "asset_version_id": "KAV-DEMO-MONITOR-001-V1",
+      "hop_no": 0,
+      "citation_text": "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]"
+    },
+    {
+      "rank_no": 2,
+      "asset_id": "KA-DEMO-POLICY-001",
+      "asset_version_id": "KAV-DEMO-POLICY-001-V1",
+      "hop_no": 1,
+      "citation_text": "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]"
+    },
+    {
+      "rank_no": 3,
+      "asset_id": "KA-DEMO-TELEMETRY-001",
+      "asset_version_id": "KAV-DEMO-TELEMETRY-001-V1",
+      "hop_no": 1,
+      "citation_text": "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]"
+    },
+    {
+      "rank_no": 4,
+      "asset_id": "KA-DEMO-EVENT-001",
+      "asset_version_id": "KAV-DEMO-EVENT-001-V1",
+      "hop_no": 2,
+      "citation_text": "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]"
+    },
+    {
+      "rank_no": 5,
+      "asset_id": "KA-DEMO-IMAGE-001",
+      "asset_version_id": "KAV-DEMO-IMAGE-001-V1",
+      "hop_no": 2,
+      "citation_text": "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]"
+    },
+    {
+      "rank_no": 6,
+      "asset_id": "KA-DEMO-DATASET-001",
+      "asset_version_id": "KAV-DEMO-DATASET-001-V1",
+      "hop_no": 2,
+      "citation_text": "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]"
+    }
+  ],
+  "api_traces": [
+    {
+      "phase": "search",
+      "path": "/api/v1/knowledge/search",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "ok",
+        "data": {
+          "query": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+          "mode": "ontology_graph",
+          "ontology_version_id": "ONT-DEMO-MARINE-001",
+          "total": 6,
+          "results": [
+            {
+              "asset_id": "KA-DEMO-EVENT-001",
+              "asset_version_id": "KAV-DEMO-EVENT-001-V1",
+              "title": "马鼻镇泡沫塑料聚集事件（演示）",
+              "asset_type": "event",
+              "source_uri": "demo://lianjiang/knowledge/mabi-foam-event",
+              "score": 47.5,
+              "snippet": "马鼻镇泡沫塑料聚集事件（演示） 演示事件：马鼻镇岸线发现泡沫塑料聚集，最大连续面积约 18 平方米，事件触发岸线巡查，已关联打捞任务和回收处置记录。",
+              "matched_node_ids": [
+                "NODE-DEMO-COLLECT",
+                "NODE-DEMO-EPS",
+                "NODE-DEMO-MABI"
+              ],
+              "matched_relation_ids": [
+                "REL-DEMO-006",
+                "REL-DEMO-008"
+              ],
+              "hop_count": 2,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-006",
+                  "target_node_id": "NODE-DEMO-PATROL",
+                  "relation_type": "触发"
+                },
+                {
+                  "hop_no": 2,
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "relation_id": "REL-DEMO-008",
+                  "target_node_id": "NODE-DEMO-COLLECT",
+                  "relation_type": "生成"
+                }
+              ],
+              "citations": [
+                "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[生成]-> 打捞任务"
+              ]
+            },
+            {
+              "asset_id": "KA-DEMO-MONITOR-001",
+              "asset_version_id": "KAV-DEMO-MONITOR-001-V1",
+              "title": "马鼻镇海漂垃圾监测汇总（演示）",
+              "asset_type": "table",
+              "source_uri": "demo://lianjiang/knowledge/mabi-marine-litter-summary",
+              "score": 31.5,
+              "snippet": "马鼻镇海漂垃圾监测汇总（演示） 马鼻镇近 24 小时演示监测汇总：泡沫垃圾 14 件，泡沫塑料 10.8 千克，废弃渔具 4 件；高发点位集中在马鼻码头近岸。建议对泡沫类漂浮物执行优先巡查和打捞，并复核潮汐与风向数据。",
+              "matched_node_ids": [
+                "NODE-DEMO-FOAM"
+              ],
+              "matched_relation_ids": [],
+              "hop_count": 0,
+              "path": [],
+              "citations": [
+                "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]"
+              ]
+            },
+            {
+              "asset_id": "KA-DEMO-POLICY-001",
+              "asset_version_id": "KAV-DEMO-POLICY-001-V1",
+              "title": "连江县海漂垃圾巡查处置指南（演示样本）",
+              "asset_type": "document",
+              "source_uri": "demo://lianjiang/knowledge/marine-litter-response-guide",
+              "score": 16.5,
+              "snippet": "连江县海漂垃圾巡查处置指南（演示样本） 连江县海漂垃圾巡查处置演示流程：海漂垃圾包括泡沫垃圾、泡沫塑料和废弃渔具等类型。发现泡沫塑料聚集后，责任区域应启动岸线巡查，核实位置、范围和漂移方向，再生成打捞任务。打捞任务完成后进入回收处置环节。马鼻镇和黄岐渔港应记录潮汐、风向和风速，作为判断漂浮垃圾来源、漂移路径和作业窗口的证据。所有结论必须保留资产版本、原始引用和审核人。",
+              "matched_node_ids": [
+                "NODE-DEMO-LITTER",
+                "NODE-DEMO-PATROL"
+              ],
+              "matched_relation_ids": [
+                "REL-DEMO-001",
+                "REL-DEMO-006"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-001",
+                  "target_node_id": "NODE-DEMO-LITTER",
+                  "relation_type": "包含类型"
+                },
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-006",
+                  "target_node_id": "NODE-DEMO-PATROL",
+                  "relation_type": "触发"
+                }
+              ],
+              "citations": [
+                "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+                "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                "泡沫垃圾 -[触发]-> 岸线巡查"
+              ]
+            },
+            {
+              "asset_id": "KA-DEMO-IMAGE-001",
+              "asset_version_id": "KAV-DEMO-IMAGE-001-V1",
+              "title": "黄岐渔港泡沫垃圾识别记录（演示）",
+              "asset_type": "image",
+              "source_uri": "demo://lianjiang/knowledge/huangqi-foam-detection-frame",
+              "score": 9.5,
+              "snippet": "黄岐渔港泡沫垃圾识别记录（演示） 黄岐渔港演示识别帧：检出泡沫垃圾 6 处、疑似废弃渔具 2 处，画面质量良好。用于说明图像资产如何登记检测框、置信度和人工复核状态。",
+              "matched_node_ids": [
+                "NODE-DEMO-GEAR",
+                "NODE-DEMO-HUANGQI"
+              ],
+              "matched_relation_ids": [
+                "REL-DEMO-001",
+                "REL-DEMO-002",
+                "REL-DEMO-006",
+                "REL-DEMO-011"
+              ],
+              "hop_count": 2,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-006",
+                  "target_node_id": "NODE-DEMO-PATROL",
+                  "relation_type": "触发"
+                },
+                {
+                  "hop_no": 2,
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "relation_id": "REL-DEMO-011",
+                  "target_node_id": "NODE-DEMO-HUANGQI",
+                  "relation_type": "责任区域"
+                },
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-001",
+                  "target_node_id": "NODE-DEMO-LITTER",
+                  "relation_type": "包含类型"
+                },
+                {
+                  "hop_no": 2,
+                  "source_node_id": "NODE-DEMO-LITTER",
+                  "relation_id": "REL-DEMO-002",
+                  "target_node_id": "NODE-DEMO-GEAR",
+                  "relation_type": "包含类型"
+                }
+              ],
+              "citations": [
+                "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[责任区域]-> 黄岐渔港",
+                "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                "海漂垃圾 -[包含类型]-> 废弃渔具"
+              ]
+            },
+            {
+              "asset_id": "KA-DEMO-TELEMETRY-001",
+              "asset_version_id": "KAV-DEMO-TELEMETRY-001-V1",
+              "title": "黄岐渔港风浪与潮汐遥测记录（演示）",
+              "asset_type": "telemetry",
+              "source_uri": "demo://lianjiang/knowledge/huangqi-hydro-meteorology",
+              "score": 6,
+              "snippet": "...岐渔港演示遥测：未来 6 小时潮位由 0.8 米升至 2.1 米，风向东南，平均风速 4.2 米每秒。潮汐和风向可能推动泡沫垃圾向渔港西侧岸线聚集，建议在涨潮前完成巡查。",
+              "matched_node_ids": [
+                "NODE-DEMO-TIDE",
+                "NODE-DEMO-WIND"
+              ],
+              "matched_relation_ids": [
+                "REL-DEMO-012",
+                "REL-DEMO-013"
+              ],
+              "hop_count": 1,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-012",
+                  "target_node_id": "NODE-DEMO-TIDE",
+                  "relation_type": "影响"
+                },
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-013",
+                  "target_node_id": "NODE-DEMO-WIND",
+                  "relation_type": "影响"
+                }
+              ],
+              "citations": [
+                "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+                "泡沫垃圾 -[影响]-> 潮汐",
+                "泡沫垃圾 -[影响]-> 风向"
+              ]
+            },
+            {
+              "asset_id": "KA-DEMO-DATASET-001",
+              "asset_version_id": "KAV-DEMO-DATASET-001-V1",
+              "title": "连江岸线多模态训练集 v1（演示）",
+              "asset_type": "dataset",
+              "source_uri": "demo://lianjiang/knowledge/coast-multimodal-dataset-v1",
+              "score": 2.5,
+              "snippet": "连江岸线多模态训练集 v1（演示） 连江岸线多模态训练集演示版本包含岸线照片、表格汇总和遥测时序，可用于无人机巡查、泡沫垃圾识别和废弃渔具识别的低资源迁移实验。样本均已脱敏并保留来源说明。",
+              "matched_node_ids": [
+                "NODE-DEMO-UAV"
+              ],
+              "matched_relation_ids": [
+                "REL-DEMO-006",
+                "REL-DEMO-015"
+              ],
+              "hop_count": 2,
+              "path": [
+                {
+                  "hop_no": 1,
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "relation_id": "REL-DEMO-006",
+                  "target_node_id": "NODE-DEMO-PATROL",
+                  "relation_type": "触发"
+                },
+                {
+                  "hop_no": 2,
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "relation_id": "REL-DEMO-015",
+                  "target_node_id": "NODE-DEMO-UAV",
+                  "relation_type": "使用的设备"
+                }
+              ],
+              "citations": [
+                "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[使用的设备]-> 无人机巡查"
+              ]
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "phase": "create_decision",
+      "path": "/api/v1/knowledge/decisions",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "决策轨迹已记录",
+        "data": {
+          "trace_id": "dtr_20261023154439_63672815",
+          "run_id": null,
+          "question": "马鼻镇出现泡沫聚集时，应如何处置并留存证据链？",
+          "answer_summary": "根据治理方案与月度台账，由值班研判人员复核后派单，调度岸基机械臂或打捞机器人拾取，并回传拾取回执形成闭环。",
+          "status": "completed",
+          "ontology_version_id": null,
+          "policy_version": null,
+          "metadata": {
+            "search_mode": "ontology_graph",
+            "ontology_version_id": "ONT-DEMO-MARINE-001",
+            "result_count": 6
+          },
+          "created_by": "admin",
+          "created_at": "2026-10-23T15:44:39.118651Z",
+          "evidence": [
+            {
+              "evidence_id": "evd_20261023154439_79b8181a",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 1,
+              "asset_id": "KA-DEMO-MONITOR-001",
+              "asset_version_id": "KAV-DEMO-MONITOR-001-V1",
+              "node_id": null,
+              "relation_id": null,
+              "hop_no": 0,
+              "citation_text": "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/mabi-marine-litter-summary",
+              "score": 31.5,
+              "metadata": {
+                "path": [],
+                "citations": [
+                  "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-FOAM"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            },
+            {
+              "evidence_id": "evd_20261023154439_6919b25a",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 2,
+              "asset_id": "KA-DEMO-POLICY-001",
+              "asset_version_id": "KAV-DEMO-POLICY-001-V1",
+              "node_id": null,
+              "relation_id": "REL-DEMO-001",
+              "hop_no": 1,
+              "citation_text": "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/marine-litter-response-guide",
+              "score": 16.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-001",
+                    "relation_type": "包含类型",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-LITTER"
+                  },
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-006",
+                    "relation_type": "触发",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-PATROL"
+                  }
+                ],
+                "citations": [
+                  "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+                  "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                  "泡沫垃圾 -[触发]-> 岸线巡查"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-LITTER",
+                  "NODE-DEMO-PATROL"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            },
+            {
+              "evidence_id": "evd_20261023154439_5b47a19e",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 3,
+              "asset_id": "KA-DEMO-TELEMETRY-001",
+              "asset_version_id": "KAV-DEMO-TELEMETRY-001-V1",
+              "node_id": null,
+              "relation_id": "REL-DEMO-012",
+              "hop_no": 1,
+              "citation_text": "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/huangqi-hydro-meteorology",
+              "score": 6,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-012",
+                    "relation_type": "影响",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-TIDE"
+                  },
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-013",
+                    "relation_type": "影响",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-WIND"
+                  }
+                ],
+                "citations": [
+                  "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+                  "泡沫垃圾 -[影响]-> 潮汐",
+                  "泡沫垃圾 -[影响]-> 风向"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-TIDE",
+                  "NODE-DEMO-WIND"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            },
+            {
+              "evidence_id": "evd_20261023154439_bed447d8",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 4,
+              "asset_id": "KA-DEMO-EVENT-001",
+              "asset_version_id": "KAV-DEMO-EVENT-001-V1",
+              "node_id": null,
+              "relation_id": "REL-DEMO-006",
+              "hop_no": 2,
+              "citation_text": "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/mabi-foam-event",
+              "score": 47.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-006",
+                    "relation_type": "触发",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-PATROL"
+                  },
+                  {
+                    "hop_no": 2,
+                    "relation_id": "REL-DEMO-008",
+                    "relation_type": "生成",
+                    "source_node_id": "NODE-DEMO-PATROL",
+                    "target_node_id": "NODE-DEMO-COLLECT"
+                  }
+                ],
+                "citations": [
+                  "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+                  "泡沫垃圾 -[触发]-> 岸线巡查",
+                  "岸线巡查 -[生成]-> 打捞任务"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-COLLECT",
+                  "NODE-DEMO-EPS",
+                  "NODE-DEMO-MABI"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            },
+            {
+              "evidence_id": "evd_20261023154439_4cd859a2",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 5,
+              "asset_id": "KA-DEMO-IMAGE-001",
+              "asset_version_id": "KAV-DEMO-IMAGE-001-V1",
+              "node_id": null,
+              "relation_id": "REL-DEMO-001",
+              "hop_no": 2,
+              "citation_text": "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/huangqi-foam-detection-frame",
+              "score": 9.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-006",
+                    "relation_type": "触发",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-PATROL"
+                  },
+                  {
+                    "hop_no": 2,
+                    "relation_id": "REL-DEMO-011",
+                    "relation_type": "责任区域",
+                    "source_node_id": "NODE-DEMO-PATROL",
+                    "target_node_id": "NODE-DEMO-HUANGQI"
+                  },
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-001",
+                    "relation_type": "包含类型",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-LITTER"
+                  },
+                  {
+                    "hop_no": 2,
+                    "relation_id": "REL-DEMO-002",
+                    "relation_type": "包含类型",
+                    "source_node_id": "NODE-DEMO-LITTER",
+                    "target_node_id": "NODE-DEMO-GEAR"
+                  }
+                ],
+                "citations": [
+                  "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+                  "泡沫垃圾 -[触发]-> 岸线巡查",
+                  "岸线巡查 -[责任区域]-> 黄岐渔港",
+                  "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                  "海漂垃圾 -[包含类型]-> 废弃渔具"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-GEAR",
+                  "NODE-DEMO-HUANGQI"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            },
+            {
+              "evidence_id": "evd_20261023154439_b975c692",
+              "trace_id": "dtr_20261023154439_63672815",
+              "rank_no": 6,
+              "asset_id": "KA-DEMO-DATASET-001",
+              "asset_version_id": "KAV-DEMO-DATASET-001-V1",
+              "node_id": null,
+              "relation_id": "REL-DEMO-006",
+              "hop_no": 2,
+              "citation_text": "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+              "source_uri": "demo://lianjiang/knowledge/coast-multimodal-dataset-v1",
+              "score": 2.5,
+              "metadata": {
+                "path": [
+                  {
+                    "hop_no": 1,
+                    "relation_id": "REL-DEMO-006",
+                    "relation_type": "触发",
+                    "source_node_id": "NODE-DEMO-FOAM",
+                    "target_node_id": "NODE-DEMO-PATROL"
+                  },
+                  {
+                    "hop_no": 2,
+                    "relation_id": "REL-DEMO-015",
+                    "relation_type": "使用的设备",
+                    "source_node_id": "NODE-DEMO-PATROL",
+                    "target_node_id": "NODE-DEMO-UAV"
+                  }
+                ],
+                "citations": [
+                  "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+                  "泡沫垃圾 -[触发]-> 岸线巡查",
+                  "岸线巡查 -[使用的设备]-> 无人机巡查"
+                ],
+                "matched_node_ids": [
+                  "NODE-DEMO-UAV"
+                ]
+              },
+              "created_at": "2026-10-23T15:44:39.118651Z"
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    },
+    {
+      "phase": "decision_evidence",
+      "path": "/api/v1/knowledge/decisions/dtr_20261023154439_63672815/evidence",
+      "status": 200,
+      "body": {
+        "code": 0,
+        "message": "ok",
+        "data": [
+          {
+            "evidence_id": "evd_20261023154439_79b8181a",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 1,
+            "asset_id": "KA-DEMO-MONITOR-001",
+            "asset_version_id": "KAV-DEMO-MONITOR-001-V1",
+            "node_id": null,
+            "relation_id": null,
+            "hop_no": 0,
+            "citation_text": "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/mabi-marine-litter-summary",
+            "score": 31.5,
+            "metadata": {
+              "path": [],
+              "citations": [
+                "马鼻镇海漂垃圾监测汇总（演示） [KAV-DEMO-MONITOR-001-V1]"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-FOAM"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          },
+          {
+            "evidence_id": "evd_20261023154439_6919b25a",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 2,
+            "asset_id": "KA-DEMO-POLICY-001",
+            "asset_version_id": "KAV-DEMO-POLICY-001-V1",
+            "node_id": null,
+            "relation_id": "REL-DEMO-001",
+            "hop_no": 1,
+            "citation_text": "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/marine-litter-response-guide",
+            "score": 16.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-001",
+                  "relation_type": "包含类型",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-LITTER"
+                },
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-006",
+                  "relation_type": "触发",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-PATROL"
+                }
+              ],
+              "citations": [
+                "连江县海漂垃圾巡查处置指南（演示样本） [KAV-DEMO-POLICY-001-V1]",
+                "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                "泡沫垃圾 -[触发]-> 岸线巡查"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-LITTER",
+                "NODE-DEMO-PATROL"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          },
+          {
+            "evidence_id": "evd_20261023154439_5b47a19e",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 3,
+            "asset_id": "KA-DEMO-TELEMETRY-001",
+            "asset_version_id": "KAV-DEMO-TELEMETRY-001-V1",
+            "node_id": null,
+            "relation_id": "REL-DEMO-012",
+            "hop_no": 1,
+            "citation_text": "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/huangqi-hydro-meteorology",
+            "score": 6,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-012",
+                  "relation_type": "影响",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-TIDE"
+                },
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-013",
+                  "relation_type": "影响",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-WIND"
+                }
+              ],
+              "citations": [
+                "黄岐渔港风浪与潮汐遥测记录（演示） [KAV-DEMO-TELEMETRY-001-V1]",
+                "泡沫垃圾 -[影响]-> 潮汐",
+                "泡沫垃圾 -[影响]-> 风向"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-TIDE",
+                "NODE-DEMO-WIND"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          },
+          {
+            "evidence_id": "evd_20261023154439_bed447d8",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 4,
+            "asset_id": "KA-DEMO-EVENT-001",
+            "asset_version_id": "KAV-DEMO-EVENT-001-V1",
+            "node_id": null,
+            "relation_id": "REL-DEMO-006",
+            "hop_no": 2,
+            "citation_text": "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/mabi-foam-event",
+            "score": 47.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-006",
+                  "relation_type": "触发",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-PATROL"
+                },
+                {
+                  "hop_no": 2,
+                  "relation_id": "REL-DEMO-008",
+                  "relation_type": "生成",
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "target_node_id": "NODE-DEMO-COLLECT"
+                }
+              ],
+              "citations": [
+                "马鼻镇泡沫塑料聚集事件（演示） [KAV-DEMO-EVENT-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[生成]-> 打捞任务"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-COLLECT",
+                "NODE-DEMO-EPS",
+                "NODE-DEMO-MABI"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          },
+          {
+            "evidence_id": "evd_20261023154439_4cd859a2",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 5,
+            "asset_id": "KA-DEMO-IMAGE-001",
+            "asset_version_id": "KAV-DEMO-IMAGE-001-V1",
+            "node_id": null,
+            "relation_id": "REL-DEMO-001",
+            "hop_no": 2,
+            "citation_text": "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/huangqi-foam-detection-frame",
+            "score": 9.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-006",
+                  "relation_type": "触发",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-PATROL"
+                },
+                {
+                  "hop_no": 2,
+                  "relation_id": "REL-DEMO-011",
+                  "relation_type": "责任区域",
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "target_node_id": "NODE-DEMO-HUANGQI"
+                },
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-001",
+                  "relation_type": "包含类型",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-LITTER"
+                },
+                {
+                  "hop_no": 2,
+                  "relation_id": "REL-DEMO-002",
+                  "relation_type": "包含类型",
+                  "source_node_id": "NODE-DEMO-LITTER",
+                  "target_node_id": "NODE-DEMO-GEAR"
+                }
+              ],
+              "citations": [
+                "黄岐渔港泡沫垃圾识别记录（演示） [KAV-DEMO-IMAGE-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[责任区域]-> 黄岐渔港",
+                "泡沫垃圾 -[包含类型]-> 海漂垃圾",
+                "海漂垃圾 -[包含类型]-> 废弃渔具"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-GEAR",
+                "NODE-DEMO-HUANGQI"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          },
+          {
+            "evidence_id": "evd_20261023154439_b975c692",
+            "trace_id": "dtr_20261023154439_63672815",
+            "rank_no": 6,
+            "asset_id": "KA-DEMO-DATASET-001",
+            "asset_version_id": "KAV-DEMO-DATASET-001-V1",
+            "node_id": null,
+            "relation_id": "REL-DEMO-006",
+            "hop_no": 2,
+            "citation_text": "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+            "source_uri": "demo://lianjiang/knowledge/coast-multimodal-dataset-v1",
+            "score": 2.5,
+            "metadata": {
+              "path": [
+                {
+                  "hop_no": 1,
+                  "relation_id": "REL-DEMO-006",
+                  "relation_type": "触发",
+                  "source_node_id": "NODE-DEMO-FOAM",
+                  "target_node_id": "NODE-DEMO-PATROL"
+                },
+                {
+                  "hop_no": 2,
+                  "relation_id": "REL-DEMO-015",
+                  "relation_type": "使用的设备",
+                  "source_node_id": "NODE-DEMO-PATROL",
+                  "target_node_id": "NODE-DEMO-UAV"
+                }
+              ],
+              "citations": [
+                "连江岸线多模态训练集 v1（演示） [KAV-DEMO-DATASET-001-V1]",
+                "泡沫垃圾 -[触发]-> 岸线巡查",
+                "岸线巡查 -[使用的设备]-> 无人机巡查"
+              ],
+              "matched_node_ids": [
+                "NODE-DEMO-UAV"
+              ]
+            },
+            "created_at": "2026-10-23T15:44:39.118651Z"
+          }
+        ],
+        "trace_id": null
+      }
+    }
+  ],
+  "screenshots": [
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\knowledge-qa-trace-multihop\\01-检索结果-本体图检索与引用.png",
+    "C:\\Users\\Liii\\Desktop\\seahawk\\artifacts\\knowledge-qa-trace-multihop\\02-决策证据链-资产版本引用.png"
+  ]
+}

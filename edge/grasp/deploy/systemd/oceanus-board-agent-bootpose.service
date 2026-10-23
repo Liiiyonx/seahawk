@@ -1,0 +1,36 @@
+[Unit]
+Description=Oceanus 开机摆位（把机械臂放到开机默认姿态）
+# 独立 oneshot 单元，而不是挂在 oceanus-board-agent 的 ExecStartPost 上。
+#
+# 为什么必须独立（血泪）：
+#   ExecStartPost 与 ExecStart 是**同时**执行的，不是"等主进程起好之后"。
+#   主进程要 ~80s 才把 board_agent 拉起来，而摆位脚本需要连上它；
+#   systemd 的 Start-post 超时远小于 80s，于是报
+#       "Start-post operation timed out" → 整组被 SIGKILL → 服务反复失败。
+#   `After=` 才是真正的顺序保证。
+#
+# 摆位失败**不连累执行端**：本单元失败了，board_agent 照常服务。
+After=oceanus-board-agent.service
+Wants=oceanus-board-agent.service
+# ★ PartOf 的作用：agent 重启时本单元**跟着重跑一遍**。
+#   为什么需要它：`Wants=`/`After=` 只影响「开机由 multi-user.target 拉起」那一刻；
+#   手工 `systemctl start oceanus-board-agent` 或 agent 崩溃后 autostart
+#   都**不会**带上本单元（实测：只启 agent，本单元仍是 inactive）。
+#   而 agent 重启往往意味着 ROS 栈重来、舵机上电复位 —— 正是需要重新摆位的时刻。
+PartOf=oceanus-board-agent.service
+
+[Service]
+Type=oneshot
+User=__PI_USER__
+WorkingDirectory=/home/ubuntu/oceanus/edge
+RemainAfterExit=no
+# 脚本自己会等 board_agent 就绪（最多 90s），所以超时要给够
+TimeoutStartSec=180
+# 没设过开机姿态时脚本直接跳过（返回 0）。退出码 2 = 有舵机没到位，
+# 属于"要人看一眼"的状态，所以在 journal 里保留为失败便于发现。
+ExecStart=/bin/bash -lc 'python3 /home/ubuntu/oceanus/edge/grasp/deploy/board_apply_boot_pose.py --pose-file /home/ubuntu/oceanus/edge/grasp/boot_pose.json --settle 2.5'
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
