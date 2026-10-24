@@ -13,7 +13,7 @@
 | --- | --- | --- |
 | 开发设计文档(官方三章模板) | `01_开发设计文档.docx` | 项目设计思路/代码说明/参考资料;内嵌 8 图(架构/运行时/控制台/问答/拒答/多跳/证据链/华为云全栈拓扑);附件口径与 04 实物一致(427 文件/327 源码/11.9 万行) |
 | 智能体整体设计说明(材料2) | `02_智能体设计说明.docx` | v1.1 十章完整;**内嵌 11 张图**(知识域管线/调用关系/双驱动执行流/华为云拓扑 + 7 张实测截图);R-NX-08 双端口径全文一致,无矛盾残留 |
-| 随附文件说明(材料3) | `03_附送文件说明.md` | v1.2;五类随附文件+登记号→包内文件对照表+证据边界+自检全勾 |
+| 随附文件说明(材料3) | `03_附送文件说明.docx` | v1.2(2026-10-25 转 docx,A4/11 表居中,与材料1/2 格式统一);五类随附文件+登记号→包内文件对照表+证据边界+自检全勾;底稿=attachment-guide.md |
 | 完整代码附件(官方必选) | `04_代码附件\完整源码包_seasight.zip` | 427 文件,与开源仓库 GitHub Liiiyonx/seasight 完全一致,过隐私扫描 |
 | MCP/Skills 明文源码 | `04_代码附件\MCP与Skills源码\` | 9 文件,评审免解压直读 |
 | 标准映射表 | `05_标准映射表.md` | 标准体系对齐;未取得原文的规范标注"待获取" |
@@ -29,6 +29,7 @@
 docs/competitions/huawei-ict-track3-agent-design.md      ← 材料2 底稿(v1.1,支持 ![](path) 嵌图)
 docs/competitions/huawei-ict-track3-attachment-guide.md  ← 材料3 底稿(v1.2)
 scripts/build_huawei_track3_agent_docx.py                ← 材料2 docx 生成器(封面口径已更新)
+scripts/build_huawei_track3_attachment_docx.py           ← 材料3 docx 生成器(2026-10-25 新增)
 scripts/build_huawei_ict_final_docx.py                   ← 材料1 三章版生成器(CONTENT 内嵌,已同步 10-25 修改)
 scripts/make_huawei_track3_polish_figures.py             ← 四张新图生成器(知识管线/调用关系/双驱动/华为云拓扑)
 scripts/build_plan_docx.py                               ← 通用渲染器(新增 image block + 目录页码开关)
