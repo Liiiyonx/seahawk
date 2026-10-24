@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 import docx
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -74,6 +75,16 @@ CONTENT: dict[str, list[tuple]] = {
         ("h3", "二、应用场景"),
         ("p", "核心场景是养殖区海漂垃圾治理的完整决策闭环：岸基摄像头感知发现 → 事件生成与研判（智能体） → 策略守卫校验 → 多角色人工审批 → 平台派单 → 执行端作业（水面打捞机器人 / 岸基机械臂，均为可替换的 MQTT 作业端） → 作业回执 → 复盘进化。智能体在闭环中承担研判、规划、调度、复盘四个决策角色。"),
         ("p", "“可进化”落在三个层面。**经验进化**：每次运行终态自动复盘，提炼结构化经验（例如“某类事件在当前时段常无可用执行端”），同类事件规划期自动引用，置信度用贝叶斯后验校准——引用与确认分别计数、16 次确认封顶 0.95、永不到 1.0，因为只会上涨的置信度不是置信度。**知识进化**：本体以版本链演进，新资产版本进入新一轮候选抽取，人工审核后发布新版本，增量抽取较全量重抽节省 63.19% 耗时。**策略进化**：决策证据链同时固化资产版本、本体版本与策略版本，策略调整后历史决策仍可按当时口径回放。"),
+        ("p", "与国内外同类方案对比：市面海漂垃圾治理方案以单机清洁机器人产品为主（WasteShark、Clearbot 等），本项目把战场从“看得见、捞得着”推进到“可追责、可复核”的治理决策层——增量在决策与数据资产层，不在单机感知硬件："),
+        ("table",
+         ["对比维度", "国内外同类方案（WasteShark / Clearbot 等）", "探海灵眸 Oceanus"],
+         [
+             ["形态定位", "单机清洁机器人产品，能力封闭在机身", "可审计治理智能体；感知—决策—执行三级载体，执行端可插拔"],
+             ["决策方式", "人工遥控或厂商内置固定规划", "智能体规划 → 策略守卫 → 多角色人工审批 → 审计回放"],
+             ["新垃圾类别接入", "需厂商改产品并重新训练", "开放词汇零样本通道，现场加词，不重训不重启"],
+             ["治理数据", "清理量等运营记录", "六类资产版本化 + 动态本体 + 决策证据链，可按版本复核"],
+             ["成本路线", "WasteShark 起售价约 2.36 万美元（厂商公开报价，E1 检索）", "国产化软件定义路线，执行端按需选型、不被单机厂商绑定"],
+         ]),
         ("h3", "三、数据来源"),
         ("p", "知识域统一管理六类资产：document（政策/标准/通知）、table（台账）、image（识别帧）、event（事件）、telemetry（遥测）、dataset（数据集）。资产身份稳定、内容按版本追加并记录内容哈希，可引用到版本级。"),
         ("p", "**真实公开政务语料**：已登记 8 份生态环境部公开文件（海洋环境标准征求意见通知、海洋倾倒物质评价规范相关文件、中国海洋生态环境状况公报等），来源 URL 与 SHA256 全部可追溯，并已在其上完成“登记 → 本体候选抽取 → 人工审核 → 发布 → 多跳检索 → 决策证据链”端到端闭环（证据编号 R-OD-02，抽取 30 节点 / 47 关系，检索 9 命中、6 条带关系路径）。"),
@@ -187,7 +198,20 @@ CONTENT: dict[str, list[tuple]] = {
         ("img", FIG_FULLSTACK, 15.2, "图 8 华为云全栈部署与验收拓扑：AgentArts 托管智能体（VPC 私网）→ ECS TLS 模型中转 → DeepSeek API；知识域 LLM 通道 → ModelArts MaaS（昇腾池）（R-NX-08 / R-MA-01）"),
         ("h3", "五、开源与证据链治理"),
         ("p", "完整代码已开源（GitHub: Liiiyonx/seasight，MIT 协议），开源前通过隐私扫描（本机路径、密钥、内部证据零残留）。全项目证据按登记号治理（R-NX/R-KN/R-OD/R-LLM/R-MA/R-MG 六系列），每条证据含产物路径、复现命令与诚实边界；证据登记与宣称门禁共同构成“可被评审逐条复核”的材料体系。"),
-        ("h3", "六、诚实边界声明"),
+        ("h3", "六、业务价值测算与推广前景"),
+        ("p", "治理链路四个环节的效率对照（系统侧为 E1/E2 实测，人工基线为 E0 假设口径；测算口径，非真实运营收益）："),
+        ("table",
+         ["环节", "人工基线（E0 假设）", "系统链路（E1/E2 实测）"],
+         [
+             ["跨文档政策/台账检索", "跨系统人工查找，10–30 分钟/次", "知识域多跳检索 <2 秒，返回带引用证据链（R-KN-01 / R-KN-04）"],
+             ["决策依据整理", "人工整理证据清单，15–30 分钟/份", "决策自动固化 4 条有序证据，<5 秒（R-KN-04）"],
+             ["事件派单", "电话/口头派单，5–10 分钟", "MQTT 秒级下发，回执闭环（E2 联调实测）"],
+             ["本体维护", "人工梳理，小时级", "增量抽取较全量重抽节省 63.19% 耗时（R-KN-03）"],
+         ]),
+        ("p", "多行业复制路径已有演示级验证：同一套 5 个 Skill 工作流模板在海洋治理、医疗、政务三领域语料上完成轻量化迁移（R-MG-01，检索命中 3/3），迁移仅替换资产源、领域词表、标准号、问题集与角色映射五个变更点；该验证为 E1 演示级口径，非真实行业交付。"),
+        ("p", "知识产权：软件著作权《探海灵眸海洋环境治理智能体软件 V1.0》（著作权人：福州理工学院）登记申请材料已按中国版权保护中心要求制备完成（60 页源代码鉴别材料、软件说明书、约 9 万行源程序量统计），单位申请流程进行中。政策背景：《中华人民共和国海洋环境保护法》（2023 年修订）强化海洋垃圾治理要求，沿海县域治理需求走向制度化、常态化，为同类场景复制提供需求基础。"),
+        ("h3", "七、诚实边界声明"),
+
         ("p", "感知识别精度为 not_evaluated（未评测）；本项目使用的真实公开数据（政务公开文件、NOAA NCEI 公开监测数据）不等于真实脱敏行业内部数据；演示数据不参与任何精度宣称；托管平台本次验收运行中 MCP 知识域工具不可用（网关 Target 指向丢失的旧 ECS），智能体改用文件检索并如实报告——工具面恢复为后续待办。全部材料按上述口径撰写，接受评审质询。"),
     ],
     "code": [
@@ -341,6 +365,7 @@ def image_para(anchor, path: Path, width_cm: float):
 def insert_table(doc, anchor, header: list[str], rows: list[list[str]]):
     table = doc.add_table(rows=1 + len(rows), cols=len(header))
     table.style = "Table Grid"
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
     for j, text in enumerate(header):
         cell = table.rows[0].cells[j]
         cell.text = ""
@@ -451,6 +476,39 @@ def insert_items(doc, anchor_p, items, bullet_style) -> None:
             raise ValueError(f"unknown item kind: {kind}")
 
 
+def add_footer_page_numbers(doc) -> None:
+    """Centered page numbers in footer; cover stays clean via titlePg."""
+    from docx.shared import RGBColor as _RGB
+    sec = doc.sections[0]
+    sec.different_first_page_header_footer = True
+    fp = sec.footer.paragraphs[0]
+    fp.text = ""
+    fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    gray = _RGB(0x59, 0x59, 0x59)
+
+    def _field(par, instr):
+        run = par.add_run()
+        b = OxmlElement("w:fldChar"); b.set(qn("w:fldCharType"), "begin")
+        i = OxmlElement("w:instrText"); i.set(qn("xml:space"), "preserve"); i.text = instr
+        sp = OxmlElement("w:fldChar"); sp.set(qn("w:fldCharType"), "separate")
+        t = OxmlElement("w:t"); t.text = "1"
+        e = OxmlElement("w:fldChar"); e.set(qn("w:fldCharType"), "end")
+        run._r.extend([b, i, sp, t, e])
+        run.font.size = Pt(9)
+        run.font.color.rgb = gray
+
+    def _txt(par, text):
+        r = par.add_run(text)
+        r.font.size = Pt(9)
+        r.font.color.rgb = gray
+
+    _txt(fp, "第 ")
+    _field(fp, " PAGE ")
+    _txt(fp, " 页 / 共 ")
+    _field(fp, " NUMPAGES ")
+    _txt(fp, " 页")
+
+
 def main() -> None:
     for name, path in [("template", TEMPLATE), ("team photo", TEAM_PHOTO), ("console", IMG_CONSOLE), ("multihop", IMG_MULTIHOP), ("evidence", IMG_EVIDENCE)]:
         if not Path(path).is_file():
@@ -504,6 +562,7 @@ def main() -> None:
     sentinel_elm.getparent().remove(sentinel_elm)
 
     fill_table(doc)
+    add_footer_page_numbers(doc)
     doc.save(str(OUTPUT))
     print(f"OK -> {OUTPUT}")
 
