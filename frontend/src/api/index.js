@@ -356,6 +356,11 @@ export const knowledgeApi = {
     return http.post('/knowledge/search', payload)
   },
 
+  /** 检索-生成问答：先多跳检索，模型只依据检索证据作答（[c:n] 引用；证据不足明示拒答） */
+  qa(payload) {
+    return http.post('/knowledge/qa', payload)
+  },
+
   /** 创建可追溯决策轨迹；未显式传证据时由后端自动检索 */
   createDecision(payload) {
     return http.post('/knowledge/decisions', payload)

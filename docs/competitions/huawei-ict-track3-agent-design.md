@@ -314,7 +314,10 @@ ontology_graph 多跳检索（命中带 hop=1 路径与引用），再生成带 
 `insufficient_evidence=true` 并列出四类证据缺口——与 R-NX-09 的本地 Nexent
 拒答案例同一叙事。轨迹见 `artifacts/knowledge-llm-qa-trace/latest.json`，
 `mode=real:deepseek-chat`（**真实模型生成**，E1、演示语料）；同文件的脚本
-客户端口径仅作机制验证留存，两者分开表述。
+客户端口径仅作机制验证留存，两者分开表述。**前端「问答」工作台已上线**
+（知识域第五个页签）：回答内 [c:n] 引用徽章可点击定位证据卡，证据卡带
+跳数路径与资产版本引用，证据不足时顶部展示拒答横幅；实测截图见
+`artifacts/knowledge-qa-llm-frontend/`（接地回答与拒答两景，真实模型）。
 
 **R-NX-08 已完成（2026-10-24）**：华为 AgentArts 托管平台内完整 Skill 问答
 跑通——WebSocket 官方协议通道、真实模型（经 VPC 内 TLS 中转）、5 Skill 编排，
@@ -417,4 +420,5 @@ R-KN-05（2026-10-23）补齐**真实多跳实例**：同一问题在已发布�
 | 2026-10-24 | §3.4/§六 升级为真模型口径：R-LLM-01 real 双通道对照评测（含负结果）与 R-KN-06 real 真实模型问答轨迹（DeepSeek `deepseek-chat`） | liyongxiang + ZCode |
 | 2026-10-24 | §3.4 增 R-LLM-02：真实公开政务文本双通道行为对照（LLM 关系 100% 带类型与引用，抽出法规术语） | liyongxiang + ZCode |
 | 2026-10-24 | **R-NX-08 完成**：托管平台内完整 Skill 问答跑通（vpc2 智能体 + VPC TLS 模型中转 + 模型名重写 + 真实拒答答案 2254 字） | liyongxiang + ZCode |
+| 2026-10-24 | 知识域「问答」前端工作台上线（[c:n] 引用徽章可点、证据卡、拒答横幅）；真实模型实测两景截图入包 | liyongxiang + ZCode |
 | 2026-09-30 | 建立「材料 2」独立提交件底稿：整体设计思路、Agent 配置完整细节、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界 | WP-15 |

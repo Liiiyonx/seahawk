@@ -1,21 +1,14 @@
 {
   "artifact_type": "huawei_ict_track3_submission_package",
-  "generated_at": "2026-10-24T14:49:51+08:00",
-  "source": {
-    "branch": "huawei-ict-2026",
-    "packager": "scripts/package_huawei_track3_submission.py"
-  },
+  "generated_at": "2026-10-24T15:46:59+08:00",
   "zip": {
-    "path": "dist/huawei-ict-track3-submission.zip",
-    "size_bytes": 31009707,
-    "entry_count": 50,
-    "sha256": "39a35e32aad7ad94ef1f3366dc09a461542e9b97908778df29e5a9f0185a3987"
+    "size_bytes": 31439135,
+    "entry_count": 52,
+    "sha256": "3b31c1cd770e3993edc25a3fedb2588db78fa0cacfbabcb389f43aac26b0e2c1"
   },
-  "staging_dir": "dist/huawei-ict-track3-submission",
   "notes": [
-    "2026-10-24 终版:R-NX-08 完成——华为托管平台内完整 Skill 问答跑通(1933帧/9分钟/诚实拒答答案),live_skill_qa_completed=true",
-    "新增证据:R-NX-08_COMPLETED.yaml + WS 全帧记录;R-LLM-01/02 真模型评测;R-KN-06 real 生成式问答",
-    "宣称门禁 exit 0;密钥扫描 clean;开源 GitHub Liiiyonx/seasight",
-    "遗留(已如实登记):MCP 工具面待指向新 ECS;真实脱敏数据待外部来源"
+    "终版+问答工作台 UI 截图(R-KN-06 ui-01/ui-02)",
+    "R-NX-08 completed",
+    "门禁 exit 0"
   ]
 }

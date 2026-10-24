@@ -90,6 +90,7 @@
 | 决策链路溯源 | `POST /api/v1/knowledge/decisions` | 保存证据顺序、资产版本、本体版本与策略版本 |
 | Nexent MCP + Skills | `integrations/nexent/` | 只读工具默认启用；写入工具显式开启；5 个工作流模板可复用 |
 | 检索-生成问答（带引用） | `backend/app/services/knowledge_llm.py` | `POST /api/v1/knowledge/qa`：先多跳检索后生成，回答内嵌 [c:编号] 引用；证据不足明示拒答不编造；LLM 失败降级为原始证据列表 |
+| 知识域「问答」工作台 | `frontend/src/views/KnowledgeView.vue` | 知识域第五页签：[c:n] 引用徽章点击定位证据卡；跳数路径与资产版本引用；证据不足拒答横幅 |
 
 接口与部署边界见 `docs/competitions/huawei-nexent.md`，MCP 运行说明见
 `integrations/nexent/README.md`。

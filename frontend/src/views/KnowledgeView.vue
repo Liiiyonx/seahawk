@@ -727,6 +727,128 @@
       </section>
     </template>
 
+    <!-- 检索-生成问答 -->
+    <template v-else-if="activeTab === 'qa'">
+      <section class="panel">
+        <div class="panel-title">
+          <span>检索-生成问答</span>
+          <span v-if="qaResult" class="knowledge__pill">
+            {{ qaResult.search_mode === 'ontology_graph' ? '本体图检索' : '关键词检索' }}
+          </span>
+          <span v-if="qaResult?.channel" class="knowledge__pill">
+            {{ qaResult.channel === 'llm' ? (qaResult.model || '模型生成') : '降级输出' }}
+          </span>
+        </div>
+        <p class="knowledge__qa-hint">
+          模型只依据下方检索证据作答：回答中的 <code>[c:n]</code> 可点击定位第 n 条证据；
+          证据不足时明示拒答并列出缺口，不会编造政策依据。
+        </p>
+        <div class="knowledge__examples">
+          <span>演示问题</span>
+          <button
+            v-for="example in QA_EXAMPLES"
+            :key="example"
+            type="button"
+            :disabled="qaLoading"
+            @click="applyQaExample(example)"
+          >
+            {{ example }}
+          </button>
+        </div>
+        <form class="knowledge__form" @submit.prevent="submitQa">
+          <div class="knowledge__form-grid knowledge__form-grid--three">
+            <label class="form-row knowledge__form-wide">
+              <span class="form-label">治理问题</span>
+              <input v-model.trim="qaForm.query" class="form-input" type="text" required />
+            </label>
+            <label class="form-row">
+              <span class="form-label">本体版本</span>
+              <select v-model="qaForm.ontology_version_id" class="form-input">
+                <option value="">自动选择已发布本体</option>
+                <option v-for="version in publishedOntologies" :key="version.version_id" :value="version.version_id">
+                  {{ version.name }} · v{{ version.version_no }}
+                </option>
+              </select>
+            </label>
+            <label class="form-row">
+              <span class="form-label">跳数</span>
+              <select v-model.number="qaForm.hop_depth" class="form-input">
+                <option :value="1">1 跳</option>
+                <option :value="2">2 跳</option>
+                <option :value="3">3 跳</option>
+              </select>
+            </label>
+            <label class="form-row">
+              <span class="form-label">证据条数</span>
+              <input v-model.number="qaForm.limit" class="form-input" type="number" min="1" max="20" />
+            </label>
+          </div>
+          <div class="knowledge__actions knowledge__actions--end">
+            <button class="btn btn--primary" type="submit" :disabled="qaLoading">
+              {{ qaLoading ? '检索与生成中…' : '提问' }}
+            </button>
+          </div>
+        </form>
+
+        <div v-if="qaError" class="knowledge__error">
+          <span>{{ qaError }}</span>
+        </div>
+        <div v-else-if="qaLoading" class="knowledge__skeleton">
+          <span v-for="i in 4" :key="i"></span>
+        </div>
+        <div v-else-if="!qaResult" class="empty">尚未提问</div>
+        <template v-else>
+          <div v-if="qaResult.insufficient_evidence" class="knowledge__qa-refusal">
+            <strong>证据不足，拒绝给出政策依据</strong>
+            <span>当前资产库无适用条款；回答仅为框架性参考，不可用于执法或上报。</span>
+          </div>
+          <div v-if="qaResult.fallback_reason" class="knowledge__error">
+            <span>模型通道降级（{{ qaResult.fallback_reason }}）——以下为检索证据，非模型结论</span>
+          </div>
+          <article class="knowledge__qa-answer">
+            <p>
+              <template v-for="(segment, index) in qaAnswerSegments" :key="`qa-seg-${index}`">
+                <button
+                  v-if="segment.type === 'cite' && segment.valid"
+                  class="knowledge__qa-cite"
+                  type="button"
+                  @click="focusQaEvidence(segment.index)"
+                >[c:{{ segment.index }}]</button>
+                <span v-else-if="segment.type === 'cite'" class="knowledge__qa-cite knowledge__qa-cite--invalid">[c:{{ segment.index }}]</span>
+                <template v-else>{{ segment.text }}</template>
+              </template>
+            </p>
+          </article>
+          <div class="knowledge__results">
+            <article
+              v-for="item in qaCitedHits()"
+              :id="`qa-evidence-${item.position}`"
+              :key="item.hit.asset_version_id"
+              class="knowledge__result"
+              :class="{ 'knowledge__result--cited': item.cited, 'knowledge__result--active': qaActiveEvidence === item.position }"
+            >
+              <div class="knowledge__result-head">
+                <strong>证据 {{ item.position }}{{ item.cited ? ' · 已引用' : '' }}</strong>
+                <span>{{ item.hit.title }} · {{ assetTypeLabel(item.hit.asset_type) }} · {{ item.hit.hop_count }} 跳</span>
+              </div>
+              <p>{{ item.hit.snippet || '—' }}</p>
+              <div class="knowledge__id">{{ item.hit.asset_id }} / {{ item.hit.asset_version_id }}</div>
+              <div v-if="item.hit.path.length" class="knowledge__path">
+                <span v-for="step in item.hit.path" :key="`${item.hit.asset_version_id}-${step.hop_no}`">
+                  {{ step.hop_no }}. {{ step.relation_type || 'relation' }}
+                </span>
+              </div>
+              <div v-if="item.hit.citations.length" class="knowledge__citations">
+                <div v-for="(citation, ci) in item.hit.citations" :key="`${item.hit.asset_version_id}-qa-citation-${ci}`">
+                  {{ citation }}
+                </div>
+              </div>
+            </article>
+          </div>
+        </template>
+      </section>
+    </template>
+
     <!-- 决策 -->
     <template v-else>
       <section class="panel">
@@ -882,6 +1004,7 @@ const TABS = [
   { key: 'vision', label: '视觉实测' },
   { key: 'ontology', label: '本体' },
   { key: 'search', label: '检索' },
+  { key: 'qa', label: '问答' },
   { key: 'decisions', label: '决策' },
 ]
 
@@ -898,6 +1021,12 @@ const SEARCH_EXAMPLES = [
   '马鼻镇发现泡沫塑料后应如何处置？',
   '黄岐渔港出现废弃渔具，应安排哪个流程？',
   '近 24 小时泡沫垃圾聚集与风向有什么关系？',
+]
+
+const QA_EXAMPLES = [
+  '岸基摄像头发现泡沫垃圾后应按什么流程处置？',
+  '辖区内发现疑似漏油事件，按现行政策应如何处置？',
+  '打捞机器人与岸基机械臂的派单分工是什么？',
 ]
 
 const activeTab = ref('assets')
@@ -975,6 +1104,17 @@ const searchForm = reactive({
 const searching = ref(false)
 const searchError = ref('')
 const searchResult = ref(null)
+
+const qaForm = reactive({
+  query: '',
+  ontology_version_id: '',
+  hop_depth: 2,
+  limit: 8,
+})
+const qaLoading = ref(false)
+const qaError = ref('')
+const qaResult = ref(null)
+const qaActiveEvidence = ref(0)
 
 const decisions = ref([])
 const decisionMeta = reactive({ total: 0, page: 1, page_size: 20 })
@@ -1400,6 +1540,63 @@ async function submitSearch() {
 function applySearchExample(query) {
   searchForm.query = query
   void submitSearch()
+}
+
+/** 检索-生成问答：答案里的 [c:n] 标记解析为可点击引用段，点击定位第 n 条证据 */
+const qaAnswerSegments = computed(() => {
+  const answer = qaResult.value?.answer || ''
+  const segments = []
+  const pattern = /\[c:(\d+)\]/g
+  let cursor = 0
+  let match = pattern.exec(answer)
+  while (match) {
+    if (match.index > cursor) segments.push({ type: 'text', text: answer.slice(cursor, match.index) })
+    const index = Number(match[1])
+    const valid = index >= 1 && index <= (qaResult.value?.results?.length || 0)
+    segments.push({ type: 'cite', index, valid })
+    cursor = match.index + match[0].length
+    pattern.lastIndex = cursor
+    match = pattern.exec(answer)
+  }
+  if (cursor < answer.length) segments.push({ type: 'text', text: answer.slice(cursor) })
+  return segments
+})
+
+function qaCitedHits() {
+  const result = qaResult.value
+  if (!result?.results?.length) return []
+  const cited = new Set(result.cited_indexes || [])
+  return result.results.map((hit, position) => ({ hit, position: position + 1, cited: cited.has(position + 1) }))
+}
+
+function focusQaEvidence(index) {
+  qaActiveEvidence.value = index
+  const el = document.getElementById(`qa-evidence-${index}`)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+async function submitQa() {
+  qaLoading.value = true
+  qaError.value = ''
+  qaResult.value = null
+  qaActiveEvidence.value = 0
+  try {
+    qaResult.value = await knowledgeApi.qa({
+      query: qaForm.query,
+      ontology_version_id: qaForm.ontology_version_id || null,
+      hop_depth: qaForm.hop_depth,
+      limit: qaForm.limit,
+    })
+  } catch (error) {
+    qaError.value = error.message
+  } finally {
+    qaLoading.value = false
+  }
+}
+
+function applyQaExample(query) {
+  qaForm.query = query
+  void submitQa()
 }
 
 async function loadDecisions(page = 1) {
@@ -2059,6 +2256,88 @@ onMounted(() => {
   color: var(--text-sub);
   font-size: 11.5px;
   line-height: 1.6;
+}
+
+/* 检索-生成问答 */
+.knowledge__qa-hint {
+  margin: 4px 0 10px;
+  color: var(--text-sub);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.knowledge__qa-hint code {
+  padding: 1px 5px;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  background: var(--panel-bg, transparent);
+}
+
+.knowledge__qa-answer {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent, #2f6fed);
+  border-radius: 4px;
+  background: var(--panel-bg, rgba(127, 145, 166, 0.08));
+}
+
+.knowledge__qa-answer p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.9;
+  font-size: 13px;
+}
+
+.knowledge__qa-cite {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 0 5px;
+  border: 1px solid var(--accent, #2f6fed);
+  border-radius: 10px;
+  color: var(--accent, #2f6fed);
+  background: transparent;
+  font-size: 11px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+
+.knowledge__qa-cite--invalid {
+  border-color: var(--panel-border);
+  color: var(--text-sub);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.knowledge__qa-refusal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(224, 108, 68, 0.55);
+  border-left: 3px solid #e06c43;
+  border-radius: 4px;
+  color: var(--text-main, inherit);
+}
+
+.knowledge__qa-refusal strong {
+  color: #e06c43;
+  font-size: 13px;
+}
+
+.knowledge__qa-refusal span {
+  color: var(--text-sub);
+  font-size: 12px;
+}
+
+.knowledge__result--cited {
+  border-left: 3px solid var(--accent, #2f6fed);
+}
+
+.knowledge__result--active {
+  outline: 2px solid var(--accent, #2f6fed);
+  outline-offset: 2px;
 }
 
 .knowledge__evidence {
