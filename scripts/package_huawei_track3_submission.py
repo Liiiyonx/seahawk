@@ -65,6 +65,8 @@ FILES: tuple[tuple[str, str], ...] = (
     ("artifacts/knowledge-llm-qa-trace/latest.json", "05_证据包/R-KN-06_knowledge-llm-qa-trace.json"),
     ("artifacts/knowledge-qa-llm-frontend/01-接地回答-引用徽章与证据卡.png", "05_证据包/R-KN-06_ui-01-grounded.png"),
     ("artifacts/knowledge-qa-llm-frontend/02-证据不足拒答-banner与缺口说明.png", "05_证据包/R-KN-06_ui-02-refusal.png"),
+    ("artifacts/knowledge-qa-llm-frontend/01-接地回答-引用徽章与证据卡.png", "04_示例问答截图/R-KN-06_前端问答工作台-接地回答.png"),
+    ("artifacts/knowledge-qa-llm-frontend/02-证据不足拒答-banner与缺口说明.png", "04_示例问答截图/R-KN-06_前端问答工作台-证据不足拒答.png"),
     ("artifacts/open-data-llm-channel-eval/latest.json", "05_证据包/R-LLM-02_open-data-llm-channel-eval.json"),
     ("artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml", "05_证据包/R-NX-08-PROBE_2026-10-24.yaml"),
     ("artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml", "05_证据包/R-NX-08_COMPLETED.yaml"),

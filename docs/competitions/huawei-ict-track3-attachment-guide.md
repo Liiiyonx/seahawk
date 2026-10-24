@@ -98,8 +98,13 @@ E3 真实业务方参与 / E4 真实运营。
 | `.../hosted-agent-2026-09-29.yaml` | R-NX-06 | 托管平台 Agent 创建、DeepSeek 模型配置、公网环境 Skill 绑定受限留证 |
 | `.../hosted-2026-09-30-target-blocked.yaml` | R-NX-07 `blocked` | 私网环境与网关已建；账号欠费使“创建 Target”禁用（Target 0/10）；Agent 启用 VPC 报 `AgentArts.03002206`；`live_skill_qa_completed: false` |
 | `.../evidence/hosted-2026-09-30-private-gateway-target-blocked.png` | R-NX-07 | 私网网关 Target 禁用界面截图 |
-| `artifacts/nexent-platform-acceptance/hosted-skill-qa.template.yaml` | R-NX-08 | 托管平台内完整 Skill 问答完成后的登记模板（留空待填） |
-| `docs/competitions/huawei-agentarts-vpc-target-runbook.md` | R-NX-08 | 解除欠费后的执行手册 |
+| `artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml` | R-NX-08 | **托管平台完整 Skill 问答已完成**（2026-10-24）：9 分钟 1933 帧、真实模型、证据不足如实拒答；含完整修复链与资源清单 |
+| `artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-24/hosted-ws-run-frames.json` | R-NX-08 | 平台问答全帧记录与 2254 字答案原文 |
+| `docs/competitions/huawei-agentarts-vpc-target-runbook.md` | R-NX-08 | 全程执行手册（§13.8–13.10 含修复链与经验） |
+| `artifacts/ontology-llm-eval/latest.json` | R-LLM-01 | 知识域 LLM 抽取通道真模型对照评测（含如实负结果） |
+| `artifacts/open-data-llm-channel-eval/latest.json` | R-LLM-02 | 真实公开政务文本双通道行为对照 |
+| `artifacts/knowledge-llm-qa-trace/latest.json` | R-KN-06 | 检索-生成问答真实模型轨迹（带引用拒答） |
+| `artifacts/knowledge-qa-llm-frontend/` | R-KN-06 | 前端「问答」工作台实测截图（接地回答 + 拒答两景） |
 
 **口径提醒**：托管平台侧目前只完成“MCP 注册 + 工具加载 + 公网端点只读调用 + Agent
 与模型配置 + Skill 导入 + 私网环境与网关创建”，**平台内完整 Skill 问答未跑通**。
@@ -134,7 +139,7 @@ E3 真实业务方参与 / E4 真实运营。
 - [ ] 公开仓库隐私扫描通过（若提交到 GitCode/GitHub）；
 - [ ] 材料中不出现未脱敏真实数据、真实联系方式与未公开证据；
 - [ ] 模型密钥、MCP 令牌、后端账号、云账号 AK/SK 一律不入包；
-- [ ] 托管平台完整 Skill 问答未完成时，材料明确写“托管平台完整 Skill 问答待私网环境 + 私网可访问 MCP endpoint 就绪后补充”（公网环境不支持 Skill）；
+- [x] 托管平台完整 Skill 问答已完成（R-NX-08，2026-10-24）；材料如实标注“托管平台完整 Skill 问答待私网环境 + 私网可访问 MCP endpoint 就绪后补充”（公网环境不支持 Skill）；
 - [ ] 公开开放数据替代评测（R-OD-01）标注“非真实脱敏行业数据”；
 - [ ] Skill 口径为“绑定 5 个、本次触发 4 个”；
 - [ ] 感知精度保持 `not_evaluated`，`76%` 标注为时序链路误报抑制率。

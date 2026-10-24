@@ -1,14 +1,13 @@
 {
   "artifact_type": "huawei_ict_track3_submission_package",
-  "generated_at": "2026-10-24T15:46:59+08:00",
+  "generated_at": "2026-10-24T16:10:14+08:00",
   "zip": {
-    "size_bytes": 31439135,
-    "entry_count": 52,
-    "sha256": "3b31c1cd770e3993edc25a3fedb2588db78fa0cacfbabcb389f43aac26b0e2c1"
+    "size_bytes": 31870840,
+    "entry_count": 54,
+    "sha256": "41e099edbd556fd21b77fd057a1f1d4086c74a95674661912ad8bde53ff1848c"
   },
   "notes": [
-    "终版+问答工作台 UI 截图(R-KN-06 ui-01/ui-02)",
-    "R-NX-08 completed",
-    "门禁 exit 0"
+    "初赛材料终版对齐 2026-10-24 最新状态:材料1/2 底稿刷新(R-NX-08 完成、R-LLM-01/02、R-KN-06 问答、开源);04 示例问答截图补前端问答工作台两景;附送文件说明 §4.3 与提交清单 v2.0 同步",
+    "R-NX-08 completed;R-KN-06 UI;R-LLM-01/02;门禁 exit 0"
   ]
 }

@@ -138,8 +138,13 @@ Nexent 智能体编排（MCP 工具面 + 5 个 Skill 工作流）
 - **Nexent 平台侧 Agent 模型**：本地官方源码部署已验证 Agent
   `seasight_governance_decision_agent` 配置 DeepSeek `deepseek-v4-pro`，
   并完成一次真实 LLM 完整 Skill 问答（R-NX-09，2026-09-30）；华为
-  AgentArts 托管平台 Agent 配置 `deepseek-provider/deepseek-chat`（R-NX-06），
-  托管平台内完整问答仍待私网 Target 打通（R-NX-07 blocked）。
+  AgentArts 托管平台 Agent 已于 2026-10-24 完成平台内完整 Skill 问答
+  （R-NX-08：vpc2 智能体 + VPC 内 TLS 模型中转，9 分钟 1933 帧、真实模型、
+  证据不足如实拒答；历史阻断记录见 R-NX-07）。
+- **知识域 LLM 通道（2026-10-24 上线）**：`KNOWLEDGE_LLM_*` 独立配置
+  OpenAI 兼容端点（默认关闭，规则/检索通道始终兜底），承担本体候选抽取
+  主通道与检索-生成问答；真实模型评测见 R-LLM-01/02（DeepSeek
+  `deepseek-chat`，含如实报告的负结果）。
 - 模型不可用、超时或输出不合 schema 时，规划器返回
   `source="rule_fallback"` 与结构化 `fallback_reason`，由规则规划器接管。
 - 感知识别当前为 OpenCV 传统视觉冷启动，独立测试集就绪前一律写
@@ -206,6 +211,10 @@ PostgreSQL（资产 / 本体 / 决策 / 事件 / 任务）
   `path`、`citations`；无可用本体时明确回退普通检索；
 - 决策驱动：决策轨迹按顺序固化证据，每条证据带资产版本、节点、关系、
   跳数和引用，读取 `/knowledge/decisions/{id}/evidence` 可复核。
+- 生成驱动（2026-10-24）：`POST /api/v1/knowledge/qa` 先走上述多跳检索，
+  模型只依据检索证据作答，回答内嵌 [c:n] 引用；证据不足时明示拒答并列
+  缺口，模型失败降级为原始证据列表。前端知识域「问答」工作台提供同能力
+  的可视化（引用徽章点击定位证据卡、拒答横幅），实测截图见 R-KN-06。
 
 ### 4.6 Skill 工作流模板
 
@@ -330,6 +339,11 @@ Skill 不替代 MCP 权限判断，可替换本体和资产源后跨行业复用
 | R-NX-05 | 华为托管平台（AgentArts）MCP 注册、21 工具加载、公网端点真实只读调用 total=4 | `artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml` + `evidence/hosted-2026-09-29-*` |
 | R-NX-06 | 华为托管平台（AgentArts）Agent 创建与 DeepSeek 模型配置；公网环境明确提示不支持 Skill，平台限制已留证 | `artifacts/nexent-platform-acceptance/hosted-agent-2026-09-29.yaml` |
 | R-NX-07 | 华为托管平台完整 Skill 问答：**blocked**。私网环境与网关已建；华为云账号欠费，创建 Target 原生 disabled（0/10），Agent 启用 VPC 时报 `AgentArts.03002206` | `artifacts/nexent-platform-acceptance/hosted-2026-09-30-target-blocked.yaml` + `evidence/hosted-2026-09-30-private-gateway-target-blocked.png` |
+| R-NX-08 | **华为托管平台完整 Skill 问答：完成（2026-10-24）**。欠费解冻 + vpc2 智能体（绕过被释放的 CSMS 凭据）+ VPC 内 ECS TLS 模型中转 + 模型名重写；9 分钟 1933 帧、真实模型、2254 字回答（知识资产未加载时全量检索后如实 not_evaluated 拒答）。边界：本次运行 MCP 工具面不可用（网关 Target 指向已丢失旧 ECS），恢复为后续待办 | `artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml` + `evidence/hosted-qa-2026-10-24/` |
+| R-LLM-01 | 知识域 LLM 抽取通道：20 项通道测试 + 机制评测；真模型对照（规则 top-20 术语 11/20、关系 1/7 vs LLM 合并 9/20、关系 1/7；纯 LLM 命中全部 7 个核心领域词；负结果如实报告） | `backend/app/services/knowledge_llm.py` + `artifacts/ontology-llm-eval/latest.json` |
+| R-LLM-02 | 真实公开政务文本双通道行为对照（R-OD-02 同一 8 份文件）：规则 30 节点/40 关系（29 条无类型共现）；LLM 26 节点/18 关系全带类型与资产版本引用，抽出法规术语；无金标描述性对照 | `scripts/open_data_llm_channel_eval.py` + `artifacts/open-data-llm-channel-eval/latest.json` |
+| R-KN-06 | 检索-生成问答：`POST /api/v1/knowledge/qa`（先多跳检索后生成、[c:n] 引用、证据不足拒答、失败降级）；真实模型轨迹 + 前端「问答」工作台实测截图两景 | `artifacts/knowledge-llm-qa-trace/latest.json` + `artifacts/knowledge-qa-llm-frontend/` |
+| R-OS-01 | 开源发布（入围硬条件）：脱敏快照过全部隐私门禁，推送 GitHub | `https://github.com/Liiiyonx/seasight`（commit f84e5c2） |
 | R-NX-09 | 本地官方源码部署完整 Skill 问答（**不是华为托管平台验收**）：Agent 发布版本 4、DeepSeek `deepseek-v4-pro`、21 MCP 只读工具 + 5 Skill 绑定、HTTP 200、8 步、31 次调用、13 个唯一工具、2,777 字回答 | `artifacts/nexent-platform-acceptance/recheck-2026-09-30-llm-qa.yaml` + `evidence/llm-qa-2026-09-30/` |
 | R-KN-01 | 知识进化闭环：资产、版本、候选、审核、发布、多跳检索、决策证据 | `artifacts/evolution-demo/latest.json` |
 | R-KN-02 | 本体候选抽取确定性评测：12 份合成语料、金标术语命中、候选结构、基线对比 | `scripts/ontology_eval.py + artifacts/ontology-eval/latest.json` |
@@ -413,13 +427,14 @@ SKILL.md 评审 → Nexent 导入 → 示例问答验证 → 导出配置并存�
   `deepseek-v4-pro` 已跑通 21 工具 / 5 Skill 的完整问答（R-NX-09），
   证据链、SSE 事件、工具轨迹与控制台截图均已落盘，可作为初赛“智能体
   可运行 + 示例问答”的已验收材料。
-- **托管平台完整问答仍未跑通**：托管平台 MCP 注册（R-NX-05）与 Agent
-  创建/模型配置（R-NX-06）已完成，但公网环境不支持 Skill；切私网后
-  因华为云账号欠费“创建 Target”原生 disabled（0/10，R-NX-07
-  `blocked`），Agent 启用 VPC 时报 `AgentArts.03002206`。充值后可执行
-  `docs/competitions/huawei-agentarts-vpc-target-runbook.md`，创建 Target →
-  绑定 VPC 网络模式 → 发布新版本 → 平台内完整 Skill 问答，完成后登记
-  R-NX-08。完成前不写“托管平台已跑通完整 Skill 问答”。
+- **托管平台完整问答已跑通（R-NX-08，2026-10-24）**：连环阻断与解法都
+  已留证——账号欠费（充值解冻）、CSMS 凭据被欠费释放且系统身份不可改
+  （新建 vpc2 智能体）、旧 ECS 系统盘被释放（重建 ECS 并以 socat TLS +
+  模型名重写搭建 VPC 内模型中转）。**经验**：智能体版本快照会固化保存时
+  的 provider 配置，改完供应商 Base_url 必须重存一版，否则运行时仍用旧
+  地址（这是鉴权修好后仍超时的真实根因）。本次运行 MCP 工具面不可用
+  （网关 Target 指向已丢失旧 ECS），智能体如实报告证据缺口——恢复工具
+  面只需把 Target 改指新 ECS 并部署 MCP（后续待办）。
 - 公开开放数据替代评测已完成（R-OD-01）；真实脱敏行业数据评测仍待数据
   来源与脱敏规则确认后执行，不编造评测结果。
 
@@ -435,10 +450,11 @@ SKILL.md 评审 → Nexent 导入 → 示例问答验证 → 导出配置并存�
 7. R-KN-04 是本地知识域前端问答轨迹（hop=0 直接资产引用），不写成
    “多跳问答”或“Nexent 平台完整 Skill 问答”。
 8. R-OD-01 是公开开放数据替代评测，不写成“真实脱敏行业数据集效果评测”。
-9. R-NX-05/R-NX-06 是华为托管平台（AgentArts）MCP 注册、公网端点只读
-   调用与 Agent 创建/模型配置证据；R-NX-07 记录托管平台完整 Skill 问答因
-   账号欠费、私网 Target 未绑定（0/10）而 `blocked`，不写成“托管平台完整
-   Skill 问答已通过”。
+9. R-NX-08（2026-10-24）是华为托管平台完整 Skill 问答**已完成**的证据
+   （真实模型、诚实拒答）；R-NX-05/06/07 为其前置步骤与历史阻断记录。
+   边界：R-NX-08 本次运行中 MCP 知识域工具不可用（网关 Target 指向已
+   丢失的旧 ECS），智能体改用文件检索并如实报告——不得写成“托管平台
+   工具调用全链路已恢复”；恢复 Target 后应复跑并补登工具轨迹。
 10. R-NX-09 是**本地官方源码部署** Nexent 的完整 LLM Skill 问答，可以写
     “本地 Nexent 完整 Skill 问答已跑通”，不得写成“华为托管平台已跑通”
     或“华为 AgentArts 平台验收通过”；它也不构成海域验证或精度证据。
@@ -456,5 +472,6 @@ SKILL.md 评审 → Nexent 导入 → 示例问答验证 → 导出配置并存�
 | 2026-09-29 | 登记 R-NX-06 华为托管平台 Agent 创建与 DeepSeek 模型配置（公网环境不支持 Skill，平台限制已留证），更新 4.7/七/8.5/九，升版 1.3 | liyongxiang + WP-15 |
 | 2026-09-30 | 登记 R-NX-03B 本地 MCP 端点复验（`mcp 1.30.0` / 协议 `2025-11-25`，21 工具、3 次只读调用） | WP-15 |
 | 2026-09-30 | 第四章增加与【材料 2】《Nexent 智能体整体设计说明》的交叉引用（`docs/competitions/huawei-ict-track3-agent-design.md`），消除封面重复版本行，升版 1.4 | WP-15 |
+| 2026-10-24 | 对齐最新状态：R-NX-08 托管平台完整 Skill 问答**完成**（vpc2 + TLS 模型中转 + 模型名重写 + 诚实拒答）；新增知识域 LLM 通道（R-LLM-01/02 真模型评测）、检索-生成问答端点与前端工作台（R-KN-06）、开源发布（R-OS-01）；证据表/调试经验/诚实边界同步刷新 | liyongxiang + ZCode |
 | 2026-09-30 | 登记 R-NX-07 `blocked`：华为托管平台私网环境/网关已建，Target 因账号欠费原生 disabled（0/10），Agent 启用 VPC 报 `AgentArts.03002206`；新增充值后 runbook（R-NX-08 准备） | liyongxiang + WP-15 |
 | 2026-09-30 | 登记 R-NX-09 本地官方源码部署完整 Skill 问答：Agent 版本 4 `v0.2.0-seasight-governance-llm` + DeepSeek `deepseek-v4-pro`，21 工具 / 5 Skill，HTTP 200、8 步、31 次工具调用、2,777 字回答，含证据链与控制台截图；更新 4.1/4.4/4.7/七/8.5/九，升版 1.4。**华为托管平台完整问答仍为 R-NX-07 blocked** | liyongxiang + WP-15 |
