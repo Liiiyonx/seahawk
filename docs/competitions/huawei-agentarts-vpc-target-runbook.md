@@ -491,6 +491,28 @@ python scripts/rnx08_hosted_qa_run.py --max-seconds 840
 身份/API Key、runtime 状态与账号受限记录（见
 `artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`）。
 
+## 十三.9、2026-10-24 晚间实机排查结论(用户登录 + 浏览器自动化操作)
+
+401 双根因定位并解决其一,通道已全通,模型腿待最后一步:
+
+1. **根因 A(已解决)**:账号欠费(-¥0.26)→ 充值解冻,横幅消失。
+2. **根因 B(已绕过)**:工作负载身份的 API Key 托管在 DEW/CSMS,**欠费冻结期间
+   凭据被自动释放**(身份详情页报「CSMS 凭据不存在」),且系统创建身份不可修改。
+   → 已新建智能体 `seasight-governance-agent-vpc2` + 新运行时 + 新 API Key
+   (密钥已同步本地),配置与原智能体完全一致。**WebSocket 握手/鉴权/chat.send/帧流全通**。
+3. **根因 C(待解)**:EVS 磁盘被释放,seasight-mcp-host 永久无法开机,
+   其上 8443 模型中转与 MCP 部署丢失 → 已用平台「模型代理」
+   (deepseek-provider-vpc:公网 DeepSeek 上游 + model-proxy-deepseek-vpc@defaultgw
+   + 出站凭据 deepseek-api-key-outbound + 出网=私网访问)替代 ECS 中转,
+   智能体 v3 已切换。**模型调用仍超时**,剩余诊断线索:
+   LTS 日志查真实错误 / 代理入站 IAM 与 provider 出站 Bearer 的鉴权匹配 /
+   代理部署预热 / 兜底重建 ECS(脚本齐备)。
+4. 资源清理提醒:EIP 1.95.120.238 仍在计费,验收完成后建议释放;
+   体验版套餐内新建资源(智能体/代理/凭据)按需计费部分很小。
+
+详见 `artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`
+(晚间续记)与 20+ 张操作截图。
+
 ## 十四、变更记录
 
 | 日期 | 变更 | 操作人 |

@@ -52,3 +52,67 @@ acceptance:
     - 本次探测不改变 R-NX-08 的 blocked 状态，live_skill_qa_completed 仍为 false。
     - 探测只消耗一次握手，未产生模型调用与 LTS 长连接计费。
   reviewed_by: liyongxiang
+
+# =====================================================================
+# 2026-10-24 晚间续记(用户登录控制台后由 ZCode 实机操作,全程截图留档)
+# ---------------------------------------------------------------------
+evening_session:
+  operator: hid_b7bcgi-i88yqw0x (用户本人登录,ZCode 浏览器自动化操作)
+  console_evidence: 浏览器截图 20+ 张,覆盖以下每个步骤
+
+  findings:
+    - id: F1
+      finding: 账号仍欠费(横幅+费用中心 -¥0.26),这就是三次 401 的根因——
+        欠费冻结期间工作负载身份鉴权直接拒绝。
+      action: 用户充值 ¥10 到账(余额 ¥9.74),欠费自动抵扣,横幅消失。
+    - id: F2
+      finding: 401 的第二个根因——身份详情页明确显示「CSMS 凭据不存在。」:
+        工作负载身份 agent-managed-seasight-governance-agent-vpc 的 API Key
+        托管在凭据管理服务,欠费冻结期间按需凭据被自动释放(与 EVS 系统盘
+        同一批释放);且该身份为系统创建,控制台不可修改(「系统创建无法操作」)。
+    - id: F3
+      finding: EVS 磁盘列表为空——seasight-mcp-host(f0837559)的系统盘已在
+        冻结期被释放,实例永久无法开机(两个控制台均报「未获取到系统盘信息」)。
+        其上的模型中转(8443)与 Oceanus MCP 部署全部丢失。
+    - id: F4
+      finding: deepseek-provider 的 Base_url 在 10-02 之后已被改为
+        https://192.168.0.65:8443(指向已丢失的 ECS 中转),模型服务已换成
+        deepseek-v4.1-flash;今日改回 https://api.deepseek.com/v1 并留证。
+
+  workaround_built:
+    - 新建托管智能体 seasight-governance-agent-vpc2(8d0e4717-a94a-4d4b-9dc9-256ebb154fc2),
+      配置与旧智能体一致:deepseek-v4.1-flash + environment-seasight-vpc-verify(私网)+
+      5 Skills + 4 内置工具 + 提示词原文。
+    - 新身份 agent-managed-seasight-governance-agent-vpc2(API Key 认证,DEW 托管凭据存在),
+      新 Key 已查看并同步 D:/VeriCall_data/secrets/seasight_agentarts.env。
+    - 新运行时 managed-seasight-governance-agent-vpc2(c6a2916a,正常,defaultgw)。
+    - 模型链路平台化重建:deepseek-provider-vpc(Base_url=公网 DeepSeek,
+      模型服务 deepseek-v4.1-flash,出站凭据 deepseek-api-key-outbound 存活复用,
+      模型代理 model-proxy-deepseek-vpc@defaultgw,出网网络配置=私网访问@vpc-seasight)。
+    - 智能体 v3 版本已切到 deepseek-provider-vpc 并保存(运行时 Latest=v3 同步)。
+
+  probe_results_after_fix:
+    - auth: WebSocket 握手成功(watchdog.initialized + connection.ack),
+      chat.send 发出,帧正常流入——**401 问题彻底解决,调用通道全通**。
+    - model: 两次探针(560s/400s)模型调用仍未返回:第一次为
+      「模型调用异常[请求超时]」重试文案,第二次为静默无答案(17 帧)。
+      代理链路(沙箱→模型代理→公网 DeepSeek)处于中间状态,
+      盲调到此为止,剩余诊断线索已写入 runbook §13.9。
+
+  remaining_diagnosis_leads:
+    - LTS 运行时日志(AgentArts/AgentArts 流)查看模型调用真实错误
+      (控制台内嵌面板快照读不到,需 LTS 控制台查询)。
+    - 代理入站身份认证为 IAM,而 provider 出站凭据为 Bearer Key——
+      若沙箱→代理调用因鉴权不匹配被拒,需将代理入站改为 API Key
+      并让 provider 出站引用该键。
+    - 代理部署预热时间未确认;建议部署完成后静置 10 分钟再探。
+    - 兜底方案:重建 ECS 部署 deployment/agentarts-vpc-model-relay.py(8443 TLS),
+      provider Base_url 指向新 ECS 私网 IP(原 FIX-1,脚本与 systemd 单元齐备)。
+
+  boundaries:
+    - R-NX-08 状态仍为未完成(live_skill_qa_completed: false),
+      但调用通道从「握手 401」推进到「握手/鉴权/chat.send/帧流全通,仅模型腿未通」。
+    - 本次会话产生的新资源:智能体 vpc2 + 运行时 + 身份 + provider-vpc + 代理
+      (体验版套餐内);ECS 已丢失无需付费;EIP 1.95.120.238 仍在计费,
+      建议验收完成后在控制台释放。
+  reviewed_by: liyongxiang + ZCode
