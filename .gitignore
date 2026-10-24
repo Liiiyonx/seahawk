@@ -199,3 +199,15 @@ artifacts/vision-preview/image*
 
 # 旧 AI 会话聊天转录归档：内含真实密钥/口令等敏感内容，仅本地保留，禁止入库
 artifacts/thread-archive*/
+
+# ---- 2026-10-24 清理:构建/验收中间目录与大文件不入库(文件保留在本地磁盘) ----
+_work/
+.tmp_material_fix/
+.work/
+restyle_work/
+verify_zip_*/
+_backup_selection_*/
+submission_build/
+探海灵眸_机械臂识别_存档_*.zip
+output/pdf/
+review_render/
