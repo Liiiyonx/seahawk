@@ -16,7 +16,7 @@ from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Inches, Pt, RGBColor
+from docx.shared import Cm, Inches, Pt, RGBColor
 
 
 BLACK = "000000"
@@ -324,12 +324,13 @@ def configure_section(
     header_text: str = "\t探海灵眸 Oceanus  |  项目计划书 v2.1",
 ) -> None:
     section = document.sections[0]
-    section.page_width = Inches(8.5)
-    section.page_height = Inches(11)
-    section.top_margin = Inches(0.72)
-    section.bottom_margin = Inches(0.68)
-    section.left_margin = Inches(0.78)
-    section.right_margin = Inches(0.78)
+    # A4（与材料1 官方模板一致；此前为美式 Letter，两份材料页面尺寸不一致）
+    section.page_width = Cm(21.0)
+    section.page_height = Cm(29.7)
+    section.top_margin = Cm(1.83)
+    section.bottom_margin = Cm(1.73)
+    section.left_margin = Cm(1.98)
+    section.right_margin = Cm(1.98)
     section.header_distance = Inches(0.32)
     section.footer_distance = Inches(0.32)
     section.different_first_page_header_footer = True
@@ -506,7 +507,7 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int], w
         row.cells[0].text = text
         if with_pages:
             row.cells[1].text = str(page_map.get(_normalize_heading(text), "-"))
-        row.cells[0].width = Inches(6.10 if with_pages else 6.94)
+        row.cells[0].width = Inches(5.86 if with_pages else 6.70)
         if with_pages:
             row.cells[1].width = Inches(0.84)
         for cell in row.cells:
@@ -527,7 +528,7 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int], w
     document.add_page_break()
 
 
-def calc_table_widths(rows: list[list[str]], total_width: float = 6.94) -> list[float]:
+def calc_table_widths(rows: list[list[str]], total_width: float = 6.70) -> list[float]:
     columns = max(len(row) for row in rows)
     scores: list[float] = []
     for column in range(columns):
