@@ -32,6 +32,7 @@ OUTPUT = COMP_DIR / "创新赛-开发设计文档-福州理工学院-潮汐守�
 TEAM_PHOTO = COMP_DIR / "92adde5a9f99e59875a9056f36f371fd.jpg"
 FIG_ARCH = ROOT / "artifacts/doc-figures/fig-architecture.png"
 FIG_RUNTIME = ROOT / "artifacts/doc-figures/fig-runtime-evolution.png"
+FIG_FULLSTACK = ROOT / "artifacts/doc-figures/fig-huawei-fullstack.png"
 IMG_CONSOLE = ROOT / "artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/01-nexent-console-qa-page-loggedin.png"
 IMG_QA_GROUNDED = ROOT / "artifacts/knowledge-qa-llm-frontend/01-接地回答-引用徽章与证据卡.png"
 IMG_QA_REFUSAL = ROOT / "artifacts/knowledge-qa-llm-frontend/02-证据不足拒答-banner与缺口说明.png"
@@ -110,7 +111,7 @@ CONTENT: dict[str, list[tuple]] = {
         ("img", IMG_CONSOLE, 14.5, "图 3 本地 Nexent 控制台（登录态）：已发布的治理决策智能体，可直接发起问答"),
         ("h3", "四、可进化机制（对应赛题核心）"),
         ("p", "**经验进化**有固定场景验证：lessons_retro_and_reuse 场景验证“第一次同类事件失败 → 终态复盘提炼经验（初始置信度 0.75）→ 第二次同类事件规划期引用该经验（hit_count=1），引用后运行失败会下调、确认后会上调，16 次确认封顶 0.95”；lessons_scoped_and_evict 场景验证经验按事件类别隔离、不串味、不膨胀。"),
-        ("p", "**知识进化**有端到端证据：R-OD-02 在 8 份真实公开政务文件上完成本体版本全生命周期；R-KN-03 对比增量追加与全量重抽（1.615ms 对 4.387ms，节省 63.19%）。**决策进化**有真实多跳实例：R-KN-05（见 1.3 节三，图 5）。"),
+        ("p", "**知识进化**有端到端证据：R-OD-02 在 8 份真实公开政务文件上完成本体版本全生命周期；R-KN-03 对比增量追加与全量重抽（1.615ms 对 4.387ms，节省 63.19%）。**决策进化**有真实多跳实例：R-KN-05（见 1.3 节三，图 6）。"),
         ("table",
          ["进化回路", "机制", "验证方式", "证据"],
          [
@@ -126,7 +127,7 @@ CONTENT: dict[str, list[tuple]] = {
              ["2", "本体图检索", "mode=ontology_graph，命中 6 条，其中 3 条 hop=2（路径：泡沫垃圾[触发]→岸线巡查[生成]→打捞任务）"],
              ["3", "记录决策", "生成决策轨迹 dtr_20261023154439_63672815，状态 completed"],
              ["4", "证据链固化", "6 条证据覆盖 hop=0/1/2 三档，逐条引用资产版本（事件/表格/文档/遥测/图像/数据集）"],
-             ["5", "回放审计", "前端决策页与 API 双通道可复核；截图见 1.3 节图 5、图 6"],
+             ["5", "回放审计", "前端决策页与 API 双通道可复核；截图见 1.3 节图 6、图 7"],
          ]),
     ],
     "mcp": [
@@ -172,24 +173,25 @@ CONTENT: dict[str, list[tuple]] = {
         ("b", "真实公开语料端到端复现：python scripts/open_data_knowledge_e2e.py（R-OD-02）"),
         ("b", "真实行业数据集评测复现：python scripts/real_dataset_knowledge_e2e.py（R-OD-03）"),
         ("h3", "三、演示材料"),
-        ("p", "系统操作演示视频（约 4 分 39 秒、1080p）随代码附件一并提交；全部证据截图与 API 轨迹按证据编号（R-KN-04/05、R-OD-01/02/03、R-NX-05/06/09 等）归档，评审可逐条复核。"),
+        ("p", "系统操作演示视频（4 分 39 秒、1080p）随包提交（08_演示视频/）；全部证据截图与 API 轨迹按证据编号（R-KN-04/05、R-OD-01/02/03、R-NX-05/06/09 等）归档，评审可逐条复核。"),
         ("h3", "四、华为云全栈验证（R-MA-01 / R-NX-08）"),
         ("table",
          ["华为组件", "验证内容", "证据"],
          [
-             ["AgentArts 托管智能体", "完整 Skill 问答：9 分钟、1933 帧、真实模型、证据不足如实拒答（R-NX-08）", "hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml"],
-             ["ModelArts Studio MaaS（昇腾资源池）", "知识域 LLM 通道真实推理评测：GLM-5.3 术语 13/20 反超规则 11/20；生成式问答双景复现（R-MA-01）", "artifacts/ontology-llm-eval + knowledge-llm-qa-trace"],
-             ["VPC / 安全组 / EIP", "VPC 内 TLS 模型中转与 MCP 端点组网；安全组最小化放行", "runbook §13.8–13.11"],
-             ["Nexent 本地部署（v2.6.1）", "MCP 注册、21 工具、完整问答（R-NX-09）", "recheck-2026-09-30-llm-qa.yaml"],
+             ["AgentArts 托管智能体", "完整 Skill 问答：9 分钟、1933 帧、真实模型、证据不足如实拒答（R-NX-08）", "07_证据包/R-NX-08_COMPLETED.yaml"],
+             ["ModelArts Studio MaaS（昇腾资源池）", "知识域 LLM 通道真实推理评测：GLM-5.3 术语 13/20 反超规则 11/20；生成式问答双景复现（R-MA-01）", "07_证据包/R-LLM-01_ontology-llm-eval.json 等"],
+             ["VPC / 安全组 / EIP", "VPC 内 TLS 模型中转与 MCP 端点组网；安全组最小化放行", "修复链全程留证（R-NX-08_COMPLETED.yaml 内记录）"],
+             ["Nexent 本地部署（v2.6.1）", "MCP 注册、21 工具、完整问答（R-NX-09）", "07_证据包/R-NX-09_recheck.yaml"],
          ]),
         ("p", "口径说明：ModelArts Studio MaaS 共享推理端点底层运行于昇腾资源池，本次评测即昇腾算力上的真实推理（GLM-5.3/GLM-5.2）；鲲鹏未使用，如实标注。"),
+        ("img", FIG_FULLSTACK, 15.2, "图 8 华为云全栈部署与验收拓扑：AgentArts 托管智能体（VPC 私网）→ ECS TLS 模型中转 → DeepSeek API；知识域 LLM 通道 → ModelArts MaaS（昇腾池）（R-NX-08 / R-MA-01）"),
         ("h3", "五、开源与证据链治理"),
         ("p", "完整代码已开源（GitHub: Liiiyonx/seasight，MIT 协议），开源前通过隐私扫描（本机路径、密钥、内部证据零残留）。全项目证据按登记号治理（R-NX/R-KN/R-OD/R-LLM/R-MA/R-MG 六系列），每条证据含产物路径、复现命令与诚实边界；证据登记与宣称门禁共同构成“可被评审逐条复核”的材料体系。"),
         ("h3", "六、诚实边界声明"),
         ("p", "感知识别精度为 not_evaluated（未评测）；本项目使用的真实公开数据（政务公开文件、NOAA NCEI 公开监测数据）不等于真实脱敏行业内部数据；演示数据不参与任何精度宣称；托管平台本次验收运行中 MCP 知识域工具不可用（网关 Target 指向丢失的旧 ECS），智能体改用文件检索并如实报告——工具面恢复为后续待办。全部材料按上述口径撰写，接受评审质询。"),
     ],
     "code": [
-        ("p", "本项目完整源代码以附件形式提交（约 322 个源码文件 / 11 万行，不含运行产物与依赖）。主目录结构与职责如下（评审重点文件加粗）："),
+        ("p", "本项目完整源代码以附件提交：04_代码附件/完整源码包_seasight.zip（与开源仓库 github.com/Liiiyonx/seasight 完全一致的脱敏快照，共 427 个文件，开源前已过隐私扫描）；核心 MCP 服务端与 5 个 Skill 模板另以明文目录随包（04_代码附件/MCP与Skills源码/），评审无需解压即可直接阅读。按附件实测统计，源码与配置共 327 个文件 / 约 11.9 万行（不含文档、运行产物与依赖）。主目录结构与职责如下（评审重点文件加粗）："),
         ("table",
          ["目录", "职责"],
          [
@@ -207,15 +209,16 @@ CONTENT: dict[str, list[tuple]] = {
         ("table",
          ["模块", "文件数", "行数"],
          [
-             ["backend（Python）", "149", "48,660"],
-             ["frontend（Vue/TS/JS）", "53", "30,183"],
-             ["edge（Python/YAML）", "105", "24,602"],
-             ["ml（Python）", "14", "5,575"],
+             ["backend（Python）", "149", "50,178"],
+             ["frontend（Vue/TS/JS）", "43", "24,299"],
+             ["edge（Python/YAML）", "60", "20,904"],
+             ["ml（Python）", "20", "5,407"],
              ["integrations（Python）", "1", "982"],
-             ["合计", "322", "110,002"],
+             ["scripts + deploy（Python/YAML/Shell）", "54", "17,296"],
+             ["合计", "327", "119,066"],
          ]),
-        ("p", "关键代码片段一：经验置信度的贝叶斯校准（backend/app/services/agents/calibration.py）——“只会涨的置信度不是置信度”的代码落点："),
-        ("code", "def bayesian_confidence(prior, successes, trials, prior_strength=4.0) -> float:\n    \"\"\"Beta 后验均值：(α·prior + successes) / (α + trials)。\"\"\"\n    if not 0.0 <= prior <= 1.0:\n        raise ValueError(f\"prior 必须在 [0,1]：{prior}\")\n    if prior_strength <= 0:\n        raise ValueError(f\"prior_strength 必须为正：{prior_strength}\")\n    if successes < 0 or trials < successes:\n        raise ValueError(f\"非法观测计数：successes={successes}, trials={trials}\")\n    return (prior_strength * prior + successes) / (prior_strength + trials)"),
+        ("p", "关键代码片段一：经验置信度的贝叶斯校准（backend/app/services/agents/calibration.py）——“只会涨的置信度不是置信度”的代码落点（原文节选，docstring 有删节）："),
+        ("code", "def bayesian_confidence(\n    prior: float,\n    successes: int,\n    trials: int,\n    prior_strength: float = 4.0,\n) -> float:\n    \"\"\"Beta 后验均值：`(α·prior + successes) / (α + trials)`。\n\n    无观测时恒等于先验；成功使置信度上升、失败使它下降\n    ——这是与「只增不减的计数递增」的本质区别。\n    \"\"\"\n    if not 0.0 <= prior <= 1.0:\n        raise ValueError(f\"prior 必须在 [0,1]：{prior}\")\n    if prior_strength <= 0:\n        raise ValueError(f\"prior_strength 必须为正：{prior_strength}\")\n    if successes < 0 or trials < successes:\n        raise ValueError(f\"非法观测计数：successes={successes}, trials={trials}\")\n    return (prior_strength * prior + successes) / (prior_strength + trials)"),
         ("p", "解读：无观测时恒等于先验；经验被引用后的真实成功使置信度上升、失败使它下降——这与“只增不减的计数递增”有本质区别，是经验进化不会被自我强化的关键设计。"),
         ("p", "运行环境：Python 3.11、Node.js 20、Docker Compose（PostgreSQL 14 + PostGIS、Redis 7、EMQX 5、MinIO、go2rtc）、Nexent v2.6.1（本地官方源码部署）。快速启动见仓库 README：docker compose up -d → make db-init → make dev-backend → make dev-frontend；Nexent 集成验收：make nexent-acceptance。"),
     ],
@@ -240,7 +243,7 @@ ABSTRACT = (
     "本体版本增量进化（增量抽取较全量重抽节省 63.19% 耗时）、决策证据链随资产/本体/策略版本"
     "可追溯。已在本地 Nexent 与华为 AgentArts 托管平台双端完成完整 LLM Skill 问答验收（托管平台一次运行 9 分钟、1933 帧、证据不足如实拒答），并在真实"
     "公开政务语料与真实公开行业监测数据（NOAA NCEI 全球海洋微塑料数据集，22,530 条记录）上"
-    "完成端到端评测；智能体同时部署于华为 AgentArts 托管平台并完成平台内完整问答验收；知识域 LLM 通道在 ModelArts Studio MaaS（昇腾资源池）完成真实推理评测。全项目 1374 项自动化测试全绿。"
+    "完成端到端评测；知识域 LLM 通道在 ModelArts Studio MaaS（昇腾资源池）完成真实推理评测。全项目 1374 项自动化测试全绿。"
 )
 
 TECH_STACK = (
@@ -315,12 +318,15 @@ def caption_para(anchor, text: str):
 def code_para(anchor, text: str):
     p = anchor.insert_paragraph_before()
     p.paragraph_format.space_after = Pt(6)
-    for line in text.split("\n"):
+    code_lines = text.split("\n")
+    for i, line in enumerate(code_lines):
         run = p.add_run(line)
         run.font.name = "Consolas"
         run._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
         run.font.size = Pt(9)
         run.font.color.rgb = RGBColor(0x1F, 0x29, 0x37)
+        if i < len(code_lines) - 1:
+            run.add_break()
     return p
 
 

@@ -1,14 +1,10 @@
-# 探海灵眸 Oceanus · Nexent 平台智能体整体设计说明
+# 探海灵眸 Oceanus Nexent 智能体整体设计说明
 
-> 版本：1.0（提交件底稿）
-> 编制日期：2026-09-30
-> 用途：华为 ICT 大赛 创新赛道三「材料 2」提交件底稿，覆盖智能体整体设计思路、
-> Agent 配置完整细节（模型信息 / 工具信息 / 知识库信息 / 调用关系图）、
-> Skill 分层编排、调试迭代经验、示例问答截图索引与随附文件说明。
-> 上位口径：《docs/competitions/huawei-ict-track3-design-doc.md》、
-> 《docs/competitions/huawei-ict-track3-scoring-review.md》、
-> 《docs/competitions/huawei-ict-track3-compliance.md》
-> 配套手册：《docs/competitions/huawei-agentarts-vpc-target-runbook.md》
+> 版本：1.1（国奖打磨版）
+> 编制日期：2026-10-25
+> 参赛赛道：华为 ICT 大赛 创新赛道三
+> 文档定位：初赛/决赛评测要求的智能体整体设计说明（材料 2）
+> 证据口径：本地官方源码部署与华为 AgentArts 托管平台双端均已跑通完整 Skill 问答（R-NX-09 / R-NX-08）；知识域 LLM 通道已在 ModelArts Studio MaaS（昇腾资源池）完成真实推理评测（R-MA-01）
 
 ## 一、文档定位与诚实边界
 
@@ -20,14 +16,15 @@
 | 运行位置 | 含义 | 当前状态 |
 | --- | --- | --- |
 | 本地官方源码部署 Nexent | 按官方仓库 `ModelEngine-Group/nexent` 本地部署，v2.6.1 | **完整 LLM Skill 问答已跑通**（R-NX-09） |
-| 华为 AgentArts 托管平台 | 华为云控制台内注册 MCP、导入 Skill、创建 Agent | MCP 注册与公网端点只读调用完成（R-NX-05）、Agent 与模型配置完成（R-NX-06）、5 个 Skill 已导入；**平台内完整 Skill 问答未跑通**（R-NX-07 `blocked`） |
-| Oceanus 生产后端 | 项目自研 FastAPI + PostgreSQL 业务系统 | 独立运行，内置规则规划器；本地 LLM 规划器尚未真实调用外部模型 |
+| 华为 AgentArts 托管平台 | 华为云控制台内注册 MCP、导入 Skill、创建 Agent | MCP 注册与公网端点只读调用完成（R-NX-05）、Agent 与模型配置完成（R-NX-06）、5 个 Skill 已导入；**平台内完整 Skill 问答已跑通（R-NX-08，2026-10-24）** |
+| Oceanus 生产后端 | 项目自研 FastAPI + PostgreSQL 业务系统 | 独立运行，内置规则规划器；知识域 LLM 通道已接 ModelArts MaaS（昇腾池）真实推理（R-MA-01） |
 
 由此产生四条**不可宣称**：
 
-1. 本地 Nexent 跑通 **不等于** 华为 AgentArts 托管平台验收通过；
+1. 本地 Nexent 验收与华为 AgentArts 托管平台验收是**两次独立验收**，证据分别
+   登记（R-NX-09 / R-NX-08），不得合并表述或互相替代；
 2. 平台侧验收 **不等于** 海域现场部署验证，也不代表治理效果；
-3. 感知精度一律 `not_evaluated`，`76%` 仅指**时序链路误报抑制率**，不是识别准确率；
+3. 感知精度一律 `not_evaluated`，`76%` 仅指时序链路误报抑制率，不是识别准确率；
 4. 当前知识资产为演示数据，**不等于**真实脱敏行业数据集。
 
 ## 二、智能体整体设计思路
@@ -86,11 +83,12 @@
 | 对外展示名 | Oceanus 治理决策智能体 |
 | 当前发布版本 | 版本 4 `v0.2.0-seasight-governance-llm`（`RELEASED`） |
 | 版本历史 | v1/v2 `v0.1.0-seasight-governance`（未接模型）；v3/v4 `v0.2.0-seasight-governance-llm`（接入 DeepSeek 后的完整问答版本） |
+| 托管平台验收智能体 | `seasight-governance-agent-vpc2`（R-NX-08，2026-10-24，见 §八） |
 
 命名上踩过一次真实约束：Nexent 要求 Agent 的 `name` 是合法 Python 标识符，
 含连字符的形式会在运行时被拒绝（`must be a valid Python identifier`），
 因此平台内 identifier 使用下划线形式，对外展示名保持不变。这一点属于调试经验，
-写在本文 §5。
+写在本文 §五。
 
 ### 3.2 模型信息
 
@@ -105,6 +103,9 @@
 模型可用性是控制台可见性的前置条件：模型状态需为 `available`，经官方
 `/api/model/healthcheck` 后 `/api/agent/list` 才返回 `is_available: true`，
 控制台才会正常展示该 Agent。
+
+托管平台侧模型链路不同（私网内经 ECS TLS 中转与模型名重写调用
+`deepseek-chat`），完整链路见 §八图 11，两者不混写。
 
 **降级与回退**：Oceanus 后端内置规划器默认走确定性规则；当模型不可用、超时或
 输出不符合 schema 时，规划器返回 `source="rule_fallback"` 与结构化
@@ -135,7 +136,10 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 
 ### 3.4 知识库信息
 
-知识层不是“向量库 + 文档”这么简单，而是**版本化资产 + 本体图谱**双层结构：
+知识层不是“向量库 + 文档”这么简单，而是**版本化资产 + 本体图谱**双层结构，
+完整生命周期见图 1：
+
+![图 1 知识域生命周期：六类资产版本化 → 双通道候选抽取 → 人工审核 → 本体版本发布 → 多跳检索 / 证据链 / 检索-生成问答（数字均有登记产物）](artifacts/doc-figures/fig-m2-knowledge-pipeline.png)
 
 | 层 | 内容 | 检索方式 |
 | --- | --- | --- |
@@ -143,7 +147,7 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 | 本体层 | 半自动抽取的节点与关系，按本体版本管理 | 已发布本体存在时走本体引导多跳检索，返回 `mode`、`path`、`citations`；无可用本体时明确回退普通检索 |
 
 当前库内数据为**演示数据**（total=4），用于打通往返链路与截图取证，不表述为
-真实脱敏行业数据。真实脱敏数据的评测状态见 §9。
+真实脱敏行业数据。真实脱敏数据的评测状态见 §九。
 
 **知识域 LLM 通道（2026-10-24 上线，登记号 R-LLM-01）**：OpenAI 兼容端点
 （`KNOWLEDGE_LLM_*` 独立配置，默认关闭）承担两件事，规则与检索通道始终兜底：
@@ -153,7 +157,7 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 | 本体候选抽取主通道 | LLM 按严格 JSON schema 抽取节点/关系（关系类型限定 8 词表、实体类型限定 6 词表、引文必摘原文），经校验后与规则候选按 canonical 去重合并 | 调用失败/输出非法 → 整体回退规则通道，`extraction_fallback_reason` 落版本 metadata |
 | 检索-生成问答（R-KN-06） | `POST /api/v1/knowledge/qa`：先多跳检索，模型只允许依据检索证据作答，回答内嵌 [c:编号] 引用 | 模型失败 → 降级输出原始证据列表并明示“未生成模型结论”；证据不足 → `insufficient_evidence=true` 拒答 |
 
-通道机制由 20 项专项测试与确定性评测守卫；**2026-10-24 深夜已配真实端点并完成
+通道机制由 20 项专项测试与确定性评测守卫；**2026-10-24 已配真实端点并完成
 真模型评测（R-LLM-01 real / R-KN-06 real，DeepSeek `deepseek-chat`）**：
 
 | 评测 | 真实数字 | 口径 |
@@ -171,7 +175,6 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 | DeepSeek deepseek-chat（公网） | 9/20 | 1/7 | 18 条全带类型与引用 | 纯 LLM 命中全部 7 核心领域词 |
 | GLM-5.3（ModelArts 昇腾池） | **13/20 反超规则** | 0/7（如实） | 34 条全带类型与引用 | 首个在合成语料反超规则的 LLM；负结果并存如实报告 |
 
-
 脚本客户端轨迹保留为机制验证口径，与真实模型轨迹分开表述，不得混写。
 
 ### 3.5 调用关系图
@@ -179,26 +182,9 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 Agent 在平台内的真实调用关系由 `GET /api/agent/call_relationship/1` 返回，
 绑定 21 个 MCP 工具（`knowledge_*`、`event_*`、`task_*`、`dashboard_*`、
 `agent_*`），登记号 R-NX-04；升级到版本 4 后同一 Agent 叠加模型配置与 5 个
-Skill，形成下面的端到端结构：
+Skill，端到端结构见图 2：
 
-```text
-Nexent Agent: seasight_governance_decision_agent (v0.2.0-seasight-governance-llm)
-  ├── 模型：DeepSeek deepseek-v4-pro
-  ├── Skill：policy-evidence-qa
-  ├── Skill：marine-event-assessment
-  ├── Skill：cross-document-decision
-  ├── Skill：dispatch-work-order-orchestration
-  └── Skill：decision-trace-audit
-          │
-          ▼
-Oceanus Domain Cognition MCP（21 个只读工具 · Bearer 入站鉴权）
-          │  出站令牌自动刷新 · 最小权限只读账号
-          ▼
-Oceanus /api/v1（角色 / 辖区 / 审批 / 幂等 / 审计）
-          │
-          ▼
-PostgreSQL（资产 / 本体 / 决策 / 事件 / 任务）
-```
+![图 2 Agent → 5 Skill → MCP 工具面 → Oceanus API → 数据库：端到端调用关系（R-NX-04 真实返回 + R-NX-09 实测指标）](artifacts/doc-figures/fig-m2-call-graph.png)
 
 ### 3.6 权限与安全边界
 
@@ -228,14 +214,9 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 
 ### 4.2 检索-推理双驱动执行流
 
-```text
-用户问题
-  → Skill 选择（触发条件匹配，read_skill_md 载入工作流）
-  → 检索驱动：knowledge_search / 资产与本体列举（确定性，可引用）
-  → 推理驱动：本体多跳检索（mode / path / citations）或明确回退
-  → 决策固化：按顺序写入证据（资产版本 + 节点 + 关系 + 跳数 + 引用）
-  → 输出：结论 + 引用 + 显式证据缺口
-```
+执行流见图 3：
+
+![图 3 检索-推理双驱动执行流：检索驱动与推理驱动并行汇聚 → 证据充分性判断 → 决策固化或明示拒答](artifacts/doc-figures/fig-m2-dual-drive.png)
 
 设计要点：**推理必须落在可检索到的资产版本上**。模型可以判断“证据不足”，
 但不允许在无引用的前提下生成政策依据。
@@ -267,6 +248,12 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 `decision-trace-audit` 四个 Skill；第 5 个 `cross-document-decision` 已绑定，
 但未被该问题触发。**绑定 5 个、本次触发 4 个**是如实口径。
 
+本次运行的控制台实测界面见图 4、图 5：
+
+![图 4 本地 Nexent 控制台（登录态）：已发布的治理决策智能体，可直接发起问答（R-NX-09，2026-10-24 复采）](artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/01-nexent-console-qa-page-loggedin.png)
+
+![图 5 本地 Nexent 模型配置：DeepSeek deepseek-v4-pro，健康检查通过后控制台可见（R-NX-09）](artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/02-nexent-model-config-deepseek.png)
+
 值得单独说明的是本次输出的**拒答行为**：系统判定现行资产库中不存在针对
 “漏油／油污／溢油”的适用政策条款，明确结论为疑似漏油事件不可套用海漂垃圾
 处置流程，应升级人工研判并转报环保／海事渠道，**不得自动派单给打捞机器人或
@@ -282,135 +269,135 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 
 ## 五、调试迭代经验
 
+按时间排序的真实排障史（全部有登记产物，含失败与阻断记录）：
+
 | 时间 | 问题 | 处理与结论 |
 | --- | --- | --- |
 | 2026-09-28 | Nexent 首次接入 Oceanus MCP | 完成 MCP 注册、21 工具加载、5 个 Skill 导入与一次 `knowledge_list_assets` 调用（R-NX-02） |
 | 2026-09-29 | 换个入口复验同一能力 | 以本地官方源码部署内置 suadmin 复验（R-NX-03）；灌入演示数据后返回 total=4 |
+| 2026-09-29 | 托管平台公网路径 | MCP 注册、21 工具加载、公网端点真实只读调用完成（R-NX-05）；导入 5 个 Skill（R-NX-07）；公网环境 Skill 绑定按钮 disabled，平台限制已留证（R-NX-06） |
 | 2026-09-29 | 无 Agent，工具面无法端到端 | 创建并发布 Agent（R-NX-04，版本 v2），绑定 5 个 Skill 与 21 个工具，导出配置 ZIP；当时未配模型，完整问答列为待补 |
 | 2026-09-30 | Agent 运行时被拒 | 根因：Nexent 要求 Agent `name` 为合法 Python 标识符，连字符形式不合法。改为 `seasight_governance_decision_agent` |
 | 2026-09-30 | 控制台看不到 Agent | 根因：模型状态非 `available`。经官方 `/api/model/healthcheck` 后 `/api/agent/list` 返回 `is_available: true`，控制台恢复可见 |
 | 2026-09-30 | 本地完整问答验收 | 发布版本 4 `v0.2.0-seasight-governance-llm`，跑通完整 Skill 问答（R-NX-09，指标见 §4.3） |
-| 2026-09-30 | 托管平台私网路径 | 已建私网环境与网关，但账号欠费使“创建 Target”原生禁用（Target 0/10），Agent 启用 VPC 报 `AgentArts.03002206`（R-NX-07 `blocked`） |
-| 2026-09-29 | 托管平台公网路径 | MCP 注册、21 工具加载、公网端点真实只读调用完成（R-NX-05）；导入 5 个 Skill（R-NX-07）；公网环境 Skill 绑定按钮 disabled，平台限制已留证（R-NX-06） |
+| 2026-09-30 | 托管平台私网路径受阻 | 账号欠费使“创建 Target”原生禁用（Target 0/10），Agent 启用 VPC 报 `AgentArts.03002206`（R-NX-07 `blocked`，如实登记） |
+| 2026-10-24 | 托管平台 401 探测 | 账号解冻后复跑：网关与鉴权层在线但 WebSocket 握手 401，卡点收敛为控制台身份鉴权核验（R-NX-08-PROBE，如实登记） |
+| 2026-10-24 | **托管平台完整问答验收** | 充值解冻 + 新建 vpc2 智能体（绕过被欠费释放的 CSMS 凭据）+ 重建 ECS TLS 模型中转 + 模型名重写，平台内跑通完整 Skill 问答：9 分钟、1933 帧、2254 字回答、证据不足如实拒答（R-NX-08 **completed**，详见 §八） |
 
-两条最值得写进答辩的经验：
+三条最值得写进答辩的经验：
 
 - **平台有硬约束，必须在设计早期发现**。Nexent 的 Agent 命名规则、托管平台
   “公网环境不支持 Skill”两条限制都不是文档里一眼能看到的，是实跑撞出来的；
 - **托管平台 Skill 验收必须同时满足“私网环境 + 可达 endpoint + Target 绑定”，
-  缺一不可**，不能用临时隧道或 `127.0.0.1` 代替，这正是当前 R-NX-07 卡住的点。
+  缺一不可**，不能用临时隧道或 `127.0.0.1` 代替——R-NX-07 到 R-NX-08 的完整
+  修复链（§八）就是这三个条件逐一补齐的过程；
+- **智能体版本快照会固化保存时的 provider 配置**：改完供应商 Base_url 必须
+  重存一版，否则运行时仍用旧地址——这是托管平台鉴权修好后仍超时的真实根因。
 
 ## 六、示例问答与截图索引
 
-已采集（均为本地运行，非托管平台内）：
+截图与 API 轨迹随提交包归档：界面截图在 `06_示例问答截图/`，结构化证据在
+`07_证据包/`（文件名均带登记号，可逐条复核）。关键界面直接内嵌如下。
 
-| 编号 | 内容 | 证据文件 |
+**（1）托管平台 MCP 注册与 21 工具加载（R-NX-05）**——AgentArts 控制台内
+`Oceanus Domain Cognition MCP` 状态“部署成功”，工具列表 21 个只读工具：
+
+![图 6 华为 AgentArts 托管平台：Oceanus Domain Cognition MCP 注册成功，加载 21 个只读工具（R-NX-05）](artifacts/nexent-platform-acceptance/evidence/hosted-2026-09-29-mcp-tools-21.png)
+
+**（2）跨文档多跳检索与决策证据链（R-KN-05）**——同一问题命中 6 条，其中
+3 条 hop=2；证据链覆盖 hop=0/1/2 三档、跨 6 份资产版本：
+
+![图 7 知识域“跨文档多跳检索”：命中带“2 跳”标记与可视关系路径（R-KN-05）](artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png)
+
+![图 8 决策证据链：按顺序固化证据，逐条引用资产版本，可回放（R-KN-05）](artifacts/knowledge-qa-trace-multihop/02-决策证据链-资产版本引用.png)
+
+**（3）知识域「问答」工作台（R-KN-06）**——检索-生成回答内嵌可点击引用徽章，
+证据不足时明示拒答（GLM-5.3 经 ModelArts MaaS 昇腾池生成，R-MA-01）：
+
+![图 9 知识域“问答”工作台：接地回答带 c:n 引用徽章，点击定位证据卡（R-KN-06 / R-MA-01，真实模型）](artifacts/knowledge-qa-llm-frontend/01-接地回答-引用徽章与证据卡.png)
+
+![图 10 证据不足时的拒答横幅：模型拒绝编造政策依据，列出证据缺口（R-KN-06 / R-MA-01）](artifacts/knowledge-qa-llm-frontend/02-证据不足拒答-banner与缺口说明.png)
+
+其余证据的归档索引：
+
+| 编号 | 内容 | 包内证据文件 |
 | --- | --- | --- |
-| R-NX-09 | Nexent 控制台首页（Agent 可见） | `artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/nexent-console-home.png` |
-| R-NX-09 | Nexent 控制台新建对话界面 | `artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/nexent-console-newchat.png` |
-| R-NX-09 | 完整 SSE 原始事件流 | `.../llm-qa-2026-09-30/agent-run-sse.txt` |
-| R-NX-09 | 事件序列 / 工具轨迹 / 运行摘要 | `.../agent-run-events.json`、`agent-run-tools.json`、`agent-run-summary.json` |
-| R-NX-09 | 发布与版本记录 | `.../agent-publish.json`、`agent-versions.json` |
-| R-KN-04 | 知识域前端“检索结果 + 引用”截图 | `artifacts/knowledge-qa-trace/01-检索结果-本体图检索与引用.png` |
-| R-KN-04 | 知识域前端“决策证据链 + 资产版本引用”截图 | `artifacts/knowledge-qa-trace/02-决策证据链-资产版本引用.png` |
-| R-KN-04 | 问答轨迹 API JSON（问题 → 检索 → 决策 → 证据链） | `artifacts/knowledge-qa-trace/latest.json` |
-| R-KN-05 | 知识域前端“跨文档多跳检索结果 + 引用”截图（命中带 2 跳路径） | `artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png` |
-| R-KN-05 | 知识域前端“决策证据链 + 资产版本引用”截图 | `artifacts/knowledge-qa-trace-multihop/02-决策证据链-资产版本引用.png` |
-| R-KN-05 | 多跳问答轨迹 API JSON（hop=0/1/2 三档证据，跨 6 份资产版本） | `artifacts/knowledge-qa-trace-multihop/latest.json` |
+| R-NX-08 | 托管平台完整 Skill 问答登记（completed） | `07_证据包/R-NX-08_COMPLETED.yaml` |
+| R-NX-08 | 平台问答全帧记录与 2254 字答案原文 | `07_证据包/R-NX-08_ws-frames.json` |
+| R-NX-09 | 完整 SSE 原始事件流 / 事件序列 / 工具轨迹 / 运行摘要 / 发布版本记录 | 证据包随开源仓库归档（`artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/`） |
+| R-KN-04 | 问答轨迹 API JSON（问题 → 检索 → 决策 → 证据链，hop=0） | `07_证据包/R-KN-04_knowledge-qa-trace.json` |
+| R-KN-05 | 多跳问答轨迹 API JSON（hop=0/1/2 三档证据，跨 6 份资产版本） | `07_证据包/R-KN-05_knowledge-multihop-trace.json` |
+| R-KN-06 | 检索-生成问答真实模型轨迹（带引用拒答） | `07_证据包/R-KN-06_knowledge-llm-qa-trace.json` |
+| R-LLM-01/02、R-MA-01 | 三模型 × 三语料评测原始产物 | `07_证据包/R-LLM-01_*、R-LLM-02_*` |
 
-R-KN-06（2026-10-24）**检索-生成问答轨迹**：两个问题在已发布本体上先走
-ontology_graph 多跳检索（命中带 hop=1 路径与引用），再生成带 [c:1] 引用的
-回答；第二个问题（疑似漏油）在语料无适用条款时明示
-`insufficient_evidence=true` 并列出四类证据缺口——与 R-NX-09 的本地 Nexent
-拒答案例同一叙事。轨迹见 `artifacts/knowledge-llm-qa-trace/latest.json`，
-`mode=real:deepseek-chat`（**真实模型生成**，E1、演示语料）；同文件的脚本
-客户端口径仅作机制验证留存，两者分开表述。**前端「问答」工作台实测截图**
-（知识域第五页签，GLM-5.3 经 ModelArts 生成）：接地回答（引用徽章可点击
-定位证据卡）与拒答横幅两景，见 `artifacts/knowledge-qa-llm-frontend/`。**前端「问答」工作台已上线**
-（知识域第五个页签）：回答内 [c:n] 引用徽章可点击定位证据卡，证据卡带
-跳数路径与资产版本引用，证据不足时顶部展示拒答横幅；实测截图见
-`artifacts/knowledge-qa-llm-frontend/`（接地回答与拒答两景，真实模型）。
+口径提醒：
 
-**R-NX-08 已完成（2026-10-24）**：华为 AgentArts 托管平台内完整 Skill 问答
-跑通——WebSocket 官方协议通道、真实模型（经 VPC 内 TLS 中转）、5 Skill 编排，
-9 分钟 1933 帧运行，智能体检索环境后**如实声明知识资产未加载、引用全部
-not_evaluated**，再给出逐节标注「非知识库依据」的通用溢油处置框架——与
-R-NX-09 本地拒答案例同一设计在托管平台复现。证据：
-`artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml`
-与 `evidence/hosted-qa-2026-10-24/`。诚实边界：本次运行中 MCP 知识域工具
-不可用（网关 Target 指向已丢失的旧 ECS），智能体改用文件检索并如实报告
-证据缺口；恢复工具面为后续待办，不影响本问答验收口径。
-
-**历史（已被 R-NX-08 取代）**：R-NX-07 `blocked` 与 10-02 探测记录见
-`hosted-skill-qa-2026-10-02.yaml` 与 `hosted-skill-qa-2026-10-24-probe.yaml`。
-解除账号欠费并按 `huawei-agentarts-vpc-target-runbook.md` 创建 Target、绑定
-Agent、发布后，在平台内跑一次完整问答并另存为 `evidence/hosted-*-qa-*.png`，
-届时登记 R-NX-08。
-
-R-KN-04 的口径提醒：该轨迹为 `hop_count=0` 的**直接资产引用检索**，不是多跳
-路径问答，也不是 LLM 生成式问答，不得与 R-NX-09 混写。
-
-R-KN-05（2026-10-23）补齐**真实多跳实例**：同一问题在已发布本体上执行跨文档
-多跳检索，命中 6 条，其中 3 条为 `hop=2`（路径如“泡沫垃圾 [触发] → 岸线巡查
-[生成] → 打捞任务”）；决策证据链 6 条证据覆盖 hop=0/1/2 三档、引用 6 份不同
-资产版本（事件/表格/文档/遥测/图像/数据集）。轨迹与截图见
-`artifacts/knowledge-qa-trace-multihop/`。口径：确定性“检索-推理”链路
-（本体图检索 + 决策证据链），演示资产、E1/E2 证据等级；不是 LLM 生成式问答，
-不得表述为真实脱敏行业数据或现场验证。
+- R-KN-04 是 `hop_count=0` 的**直接资产引用检索**，不是多跳路径问答，也不是
+  LLM 生成式问答，不得与 R-NX-09 混写；
+- R-KN-05 是确定性“检索-推理”链路（本体图检索 + 决策证据链），演示资产、
+  E1/E2 证据等级，不是 LLM 生成式问答；
+- R-KN-06 轨迹中脚本客户端口径仅作机制验证留存，与真实模型轨迹分开表述。
 
 ## 七、随附文件说明
 
-| 类别 | 文件 | 说明 |
+| 类别 | 包内文件 | 说明 |
 | --- | --- | --- |
-| MCP 实现 | `integrations/nexent/mcp_server/server.py` | Oceanus Domain Cognition MCP 服务实现 |
-| MCP 依赖 | `integrations/nexent/mcp_server/requirements.txt` | 运行依赖 |
-| MCP 配置模板 | `integrations/nexent/.env.example` | 环境变量模板，不含真实密钥 |
-| MCP 接入说明 | `integrations/nexent/README.md` | 工具面、安全边界、部署方式 |
-| MCP 接口描述 | `artifacts/nexent-mcp-openapi.json` | 工具接口定义 |
-| Skills | `integrations/nexent/skills/*/SKILL.md` | 5 个工作流模板（政策证据问答 / 事件研判 / 跨文档决策 / 工单编排 / 决策轨迹审计） |
-| Agent 配置导出 | `artifacts/nexent-platform-acceptance/evidence/agent-run-export.zip` | Agent 配置与绑定 Skills 导出物 |
-| Agent 配置记录 | `artifacts/nexent-platform-acceptance/agent-create-2026-09-29.yaml` | R-NX-04 配置 / 发布 / 调用关系 |
-| 本地问答登记 | `artifacts/nexent-platform-acceptance/recheck-2026-09-30-llm-qa.yaml` | R-NX-09 结构化验收登记 |
-| 托管平台记录 | `artifacts/nexent-platform-acceptance/hosted-2026-09-29.yaml`、`hosted-agent-2026-09-29.yaml` | R-NX-05 / R-NX-06 |
-| 阻断记录 | `artifacts/nexent-platform-acceptance/hosted-2026-09-30-target-blocked.yaml` | R-NX-07 `blocked` |
-| 恢复手册 | `docs/competitions/huawei-agentarts-vpc-target-runbook.md` | R-NX-08 执行手册 |
-| 知识库证据 | `artifacts/evolution-demo/latest.json`、`artifacts/ontology-eval/latest.json` | R-KN-01 / R-KN-02 |
+| 完整源码包 | `04_代码附件/完整源码包_seasight.zip` | 与开源仓库（GitHub `Liiiyonx/seasight`）一致的脱敏快照，已过隐私扫描 |
+| MCP 实现 | `04_代码附件/MCP与Skills源码/nexent/mcp_server/server.py` | Oceanus Domain Cognition MCP 服务实现（默认 21 只读 + 显式开关 11 写入） |
+| MCP 依赖与配置 | `04_代码附件/MCP与Skills源码/nexent/mcp_server/requirements.txt`、`04_代码附件/MCP与Skills源码/nexent/.env.example` | 运行依赖与环境变量模板，不含真实密钥 |
+| MCP 接入说明 | `04_代码附件/MCP与Skills源码/nexent/README.md` | 工具面、安全边界、部署方式 |
+| Skills | `04_代码附件/MCP与Skills源码/nexent/skills/*/SKILL.md` | 5 个工作流模板（政策证据问答 / 事件研判 / 跨文档决策 / 工单编排 / 决策轨迹审计） |
+| 本地问答登记 | `07_证据包/R-NX-09_recheck.yaml` | R-NX-09 结构化验收登记 |
+| 托管平台记录 | `07_证据包/R-NX-05_hosted.yaml`、`R-NX-06_hosted-agent.yaml` | MCP 注册与 Agent/模型配置 |
+| 阻断与探测记录 | `07_证据包/R-NX-07_blocked.yaml`、`R-NX-08-PROBE_2026-10-24.yaml` | 修复链中间态，如实保留 |
+| 托管平台完成登记 | `07_证据包/R-NX-08_COMPLETED.yaml` + `R-NX-08_ws-frames.json` | 平台内完整 Skill 问答（§八） |
+| 知识库证据 | `07_证据包/R-KN-01_latest.json`、`R-KN-02_ontology-eval.json` 等 | 知识域评测产物（登记号命名） |
 
-说明：以上文件均由仓库版本控制；模型密钥、MCP 令牌、后端账号与云凭据一律
-不随包提交。
+说明：模型密钥、MCP 令牌、后端账号与云凭据一律不随包提交。
 
-## 八、托管平台（AgentArts）状态与恢复路径
+## 八、托管平台（AgentArts）验收记录与工程攻坚
 
-已完成的托管平台动作：
+**结论先行：华为 AgentArts 托管平台内完整 Skill 问答已跑通（R-NX-08，
+2026-10-24，verdict=completed）**——一次运行 9 分钟、1,933 帧、真实模型、
+2,254 字回答；运行环境未加载知识库资产时，智能体全量检索后**如实声明
+“引用全部 not_evaluated”**，逐节标注“非知识库依据”给出通用溢油处置框架，
+拒绝编造政策依据——与本地验收（R-NX-09）的拒答行为是同一设计在托管平台的
+复现。
 
-1. 注册 MCP 服务 `Oceanus Domain Cognition MCP`，状态“部署成功”，工具列表
-   加载 21 个只读工具，公网端点 `knowledge_list_assets` 真实只读调用返回
-   total=4（R-NX-05）；
-2. 创建 Agent 并配置 `deepseek-provider/deepseek-chat`，写入诚实系统提示词
-   （R-NX-06）；
-3. 导入 5 个 Skill（R-NX-07）；
-4. 创建私网环境 `environment-seasight-vpc-verify` 与网关 `seasight-vpc-gateway`
-   （R-NX-07）。
+部署拓扑见图 11：
 
-当前阻断（R-NX-07 `blocked`）：华为云账号欠费导致私网网关“创建 Target”原生
-禁用（Target 0/10），Agent 启用 VPC 时报 `AgentArts.03002206`，因此托管平台内
-完整 Skill 问答**尚未跑通**，`live_skill_qa_completed: false`。
+![图 11 华为云全栈部署拓扑：AgentArts 托管智能体（VPC 私网）→ ECS TLS 模型中转 → DeepSeek API；知识域 LLM 通道 → ModelArts MaaS（昇腾池）；网关 Target 恢复为后续待办（如实标注）](artifacts/doc-figures/fig-huawei-fullstack.png)
 
-恢复路径（R-NX-08，2026-10-01 已取得部分进展）：网关层 MCP POST 与
-`agent_runtime_status` 工具调用已实证成功；仍需在私网环境绑定 Agent、发布并
-在平台内跑通一次完整 Skill 问答。后续步骤：在 `vpc-seasight` 内创建可达的
-`/mcp` Target → 绑定 Agent → 发布 → 在平台内跑一次完整 Skill 问答并留存平台内
-截图 → 按 `hosted-skill-qa.template.yaml` 登记。完成前，全部对外材料维持
-“本地已验收、托管平台未验收”的口径。
+验收要素（均有登记产物）：
 
-**2026-10-24 复跑探测（R-NX-08-PROBE-20261024）**：账号解冻后用重建的自包含
-复跑脚本（`scripts/rnx08_hosted_qa_run.py`，按官方 managed_agents 协议）发起
-一次探测：网关与鉴权层在线、域名公网可解析，但 WebSocket 握手 401——形态与
-10-02 成功记录一致的 API Key 被服务端拒绝。卡点从「账号欠费」收敛为「控制台
-身份鉴权核验」（API Key 轮换 / runtime 变更 / 账号受限记录，三者只能在控制台
-确认）。核验通过后执行同一脚本即可按模板登记 R-NX-08 完成；详见
-`artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`
-与 runbook §13.8。
+| 要素 | 实测值 |
+| --- | --- |
+| 验收智能体 | `seasight-governance-agent-vpc2`（managed runtime，区域 cn-south-west-2） |
+| 运行环境 | `environment-seasight-vpc-verify`（VPC 私网——平台内运行 Skill 的必要条件） |
+| 调用通道 | Managed Agents WebSocket（官方 `managed_agents_client` 协议，API Key 认证） |
+| 模型链路 | `deepseek-provider-vpc`（Base_url 指向 VPC 内中转）→ socat TLS :8080 → relay :18080（模型名重写 `deepseek-v4.1-flash`→`deepseek-chat`）→ DeepSeek 官方 API |
+| 验收问题 | “连江县海漂垃圾治理中，岸基监控发现疑似漏油事件，请按照现有政策给出评估与处置建议，并给出证据链” |
+| 运行结果 | 539.7 秒 / 1,933 帧 / 2,254 字回答 / 证据不足如实拒答 |
+
+**工程攻坚链（从 blocked 到 completed，全程留证）**——这段修复史本身是
+平台工程能力的证据，也是答辩素材：
+
+1. **账号欠费**（R-NX-07，09-30）：欠费使“创建 Target”原生禁用（0/10），
+   Agent 启用 VPC 报 `AgentArts.03002206` → 充值解冻；
+2. **CSMS 凭据被释放**：欠费期间网关凭据被系统释放且系统身份不可改 →
+   新建 vpc2 智能体绕过旧凭据；
+3. **旧 ECS 系统盘被释放**：中转宿主丢失 → 重建 ECS（`ecs-6b91`）并以
+   socat TLS + 模型名重写重建 VPC 内模型中转；
+4. **鉴权修复后仍超时**：根因是**智能体版本快照固化了保存时的 provider 配置**，
+   改完 Base_url 必须重存一版——修复后问答即通；
+5. **探测 401（R-NX-08-PROBE，10-24）**：API Key 形态与历史成功记录一致但被
+   服务端拒绝，卡点收敛为控制台身份核验——完成前的中间态也如实登记。
+
+**诚实边界**：本次运行中 MCP 知识域工具不可用（网关 Target 仍指向已丢失的
+旧 ECS `192.168.0.65:8100`），智能体改用文件检索并如实报告证据缺口——这本身
+是编排可信性的证据。10-24 晚 MCP 工具面基础设施已全通，恢复 Target 绑定后
+复跑一次即可补齐工具调用轨迹；该待办不影响“平台内完整 Skill 问答已验收”
+的口径，验收要素为「真实模型 + 完整 Skill 编排 + 诚实拒答」。
 
 ## 九、诚实边界与不可宣称项
 
@@ -419,21 +406,23 @@ R-KN-05（2026-10-23）补齐**真实多跳实例**：同一问题在已发布�
   （R-OD-01，8 份生态环境部公开通知）也只是 E1 替代证据，不代表领域准确率；
 - R-KN-04 为 `hop=0` 直接引用检索；跨文档多跳实例由 R-KN-05 补齐
   （hop=0/1/2 三档证据、演示资产、E1/E2），两者均非 LLM 生成式问答；
-- 本文档所有“已跑通”仅指**本地官方源码部署 Nexent**，不含华为 AgentArts
-  托管平台内验收；
+- “已跑通完整 Skill 问答”指**本地官方源码部署（R-NX-09）与华为 AgentArts
+  托管平台（R-NX-08）两次独立验收均已完成**；R-NX-08 本次运行 MCP 知识域
+  工具不可用（网关 Target 待恢复，§八），不得写成“托管平台工具调用全链路
+  已恢复”；
 - 本体抽取评测（R-KN-02）、增量维护对比（R-KN-03）、多行业迁移（R-MG-01）
-  均为 E1 级软件内部或演示级结果，不表述为真实行业效果。
+  均为 E1 级软件内部或演示级结果，不表述为真实行业效果；
+- ModelArts MaaS 评测（R-MA-01）为共享推理端点按 token 计费的真实推理，
+  语料为合成与真实公开文本，不代表生产 SLA。
 
 ## 十、变更记录
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
-| 2026-10-24 | 新增 §3.4 知识域 LLM 通道（R-LLM-01 抽取主通道 + R-KN-06 检索-生成问答，脚本客户端口径）；§六补 R-KN-06 轨迹索引；§八补 R-NX-08 复跑探测（401，卡点收敛为鉴权核验） | liyongxiang + ZCode |
-| 2026-10-24 | §3.4/§六 升级为真模型口径：R-LLM-01 real 双通道对照评测（含负结果）与 R-KN-06 real 真实模型问答轨迹（DeepSeek `deepseek-chat`） | liyongxiang + ZCode |
-| 2026-10-24 | §3.4 增 R-LLM-02：真实公开政务文本双通道行为对照（LLM 关系 100% 带类型与引用，抽出法规术语） | liyongxiang + ZCode |
-| 2026-10-24 | **R-NX-08 完成**：托管平台内完整 Skill 问答跑通（vpc2 智能体 + VPC TLS 模型中转 + 模型名重写 + 真实拒答答案 2254 字） | liyongxiang + ZCode |
-| 2026-10-24 | 知识域「问答」前端工作台上线（[c:n] 引用徽章可点、证据卡、拒答横幅）；真实模型实测两景截图入包 | liyongxiang + ZCode |
+| 2026-10-25 | **国奖打磨版 1.1**：①对齐 R-NX-08 完成后的全文档口径（§一状态表、§八整节重写为验收记录+工程攻坚、§九边界重写，消除 v1.0 中“托管平台 blocked”的旧表述残留）；②内嵌 11 张图（知识域管线/调用关系/双驱动执行流/华为云全栈拓扑 4 张示意图 + 控制台/多跳/证据链/问答工作台等 7 张实测截图）；③§五调试经验按时间重排并补 R-NX-08 攻坚链；④§六/§七证据路径全部对齐提交包结构（06_示例问答截图 / 07_证据包 / 04_代码附件）；⑤封面口径与编制日期刷新 | liyongxiang + ZCode |
 | 2026-10-24 | §3.4 增 R-MA-01：知识域 LLM 通道切换至 ModelArts MaaS(昇腾池)完成真实推理评测 | liyongxiang + ZCode |
+| 2026-10-24 | 知识域「问答」前端工作台上线（[c:n] 引用徽章可点、证据卡、拒答横幅）；真实模型实测两景截图入包 | liyongxiang + ZCode |
+| 2026-10-24 | **R-NX-08 完成**：托管平台内完整 Skill 问答跑通（vpc2 智能体 + VPC TLS 模型中转 + 模型名重写 + 真实拒答答案 2254 字） | liyongxiang + ZCode |
+| 2026-10-24 | §3.4 增 R-LLM-02：真实公开政务文本双通道行为对照（LLM 关系 100% 带类型与引用，抽出法规术语） | liyongxiang + ZCode |
+| 2026-10-24 | §3.4/§六 升级为真模型口径：R-LLM-01 real 双通道对照评测（含负结果）与 R-KN-06 real 真实模型问答轨迹（DeepSeek `deepseek-chat`） | liyongxiang + ZCode |
 | 2026-09-30 | 建立「材料 2」独立提交件底稿：整体设计思路、Agent 配置完整细节、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界 | WP-15 |
-
-

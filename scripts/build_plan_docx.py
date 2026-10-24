@@ -28,6 +28,9 @@ BODY_FONT = "Microsoft YaHei"
 BODY_EAST_ASIA_FONT = "Microsoft YaHei"
 MONO_FONT = "Consolas"
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+IMAGE_WIDTH_IN = 6.2
+
 
 @dataclass
 class Block:
@@ -128,6 +131,12 @@ def parse_markdown(source: str) -> tuple[dict[str, str], list[Block]]:
             index += 1
             continue
 
+        image = re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", stripped)
+        if image:
+            blocks.append(Block(kind="image", text=image.group(1).strip(), marker=image.group(2).strip()))
+            index += 1
+            continue
+
         list_item = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)$", line)
         if list_item:
             indent = len(list_item.group(1).replace("\t", "    "))
@@ -154,6 +163,7 @@ def parse_markdown(source: str) -> tuple[dict[str, str], list[Block]]:
                 or next_line.startswith("```")
                 or next_line.startswith("|")
                 or next_line.startswith(">")
+                or next_line.startswith("![")
                 or re.match(r"^([-*]|\d+\.)\s+", next_line)
                 or re.fullmatch(r"-{3,}", next_line)
             ):
@@ -459,7 +469,7 @@ def add_cover(
     document.add_page_break()
 
 
-def add_toc(document: Document, headings: list[str], page_map: dict[str, int]) -> None:
+def add_toc(document: Document, headings: list[str], page_map: dict[str, int], with_pages: bool = True) -> None:
     heading = document.add_heading("目录", level=1)
     heading.paragraph_format.page_break_before = False
 
@@ -468,12 +478,13 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int]) -
     set_run_font(run, BODY_FONT, 9)
     run.font.color.rgb = RGBColor(90, 90, 90)
 
-    table = document.add_table(rows=1, cols=2)
+    table = document.add_table(rows=1, cols=2 if with_pages else 1)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = False
     header = table.rows[0]
     header.cells[0].text = "章节"
-    header.cells[1].text = "页码"
+    if with_pages:
+        header.cells[1].text = "页码"
     set_repeat_table_header(header)
     for cell in header.cells:
         set_cell_shading(cell, HEADER_FILL)
@@ -481,7 +492,11 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int]) -
         set_cell_margins(cell)
         cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
         for p in cell.paragraphs:
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if cell is header.cells[1] else WD_ALIGN_PARAGRAPH.LEFT
+            p.alignment = (
+                WD_ALIGN_PARAGRAPH.CENTER
+                if with_pages and cell is header.cells[1]
+                else WD_ALIGN_PARAGRAPH.LEFT
+            )
             for run in p.runs:
                 set_run_font(run, BODY_FONT, 9, True)
                 run.font.color.rgb = RGBColor(255, 255, 255)
@@ -489,9 +504,11 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int]) -
     for row_index, text in enumerate(headings):
         row = table.add_row()
         row.cells[0].text = text
-        row.cells[1].text = str(page_map.get(_normalize_heading(text), "-"))
-        row.cells[0].width = Inches(6.10)
-        row.cells[1].width = Inches(0.84)
+        if with_pages:
+            row.cells[1].text = str(page_map.get(_normalize_heading(text), "-"))
+        row.cells[0].width = Inches(6.10 if with_pages else 6.94)
+        if with_pages:
+            row.cells[1].width = Inches(0.84)
         for cell in row.cells:
             set_cell_border(cell, BORDER_COLOR)
             set_cell_margins(cell, top=45, bottom=45)
@@ -499,11 +516,12 @@ def add_toc(document: Document, headings: list[str], page_map: dict[str, int]) -
             if row_index % 2 == 1:
                 set_cell_shading(cell, ALT_FILL)
         row.cells[0].paragraphs[0].paragraph_format.space_after = Pt(0)
-        row.cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row.cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+        if with_pages:
+            row.cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            for run in row.cells[1].paragraphs[0].runs:
+                set_run_font(run, BODY_FONT, 9, False)
         for run in row.cells[0].paragraphs[0].runs:
-            set_run_font(run, BODY_FONT, 9, False)
-        for run in row.cells[1].paragraphs[0].runs:
             set_run_font(run, BODY_FONT, 9, False)
 
     document.add_page_break()
@@ -646,6 +664,25 @@ def add_blocks(document: Document, blocks: list[Block]) -> None:
             add_table(document, block.rows)
         elif block.kind == "code" and block.lines is not None:
             add_code_block(document, block.lines)
+        elif block.kind == "image":
+            image_path = Path(block.marker)
+            if not image_path.is_absolute():
+                image_path = REPO_ROOT / image_path
+            if not image_path.exists():
+                raise FileNotFoundError(f"docx 图片缺失: {image_path}")
+            paragraph = document.add_paragraph()
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            paragraph.paragraph_format.space_before = Pt(6)
+            paragraph.paragraph_format.keep_with_next = True
+            run = paragraph.add_run()
+            run.add_picture(str(image_path), width=Inches(IMAGE_WIDTH_IN))
+            if block.text:
+                caption = document.add_paragraph()
+                caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                caption.paragraph_format.space_after = Pt(10)
+                add_inline(caption, block.text, 9)
+                for run in caption.runs:
+                    run.font.color.rgb = RGBColor(90, 90, 90)
         elif block.kind == "spacer":
             continue
 
@@ -667,6 +704,7 @@ def build_docx(
     core_subject: str = "国奖候选工程基线与智能体开发分工方案",
     core_author: str = "Oceanus 项目组",
     core_comments: str = "严格区分 E0-E4 证据，不以规划替代真实现场与商业验证。",
+    toc_with_pages: bool = True,
 ) -> dict[str, object]:
     source = source_path.read_text(encoding="utf-8")
     metadata, blocks = parse_markdown(source)
@@ -689,7 +727,7 @@ def build_docx(
         cover_meta_rows=cover_meta_rows,
         cover_boundary=cover_boundary,
     )
-    add_toc(document, headings, page_map)
+    add_toc(document, headings, page_map, with_pages=toc_with_pages)
     add_blocks(document, blocks)
 
     core = document.core_properties
