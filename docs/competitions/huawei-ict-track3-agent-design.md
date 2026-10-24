@@ -153,9 +153,15 @@ MCP 服务：`Oceanus Domain Cognition MCP`。默认注册 **21 个只读工具*
 | 本体候选抽取主通道 | LLM 按严格 JSON schema 抽取节点/关系（关系类型限定 8 词表、实体类型限定 6 词表、引文必摘原文），经校验后与规则候选按 canonical 去重合并 | 调用失败/输出非法 → 整体回退规则通道，`extraction_fallback_reason` 落版本 metadata |
 | 检索-生成问答（R-KN-06） | `POST /api/v1/knowledge/qa`：先多跳检索，模型只允许依据检索证据作答，回答内嵌 [c:编号] 引用 | 模型失败 → 降级输出原始证据列表并明示“未生成模型结论”；证据不足 → `insufficient_evidence=true` 拒答 |
 
-通道机制由 20 项专项测试与确定性评测守卫（`make ontology-llm-eval` /
-`make knowledge-llm-qa-trace`）；**当前已采集轨迹均来自确定性脚本客户端，
-真实模型评测须配置端点后加 `--real` 重跑**，不得把脚本客户端表述为模型能力。
+通道机制由 20 项专项测试与确定性评测守卫；**2026-10-24 深夜已配真实端点并完成
+真模型评测（R-LLM-01 real / R-KN-06 real，DeepSeek `deepseek-chat`）**：
+
+| 评测 | 真实数字 | 口径 |
+| --- | --- | --- |
+| 双通道抽取对照（R-LLM-01 real） | 规则 top-20 术语 11/20、关系 1/7（与 R-KN-02 对账一致）；LLM 合并列表 9/20、关系 1/7（命中"海漂垃圾→机械臂"）；纯 LLM 候选命中全部 7 个核心领域词，漏乡镇/动作词 | 内部合成语料（E1）；**负结果如实报告**：本语料上 LLM 未跑赢手调规则先验，价值在零样本扩展与引文证据 |
+| 生成式问答（R-KN-06 real） | 接地问题按检索证据回答并标 [c:1]；漏油问题明示 `insufficient_evidence=true` 并列出四类证据缺口（应急预案/上报流程/围油栏吸油材料/监测取证） | 演示语料（E1）；拒答叙事与 R-NX-09 本地 Nexent 案例一致 |
+
+脚本客户端轨迹保留为机制验证口径，与真实模型轨迹分开表述，不得混写。
 
 ### 3.5 调用关系图
 
@@ -304,9 +310,10 @@ Skill **不替代 MCP 权限判断**：Skill 只描述业务顺序，能不能�
 R-KN-06（2026-10-24）**检索-生成问答轨迹**：两个问题在已发布本体上先走
 ontology_graph 多跳检索（命中带 hop=1 路径与引用），再生成带 [c:1] 引用的
 回答；第二个问题（疑似漏油）在语料无适用条款时明示
-`insufficient_evidence=true` 并建议人工升级——与 R-NX-09 的本地 Nexent 拒答
-案例同一叙事。轨迹见 `artifacts/knowledge-llm-qa-trace/latest.json`。
-口径：确定性脚本客户端（非真实模型），E1；真实模型轨迹待端点配置。
+`insufficient_evidence=true` 并列出四类证据缺口——与 R-NX-09 的本地 Nexent
+拒答案例同一叙事。轨迹见 `artifacts/knowledge-llm-qa-trace/latest.json`，
+`mode=real:deepseek-chat`（**真实模型生成**，E1、演示语料）；同文件的脚本
+客户端口径仅作机制验证留存，两者分开表述。
 
 **待补**：华为 AgentArts 托管平台内的完整 Skill 问答截图（R-NX-07 `blocked`）。
 解除账号欠费并按 `huawei-agentarts-vpc-target-runbook.md` 创建 Target、绑定
@@ -395,4 +402,5 @@ R-KN-05（2026-10-23）补齐**真实多跳实例**：同一问题在已发布�
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
 | 2026-10-24 | 新增 §3.4 知识域 LLM 通道（R-LLM-01 抽取主通道 + R-KN-06 检索-生成问答，脚本客户端口径）；§六补 R-KN-06 轨迹索引；§八补 R-NX-08 复跑探测（401，卡点收敛为鉴权核验） | liyongxiang + ZCode |
+| 2026-10-24 | §3.4/§六 升级为真模型口径：R-LLM-01 real 双通道对照评测（含负结果）与 R-KN-06 real 真实模型问答轨迹（DeepSeek `deepseek-chat`） | liyongxiang + ZCode |
 | 2026-09-30 | 建立「材料 2」独立提交件底稿：整体设计思路、Agent 配置完整细节、Skill 分层编排、调试迭代经验、示例问答截图索引、随附文件说明、托管平台状态与恢复路径、诚实边界 | WP-15 |

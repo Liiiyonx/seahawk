@@ -256,6 +256,21 @@ def run_real_mode(documents, gold_terms, gold_relations) -> dict[str, Any]:
             ),
             "relations": llm_relation_score,
         },
+        # 纯 LLM 候选（不含规则补位）：观察两路各自的召回形态
+        "llm_pure": {
+            "top20": _score_terms(
+                [
+                    node.canonical_name
+                    for node in llm_outcome.nodes
+                    if llm_outcome.method_for(node.canonical_name) == "llm"
+                ],
+                gold_terms,
+                20,
+            ),
+        },
+        "llm_relations_matched": llm_relation_score["matched"],
+        "rule_relations_matched": rule_relation_score["matched"],
+        "interpretation": "合并通道中 LLM 候选占前位；规则通道对乡镇/动作词有先验加分。两路关系命中不同边，互补而非替代。",
     }
 
 
