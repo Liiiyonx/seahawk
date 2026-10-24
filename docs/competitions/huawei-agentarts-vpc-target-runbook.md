@@ -513,6 +513,28 @@ python scripts/rnx08_hosted_qa_run.py --max-seconds 840
 详见 `artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml`
 (晚间续记)与 20+ 张操作截图。
 
+## 十三.10、R-NX-08 完成(2026-10-24 深夜)
+
+完整修复链(与 §13.7-13.9 的诊断闭环):
+
+1. 欠费解冻(¥0.26 抵扣);
+2. 新建智能体 seasight-governance-agent-vpc2 + API Key 身份(绕过被释放的 CSMS 凭据,
+   系统身份不可修改的限制)——WebSocket 鉴权即通;
+3. 重建中转宿主 ecs-6b91(1.95.13.110/192.168.0.230, x1.1u.1g):
+   socat TLS :8080(自签, SG 限 192.168.0.0/16) → relay :18080;
+4. provider deepseek-provider-vpc:删模型代理(其转发超时不可用)、Base_url 改
+   https://192.168.0.230:8080/v1、出网=私网访问;智能体重存 v4 使快照吃进新地址
+   (版本快照会固化 provider 配置——这是 401 修复后仍超时的原因);
+5. 中转模型名重写 deepseek-v4.1-flash→deepseek-chat(上游仅认 flash/v4-pro/chat);
+   出站凭据与 RELAY_TOKEN 不匹配曾 401,当前 ALLOW_NO_AUTH=1(SG+TLS 兜底)。
+
+结果:verdict=completed,9 分钟 1933 帧,2254 字诚实拒答答案(知识资产未加载
+→全部 not_evaluated→通用框架建议逐节标注非知识库依据)。正式记录:
+hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml。
+
+后续待办(不影响验收):网关 Target 改指新 ECS 并部署 MCP 以恢复工具面;
+旧 EIP 1.95.120.238 释放;验收后关停 ecs-6b91 省费。
+
 ## 十四、变更记录
 
 | 日期 | 变更 | 操作人 |

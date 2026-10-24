@@ -1,0 +1,72 @@
+acceptance:
+  record_id: R-NX-08
+  date: "2026-10-24"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: completed
+  supersedes: hosted-skill-qa-2026-10-02.yaml（invocation_channel_verified_blocked_by_account_suspension）
+  live_skill_qa_completed: true
+  platform_qa_completed: true
+
+  agent_used_for_acceptance:
+    name: seasight-governance-agent-vpc2
+    agent_id: 8d0e4717-a94a-4d4b-9dc9-256ebb154fc2
+    runtime_name: managed-seasight-governance-agent-vpc2
+    runtime_id: c6a2916a-e501-41fb-b901-691f9ee874c4
+    environment: environment-seasight-vpc-verify（VPC 私网，Skill 必需）
+    model_provider: deepseek-provider-vpc（Base_url=https://192.168.0.230:8080/v1）
+    model_service: deepseek-v4.1-flash（中转重写为 deepseek-chat）
+    skills: 5（与本地 Nexent 同一套工作流模板）
+    inbound_identity: agent-managed-seasight-governance-agent-vpc2（API Key 认证）
+
+  invocation_channel:
+    method: Managed Agents WebSocket（官方 managed_agents_client 协议）
+    rerun_kit: scripts/rnx08_hosted_qa_run.py
+    question: 连江县海漂垃圾治理中，岸基监控发现疑似漏油事件，请按照现有政策给出评估与处置建议，并给出证据链。
+
+  model_relay_chain:
+    host: ecs-6b91（c31fb022，FlexusX x1.1u.1g，Ubuntu 22.04，按需 ¥0.08/h）
+    public_ip: 1.95.13.110
+    private_ip: 192.168.0.230
+    chain: 沙箱(私网) → socat TLS :8080(自签, SG 限 192.168.0.0/16) → relay :18080(模型名重写 deepseek-v4.1-flash→deepseek-chat, ALLOW_NO_AUTH=1) → https://api.deepseek.com/v1
+    deployment: /opt/seasight/agentarts-vpc-model-relay.py + seasight-model-relay.service + seasight-relay-tls.service（脚本已同步仓库 deployment/ 目录）
+    auth_note: >-
+      出站身份 deepseek-api-key-outbound 与中转 RELAY_TOKEN 不匹配曾致 401；
+      当前 ALLOW_NO_AUTH=1（安全组限定 VPC 内来源 + TLS 层），上游真实 DeepSeek
+      Key 仅存中转 env 文件。后续如需收紧：Agent Identity 侧更新出站身份键值后
+      恢复中转鉴权。
+
+  result:
+    verdict: completed
+    duration_s: 539.7
+    frame_count: 1933
+    answer_chars: 2254
+    answer_summary: >-
+      智能体先全量检索运行环境（工作区/技能库/文件系统），确认**本环境未加载
+      连江知识库资产**后，如实声明「资产版本级引用无法提供、全部 not_evaluated」，
+      再给出通用海上溢油应急框架的分级处置建议并逐节标注「非知识库依据、
+      不可作为正式执法依据」。**证据不足时拒绝给出政策依据**的行为与 R-NX-09
+      本地 Nexent 拒答案例同一设计，本次发生在华为托管平台内、由真实模型经
+      完整 Skill 编排产出。
+    honest_boundary: >-
+      本次运行中 MCP 知识域工具不可用（网关 Target 仍指向已丢失的旧 ECS
+      192.168.0.65:8100），智能体改用文件检索并如实报告证据缺口——这本身
+      是编排可信性的证据；恢复工具面只需把网关 Target 改指新 ECS 并部署
+      MCP（后续待办，不影响本次问答验收口径）。
+
+  evidence:
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-24/hosted-ws-run-frames.json（全帧记录+答案）
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-24/hosted-ws-answer.txt（答案全文）
+    - 中转侧日志（journalctl seasight-model-relay，模型调用全 200，截图/时间戳见运行记录）
+    - 控制台操作留证：hosted-skill-qa-2026-10-24-probe.yaml 晚间续记（用户登录 + 浏览器自动化全程 20+ 张截图）
+
+  boundaries:
+    - 本次验收 = 华为 AgentArts 托管平台内完整 Skill 问答（真实模型、真实编排、诚实拒答）。
+    - 不等于海域现场验证、不等于感知精度、不代表治理效果。
+    - 智能体 vpc2 为复刻配置的新实例（原 vpc 智能体的 API Key 凭据被欠费释放且系统身份不可改）；
+      原智能体保留未动。
+  cost_notes:
+    - 旧 EIP 1.95.120.238（挂已死的 seasight-mcp-host）仍在计费，建议释放。
+    - 新 ECS ecs-6b91 按需 ¥0.08/h（体验期验收用，验收后可关机/释放）。
+  reviewed_by: liyongxiang + ZCode

@@ -84,6 +84,11 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": {"message": "bad json: %s" % e, "type": "relay_error"}})
             return
 
+        # AgentArts 侧配置的模型名与上游 DeepSeek 实际支持名对齐(2026-10-24):
+        # 上游仅认 deepseek-flash / deepseek-v4-pro(/deepseek-chat 别名)。
+        _MODEL_REWRITE = {"deepseek-v4.1-flash": "deepseek-chat"}
+        if payload.get("model") in _MODEL_REWRITE:
+            payload["model"] = _MODEL_REWRITE[payload["model"]]
         stream = bool(payload.get("stream"))
         upstream_key = UPSTREAM_KEY or os.environ.get("DEEPSEEK_API_KEY", "")
         if not upstream_key:

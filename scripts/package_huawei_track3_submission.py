@@ -65,6 +65,8 @@ FILES: tuple[tuple[str, str], ...] = (
     ("artifacts/knowledge-llm-qa-trace/latest.json", "05_证据包/R-KN-06_knowledge-llm-qa-trace.json"),
     ("artifacts/open-data-llm-channel-eval/latest.json", "05_证据包/R-LLM-02_open-data-llm-channel-eval.json"),
     ("artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-probe.yaml", "05_证据包/R-NX-08-PROBE_2026-10-24.yaml"),
+    ("artifacts/nexent-platform-acceptance/hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml", "05_证据包/R-NX-08_COMPLETED.yaml"),
+    ("artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-24/hosted-ws-run-frames.json", "05_证据包/R-NX-08_ws-frames.json"),
     (
         "artifacts/ontology-eval/incremental-latest.json",
         "05_证据包/R-KN-03_incremental-eval.json",

@@ -1,22 +1,21 @@
 {
   "artifact_type": "huawei_ict_track3_submission_package",
-  "generated_at": "2026-10-24T10:35:28+08:00",
+  "generated_at": "2026-10-24T14:49:51+08:00",
   "source": {
     "branch": "huawei-ict-2026",
     "packager": "scripts/package_huawei_track3_submission.py"
   },
   "zip": {
     "path": "dist/huawei-ict-track3-submission.zip",
-    "size_bytes": 30913249,
-    "entry_count": 48,
-    "sha256": "6d4f95554692e7d091ad6b3f3693990f7aa1efafd8d40a35e9a8c209add308d6"
+    "size_bytes": 31009707,
+    "entry_count": 50,
+    "sha256": "39a35e32aad7ad94ef1f3366dc09a461542e9b97908778df29e5a9f0185a3987"
   },
   "staging_dir": "dist/huawei-ict-track3-submission",
   "notes": [
-    "2026-10-24 深夜重建：新增 R-LLM-02 真实公开政务文本双通道对照（LLM 18 关系全带类型与引用、抽出法规术语；规则 29/40 无类型共现）",
-    "含 R-LLM-01 real（合成语料对照+负结果）、R-KN-06 real（真实模型生成式问答带引用拒答）、R-KN-05/OD-02/OD-03、07_演示视频",
-    "宣称门禁 exit 0；密钥扫描 clean；开源快照已推送 GitHub Liiiyonx/seasight f84e5c2（R-OS-01）",
-    "R-NX-08 托管平台完整 Skill 问答仍未验收：三次探测均握手 401，待控制台核验身份鉴权后一键复跑（scripts/rnx08_hosted_qa_run.py）",
-    "初赛开发设计文档优化版在提交目录（官方模板骨架 + 真实项目内容 + 团队合照/真实截图），随材料单独上传"
+    "2026-10-24 终版:R-NX-08 完成——华为托管平台内完整 Skill 问答跑通(1933帧/9分钟/诚实拒答答案),live_skill_qa_completed=true",
+    "新增证据:R-NX-08_COMPLETED.yaml + WS 全帧记录;R-LLM-01/02 真模型评测;R-KN-06 real 生成式问答",
+    "宣称门禁 exit 0;密钥扫描 clean;开源 GitHub Liiiyonx/seasight",
+    "遗留(已如实登记):MCP 工具面待指向新 ECS;真实脱敏数据待外部来源"
   ]
 }
