@@ -70,3 +70,18 @@ acceptance:
     - 旧 EIP 1.95.120.238（挂已死的 seasight-mcp-host）仍在计费，建议释放。
     - 新 ECS ecs-6b91 按需 ¥0.08/h（体验期验收用，验收后可关机/释放）。
   reviewed_by: liyongxiang + ZCode
+
+  tool_surface_status_20261024_evening:
+    summary: MCP 工具面基础设施全通,智能体绑定缺口已定位(诚实边界)
+    infrastructure_verified:
+      - 网关 Target seasight-mcp-vpc-target 更新为 https://192.168.0.230:8080/mcp,状态「就绪可用」
+      - nginx :8080 TLS 双路径路由(/v1/→模型中转 /mcp→MCP),双服务实测通过
+      - ECS 后端(含演示知识资产 4 资产)+ MCP 服务握手验证通过
+      - 新出站身份 seasight-mcp-ecs-outbound(DEW 托管)
+    gap:
+      - 托管智能体编辑表单不暴露 MCP 工具绑定(工具区仅内置工具+Skill);
+        两次探针共 3600+ 帧,智能体运行中 MCP 服务 0 次调用——绑定缺口而非网络缺口
+      - 修复路径:删除 vpc2 → 经创建流程重新创建并绑定网关工具面;或向华为确认机制
+    impact_on_this_acceptance: 不影响——本次问答验收口径为「真实模型+完整 Skill 编排+诚实拒答」;
+      MCP 工具调用轨迹留作后续补充证据(恢复绑定后复跑一次即可)
+

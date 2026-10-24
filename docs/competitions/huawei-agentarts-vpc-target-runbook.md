@@ -535,6 +535,19 @@ hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml。
 后续待办(不影响验收):网关 Target 改指新 ECS 并部署 MCP 以恢复工具面;
 旧 EIP 1.95.120.238 释放;验收后关停 ecs-6b91 省费。
 
+## 十三.11、MCP 工具面基础设施全通与绑定缺口定位(2026-10-24 深夜)
+
+- 基础设施(全部实测通过):网关 Target 更新为 https://192.168.0.230:8080/mcp
+  「就绪可用」;ECS nginx :8080 TLS 双路径(/v1/→模型中转 /mcp→MCP);
+  后端含演示知识资产;MCP 握手验证通过;出站身份 seasight-mcp-ecs-outbound 建立。
+- 缺口:托管智能体**编辑表单不暴露 MCP 工具绑定**(工具区仅内置工具+Skill);
+  两次探针 3600+ 帧,运行中 MCP 0 次调用——智能体有检索意图但只能用 bash 文件
+  检索。定性:**平台绑定机制缺口,非网络问题**。
+- 修复路径:删除 vpc2 → 创建流程重建并绑定网关工具面;或向华为确认托管智能体
+  的 MCP 绑定机制(证据链完整,适合提工单)。
+- 教训存档:`git clone` 前的 `rm -rf seasight` 曾连带删除 /opt/seasight/tls 证书——
+  **可再生物(证书/env)必须放 /etc 而非仓库目录**;已迁至 /etc/seasight-tls。
+
 ## 十四、变更记录
 
 | 日期 | 变更 | 操作人 |
@@ -543,3 +556,4 @@ hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml。
 | 2026-10-02 | 新增第 13 节实测更正：Skill 要求 VPC 环境且环境不可改、托管智能体只走 WebSocket、私网端点需开 Public Access、MCP 宿主 ECS 必须 Running、ws 需关压缩、账号余额风险 | liyongxiang |
 | 2026-10-02 | 新增 13.7：定位「私网环境无公网出口 → 公网模型必然超时」这一结构性互斥，给出 VPC 内模型中转的修复方案与脚本 | liyongxiang |
 | 2026-10-24 | 新增 13.8 一键复跑包（重建 rnx08-run.mjs 为 Python 版）+ 探测登记：握手 401，待控制台核验身份与账号状态 | ZCode |
+
