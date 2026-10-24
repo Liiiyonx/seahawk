@@ -11,7 +11,7 @@
 1. **先看本文件**——了解随附文件分组、证据登记号与包内文件对照
 2. `07_证据包/R-NX-08_COMPLETED.yaml`——华为托管平台完整问答（最强证据）
 3. `07_证据包/R-KN-06_*`、`R-LLM-01/02_*`——检索-生成问答与三模型评测（含昇腾池）
-4. `06_示例问答截图/`——8 张按登记号命名的界面证据
+4. `06_示例问答截图/`——9 张按登记号命名的界面证据（含 AgentArts 托管平台控制台）
 5. `04_代码附件/`——完整源码包（zip）+ MCP/Skills 明文源码
 6. 需要复现：见源码包内 README 快速开始；证据登记规则见 `docs/evidence-claim-policy.md`
 
@@ -105,10 +105,13 @@
 | R-MG-01 | `R-MG-01_skill-migration.json` | 三领域 Skill 迁移验证 |
 | R-OD-01~03 | `R-OD-01_open-data-eval.json`、`R-OD-02_open-data-e2e.json`、`R-OD-03_knowledge-e2e-trace.json`、`R-OD-03_real-industry-dataset.json` | 公开数据替代评测 / 真实公开语料端到端 / NOAA 真实行业监测数据接入（22,530 行） |
 
-界面截图在 `06_示例问答截图/`（8 张，按登记号命名）：R-NX-09 控制台 ×2、
-R-KN-04 检索与证据链 ×2、R-KN-05 多跳与证据链 ×2、R-KN-06 问答工作台接地
-回答与拒答 ×2。本地问答的完整 SSE 事件流、工具轨迹与发布记录随开源仓库归档
-（`artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/`，见源码包）。
+界面截图在 `06_示例问答截图/`（9 张，按登记号命名）：R-NX-05 **华为 AgentArts
+托管平台控制台 MCP 21 工具** ×1、R-NX-09 本地 Nexent 控制台问答页与模型配置
+（2026-10-24 复采）×2、R-KN-04 检索与证据链 ×2、R-KN-05 多跳与证据链 ×2、
+R-KN-06 问答工作台接地回答与拒答 ×2。其中 R-NX-05/09/KN-05/KN-06 各有一张
+同步内嵌于材料 2 对应章节。本地问答的完整 SSE 事件流、工具轨迹与发布记录随
+开源仓库归档（`artifacts/nexent-platform-acceptance/evidence/llm-qa-2026-09-30/`，
+见源码包）。
 
 ### 5.2 口径提醒（重要）
 
