@@ -33,7 +33,8 @@ TEAM_PHOTO = COMP_DIR / "92adde5a9f99e59875a9056f36f371fd.jpg"
 FIG_ARCH = ROOT / "artifacts/doc-figures/fig-architecture.png"
 FIG_RUNTIME = ROOT / "artifacts/doc-figures/fig-runtime-evolution.png"
 IMG_CONSOLE = ROOT / "artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/01-nexent-console-qa-page-loggedin.png"
-IMG_MODEL = ROOT / "artifacts/nexent-platform-acceptance/evidence/console-fresh-2026-10-24/02-nexent-model-config-deepseek.png"
+IMG_QA_GROUNDED = ROOT / "artifacts/knowledge-qa-llm-frontend/01-接地回答-引用徽章与证据卡.png"
+IMG_QA_REFUSAL = ROOT / "artifacts/knowledge-qa-llm-frontend/02-证据不足拒答-banner与缺口说明.png"
 IMG_MULTIHOP = ROOT / "artifacts/knowledge-qa-trace-multihop/01-检索结果-本体图检索与引用.png"
 IMG_EVIDENCE = ROOT / "artifacts/knowledge-qa-trace-multihop/02-决策证据链-资产版本引用.png"
 
@@ -58,7 +59,7 @@ CONTENT: dict[str, list[tuple]] = {
         ("table",
          ["赛题关键词", "本项目落点", "对应章节与证据"],
          [
-             ["基于 Nexent 平台可运行", "本地官方源码部署完整 LLM Skill 问答（一次运行 8 步、31 次工具调用）", "1.2 节；登记号 R-NX-09"],
+             ["基于 Nexent 平台可运行", "本地官方源码部署完整 LLM Skill 问答（一次运行 8 步、31 次工具调用）；华为 AgentArts 托管平台内完整 Skill 问答已跑通（9 分钟 1933 帧、真实模型、证据不足如实拒答）", "1.2 节；登记号 R-NX-09 / R-NX-08"],
              ["MCP 工具集成", "21 只读 + 11 写入工具；华为云 AgentArts 已注册并实证只读调用", "1.3 节；登记号 R-NX-05"],
              ["Skills 工作流编排", "5 个 SKILL.md 模板（触发条件/工具顺序/停止条件/输出要求）", "1.3 节"],
              ["决策“可进化”", "经验进化 / 知识进化 / 策略进化三条回路，均有固定场景或端到端验证", "1.2 节四；27 个固定场景评测"],
@@ -141,8 +142,9 @@ CONTENT: dict[str, list[tuple]] = {
              ["业务（6）", "event_get、event_list、task_get、task_list、task_ack_history、dashboard_get"],
              ["Agent 审计（6）", "agent_runtime_status、agent_list_runs、agent_run_detail、agent_run_steps、agent_list_tools、agent_list_approvals"],
          ]),
-        ("p", "华为云 AgentArts 平台侧进度（如实口径）：已完成 MCP 注册（平台状态“部署成功”、21 只读工具加载）与公网端点真实只读调用（knowledge_list_assets 返回 total=4）；平台内完整 Skill 问答验收正在进行中（涉及私网环境配置），完成前本材料不宣称“托管平台内已跑通”。本地 Nexent（官方源码部署 v2.6.1）已完成完整 LLM Skill 问答验收：Agent 发布版本 4，一次运行 HTTP 200、8 步、31 次工具调用、13 个唯一工具、无运行错误——完整 SSE 事件流与逐次工具调用轨迹随证据包提交（登记号 R-NX-09）。"),
-        ("img", IMG_MODEL, 14.5, "图 4 本地 Nexent 模型配置：DeepSeek deepseek-v4-pro，连通状态“可用”"),
+        ("p", "华为云 AgentArts 托管平台内完整 Skill 问答已跑通（登记号 R-NX-08，2026-10-24）：智能体经官方 Managed Agents WebSocket 通道调用，一次运行 9 分钟、1933 帧、真实模型生成 2254 字回答——运行环境未加载知识库资产时，智能体全量检索后如实声明“引用全部 not_evaluated”并给出逐节标注“非知识库依据”的处置框架，拒绝编造政策依据（与本地验收的拒答行为同一设计）。前置的 MCP 注册（21 只读工具、公网端点真实调用）与调试过程（账号冻结、凭据释放、模型中转重建等连环修复）均留证。本地 Nexent（官方源码部署 v2.6.1）完整 LLM Skill 问答验收：Agent 发布版本 4，一次运行 HTTP 200、8 步、31 次工具调用、13 个唯一工具（登记号 R-NX-09）——完整 SSE 事件流与逐次工具调用轨迹随证据包提交。此外，知识域新增检索-生成问答（先多跳检索后生成、回答内嵌可点击引用、证据不足明示拒答，登记号 R-KN-06），前端提供“问答”工作台实测截图；本体抽取具备 LLM 主通道并在真实公开政务文本上完成双通道对照评测（登记号 R-LLM-01/02）。"),
+        ("img", IMG_QA_GROUNDED, 14.5, "图 4 知识域“问答”工作台：检索-生成回答内嵌可点击引用徽章，证据卡带跳数路径与资产版本引用（真实模型实测）"),
+        ("img", IMG_QA_REFUSAL, 14.5, "图 5 证据不足时的拒答横幅：模型拒绝编造政策依据，与处置建议逐节标注“非知识库依据”"),
         ("h3", "二、Skills 工作流模板"),
         ("table",
          ["Skill", "用途", "设计要点"],
@@ -156,8 +158,8 @@ CONTENT: dict[str, list[tuple]] = {
         ("p", "口径：Agent 绑定 5 个 Skill；示例问题经 read_skill_md 实际加载 4 个（cross-document-decision 已绑定、该问题未触发）。对外不宣称“5 个全部验证通过”。"),
         ("h3", "三、检索-推理双驱动与真实多跳实例"),
         ("p", "已发布本体存在时，检索返回 mode=ontology_graph，带关系路径、跳数与引用片段；无可用本体时明确回退关键词模式，不冒充图谱检索。**真实两跳实例（R-KN-05）**：同一问题“马鼻镇出现泡沫聚集时，应如何处置并留存证据链？”命中 6 条，其中 3 条 hop=2（路径：泡沫垃圾[触发]→岸线巡查[生成]→打捞任务）；决策证据链 6 条覆盖 hop=0/1/2 三档、引用 6 份不同资产版本（事件/表格/文档/遥测/图像/数据集）。"),
-        ("img", IMG_MULTIHOP, 14.5, "图 5 知识域“跨文档多跳检索”：命中带“2 跳”标记与可视关系路径"),
-        ("img", IMG_EVIDENCE, 14.5, "图 6 决策证据链：按顺序固化证据，逐条引用资产版本，可回放"),
+        ("img", IMG_MULTIHOP, 14.5, "图 6 知识域“跨文档多跳检索”：命中带“2 跳”标记与可视关系路径"),
+        ("img", IMG_EVIDENCE, 14.5, "图 7 决策证据链：按顺序固化证据，逐条引用资产版本，可回放"),
     ],
     "other": [
         ("h3", "一、质量与验收体系"),
@@ -224,7 +226,7 @@ ABSTRACT = (
     "模板实现检索-推理双驱动决策；执行层落实策略守卫、多角色人工审批、幂等与全程审计回放。"
     "可进化性体现在三处：跨运行经验闭环（复盘提炼、贝叶斯置信度校准、同类事件规划期引用）、"
     "本体版本增量进化（增量抽取较全量重抽节省 63.19% 耗时）、决策证据链随资产/本体/策略版本"
-    "可追溯。已在本地 Nexent 完成完整 LLM 问答验收（一次运行 8 步、31 次工具调用），并在真实"
+    "可追溯。已在本地 Nexent 与华为 AgentArts 托管平台双端完成完整 LLM Skill 问答验收（托管平台一次运行 9 分钟、1933 帧、证据不足如实拒答），并在真实"
     "公开政务语料与真实公开行业监测数据（NOAA NCEI 全球海洋微塑料数据集，22,530 条记录）上"
     "完成端到端评测；全项目 1374 项自动化测试全绿。"
 )
@@ -235,7 +237,7 @@ TECH_STACK = (
     "YOLO-World 开放词汇感知、Redis Streams 事件队列、Playwright 端到端验收、贝叶斯置信度校准"
 )
 
-SHOWCASE_TEXT = "① 本地 Nexent 控制台（登录态）：已发布治理决策智能体，可直接发起问答；② 本地模型配置：DeepSeek deepseek-v4-pro 连通“可用”；③ 知识域“跨文档多跳检索”：命中带 2 跳关系路径的证据；④ 决策证据链：6 条证据覆盖 hop=0/1/2、引用 6 份资产版本。完整 LLM 问答的 SSE 事件流与工具调用轨迹（8 步、31 次调用，R-NX-09）随证据包提交。"
+SHOWCASE_TEXT = "① 本地 Nexent 控制台（登录态）：已发布治理决策智能体，可直接发起问答；② 知识域“跨文档多跳检索”：命中带 2 跳关系路径的证据；③ 决策证据链：6 条证据覆盖 hop=0/1/2、引用 6 份资产版本；④ 知识域“问答”工作台：检索-生成回答内嵌可点击引用徽章，证据不足时明示拒答横幅（R-KN-06，真实模型实测）。本地（R-NX-09）与华为托管平台（R-NX-08）双端完整问答的轨迹与截图随证据包提交。"
 
 
 def add_runs(paragraph, text: str, *, size: Pt = None, bold: bool = False, color: RGBColor = None) -> None:
@@ -373,7 +375,7 @@ def fill_table(doc) -> None:
             add_runs(cell.paragraphs[0], SHOWCASE_TEXT, size=Pt(10.5))
             for img, cap in (
                 (IMG_CONSOLE, "展示 1 Nexent 控制台（登录态）：已发布治理决策智能体"),
-                (IMG_MODEL, "展示 2 模型配置：DeepSeek 连通可用"),
+                (IMG_QA_GROUNDED, "展示 2 知识域“问答”工作台：引用徽章与证据卡（真实模型）"),
                 (IMG_MULTIHOP, "展示 3 跨文档多跳检索（2 跳路径）"),
                 (IMG_EVIDENCE, "展示 4 决策证据链（hop=0/1/2）"),
             ):
