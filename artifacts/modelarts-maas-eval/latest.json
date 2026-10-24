@@ -1,0 +1,35 @@
+{
+  "artifact_type": "modelarts_maas_real_inference_eval",
+  "generated_at": "2026-10-24T19:20:00+08:00",
+  "platform": "huawei-modelarts-studio-maas",
+  "region": "cn-southwest-2",
+  "endpoint": "https://api.modelarts-maas.com/v1 (OpenAI-compatible shared inference)",
+  "models_verified": {
+    "GLM-5.3": "ok",
+    "GLM-5.2": "ok (223s/12k语料抽取)"
+  },
+  "note_ascend": "ModelArts MaaS 共享推理端点底层运行于昇腾资源池——本次评测即昇腾算力上的真实推理",
+  "results": {
+    "R-LLM-01-maas": {
+      "top20_terms": "LLM 13/20 vs 规则 11/20(GLM-5.3 反超)",
+      "relations": "LLM 0/7(如实)",
+      "corpus": "内部合成语料"
+    },
+    "R-KN-06-maas": {
+      "grounded": "[c:1][c:2] 双引用",
+      "refusal": "漏油拒答+缺口说明",
+      "mode": "ontology_graph"
+    },
+    "R-LLM-02-maas": {
+      "rule": "40 关系 29 无类型",
+      "llm": "34 关系全带类型+资产版本引用",
+      "overlap": "6/30"
+    }
+  },
+  "honest_boundary": [
+    "MaaS 共享端点按 token 计费(实测几元级);GLM-5.3 推理较慢(全语料 223s)",
+    "合成语料/演示语料口径不变;非真实脱敏行业数据",
+    "DeepSeek 与 GLM 对照互补:DeepSeek 关系命中 1/7,GLM 0/7 但术语 13/20"
+  ],
+  "config_diff": "KNOWLEDGE_LLM_BASE_URL=https://api.modelarts-maas.com/v1, MODEL=GLM-5.3, TIMEOUT=600s"
+}

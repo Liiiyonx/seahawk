@@ -1,13 +1,13 @@
 {
   "artifact_type": "huawei_ict_track3_submission_package",
-  "generated_at": "2026-10-24T16:10:14+08:00",
+  "generated_at": "2026-10-24T23:03:38+08:00",
   "zip": {
-    "size_bytes": 31870840,
+    "size_bytes": 31971529,
     "entry_count": 54,
-    "sha256": "41e099edbd556fd21b77fd057a1f1d4086c74a95674661912ad8bde53ff1848c"
+    "sha256": "25b859c972657d0d9d9e37e74f013492942e946abefbd1c33cd4ea0763a7e640"
   },
   "notes": [
-    "初赛材料终版对齐 2026-10-24 最新状态:材料1/2 底稿刷新(R-NX-08 完成、R-LLM-01/02、R-KN-06 问答、开源);04 示例问答截图补前端问答工作台两景;附送文件说明 §4.3 与提交清单 v2.0 同步",
-    "R-NX-08 completed;R-KN-06 UI;R-LLM-01/02;门禁 exit 0"
+    "终版+R-MA-01:知识域 LLM 通道切换至 ModelArts MaaS(昇腾池)真实推理评测完成",
+    "门禁 exit 0"
   ]
 }

@@ -1,8 +1,8 @@
 {
   "artifact_type": "open_data_llm_channel_eval",
-  "generated_at": "2026-10-24T02:33:19.567407+00:00",
+  "generated_at": "2026-10-24T15:00:37.404988+00:00",
   "corpus": "8 份生态环境部真实公开文件（R-OD-02 同一语料，来源 URL 与 SHA256 可追溯）",
-  "model": "deepseek-chat",
+  "model": "GLM-5.3",
   "llm_channel": "llm",
   "fallback_reason": null,
   "honest_boundary": [
@@ -364,72 +364,49 @@
     ]
   },
   "llm": {
-    "node_count": 26,
+    "node_count": 30,
     "top_terms": [
-      "海洋环境保护法",
       "生态环境损害鉴定评估技术体系",
-      "海洋生态环境司",
-      "生态环境部办公厅",
-      "生态环境法典",
-      "海洋倾倒活动非现场监管",
-      "海洋倾倒在线监控",
+      "生态环境损害鉴定评估",
       "海洋倾倒在线监控技术规范",
+      "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
+      "海洋倾倒在线监控",
       "海洋倾倒在线监控设备",
       "数据传输",
+      "海洋倾倒活动非现场监管",
+      "海洋倾倒活动",
+      "海洋倾倒",
       "海洋倾倒区选划",
-      "海洋倾倒区选划技术导则",
+      "海洋倾倒区",
       "海洋空间",
       "惰性无机地质材料",
       "渔业废料",
       "疏浚物",
       "废弃物海洋倾倒许可证核发",
+      "海洋生态环境司",
+      "生态环境部",
       "流域海域生态环境监督管理局",
       "北海区",
       "东海区",
       "南海区",
-      "生态环境部政务服务大厅",
-      "征求意见",
-      "标准发布",
-      "标准实施"
+      "海洋环境保护法"
     ],
-    "relation_count": 18,
+    "relation_count": 34,
     "relation_types": {
-      "applies_to": 5,
-      "associated_with": 7,
-      "executes": 1,
-      "dispatches_to": 3,
+      "applies_to": 9,
+      "includes": 4,
+      "monitors": 1,
       "uses": 1,
-      "includes": 1
+      "associated_with": 17,
+      "dispatches_to": 1,
+      "executes": 1
     },
     "relations": [
       {
         "source": "海洋倾倒在线监控技术规范",
-        "target": "海洋倾倒在线监控",
+        "target": "海洋倾倒活动",
         "relation_type": "applies_to",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-STD-2026-02",
-            "asset_version_id": "OD-SEA-STD-2026-02_1",
-            "citation": "明确海洋倾倒在线监控技术要求，规范海洋倾倒在线监控设备的安装使用与数据传输等，现批准《海洋倾倒在线监控技术规范》为国家生态环境标准"
-          }
-        ]
-      },
-      {
-        "source": "海洋倾倒在线监控技术规范",
-        "target": "海洋倾倒在线监控设备",
-        "relation_type": "applies_to",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-STD-2026-02",
-            "asset_version_id": "OD-SEA-STD-2026-02_1",
-            "citation": "规范海洋倾倒在线监控设备的安装使用与数据传输等，现批准《海洋倾倒在线监控技术规范》"
-          }
-        ]
-      },
-      {
-        "source": "海洋倾倒在线监控技术规范",
-        "target": "海洋倾倒活动非现场监管",
-        "relation_type": "associated_with",
         "evidence": [
           {
             "asset_id": "OD-SEA-STD-2026-02",
@@ -440,13 +417,85 @@
       },
       {
         "source": "海洋倾倒在线监控技术规范",
-        "target": "生态环境法典",
+        "target": "海洋倾倒在线监控",
         "relation_type": "applies_to",
         "evidence": [
           {
             "asset_id": "OD-SEA-STD-2026-02",
             "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "明确海洋倾倒在线监控技术要求，规范海洋倾倒在线监控设备的安装使用与数据传输等"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒在线监控技术规范",
+        "target": "海洋倾倒在线监控设备",
+        "relation_type": "includes",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "规范海洋倾倒在线监控设备的安装使用与数据传输等"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒在线监控技术规范",
+        "target": "数据传输",
+        "relation_type": "includes",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "规范海洋倾倒在线监控设备的安装使用与数据传输等"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒在线监控",
+        "target": "海洋倾倒活动",
+        "relation_type": "monitors",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "加强海洋倾倒活动非现场监管，明确海洋倾倒在线监控技术要求"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒活动非现场监管",
+        "target": "海洋倾倒在线监控",
+        "relation_type": "uses",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "加强海洋倾倒活动非现场监管，明确海洋倾倒在线监控技术要求"
+          }
+        ]
+      },
+      {
+        "source": "生态环境法典",
+        "target": "海洋倾倒在线监控技术规范",
+        "relation_type": "associated_with",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
             "citation": "为贯彻《中华人民共和国生态环境法典》，加强海洋倾倒活动非现场监管"
+          }
+        ]
+      },
+      {
+        "source": "国家生态环境标准",
+        "target": "海洋倾倒在线监控技术规范",
+        "relation_type": "associated_with",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
+            "citation": "现批准《海洋倾倒在线监控技术规范》为国家生态环境标准"
           }
         ]
       },
@@ -463,158 +512,134 @@
         ]
       },
       {
-        "source": "海洋倾倒区选划技术导则",
+        "source": "海洋倾倒区选划",
+        "target": "海洋倾倒区",
+        "relation_type": "associated_with",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-03",
+            "asset_version_id": "OD-SEA-STD-2026-03_1",
+            "citation": "落实科学、合理、经济、安全的海洋倾倒区选划原则"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒区选划",
         "target": "海洋空间",
         "relation_type": "associated_with",
         "evidence": [
           {
             "asset_id": "OD-SEA-STD-2026-03",
             "asset_version_id": "OD-SEA-STD-2026-03_1",
-            "citation": "合理利用海洋空间，指导和规范海洋倾倒区选划工作"
+            "citation": "落实科学、合理、经济、安全的海洋倾倒区选划原则，合理利用海洋空间"
           }
         ]
       },
       {
-        "source": "海洋倾倒区选划技术导则",
-        "target": "生态环境法典",
-        "relation_type": "applies_to",
+        "source": "生态环境法典",
+        "target": "海洋倾倒区选划技术导则",
+        "relation_type": "associated_with",
         "evidence": [
           {
-            "asset_id": "OD-SEA-STD-2026-03",
-            "asset_version_id": "OD-SEA-STD-2026-03_1",
+            "asset_id": "OD-SEA-STD-2026-02",
+            "asset_version_id": "OD-SEA-STD-2026-02_1",
             "citation": "为贯彻《中华人民共和国生态环境法典》，落实科学、合理、经济、安全的海洋倾倒区选划原则"
           }
         ]
       },
       {
-        "source": "流域海域生态环境监督管理局",
-        "target": "废弃物海洋倾倒许可证核发",
-        "relation_type": "executes",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "生态环境部海河流域北海海域、太湖流域东海海域、珠江流域南海海域生态环境监督管理局分别承担北海区、东海区、南海区“废弃物海洋倾倒许可证核发”审批事项"
-          }
-        ]
-      },
-      {
-        "source": "流域海域生态环境监督管理局",
-        "target": "北海区",
-        "relation_type": "dispatches_to",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "分别承担北海区、东海区、南海区“废弃物海洋倾倒许可证核发”审批事项"
-          }
-        ]
-      },
-      {
-        "source": "流域海域生态环境监督管理局",
-        "target": "东海区",
-        "relation_type": "dispatches_to",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "分别承担北海区、东海区、南海区“废弃物海洋倾倒许可证核发”审批事项"
-          }
-        ]
-      },
-      {
-        "source": "流域海域生态环境监督管理局",
-        "target": "南海区",
-        "relation_type": "dispatches_to",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "分别承担北海区、东海区、南海区“废弃物海洋倾倒许可证核发”审批事项"
-          }
-        ]
-      },
-      {
-        "source": "废弃物海洋倾倒许可证核发",
-        "target": "生态环境部政务服务大厅",
-        "relation_type": "uses",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "可登录生态环境部政务服务大厅（http://zwfw.mee.gov.cn）向所在海区的流域海域生态环境监督管理局提交“废弃物海洋倾倒许可证核发”网上申请"
-          }
-        ]
-      },
-      {
-        "source": "海洋生态环境司",
-        "target": "废弃物海洋倾倒许可证核发",
+        "source": "海洋环境保护法",
+        "target": "海洋倾倒区选划技术导则",
         "relation_type": "associated_with",
         "evidence": [
           {
             "asset_id": "OD-SEA-STD-2025-01",
             "asset_version_id": "OD-SEA-STD-2025-01_1",
-            "citation": "海洋生态环境司不再受理全国废弃物海洋倾倒许可证核发申请"
+            "citation": "为贯彻落实《中华人民共和国海洋环境保护法》，规范海洋倾倒区选划工作，我部组织编制了《海洋倾倒区选划技术导则（征求意见稿）》"
           }
         ]
       },
       {
-        "source": "海洋倾倒在线监控技术规范",
-        "target": "数据传输",
-        "relation_type": "includes",
-        "evidence": [
-          {
-            "asset_id": "OD-SEA-STD-2026-02",
-            "asset_version_id": "OD-SEA-STD-2026-02_1",
-            "citation": "规范海洋倾倒在线监控设备的安装使用与数据传输等，现批准《海洋倾倒在线监控技术规范》为国家生态环境标准"
-          }
-        ]
-      },
-      {
-        "source": "海洋倾倒区选划技术导则",
-        "target": "征求意见",
+        "source": "公开征求意见",
+        "target": "海洋倾倒区选划技术导则",
         "relation_type": "associated_with",
         "evidence": [
           {
-            "asset_id": "OD-SEA-STD-2026-03",
-            "asset_version_id": "OD-SEA-STD-2026-03_1",
+            "asset_id": "OD-SEA-STD-2025-01",
+            "asset_version_id": "OD-SEA-STD-2025-01_1",
             "citation": "我部组织编制了《海洋倾倒区选划技术导则（征求意见稿）》，现公开征求意见"
           }
         ]
       },
       {
-        "source": "海洋倾倒在线监控技术规范",
-        "target": "标准发布",
+        "source": "国家生态环境标准",
+        "target": "海洋倾倒区选划技术导则",
         "relation_type": "associated_with",
         "evidence": [
           {
             "asset_id": "OD-SEA-STD-2026-02",
             "asset_version_id": "OD-SEA-STD-2026-02_1",
-            "citation": "现批准《海洋倾倒在线监控技术规范》为国家生态环境标准，并予发布"
+            "citation": "现批准《海洋倾倒区选划技术导则》为国家生态环境标准"
           }
         ]
       },
       {
-        "source": "海洋倾倒在线监控技术规范",
-        "target": "标准实施",
-        "relation_type": "associated_with",
+        "source": "海洋倾倒物质评价规范",
+        "target": "惰性无机地质材料",
+        "relation_type": "applies_to",
         "evidence": [
           {
-            "asset_id": "OD-SEA-STD-2026-02",
-            "asset_version_id": "OD-SEA-STD-2026-02_1",
-            "citation": "标准自2027年1月1日起实施"
+            "asset_id": "OD-SEA-STD-2026-04",
+            "asset_version_id": "OD-SEA-STD-2026-04_1",
+            "citation": "指导和规范惰性无机地质材料海洋倾倒工作，我部组织修订了《海洋倾倒物质评价规范 惰性无机地质材料（征求意见稿）》"
           }
         ]
       },
       {
-        "source": "流域海域生态环境监督管理局",
-        "target": "审批事项调整",
+        "source": "海洋倾倒物质评价规范",
+        "target": "渔业废料",
+        "relation_type": "applies_to",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-04",
+            "asset_version_id": "OD-SEA-STD-2026-04_1",
+            "citation": "指导和规范渔业废料海洋倾倒工作，我部组织制定了《海洋倾倒物质评价规范 渔业废料（征求意见稿）》"
+          }
+        ]
+      },
+      {
+        "source": "海洋倾倒物质评价规范",
+        "target": "疏浚物",
+        "relation_type": "applies_to",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-04",
+            "asset_version_id": "OD-SEA-STD-2026-04_1",
+            "citation": "指导和规范疏浚物海洋倾倒工作，我部组织修订了《海洋倾倒物质评价规范 疏浚物（征求意见稿）》"
+          }
+        ]
+      },
+      {
+        "source": "惰性无机地质材料",
+        "target": "海洋倾倒",
         "relation_type": "associated_with",
         "evidence": [
           {
-            "asset_id": "OD-SEA-PERMIT-2022-01",
-            "asset_version_id": "OD-SEA-PERMIT-2022-01_1",
-            "citation": "自2022年6月1日起，生态环境部海河流域北海海域、太湖流域东海海域、珠江流域南海海域生态环境监督管理局分别承担北海区、东海区、南海区“废弃物海洋倾倒许可证核发”审批事项"
+            "asset_id": "OD-SEA-STD-2026-04",
+            "asset_version_id": "OD-SEA-STD-2026-04_1",
+            "citation": "指导和规范惰性无机地质材料海洋倾倒工作"
+          }
+        ]
+      },
+      {
+        "source": "渔业废料",
+        "target": "海洋倾倒",
+        "relation_type": "associated_with",
+        "evidence": [
+          {
+            "asset_id": "OD-SEA-STD-2026-05",
+            "asset_version_id": "OD-SEA-STD-2026-05_1",
+            "citation": "指导和规范渔业废料海洋倾倒工作"
           }
         ]
       }
@@ -624,37 +649,41 @@
     "both": [
       "惰性无机地质材料",
       "海洋倾倒区选划技术导则",
+      "海洋倾倒物质评价规范",
       "渔业废料",
       "生态环境法典",
       "疏浚物"
     ],
     "llm_only": [
       "东海区",
+      "倾倒申请单位",
+      "公开征求意见",
       "北海区",
       "南海区",
-      "审批事项调整",
+      "国家生态环境标准",
       "废弃物海洋倾倒许可证核发",
-      "征求意见",
       "数据传输",
-      "标准发布",
-      "标准实施",
       "流域海域生态环境监督管理局",
+      "海洋倾倒",
+      "海洋倾倒区",
       "海洋倾倒区选划",
       "海洋倾倒在线监控",
       "海洋倾倒在线监控技术规范",
       "海洋倾倒在线监控设备",
+      "海洋倾倒活动",
       "海洋倾倒活动非现场监管",
       "海洋环境保护法",
       "海洋生态环境司",
       "海洋空间",
+      "生态环境损害鉴定评估",
       "生态环境损害鉴定评估技术体系",
-      "生态环境部办公厅",
+      "生态环境部",
       "生态环境部政务服务大厅"
     ],
-    "rule_only_count": 25
+    "rule_only_count": 24
   },
   "llm_evidence_coverage": {
-    "relations_with_citation": 18,
-    "relations_total": 18
+    "relations_with_citation": 34,
+    "relations_total": 34
   }
 }

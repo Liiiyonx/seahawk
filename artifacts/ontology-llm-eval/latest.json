@@ -1,6 +1,6 @@
 {
   "artifact_type": "ontology_llm_channel_eval",
-  "generated_at": "2026-10-24T01:29:36.599735+00:00",
+  "generated_at": "2026-10-24T14:44:58.407485+00:00",
   "corpus": "internal synthetic governance corpus（与 R-KN-02 同一语料）",
   "honest_boundary": [
     "scripted 模式只验证通道机制（校验/过滤/去重/兜底），不代表任何模型质量；",
@@ -22,7 +22,7 @@
   },
   "real": {
     "skipped": false,
-    "model": "deepseek-chat",
+    "model": "GLM-5.3",
     "channel": "llm",
     "fallback_reason": null,
     "rule": {
@@ -84,34 +84,29 @@
     "llm": {
       "top20": {
         "k": 20,
-        "hits": 9,
+        "hits": 13,
         "gold_total": 20,
-        "hit_rate": 0.45,
+        "hit_rate": 0.65,
         "missed": [
-          "黄岐镇",
-          "筱埕镇",
-          "苔菉镇",
-          "安凯镇",
-          "下宫镇",
           "值班研判",
           "派单",
           "拾取",
+          "处置闭环",
           "网绳缠绕",
           "称重回执",
           "回收队伍"
         ]
       },
       "relations": {
-        "hits": 1,
+        "hits": 0,
         "gold_total": 7,
-        "hit_rate": 0.1429,
-        "matched": [
+        "hit_rate": 0.0,
+        "matched": [],
+        "missed": [
           [
             "海漂垃圾",
             "机械臂"
-          ]
-        ],
-        "missed": [
+          ],
           [
             "马鼻镇",
             "泡沫"
@@ -142,30 +137,21 @@
     "llm_pure": {
       "top20": {
         "k": 20,
-        "hits": 9,
+        "hits": 13,
         "gold_total": 20,
-        "hit_rate": 0.45,
+        "hit_rate": 0.65,
         "missed": [
-          "黄岐镇",
-          "筱埕镇",
-          "苔菉镇",
-          "安凯镇",
-          "下宫镇",
           "值班研判",
           "派单",
           "拾取",
+          "处置闭环",
           "网绳缠绕",
           "称重回执",
           "回收队伍"
         ]
       }
     },
-    "llm_relations_matched": [
-      [
-        "海漂垃圾",
-        "机械臂"
-      ]
-    ],
+    "llm_relations_matched": [],
     "rule_relations_matched": [
       [
         "打捞机器人",
