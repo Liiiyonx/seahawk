@@ -1,7 +1,7 @@
 # 探海灵眸 Oceanus — 常用命令
 # 用法：make <target>     查看全部：make help
 
-.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend demo-arm demo-arm-live demo-arm-real demo-arm-check demo-arm-fix arm-e2e nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats ontology-llm-eval knowledge-llm-qa-trace test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
+.PHONY: help up down restart logs ps db-init knowledge-demo-seed check-demo-approval bootstrap-demo-users demo-approval-up demo-approval-down deploy-package deploy-verify db-reset migrate migrate-stamp migration migrate-history migrate-sql upgrade-pending dev-backend dev-frontend demo-arm demo-arm-live demo-arm-real demo-arm-check demo-arm-fix arm-e2e nexent-install nexent-mcp nexent-check nexent-acceptance knowledge-evolution-demo modelarts-smoke simulate demo smoke check check-api check-gitignore check-contract check-contract-selftest check-events-selftest check-dispatch-selftest check-finalize-selftest check-pel-selftest check-evidence-scripts-selftest check-data check-data-stats ontology-llm-eval knowledge-llm-qa-trace open-data-llm-eval test test-edge test-cv-selftest vision-compare-export run-edge run-edge-demo test-all test-browser fault-acceptance prod-config prod-build prod-up prod-down prod-logs prod-ps prod-mqtt-bootstrap prod-migrate-stamp prod-migrate prod-create-admin prod-bootstrap-demo-users prod-track-partitions ensure-partitions check-demo-accounts check-public-repo-privacy clean
 
 SHELL := /bin/bash
 
@@ -272,6 +272,9 @@ check-data:  ## 数据集体检：图片/标签配对、类别索引、标签格
 
 ontology-llm-eval:  ## 知识域 LLM 抽取通道评测（机制验证；加 KNOWLEDGE_LLM_* 后 --real 跑真模型）
 	$(PYTHON) scripts/ontology_llm_eval.py
+
+open-data-llm-eval:  ## 真实公开政务语料上的双通道行为对照（R-LLM-02）
+	$(PYTHON) scripts/open_data_llm_channel_eval.py
 
 knowledge-llm-qa-trace:  ## 检索-生成问答轨迹采集（确定性脚本客户端；--real 用真实端点）
 	$(PYTHON) scripts/knowledge_llm_qa_trace.py
