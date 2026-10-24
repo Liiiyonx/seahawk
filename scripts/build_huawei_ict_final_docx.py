@@ -173,8 +173,20 @@ CONTENT: dict[str, list[tuple]] = {
         ("b", "真实行业数据集评测复现：python scripts/real_dataset_knowledge_e2e.py（R-OD-03）"),
         ("h3", "三、演示材料"),
         ("p", "系统操作演示视频（约 4 分 39 秒、1080p）随代码附件一并提交；全部证据截图与 API 轨迹按证据编号（R-KN-04/05、R-OD-01/02/03、R-NX-05/06/09 等）归档，评审可逐条复核。"),
-        ("h3", "四、诚实边界声明"),
-        ("p", "感知识别精度为 not_evaluated（未评测）；本项目使用的真实公开数据（政务公开文件、NOAA NCEI 公开监测数据）不等于真实脱敏行业内部数据；演示数据不参与任何精度宣称；本地 Nexent 验收不等于华为托管平台内验收。全部材料按上述口径撰写，接受评审质询。"),
+        ("h3", "四、华为云全栈验证（R-MA-01 / R-NX-08）"),
+        ("table",
+         ["华为组件", "验证内容", "证据"],
+         [
+             ["AgentArts 托管智能体", "完整 Skill 问答：9 分钟、1933 帧、真实模型、证据不足如实拒答（R-NX-08）", "hosted-skill-qa-2026-10-24-RNX08-COMPLETED.yaml"],
+             ["ModelArts Studio MaaS（昇腾资源池）", "知识域 LLM 通道真实推理评测：GLM-5.3 术语 13/20 反超规则 11/20；生成式问答双景复现（R-MA-01）", "artifacts/ontology-llm-eval + knowledge-llm-qa-trace"],
+             ["VPC / 安全组 / EIP", "VPC 内 TLS 模型中转与 MCP 端点组网；安全组最小化放行", "runbook §13.8–13.11"],
+             ["Nexent 本地部署（v2.6.1）", "MCP 注册、21 工具、完整问答（R-NX-09）", "recheck-2026-09-30-llm-qa.yaml"],
+         ]),
+        ("p", "口径说明：ModelArts Studio MaaS 共享推理端点底层运行于昇腾资源池，本次评测即昇腾算力上的真实推理（GLM-5.3/GLM-5.2）；鲲鹏未使用，如实标注。"),
+        ("h3", "五、开源与证据链治理"),
+        ("p", "完整代码已开源（GitHub: Liiiyonx/seasight，MIT 协议），开源前通过隐私扫描（本机路径、密钥、内部证据零残留）。全项目证据按登记号治理（R-NX/R-KN/R-OD/R-LLM/R-MA/R-MG 六系列），每条证据含产物路径、复现命令与诚实边界；证据登记与宣称门禁共同构成“可被评审逐条复核”的材料体系。"),
+        ("h3", "六、诚实边界声明"),
+        ("p", "感知识别精度为 not_evaluated（未评测）；本项目使用的真实公开数据（政务公开文件、NOAA NCEI 公开监测数据）不等于真实脱敏行业内部数据；演示数据不参与任何精度宣称；托管平台本次验收运行中 MCP 知识域工具不可用（网关 Target 指向丢失的旧 ECS），智能体改用文件检索并如实报告——工具面恢复为后续待办。全部材料按上述口径撰写，接受评审质询。"),
     ],
     "code": [
         ("p", "本项目完整源代码以附件形式提交（约 322 个源码文件 / 11 万行，不含运行产物与依赖）。主目录结构与职责如下（评审重点文件加粗）："),
@@ -228,12 +240,13 @@ ABSTRACT = (
     "本体版本增量进化（增量抽取较全量重抽节省 63.19% 耗时）、决策证据链随资产/本体/策略版本"
     "可追溯。已在本地 Nexent 与华为 AgentArts 托管平台双端完成完整 LLM Skill 问答验收（托管平台一次运行 9 分钟、1933 帧、证据不足如实拒答），并在真实"
     "公开政务语料与真实公开行业监测数据（NOAA NCEI 全球海洋微塑料数据集，22,530 条记录）上"
-    "完成端到端评测；全项目 1374 项自动化测试全绿。"
+    "完成端到端评测；智能体同时部署于华为 AgentArts 托管平台并完成平台内完整问答验收；知识域 LLM 通道在 ModelArts Studio MaaS（昇腾资源池）完成真实推理评测。全项目 1374 项自动化测试全绿。"
 )
 
 TECH_STACK = (
-    "华为 ModelEngine Nexent 平台、MCP（Model Context Protocol）、Skills 工作流编排、"
-    "DeepSeek LLM、FastAPI + PostgreSQL/PostGIS + Redis + EMQX(MQTT)、Vue3 + ECharts、"
+    "华为 ModelEngine Nexent 平台、华为 AgentArts 托管智能体、ModelArts Studio MaaS（昇腾资源池，GLM-5.3）、"
+    "MCP（Model Context Protocol）、Skills 工作流编排、DeepSeek LLM、"
+    "FastAPI + PostgreSQL/PostGIS + Redis + EMQX(MQTT)、Vue3 + ECharts、"
     "YOLO-World 开放词汇感知、Redis Streams 事件队列、Playwright 端到端验收、贝叶斯置信度校准"
 )
 
