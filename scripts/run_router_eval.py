@@ -123,7 +123,8 @@ def main() -> int:
             pred = "single2"         # content / multi-hop -> graph route
             src = snap["per_item"]["baseline"][it["id"]]
         preds[it["id"]] = pred
-        confusion[(it["category"], pred)] += 1
+        route_name = "bm25" if pred == "single" else "graph"
+        confusion[(it["category"], route_name)] += 1
         routed[it["id"]] = {"ranked_assets": src["ranked_assets"],
                             "top1_score": src.get("top1_score", 0.0),
                             "route": pred, "title_cover": round(best_cover, 3),
@@ -170,7 +171,10 @@ def main() -> int:
         else:
             wil[f"routed_rule vs {other}"] = {"p": None, "mean_rr_gain": 0.0}
 
-    router_acc = sum(n for (g, p), n in confusion.items() if g == p) / len(items)
+    # routing correctness: title -> bm25, non-title -> graph (refusal has no gold)
+    router_acc = sum(n for (g, r), n in confusion.items()
+                     if (g == "single") == (r == "bm25") and g != "refuse") / sum(
+        n for (g, _), n in confusion.items() if g != "refuse")
     out = {
         "description": "deterministic 2-signal rule router over frozen snapshot; no model calls",
         "run_at": datetime.now(timezone.utc).isoformat(),

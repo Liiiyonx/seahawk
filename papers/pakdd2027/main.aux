@@ -1,0 +1,87 @@
+\relax 
+\citation{beir,dpr}
+\@writefile{toc}{\contentsline {title}{Ask the Regulations: A Type-Stratified Study of Hybrid Retrieval over Small Domain Corpora with Evidence-Audited Ontologies}{1}{}\protected@file@percent }
+\@writefile{toc}{\authcount {1}}
+\@writefile{toc}{\contentsline {author}{Anonymous Submission \#XXXX}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{2}{}\protected@file@percent }
+\citation{bm25}
+\citation{dpr,realm}
+\citation{monobert}
+\citation{rrf}
+\citation{beir}
+\citation{graphrag}
+\citation{hipporag}
+\citation{zhu2024llmkg,pan2024roadmap}
+\citation{hallucination-survey}
+\citation{rag-survey}
+\citation{lmknow,kadavath}
+\citation{selfrag}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{3}{}\protected@file@percent }
+\newlabel{sec:related}{{2}{3}{}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hybrid retrieval.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{KG-augmented retrieval.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{LLM knowledge construction and verifiability.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Abstention in retrieval and RAG.}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Evidence audit of the published ontology (27 assets, 100 nodes, 200 relations).}}{4}{}\protected@file@percent }
+\newlabel{tab:audit}{{1}{4}{}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Corpus and Evidence-Audited Ontology}{4}{}\protected@file@percent }
+\newlabel{sec:ontology}{{3}{4}{}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Corpus}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Ontology construction with mandatory citations}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Deterministic evidence audit}{4}{}\protected@file@percent }
+\newlabel{sec:audit-method}{{3.3}{4}{}{subsection.3.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Benchmark composition. Gold answers are constructed deterministically from the ontology and asset tables; zero model calls.}}{5}{}\protected@file@percent }
+\newlabel{tab:bench}{{2}{5}{}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}A Type-Stratified Benchmark}{5}{}\protected@file@percent }
+\newlabel{sec:bench}{{4}{5}{}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Retrieval Configurations}{5}{}\protected@file@percent }
+\newlabel{sec:configs}{{5}{5}{}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{5}{}\protected@file@percent }
+\newlabel{sec:results}{{6}{5}{}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{F1: No configuration wins across query types.}{5}{}\protected@file@percent }
+\citation{beir}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces One real question per type (translated from Chinese; asset ids verbatim).}}{6}{}\protected@file@percent }
+\newlabel{tab:examples}{{3}{6}{}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{F2: Dense retrieval with cross-encoder reranking is significantly worst on every type.}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{F3: Fusion is a strong single system, not a free lunch.}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces The six configurations.}}{7}{}\protected@file@percent }
+\newlabel{tab:configs}{{4}{7}{}{table.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{F4: The deployment regime ages benchmarks.}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}A Two-System Router and Abstention}{7}{}\protected@file@percent }
+\newlabel{sec:route}{{7}{7}{}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{The rule router captures the oracle.}{7}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Main results on the 306-question benchmark (frozen run). Per type: hit@1 / hit@5 / MRR over ranked assets. Bold = significantly best in the column (paired Wilcoxon, $p<0.05$, see Table~\ref {tab:sig}).}}{8}{}\protected@file@percent }
+\newlabel{tab:main}{{5}{8}{}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Selected paired Wilcoxon signed-rank tests over per-question reciprocal rank (two-sided; zeros dropped). Full matrix in the artifact.}}{8}{}\protected@file@percent }
+\newlabel{tab:sig}{{6}{8}{}{table.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Abstention: no configuration separates.}{8}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Rule-router confusion (answerable queries): routing decision by query type. Routing is correct when title queries go to BM25 and the rest to the graph retriever: 280/301 (93.0\%).}}{9}{}\protected@file@percent }
+\newlabel{tab:confusion}{{7}{9}{}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Abstention: top-1 retrieval scores of answerable vs.\ refusal queries. Three behaviours across configurations.}}{9}{}\protected@file@percent }
+\newlabel{tab:refuse}{{8}{9}{}{table.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion and Limitations}{9}{}\protected@file@percent }
+\newlabel{sec:limits}{{8}{9}{}{section.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{9}{}\protected@file@percent }
+\newlabel{sec:conclusion}{{9}{9}{}{section.9}{}}
+\bibcite{bm25}{1}
+\bibcite{dpr}{2}
+\bibcite{realm}{3}
+\bibcite{rrf}{4}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Top-1 score ranges for answerable vs.\ refusal queries per configuration (log scale; identical data as Table~\ref {tab:refuse}; the band spans the 5th--100th percentile of answerable scores). Under Lex+Graph, four answerable queries score exactly 0 (their marker is clamped to the axis floor) and refusal marks reach deep into the band's low range; under BM25 one refusal mark lands inside the band (inversion); under Dense+Rerank the refusal cluster overlaps the band's left tail. No configuration separates the two populations.}}{10}{}\protected@file@percent }
+\newlabel{fig:refuse}{{1}{10}{}{figure.1}{}}
+\bibcite{beir}{5}
+\bibcite{graphrag}{6}
+\bibcite{hipporag}{7}
+\bibcite{zhu2024llmkg}{8}
+\bibcite{pan2024roadmap}{9}
+\bibcite{hallucination-survey}{10}
+\bibcite{rag-survey}{11}
+\bibcite{lmknow}{12}
+\bibcite{kadavath}{13}
+\bibcite{selfrag}{14}
+\bibcite{bge-m3}{15}
+\bibcite{monobert}{16}
+\bibcite{lewis-rag}{17}
+\gdef \@abspage@last{11}

@@ -2,7 +2,8 @@
 % Compile: llncs.cls from Springer's LNCS author kit (llncs.zip), pdflatex.
 % Double-blind: keep author block anonymous until acceptance.
 % All numbers come from artifacts/knowledge-retrieval-eval/eval_306_snapshot.json,
-% bm25_ablation.json, significance.json, and ontology-evidence-audit/latest.json.
+% bm25_ablation.json, significance.json, routing_eval.json, and
+% artifacts/ontology-evidence-audit/latest.json.
 \documentclass[runningheads]{llncs}
 
 \usepackage[T1]{fontenc}
@@ -116,8 +117,9 @@ own.
 \item \textbf{A type-stratified 306-question benchmark} (Sect.~\ref{sec:bench})
 with four query types (title, entity/content, multi-hop, refusal) and
 deterministic gold construction: zero model calls, fixed templates, gold taken
-from the ontology and asset tables themselves. We also document difficulty
-drift as the corpus grew from 15 to 27 assets.
+from the ontology and asset tables themselves. The corpus is a live
+deployment's and grew organically during the study (15$\to$27 assets); we
+discuss what that growth does to per-type conclusions in Sect.~\ref{sec:results}.
 \item \textbf{A controlled comparison of six configurations with paired
 significance tests} (Sect.~\ref{sec:results}): the headline finding is that
 \emph{no configuration wins across types}---BM25 owns title queries, the
@@ -135,8 +137,8 @@ signal, not a learned router.
 configuration's top-1 scores separate answerable from refusal queries
 (zero-floor overlap, inversion, low-tail overlap), arguing for
 evidence-coverage-based refusal.
-\item \textbf{Released artifacts}: benchmark, all six configurations, the
-audit and significance tooling.\footnote{Anonymized repository:
+\item \textbf{Released artifacts}: benchmark, all six configurations and the
+router, the audit and significance tooling.\footnote{Anonymized repository:
 \url{https://anonymous.4open.science/r/ask-the-regulations} (placeholder to be
 created before submission).}
 \end{enumerate}
@@ -444,7 +446,10 @@ it with one deterministic signal---character-bigram overlap ${\ge}0.5$
 between the query and any registered asset title---because title coverage is
 exactly what separates the type BM25 wins from the types graph expansion
 wins. It routes 73/81 title queries to BM25 and sends everything else to the
-graph retriever (13 non-title queries are misrouted to BM25). The result
+graph retriever (13 non-title queries are misrouted to BM25); overall routing
+accuracy is 93.0\% (280/301 answerable queries). The full routing confusion
+is compact (Table~\ref{tab:confusion}): errors concentrate on multi-hop
+queries whose text happens to quote an asset title. The result
 (Table~\ref{tab:main}, last row): overall hit@5 .970 / MRR .848, with
 per-type numbers at or above each specialist's own (multi-hop hit@1 .808,
 slightly above Lex+Graph's .800---some misroutes happen to help). Paired
@@ -454,6 +459,26 @@ vs.\ both hybrids $p{<}5{\times}10^{-4}$) and is statistically
 indistinguishable from the per-type oracle ($p{=}0.10$). The practical
 reading for small-corpus deployments: adaptive retrieval here needs two
 indexes and one string-overlap signal---not a learned router, not fusion.
+
+\begin{table}[t]
+\caption{Rule-router confusion (answerable queries): routing decision by
+query type. Routing is correct when title queries go to BM25 and the rest to
+the graph retriever: 280/301 (93.0\%).}
+\label{tab:confusion}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Query type & $\to$ BM25 & $\to$ Lex+Graph \\
+\midrule
+Title (81) & 73 & 8 \\
+Entity (100) & 5 & 95 \\
+Multi-hop (120) & 8 & 112 \\
+\midrule
+Routing-correct & \multicolumn{2}{c}{280/301 (93.0\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[t]
 \caption{Abstention: top-1 retrieval scores of answerable vs.\ refusal
@@ -473,9 +498,8 @@ Dense+Rerank & 0.0008 & 0.0031 & low-tail overlap \\
 \end{table}
 
 \paragraph{Abstention: no configuration separates.} With only 5 refusal
-queries this is a case study, not a powered experiment---but the corrected
-pairing removes even the one separation we once observed
-(Table~\ref{tab:refuse}, Fig.~\ref{fig:refuse}). Under Lex+Graph, four
+queries this is a case study, not a powered experiment---but the pattern is
+consistent and stark (Table~\ref{tab:refuse}, Fig.~\ref{fig:refuse}). Under Lex+Graph, four
 answerable queries return \emph{no lexical hit at all} (top-1 score exactly
 0) while refusal queries score up to 46.5: the answerable low tail reaches
 the floor of the scale, far below the refusals---a zero-floor overlap. Under
@@ -507,7 +531,7 @@ the user.
 \addplot[blue, line width=2.4pt, forget plot] coordinates {
  (7.5,Lex+Graph) (511.5,Lex+Graph) };
 \addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
-  coordinates {(0.0006,Lex+Graph)};
+  coordinates {(5.2e-4,Lex+Graph)};
 \addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
   coordinates {(1.5,Lex+Graph) (1.5,Lex+Graph) (10.5,Lex+Graph)
                (24.0,Lex+Graph) (46.5,Lex+Graph)};
@@ -537,7 +561,7 @@ the user.
 configuration (log scale; identical data as Table~\ref{tab:refuse}; the
 band spans the 5th--100th percentile of answerable scores). Under
 Lex+Graph, four answerable queries score exactly 0 (their marker is clamped
-to the axis edge) and refusal marks reach deep into the band's low range;
+to the axis floor) and refusal marks reach deep into the band's low range;
 under BM25 one refusal mark lands inside the band (inversion); under
 Dense+Rerank the refusal cluster overlaps the band's left tail. No
 configuration separates the two populations.}

@@ -117,6 +117,17 @@ check("router vs oracle", pakdd, "($p{=}0.10$)")
 check("router overall", pakdd, "hit@5 .970 / MRR .848")
 check("oracle overall", pakdd, "hit@5 .970 / MRR .855")
 check("router titles", pakdd, "73/81")
+check("router accuracy", pakdd, "93.0\\% (280/301")
+conf = route["confusion"]
+check("conf title", pakdd, "Title (81) & 73 & 8")
+check("conf entity", pakdd, "Entity (100) & 5 & 95")
+check("conf multihop", pakdd, "Multi-hop (120) & 8 & 112")
+if conf.get("single->bm25") != 73 or conf.get("single->graph") != 8 \
+   or conf.get("single2->bm25") != 5 or conf.get("single2->graph") != 95 \
+   or conf.get("multihop->bm25") != 8 or conf.get("multihop->graph") != 112:
+    fails.append(f"router confusion mismatch: {conf}")
+else:
+    print("  ok confusion matrix vs routing_eval.json")
 check("abstract bm25 h@1", pakdd, "(hit@1 .901)")
 check("abstract graph", pakdd, "(hit@5 .930/.983)")
 

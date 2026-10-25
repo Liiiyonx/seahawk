@@ -1,6 +1,6 @@
 {
   "description": "deterministic 2-signal rule router over frozen snapshot; no model calls",
-  "run_at": "2026-10-25T17:33:06.375750+00:00",
+  "run_at": "2026-10-25T18:01:54.495990+00:00",
   "ontology_version_id": "ont_20261025131815_936b3738",
   "rules": {
     "title_cover_min": 0.5,
@@ -9,15 +9,15 @@
     "route_else": "baseline(lex+graph)",
     "oracle_v2": "title->bm25, entity/multihop->baseline"
   },
-  "router_accuracy": 0.549,
+  "router_accuracy": 0.9302,
   "confusion": {
-    "multihop->single": 8,
-    "multihop->single2": 112,
-    "refuse->single2": 5,
-    "single->single": 73,
-    "single->single2": 8,
-    "single2->single": 5,
-    "single2->single2": 95
+    "multihop->bm25": 8,
+    "multihop->graph": 112,
+    "refuse->graph": 5,
+    "single->bm25": 73,
+    "single->graph": 8,
+    "single2->bm25": 5,
+    "single2->graph": 95
   },
   "routed_rule": {
     "per_category": {
