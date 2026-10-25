@@ -388,7 +388,16 @@ traceable, 85\% of relations are fully traceable, and 96\% of node names
 occur in their source document. Non-verbatim citations feed the review
 queue rather than being silently accepted. Retrieval over these assets is
 multi-hop (ontology graph expansion) and every decision stores its evidence
-chain---asset versions, ontology version, policy version---for replay.
+chain---asset versions, ontology version, policy version---for replay. On a
+306-question type-stratified benchmark over this corpus (title, entity,
+two-hop, and refusal queries, deterministically constructed from the
+ontology and asset tables), the deployed graph-expanded retriever reaches
+98.3\% hit@5 on two-hop queries and 93.0\% on entity queries, and a
+two-system rule router that sends title-coverage queries to plain BM25 and
+everything else to the graph retriever attains 97.0\% overall hit@5,
+statistically matching a per-query-type oracle---while no configuration's
+retrieval scores separate answerable from out-of-domain queries, which is
+why the QA layer abstains on evidence coverage rather than score.
 
 The question-answering workbench enforces the same discipline at the user
 interface: answers carry inline numbered citations whose badges locate the

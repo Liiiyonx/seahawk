@@ -111,8 +111,17 @@ check("sig entity dense", pakdd, "$1.5{\\times}10^{-7}$")
 check("sig entity bm25", pakdd, "$1.3{\\times}10^{-2}$")
 check("sig multihop dense", pakdd, "$7.7{\\times}10^{-8}$")
 check("sig multihop bm25", pakdd, "$1.6{\\times}10^{-3}$")
-check("router vs baseline", pakdd, "$p{=}1.3{\\times}10^{-3}$")
-check("router vs bm25", pakdd, "$p{=}3.6{\\times}10^{-3}$")
+check("router vs baseline", pakdd, "$p{=}2.3{\\times}10^{-7}$")
+check("router vs bm25", pakdd, "$p{=}3.3{\\times}10^{-4}$")
+route_p = {k: v["p"] for k, v in route["wilcoxon"].items()}
+if abs(route_p["routed_rule vs baseline"] - 2.314e-07) > 2e-8:
+    fails.append(f"router p vs baseline drifted: {route_p['routed_rule vs baseline']}")
+if abs(route_p["routed_rule vs bm25"] - 3.297e-04) > 3e-6:
+    fails.append(f"router p vs bm25 drifted: {route_p['routed_rule vs bm25']}")
+if not (0.09 < route_p["routed_rule vs oracle_v2"] < 0.12):
+    fails.append(f"router p vs oracle_v2 drifted: {route_p['routed_rule vs oracle_v2']}")
+print("  ok router p-values vs routing_eval.json (drift-checked)")
+check("holm note", pakdd, "largest adjusted $p$ .013")
 check("router vs oracle", pakdd, "($p{=}0.10$)")
 check("router overall", pakdd, "hit@5 .970 / MRR .848")
 check("oracle overall", pakdd, "hit@5 .970 / MRR .855")

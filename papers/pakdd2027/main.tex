@@ -454,11 +454,15 @@ queries whose text happens to quote an asset title. The result
 per-type numbers at or above each specialist's own (multi-hop hit@1 .808,
 slightly above Lex+Graph's .800---some misroutes happen to help). Paired
 tests show the router \emph{significantly beats every single configuration}
-(vs.\ Lex+Graph $p{=}1.3{\times}10^{-3}$, vs.\ BM25 $p{=}3.6{\times}10^{-3}$,
+(vs.\ Lex+Graph $p{=}2.3{\times}10^{-7}$, vs.\ BM25 $p{=}3.3{\times}10^{-4}$,
 vs.\ both hybrids $p{<}5{\times}10^{-4}$) and is statistically
-indistinguishable from the per-type oracle ($p{=}0.10$). The practical
-reading for small-corpus deployments: adaptive retrieval here needs two
-indexes and one string-overlap signal---not a learned router, not fusion.
+indistinguishable from the per-type oracle ($p{=}0.10$). All highlighted
+comparisons in Tables~\ref{tab:sig} and~\ref{tab:confusion} survive Holm
+correction within their test families (largest adjusted $p$ .013 for the
+specialist contrasts; $9.9{\times}10^{-4}$ for the router family). The
+practical reading for small-corpus deployments: adaptive retrieval here
+needs two indexes and one string-overlap signal---not a learned router, not
+fusion.
 
 \begin{table}[t]
 \caption{Rule-router confusion (answerable queries): routing decision by

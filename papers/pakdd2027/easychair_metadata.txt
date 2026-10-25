@@ -1,0 +1,26 @@
+# EasyChair 提交元数据（PAKDD 2027 Applied Data Science Track，复制即用）
+
+> 提交入口 https://pakdd2027.org → EasyChair。截稿 2026-11-20 AoE（目标 11-18 前交）。
+> 上传 PDF = papers/pakdd2027/main.pdf；匿名自查通过后再提交。
+
+## Title
+
+Ask the Regulations: A Type-Stratified Study of Hybrid Retrieval over Small Domain Corpora with Evidence-Audited Ontologies
+
+## Abstract（纯文本，无 LaTeX 记号）
+
+Retrieval-augmented systems deployed in regulated domains face a reality rarely discussed in benchmark papers: the corpus is small and grows organically, queries fall into sharply different types, and every answer must be traceable to authoritative text. We study this regime on a registered corpus of 27 assets—20 public marine-dumping regulatory documents from the national environmental authority plus 7 operational assets. We first construct a domain ontology (100 nodes, 200 relations) in which every LLM-extracted node and relation must cite its supporting passage, and we audit the evidence chain with deterministic string verification: 96% of node names and 85% of relations are fully traceable to the cited source text, and 89.9% of citations verify verbatim. Second, we build a 306-question type-stratified benchmark (title-lookup, entity/content, multi-hop, refusal) with deterministically constructed gold answers. Third, we compare six retrieval configurations with per-question paired Wilcoxon tests and find that no single configuration wins across query types: plain BM25 dominates title queries (hit@1 .901); graph-expanded lexical retrieval dominates entity and multi-hop queries (hit@5 .930/.983); and a strong dense retriever with a cross-encoder reranker—often assumed superior—is significantly worst on every type on this corpus of near-duplicate official documents. A deterministic two-system router that sends title-coverage queries to BM25 and everything else to the graph retriever captures the per-type oracle: it significantly beats every single configuration (all p<0.005, surviving Holm correction) and is statistically indistinguishable from the per-type upper bound (p=0.10). For abstention, no configuration's top-1 scores separate answerable from out-of-domain queries (zero-floor overlap, inversion, and low-tail overlap, respectively), cautioning against score-based refusal in small-corpus deployments. We release the benchmark, audit tooling, router, and all configurations.
+
+## Keywords
+
+Domain retrieval; Hybrid retrieval; Knowledge ontology; Evidence audit; Retrieval evaluation; Abstention
+
+## Track
+
+Applied Data Science Track
+
+## 提交前 3 分钟自查
+
+1. `python papers/verify_numbers.py` → ALL NUMBER CHECKS PASSED
+2. PDF 页数 ≤12（当前 11）；无 TODO/占位链接遗漏（脚注匿名链接需先上传 artifact_anon.zip 换真链接）
+3. 作者块为 Anonymous Submission；PDF 元数据（右键属性）无真实姓名
