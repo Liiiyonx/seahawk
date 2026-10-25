@@ -62,6 +62,7 @@ TRANSPORT = os.getenv("SEASIGHT_MCP_TRANSPORT", "stdio").strip() or "stdio"
 MCP_HOST = os.getenv("SEASIGHT_MCP_HOST", "127.0.0.1").strip() or "127.0.0.1"
 MCP_PORT = int(os.getenv("SEASIGHT_MCP_PORT", "8100"))
 MCP_SERVER_TOKEN = os.getenv("SEASIGHT_MCP_SERVER_TOKEN", "").strip()
+MCP_SERVER_TOKENS = [t.strip() for t in MCP_SERVER_TOKEN.split(",") if t.strip()]
 MCP_PUBLIC_URL = os.getenv(
     "SEASIGHT_MCP_PUBLIC_URL",
     f"http://127.0.0.1:{MCP_PORT}/mcp",
@@ -326,13 +327,18 @@ def _require_writes_enabled() -> None:
 
 
 class StaticBearerTokenVerifier(TokenVerifier):
-    """Validate the single Bearer token configured for Nexent inbound access."""
+    """Validate Bearer tokens configured for Nexent inbound access.
 
-    def __init__(self, expected_token: str) -> None:
-        self._expected_token = expected_token
+    ``SEASIGHT_MCP_SERVER_TOKEN`` accepts a comma-separated list so a direct
+    client token and a platform gateway key can coexist.
+    """
+
+    def __init__(self, expected_token: str | list[str]) -> None:
+        tokens = expected_token if isinstance(expected_token, list) else expected_token.split(",")
+        self._expected_tokens = [t.strip() for t in tokens if t.strip()]
 
     async def verify_token(self, token: str) -> AccessToken | None:
-        if not self._expected_token or not hmac.compare_digest(token, self._expected_token):
+        if not any(hmac.compare_digest(token, t) for t in self._expected_tokens):
             return None
         return AccessToken(
             token=token,
@@ -350,7 +356,7 @@ if TRANSPORT in HTTP_TRANSPORTS and MCP_SERVER_TOKEN:
         resource_server_url=None,
         required_scopes=["seasight.mcp"],
     )
-    _token_verifier = StaticBearerTokenVerifier(MCP_SERVER_TOKEN)
+    _token_verifier = StaticBearerTokenVerifier(MCP_SERVER_TOKENS)
 
 
 mcp = FastMCP(
@@ -902,9 +908,11 @@ def _configuration_errors() -> list[str]:
         errors.append(
             "SEASIGHT_MCP_SERVER_TOKEN is required for HTTP transports"
         )
-    elif TRANSPORT in HTTP_TRANSPORTS and len(MCP_SERVER_TOKEN) < 32:
+    elif TRANSPORT in HTTP_TRANSPORTS and (
+        not MCP_SERVER_TOKENS or any(len(t) < 32 for t in MCP_SERVER_TOKENS)
+    ):
         errors.append(
-            "SEASIGHT_MCP_SERVER_TOKEN must contain at least 32 characters"
+            "SEASIGHT_MCP_SERVER_TOKEN entries must contain at least 32 characters"
         )
     if not 1 <= MCP_PORT <= 65535:
         errors.append("SEASIGHT_MCP_PORT must be between 1 and 65535")

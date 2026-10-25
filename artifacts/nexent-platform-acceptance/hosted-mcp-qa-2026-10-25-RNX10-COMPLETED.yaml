@@ -100,3 +100,33 @@ acceptance:
     - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/mcp-server-log-rnx10.txt
     - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/mcp-server-log-rnx10-run2-knowledge-search.txt
     - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/ws-run-frames-rnx10.log（WS 通道 500 留证，诚实边界用）
+
+  endpoint_stability_supplement:
+    date: "2026-10-25 18:2x CST"
+    gateway_stable_endpoint:
+      url: https://seasight-mcp-pub-gw-defaultgw-mztggyleha.cn-southwest-2.huaweicloud-agentarts.com/mcp
+      note: >-
+        AgentArts 网关 pub-gw（VPC 出网）固定公网域名（华为有效证书、URL 永不变），
+        Target 指向 ECS 私网 https://192.168.0.230:8080/mcp（credential_provider=none）。
+        对任何标准 MCP 客户端可用：initialize 200 + tools/list 21 工具实测通过
+        （evidence/hosted-qa-2026-10-25/gateway-stable-endpoint-tools21.txt）。
+        入站鉴权 = 网关身份 API Key（Authorization: Bearer <值>，密钥对存本地凭据文件）。
+    supporting_changes:
+      - "server.py 支持逗号分隔多 token（网关 Key 与直连 token 共存），repo 与 ECS 已同步"
+      - "nginx :8080 /mcp 增加 map 条件注入（客户端无 Authorization 时注入固定 Bearer，带错误 token 仍 401，安全不降级）"
+    platform_asset_limitation: >-
+      studio MCP 资产校验（fc stack）对网关 URL 报 Auth Failed 401：平台侧校验器存在
+      无凭据探测步，被网关 API Key 鉴权拒绝（ECS 侧日志可见校验器完整 MCP 握手全 200，
+      401 发生在网关层）。多次重试与会话保持均未通过。资产已回退隧道 URL（fc success），
+      平台智能体继续经隧道调用；网关固定端点作为对外（评委/演示/任意 MCP 客户端）稳定入口。
+    tunnel_remediation: >-
+      隧道 systemd 服务 seasight-mcp-tunnel（Restart=always）持续运行期间 URL 不变；
+      仅 ECS 重启/服务重启才换 URL。恢复步骤（约 5 分钟）：journalctl 取新 URL →
+      PUT /studio/mcp-instances/{id} 更新 server_config（cftk 头，浏览器会话内）→
+      智能体「更新版本+同步部署至实例」重存快照。
+    eip_cleanup:
+      date: "2026-10-25 18:1x CST"
+      action: 释放 1.95.120.238（先从死机 ECS seasight-mcp-host 解绑，再以 YES 确认释放；
+        操作保护验证码由账号手机短信提供）
+      note: 现役 EIP 1.95.13.110（ecs-6b91）保留。seasight-mcp-host-bandwidth-50af
+        带宽是否随 EIP 一并删除待账单核验，若仍计费在带宽管理中手动删除。
