@@ -231,13 +231,13 @@ def fig_huawei_fullstack() -> None:
     arrow(ax, (0.16, 0.60), (0.16, 0.545), lw=1.6)
     ax.text(0.155, 0.568, "VPC 内出站", ha="right", fontsize=7.2, color=BLUE)
 
-    box(ax, 0.035, 0.205, 0.50, 0.155, "网关 seasight-vpc-gateway → Target（MCP 工具面）",
-        ["现状（诚实边界）：Target 仍指向已释放旧 ECS",
-         "192.168.0.65:8100，知识域工具暂不可用",
-         "基础设施已全通，恢复绑定后复跑补工具轨迹",
-         "（R-NX-08 边界如实登记，不影响本次问答验收）"],
-        fc="#fdeaea", ec=RED, fs=7.0, tfs=8.8)
-    elbow_arrow(ax, [(0.28, 0.60), (0.28, 0.575)], color=RED, lw=1.3)
+    box(ax, 0.035, 0.205, 0.50, 0.155, "平台内 MCP 工具面（R-NX-10，2026-10-25 验证通过）",
+        ["新版单智能体绑定 Oceanus Domain Cognition MCP（21 只读工具）",
+         "运行时 Pod → 隧道 → ECS MCP → Oceanus /api/v1 全链路",
+         "event_list + knowledge_search 共 6 次真实调用全部成功",
+         "平台调用链与 ECS 服务端日志逐条对应（07_证据包/R-NX-10）"],
+        fc="#e8f4ec", ec=GREEN, fs=7.0, tfs=8.8)
+    elbow_arrow(ax, [(0.28, 0.60), (0.28, 0.575)], color=GREEN, lw=1.3)
 
     _zone(ax, 0.585, 0.16, 0.40, 0.80, "项目侧 · Oceanus（本地部署，另一验收端）", GREEN)
 

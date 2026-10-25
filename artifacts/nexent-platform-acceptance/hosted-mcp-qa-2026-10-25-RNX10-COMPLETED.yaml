@@ -1,0 +1,102 @@
+acceptance:
+  record_id: R-NX-10
+  date: "2026-10-25"
+  platform: huawei-agentarts-hosted
+  region: cn-southwest-2
+  operator_account: hid_b7bcgi-i88yqw0x
+  status: completed
+  supersedes: R-NX-10-作战记录-20261025.md（绑定缺口 90% 状态）与 R-NX-08 中 honest_boundary 的"网关 Target 改指新 ECS 并部署 MCP"待办
+  mcp_tool_calls_verified: true
+  platform_qa_completed: true
+
+  # ── 智能体与运行时（2026-10-25 15:28 重建）──────────────────────────
+  agent_used_for_acceptance:
+    name: seasight-governance-agent-vpc3
+    agent_id: 2e8b6756-77d3-4bf3-bc28-27de7cb3fb39（新版单智能体 / studio 体系）
+    runtime_name: agent-arts-rnx10-seasight-a1
+    runtime_id: 2942d994-29fa-4f06-9290-9f023762762e
+    runtime_version: v2（15:36 UI 更新版本部署，同步部署至实例）
+    gateway: defaultgw（ffcad894-0347-48b5-9c25-78d3810b9917，公网访问已开）
+    environment: VPC 私网运行时（镜像 jiuwen-runtime:26.06 aarch64）
+    model: ModelArts MaaS GLM-5.3（maas-0399cd62-6e0d-463f-bccc-a154387c074b）
+    mcp_binding: Oceanus Domain Cognition MCP（91c76b1ee8af483d8c1efdc1f81a1095，21 只读工具）
+    inbound_identity: agent-agent-arts-rnx10-seasight-a1（API Key 认证，密钥由平台生成，
+      仅存 D:/VeriCall_data/secrets/seasight_agentarts.env 与控制台，不入仓库）
+    old_runtime_disposed: agent-arts-24780661…（IAM 认证，认证类型创建后不可改，已 DELETE 204 后以
+      API_KEY 重建——根因修复路径，见 root_cause_chain）
+
+  invocation_channel:
+    method: 控制台预览调试（预览通道走 studio 后端 → 运行时；WS /ws 在该运行时类型
+      上 node-proxy 握手 500，属平台侧通道差异，不影响功能验收）
+    session_api: POST /runtimes/{runtime}/sessions-start（HTTP 200，API Key Bearer 鉴权实测通过）
+    official_docs: support.huaweicloud.com/api-agentarts/StartRuntimeSession.html、
+      agentarts_10_227.html（入站身份认证：API Key 认证 = Authorization: Bearer <key>；
+      认证类型创建后不可改，需重建运行时）
+
+  mcp_calls_verified:
+    run1_event_list:
+      time: "2026-10-25 15:42:42 ~ 15:43:32 CST（运行 50.26s，平台调试抽屉口径）"
+      question: 当前系统里有哪些泡沫浮球类垃圾事件？请调用工具查询事件列表，给出事件编号与状态。
+      call_chain: LLM(6.69s) → Oceanus MCP(5.12s) → Oceanus MCP(4.72s) → LLM(24.42s)，全部成功
+      mcp_call_1: event_list {"hours":720,"main_class":"泡沫浮球","page_size":50}
+        → 工具返回 [500] 服务器内部错误（后端无该分类枚举）
+      mcp_call_2: event_list {"hours":720,"page_size":50}（agent 感知错误后自动去过滤重试）
+        → 后端 GET /api/v1/events 200，返回 17 条事件
+      agent_behavior: >-
+        推理文本明确"系统中没有单独的泡沫浮球分类，统一归入泡沫类（foam）"，
+        从 17 条中筛出 9 条泡沫类事件并给出编号/状态/坐标/置信度；
+        对工具 500 错误的处理构成编排韧性证据。
+    run2_knowledge_search:
+      time: "2026-10-25 15:47 ~ 15:49 CST（运行 67.42s）"
+      question: 泡沫浮球垃圾治理有哪些政策依据？请调用知识检索工具查询相关资产。
+      call_chain: LLM(3.42s) → MCP(6.01s) → MCP(5.88s) → LLM(4.07s) → MCP(5.81s)
+        → MCP(6.33s) → LLM(2.85s) → MCP(5.87s) → LLM(16.17s)，单次运行 4 次 MCP 调用
+      backend_hit: POST /api/v1/knowledge/search 200（15:48:14）
+      tool_coverage: event_list 与 knowledge_search 两个不同 MCP 工具均端到端验证
+
+  server_side_evidence:
+    host: ecs-6b91（1.95.13.110 / 192.168.0.230）
+    log: journalctl -u seasight-mcp
+    key_lines: >-
+      15:42:43-15:43:07 多次 Created new transport / ListToolsRequest /
+      CallToolRequest（调用方 IP 为 Cloudflare 边缘=隧道入口）；
+      15:42:59 GET /api/v1/events?main_class=泡沫浮球 500；
+      15:43:04 GET /api/v1/events?hours=720 200；
+      15:48:14 POST /api/v1/knowledge/search 200
+
+  root_cause_chain:
+    - 9-29 起两个 MCP 资产端点指向临时 Cloudflare 快速隧道（R-NX-05 时代），旧隧道死亡
+      → 平台侧 MCP 校验失败/调用无路由，为 R-NX-10 绑定缺口的源头之一；
+    - 托管智能体（旧版 Managed Agents）编辑表单不暴露 MCP 绑定 → 改用新版单智能体
+      （App agent）通过 studio API 完成 MCP 资产绑定；
+    - App 智能体预览"系统异常，运行终止"且 ECS 零流量 → 定位为运行时内部异常：
+      旧运行时为 IAM 认证且无法改（官方文档：认证类型创建后不可改）；
+    - 解决：DELETE 旧运行时（core/runtimes API 204）→ 以 auth_type=API_KEY 重建
+      agent-arts-rnx10-seasight-a1 → 平台自动创建绑定 API Key 身份 → UI「更新版本
+      + 同步部署至实例」把智能体版本 v2 注入运行时 → 预览调试恢复、MCP 调用打通；
+    - 教训：API 直接 POST /studio/agents/{id}/deploy 只建空运行时（v1 Initial version），
+      必须经 UI 发布版本+同步部署才注入智能体；WS /ws 通道在该运行时类型上不可用
+      （node-proxy 握手 500），预览调试/sessions-start HTTP 通道可用。
+
+  honest_boundary: >-
+    1) 本次验收为预览调试通道（studio 会话），非生产 API 通道；WS 数据面通道在该
+    运行时类型上未通（平台侧 node-proxy 握手 500，已留证）。2) 运行回答中的事件
+    数据（17 条事件、9 条泡沫类、坐标/置信度/设备号）全部来自 MCP 工具真实返回，
+    与 ECS 服务端日志逐条对应；模型生成部分（处置建议）基于工具结果与提示词。
+    3) MCP 端点仍为 Cloudflare 快速隧道（重启换 URL），持久化需改命名隧道或私网
+    端点，已列入清理待办。4) 写入类工具未启用（SEASIGHT_MCP_ALLOW_WRITES 未开）。
+
+  evidence:
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/03-调试抽屉-运行结果-输入输出.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/04-调用详情-调用链-LLM-MCP-LLM.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/05-MCP调用1-输入-main_class-泡沫浮球.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/06-MCP调用1-输出-500错误-agent感知.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/07-MCP调用2-输入-重试参数与is_mcp元数据.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/08-MCP调用2-输出-17条事件真实数据.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/09-预览-运行成功50s-事件数据回答.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/10-推理文本-发现无泡沫浮球分类.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/11-结构化回答-evt_demo_0001坐标置信度.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/12-第二次运行-调用链-单次4次MCP调用.png
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/mcp-server-log-rnx10.txt
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/mcp-server-log-rnx10-run2-knowledge-search.txt
+    - artifacts/nexent-platform-acceptance/evidence/hosted-qa-2026-10-25/ws-run-frames-rnx10.log（WS 通道 500 留证，诚实边界用）
