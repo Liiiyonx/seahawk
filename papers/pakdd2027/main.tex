@@ -59,8 +59,9 @@ respectively), cautioning against score-based refusal in small-corpus
 deployments. We release the benchmark, audit tooling, router, and all
 configurations.
 
-\keywords{Domain retrieval \and Hybrid retrieval \and Knowledge ontology \and
-Evidence audit \and Retrieval evaluation \and Abstention}
+\keywords{Domain retrieval \and Hybrid retrieval \and Adaptive retrieval \and
+Knowledge ontology \and Evidence audit \and Retrieval evaluation \and
+Abstention}
 \end{abstract}
 
 \section{Introduction}
@@ -152,11 +153,23 @@ rerankers~\cite{monobert}, are commonly fused; reciprocal rank fusion
 (RRF)~\cite{rrf} is a robust parameter-light combiner. BEIR~\cite{beir} showed
 that no single retriever dominates across heterogeneous corpora; we show the
 same holds \emph{within} one small domain across \emph{query types}, a
-granularity usually hidden by corpus-level averages.
+granularity usually hidden by corpus-level averages. Domain benchmarks such
+as LegalBench~\cite{legalbench} measure professional reasoning at scale; our
+benchmark complements them with a within-deployment, type-stratified study of
+the retrieval layer itself.
 
-\paragraph{KG-augmented retrieval.} GraphRAG~\cite{graphrag} and
-HippoRAG~\cite{hipporag} augment retrieval with graph structures extracted
-from text, mostly over large corpora. We study the complementary regime: a
+\paragraph{Adaptive and routed retrieval.} Adaptive-RAG~\cite{adaptiverag}
+trains a complexity classifier that routes each query to no-, single-, or
+multi-step retrieval; Self-Route~\cite{selfroute} lets the model itself
+decide between retrieval and long-context reading. Both target large,
+heterogeneous corpora and pay for a learned or prompted router. We show that
+in the small-corpus regime the router can be had for free: a single
+deterministic title-coverage statistic captures the per-type oracle.
+
+\paragraph{KG-augmented retrieval.} GraphRAG~\cite{graphrag},
+LightRAG~\cite{lightrag}, and the HippoRAG line~\cite{hipporag,hipporag2}
+augment retrieval with graph structures extracted from text, mostly over
+large corpora. We study the complementary regime: a
 small, curated, versioned ontology where graph expansion is a precision
 instrument for multi-hop queries---and show it \emph{hurts} title queries
 relative to plain BM25.
@@ -456,7 +469,11 @@ slightly above Lex+Graph's .800---some misroutes happen to help). Paired
 tests show the router \emph{significantly beats every single configuration}
 (vs.\ Lex+Graph $p{=}2.3{\times}10^{-7}$, vs.\ BM25 $p{=}3.3{\times}10^{-4}$,
 vs.\ both hybrids $p{<}5{\times}10^{-4}$) and is statistically
-indistinguishable from the per-type oracle ($p{=}0.10$). All highlighted
+indistinguishable from the per-type oracle ($p{=}0.10$). This mirrors the
+routing philosophy of Adaptive-RAG~\cite{adaptiverag} with a regime-
+appropriate simplification: where large heterogeneous corpora need a trained
+complexity classifier, here one deterministic string statistic suffices. All
+highlighted
 comparisons in Tables~\ref{tab:sig} and~\ref{tab:confusion} survive Holm
 correction within their test families (largest adjusted $p$ .013 for the
 specialist contrasts; $9.9{\times}10^{-4}$ for the router family). A post-hoc
@@ -704,6 +721,29 @@ self-knowledge distillation. In: Proc.\ Findings of ACL (2024)
 \bibitem{monobert}
 Nogueira, R., Cho, K.: Passage re-ranking with BERT (2019).
 arXiv:1901.04085
+
+\bibitem{adaptiverag}
+Jeong, S., Baek, J., Cho, S., Hwang, S.J., Park, J.C.: Adaptive-RAG:
+Learning to adapt retrieval-augmented large language models through
+question complexity. In: Proc.\ NAACL (2024)
+
+\bibitem{selfroute}
+Li, M., et al.: Retrieval augmented generation or long-context LLMs? A
+comprehensive study and hybrid approach. In: Proc.\ EMNLP (Industry Track)
+(2024)
+
+\bibitem{lightrag}
+Guo, Z., et al.: LightRAG: Simple and fast retrieval-augmented generation.
+In: Proc.\ Findings of EMNLP (2025)
+
+\bibitem{hipporag2}
+Guti{\'e}rrez, B.J., et al.: From RAG to memory: Non-parametric continual
+learning for large language models. In: Proc.\ ICML (2025)
+
+\bibitem{legalbench}
+Guha, N., et al.: LegalBench: A collaboratively built benchmark for
+measuring legal reasoning in large language models. In: Proc.\ NeurIPS
+Datasets and Benchmarks (2023)
 
 \bibitem{lewis-rag}
 Lewis, P., Perez, E., Piktus, A., et al.: Retrieval-augmented generation for
