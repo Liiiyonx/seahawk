@@ -79,7 +79,7 @@ def http_json(url: str, payload: dict, headers: dict, timeout: int = 120) -> dic
 
 
 def backend_search(query: str, top_k: int = 8) -> list[dict]:
-    d = http_json(f"{API_BASE}/knowledge/search", {"query": query, "top_k": top_k, "hop_depth": 1}, {})
+    d = http_json(f"{API_BASE}/knowledge/search", {"query": query, "limit": top_k, "hop_depth": 1}, {})
     data = d.get("data") or d
     return data.get("results", []) or data.get("hits", [])
 

@@ -1,0 +1,29 @@
+acceptance:
+  record_id: R-KN-08
+  date: "2026-10-25"
+  status: completed
+  title: 本体证据可回溯性审计（扩语料后 100 节点/200 关系版本）
+
+  audited_ontology:
+    version_id: ont_20261025131815_936b3738（published，LLM+规则混合抽取：rule 167 / llm 33）
+    corpus: 27 资产（20 份生态环境部公开文件 + 7 演示资产），max_nodes/max_relations=100/200（接口 schema 上限）
+
+  precision_proxy: # 证据核验口径
+    citation_verifiable: 302/336（89.9%）——关系 evidence 引用片段可在所引资产原文中逐字回溯
+    relation_endpoint_traceable: 180/200（90.0%）——两端实体名见于引用文档
+    relation_fully_traceable: 170/200（85.0%）——引用全部可回溯且端点可回溯
+    node_name_traceable: 96/100（96.0%）——节点名/别名见于其来源文档
+
+  recall_proxy: # 近似口径（低估）
+    top20_term_coverage: 26.7%
+    top40_term_coverage: 23.2%
+    definition: 各文档高频 2-4gram 术语（轻量停用词）被本体节点覆盖比例；ngram 含大量非实体碎片，属保守低估口径，不作正式召回宣称
+
+  honest_boundary: >-
+    确定性字符串核验（scripts/ontology_evidence_audit.py，零模型调用、可复现），
+    非领域专家人工标注金标准；"精确率"为证据可回溯性口径，"召回"为术语覆盖近似口径。
+    未回溯样本已留档（untraceable_sample 前 10 条）供人工复核。
+
+  evidence:
+    - artifacts/ontology-evidence-audit/latest.json
+    - scripts/ontology_evidence_audit.py

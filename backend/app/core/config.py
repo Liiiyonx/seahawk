@@ -141,6 +141,10 @@ class Settings(BaseSettings):
     knowledge_llm_model: str = ""
     knowledge_llm_timeout_ms: int = 8000
     knowledge_llm_max_output_tokens: int = 2048
+    knowledge_embed_model: str = "bge-m3"
+    knowledge_rerank_model: str = "bge-reranker-v2-m3"
+    knowledge_embed_base_url: str = ""
+    knowledge_embed_api_key: str = ""
 
     # ---------- 通知外发 ----------
     # 企业微信机器人 webhook；为空 = 不启用告警外发（只落日志）。

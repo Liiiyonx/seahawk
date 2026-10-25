@@ -252,8 +252,8 @@ def main() -> int:
             {
                 "ontology_version_id": ontology_version_id,
                 "asset_version_ids": version_ids,
-                "max_nodes": 30,
-                "max_relations": 60,
+                "max_nodes": 100,
+                "max_relations": 200,
                 "min_term_length": 2,
             },
         )

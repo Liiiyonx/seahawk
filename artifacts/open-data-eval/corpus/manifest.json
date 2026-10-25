@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at": "2026-09-29T09:18:52.503060+00:00",
+  "generated_at": "2026-10-25T12:04:07.821566+00:00",
   "purpose": "public open-data corpus for deterministic ontology evaluation",
   "boundary": "public open data published by mee.gov.cn; NOT a real de-identified industry dataset; extracted text is normalized for evaluation only",
   "documents": [
@@ -123,6 +123,186 @@
       "extracted_file": "OD-SEA-PERMIT-2022-01.txt",
       "text_chars": 282,
       "content_sha256": "9b6266b4ec16ea7094650d6606f6b60b807a45dc46021d6dd5959ad6043add0f"
+    },
+    {
+      "file": "extra-2023-1012078.html",
+      "title": "关于贯彻落实《国务院办公厅关于加强入河入海排污口监督管理工作的实施意见》的通知",
+      "source_url": "https://www.mee.gov.cn/xxgk2018/xxgk/xxgk05/202301/t20230109_1012078.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-01",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-01.txt",
+      "text_chars": 2967,
+      "content_sha256": "9239ae323866869a1541f55498c6de8f46a435193ccfca81822ae88e3a052dae"
+    },
+    {
+      "file": "extra-2022-1004734.html",
+      "title": "关于启用围头湾外倾倒区等4个临时性海洋倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202211/t20221114_1004734.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-02",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-02.txt",
+      "text_chars": 776,
+      "content_sha256": "c8198a0ebd2d207e89cda88c2c0dd5caabeb91fe631cd77ece5dc6283a6f31fe"
+    },
+    {
+      "file": "extra-2024-1068209.html",
+      "title": "关于设立防城港2＃倾倒区等5个倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202403/t20240312_1068209.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-03",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-03.txt",
+      "text_chars": 1006,
+      "content_sha256": "6cf066db91cec8aa56b652bb8f60507ea48038e4ac3c95e1086a6a9f2ee21958"
+    },
+    {
+      "file": "extra-2024-1082915.html",
+      "title": "关于设立崔家潞湾外远海倾倒区等2个倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202407/t20240730_1082915.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-04",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-04.txt",
+      "text_chars": 462,
+      "content_sha256": "0d5ecb62a6f0f9710124fd13659d45068a4e1b6303425c7833bf4cf79f84eda8"
+    },
+    {
+      "file": "extra-2025-1100125.html",
+      "title": "关于设立廉州湾外倾倒区等4个倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202501/t20250107_1100125.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-05",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-05.txt",
+      "text_chars": 869,
+      "content_sha256": "305299538c7e383c15a38f552f1b205c52f8ad4420187aa95959fe7fad80cd33"
+    },
+    {
+      "file": "extra-2026-1142902.html",
+      "title": "关于发布国家生态环境标准《入河入海排污口监督管理技术指南 入海排污口规范化建设》的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202601/t20260129_1142902.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-06",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-06.txt",
+      "text_chars": 288,
+      "content_sha256": "79708f8c28237df66084c02393d7d5a4426c88172977a4b0ec006b799c4b5c90"
+    },
+    {
+      "file": "extra-2026-1150654.html",
+      "title": "关于发布《海洋生物水质基准—镉》（2026年版）及其技术报告的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202604/t20260430_1150654.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-07",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-07.txt",
+      "text_chars": 250,
+      "content_sha256": "ab0a548ffa17f0597b63dfdb8d7b9ac38d9c11ca30bc45db82f943d19a2900fc"
+    },
+    {
+      "file": "extra-2026-1156876.html",
+      "title": "关于设立海南乐东远海倾倒区等5个倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202605/t20260529_1156876.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-08",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-08.txt",
+      "text_chars": 900,
+      "content_sha256": "552d9a0e574242f351ead6d9a0c5953fdaa9f05fd734ab96b8547f7dca95b693"
+    },
+    {
+      "file": "extra-2026-1163417.html",
+      "title": "关于设立滨州北部远海倾倒区的公告",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk01/202608/t20260804_1163417.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-09",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-09.txt",
+      "text_chars": 290,
+      "content_sha256": "6693b044473af1ebca43b6d60223a93701ed06ec725c8b20a0eb8ff0d383b43a"
+    },
+    {
+      "file": "extra-2022-969303.html",
+      "title": "关于印发《重点海域综合治理攻坚战行动方案》的通知",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk03/202202/t20220217_969303.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-10",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-10.txt",
+      "text_chars": 230,
+      "content_sha256": "571b9246d229fd4f35b01e78865608e366c83b027a4807ff189ef2cd80fe1f4c"
+    },
+    {
+      "file": "extra-2022-967525.html",
+      "title": "关于公开征求《海洋可倾倒物质名录（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk06/202201/t20220119_967525.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-11",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-11.txt",
+      "text_chars": 496,
+      "content_sha256": "dfda55d4256d92112c746d5701b7e1c03a64aa076198b2170dfa7cf914bc6fce"
+    },
+    {
+      "file": "extra-2025-1117447.html",
+      "title": "关于公开征求国家生态环境标准《海洋倾倒在线监控技术规范（征求意见稿）》意见的通知",
+      "source_url": "https://www.mee.gov.cn/ywgz/hysthjbh/../../xxgk2018/xxgk/xxgk06/202504/t20250423_1117447.html",
+      "publisher": "中华人民共和国生态环境部",
+      "asset_id": "OD-SEA-EX-12",
+      "asset_type": "document",
+      "standard_codes": [
+        "marine-open-data-extra",
+        "open-data"
+      ],
+      "extracted_file": "OD-SEA-EX-12.txt",
+      "text_chars": 814,
+      "content_sha256": "8a19cf30c887348b5f273e58cc6698ce8be8486ef4b9a640fc5764fcc9e4dbeb"
     }
   ]
 }

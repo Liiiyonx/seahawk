@@ -123,6 +123,16 @@ _STYLE_RE = re.compile(r"<style.*?</style>", re.DOTALL | re.IGNORECASE)
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
+EXTRA_SOURCES_PATH = CORPUS_DIR / "extra_sources.json"
+
+
+def _extra_sources() -> list[dict[str, str]]:
+    if EXTRA_SOURCES_PATH.exists():
+        docs = json.loads(EXTRA_SOURCES_PATH.read_text(encoding="utf-8"))
+        return [{k: v for k, v in d.items() if not k.startswith("_")} for d in docs]
+    return []
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -161,13 +171,16 @@ def title_from_source(source: dict[str, str]) -> str:
 def write_corpus(manifest_path: Path = MANIFEST) -> list[dict[str, Any]]:
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     records: list[dict[str, Any]] = []
-    for source in SOURCE_PAGES:
+    for source in SOURCE_PAGES + _extra_sources():
         html_path = manifest_path.parent / source["file"]
         if not html_path.exists():
             raise FileNotFoundError(f"missing downloaded page: {html_path}")
         html = html_path.read_text(encoding="utf-8", errors="ignore")
         text = pick_content_text(html)
         if len(text) < 200:
+            if source["file"].startswith("extra-"):
+                print(f"skip too-short extra page: {source['file']}")
+                continue
             raise ValueError(f"extracted text too short: {source['file']}")
         digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
         txt_name = source["asset_id"] + ".txt"

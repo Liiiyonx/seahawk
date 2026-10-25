@@ -1447,11 +1447,46 @@ class KnowledgeService:
             )
 
         hits.sort(key=lambda hit: (-hit.score, hit.title))
+        hybrid_applied = False
+        if getattr(payload, "retrieval_mode", "lexical") == "hybrid":
+            hits, hybrid_applied = await self._hybrid_reorder(
+                payload.query, documents, hits, payload.limit
+            )
+        mode = ("hybrid_" if hybrid_applied else "") + (
+            "ontology_graph" if ontology is not None else "keyword"
+        )
         return (
-            "ontology_graph" if ontology is not None else "keyword",
+            mode,
             ontology.version_id if ontology is not None else None,
             hits[: payload.limit],
         )
+
+    async def _hybrid_reorder(
+        self,
+        query: str,
+        documents: list[DocumentCandidate],
+        hits: list[SearchHitData],
+        limit: int,
+    ) -> tuple[list[SearchHitData], bool]:
+        """RRF 融合词法/图排序与 BGE-M3 稠密排序；任何失败回退原排序（尽力而为）。"""
+        import asyncio
+
+        from app.services.knowledge_embed import HYBRID_INDEX, embed_texts, rrf_fuse
+
+        docs = [(d.asset_id, d.asset_version_id, d.title, d.text) for d in documents]
+        try:
+            ready = await asyncio.to_thread(HYBRID_INDEX.ensure, docs)
+            if not ready:
+                return hits[:limit], False
+            qvec = (await asyncio.to_thread(embed_texts, [query]))[0]
+            dense = await asyncio.to_thread(HYBRID_INDEX.rank_assets, qvec)
+        except Exception:
+            return hits[:limit], False
+        lexical = [h.asset_id for h in hits]
+        fused = rrf_fuse([lexical, dense])
+        order = {asset_id: idx for idx, asset_id in enumerate(fused)}
+        reordered = sorted(hits, key=lambda h: order.get(h.asset_id, len(order)))
+        return reordered[:limit], True
 
     async def answer_question(
         self,

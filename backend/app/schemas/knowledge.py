@@ -206,6 +206,7 @@ class KnowledgeSearchRequest(BaseModel):
     asset_types: list[AssetTypeLiteral] = Field(default_factory=list, max_length=6)
     standard_codes: list[str] = Field(default_factory=list, max_length=32)
     limit: int = Field(default=10, ge=1, le=50)
+    retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
 
 
 class KnowledgePathStep(BaseModel):

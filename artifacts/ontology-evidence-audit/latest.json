@@ -1,0 +1,508 @@
+{
+  "registration": "R-KN-08",
+  "run_at": "2026-10-25T13:21:06.663697+00:00",
+  "ontology_version_id": "ont_20261025131815_936b3738",
+  "counts": {
+    "nodes": 100,
+    "relations": 200,
+    "docs": 27
+  },
+  "precision_proxy": {
+    "citation_total": 336,
+    "citation_verifiable": "302/336",
+    "citation_verifiable_rate": 0.8988,
+    "relation_endpoint_traceable": "180/200",
+    "relation_endpoint_traceable_rate": 0.9,
+    "relation_fully_traceable": "170/200",
+    "relation_fully_traceable_rate": 0.85,
+    "node_name_traceable_rate": 0.96,
+    "extraction_methods": {
+      "llm": 33,
+      "rule": 167
+    },
+    "untraceable_sample": [
+      {
+        "relation_id": "rel_20261025131832_0397ed91",
+        "pair": [
+          "海洋倾倒物质评价规范",
+          "疏浚物"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_06b2a2c1",
+        "pair": [
+          "符合相关标准",
+          "疏浚物"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_0c0e0c3e",
+        "pair": [
+          "入河入海排污口监督管理技术指南",
+          "入海排污口规范化建设"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_1e873b8a",
+        "pair": [
+          "海洋倾倒物质评价规范",
+          "渔业废料"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_22b1a09d",
+        "pair": [
+          "海洋倾倒物质评价规范",
+          "惰性无机地质材料"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_64eba21f",
+        "pair": [
+          "入河入海排污口",
+          "排污口监测"
+        ],
+        "reason": "endpoint-missing-in-citing-doc"
+      },
+      {
+        "relation_id": "rel_20261025131832_b1d03599",
+        "pair": [
+          "生态环境损害鉴定评估技术指南",
+          "第3"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 2
+      },
+      {
+        "relation_id": "rel_20261025131832_62d2bea1",
+        "pair": [
+          "生态环境标准",
+          "海洋倾倒物质评价规范"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 3,
+        "cited_ok": 0
+      },
+      {
+        "relation_id": "rel_20261025131832_219d55a6",
+        "pair": [
+          "海洋倾倒区",
+          "疏浚物"
+        ],
+        "reason": "endpoint-missing-in-citing-doc"
+      },
+      {
+        "relation_id": "rel_20261025131832_1b17fe68",
+        "pair": [
+          "生态环境标准",
+          "海洋倾倒区选划技术导则"
+        ],
+        "reason": "citation-not-in-doc",
+        "evidence_n": 2,
+        "cited_ok": 0
+      }
+    ],
+    "definition": "关系 evidence 引用片段可在所引资产原文中逐字回溯 + 两端实体名见于引用文档（证据核验口径，非专家金标准）"
+  },
+  "recall_proxy": {
+    "top20_term_coverage": 0.2667,
+    "top40_term_coverage": 0.2315,
+    "definition": "各文档高频术语(2-4gram,去停用词)被本体节点名/别名覆盖的比例（召回近似口径）",
+    "per_doc": [
+      {
+        "asset_id": "OD-SEA-EX-12",
+        "title": "关于公开征求国家生态环境标准《海洋倾倒在线监控技术规范（征求",
+        "top20_covered": "8/20",
+        "top40_covered": "19/40",
+        "missing_top": [
+          "求意",
+          "有限",
+          "限公",
+          "公司",
+          "有限公",
+          "限公司"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-11",
+        "title": "关于公开征求《海洋可倾倒物质名录（征求意见稿）》意见的通知",
+        "top20_covered": "3/20",
+        "top40_covered": "8/40",
+        "missing_top": [
+          "求意",
+          "见稿",
+          "我部",
+          "编制",
+          "洋可",
+          "可倾"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-10",
+        "title": "关于印发《重点海域综合治理攻坚战行动方案》的通知",
+        "top20_covered": "6/20",
+        "top40_covered": "12/40",
+        "missing_top": [
+          "厅局",
+          "发展",
+          "改革",
+          "革委",
+          "自然",
+          "然资"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-09",
+        "title": "关于设立滨州北部远海倾倒区的公告",
+        "top20_covered": "1/20",
+        "top40_covered": "7/40",
+        "missing_top": [
+          "84",
+          "11",
+          "18",
+          "41",
+          "E3",
+          "38"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-08",
+        "title": "关于设立海南乐东远海倾倒区等5个倾倒区的公告",
+        "top20_covered": "2/20",
+        "top40_covered": "7/40",
+        "missing_top": [
+          "20",
+          "12",
+          "120",
+          "26",
+          "N1",
+          "N12"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-07",
+        "title": "关于发布《海洋生物水质基准—镉》（2026年版）及其技术报告",
+        "top20_covered": "7/20",
+        "top40_covered": "9/40",
+        "missing_top": [
+          "基准",
+          "20",
+          "02",
+          "26",
+          "6年",
+          "202"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-06",
+        "title": "关于发布国家生态环境标准《入河入海排污口监督管理技术指南 入",
+        "top20_covered": "7/20",
+        "top40_covered": "14/40",
+        "missing_top": [
+          "入海",
+          "海排",
+          "排污",
+          "污口",
+          "入海排",
+          "海排污"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-05",
+        "title": "关于设立廉州湾外倾倒区等4个倾倒区的公告",
+        "top20_covered": "2/20",
+        "top40_covered": "7/40",
+        "missing_top": [
+          "11",
+          "E2",
+          "N1",
+          "21",
+          "44",
+          "19"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-04",
+        "title": "关于设立崔家潞湾外远海倾倒区等2个倾倒区的公告",
+        "top20_covered": "3/20",
+        "top40_covered": "8/40",
+        "missing_top": [
+          "22",
+          "12",
+          "20",
+          "55",
+          "24",
+          "52"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-03",
+        "title": "关于设立防城港2＃倾倒区等5个倾倒区的公告",
+        "top20_covered": "3/20",
+        "top40_covered": "7/40",
+        "missing_top": [
+          "N1",
+          "24",
+          "11",
+          "E3",
+          "30",
+          "22"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-02",
+        "title": "关于启用围头湾外倾倒区等4个临时性海洋倾倒区的公告",
+        "top20_covered": "5/20",
+        "top40_covered": "7/40",
+        "missing_top": [
+          "11",
+          "38",
+          "N1",
+          "N11",
+          "18",
+          "83"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-EX-01",
+        "title": "关于贯彻落实《国务院办公厅关于加强入河入海排污口监督管理工作",
+        "top20_covered": "14/20",
+        "top40_covered": "19/40",
+        "missing_top": [
+          "排污",
+          "污口",
+          "境部",
+          "环境部",
+          "实施",
+          "部门"
+        ]
+      },
+      {
+        "asset_id": "OD-NOAA-MICROPLASTICS-2026",
+        "title": "NOAA NCEI 全球海洋微塑料监测数据集（真实公开行业数",
+        "top20_covered": "1/20",
+        "top40_covered": "1/40",
+        "missing_top": [
+          "pi",
+          "ie",
+          "ec",
+          "ce",
+          "es",
+          "pie"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-PERMIT-2022-01",
+        "title": "关于生态环境部流域海域生态环境监督管理局承担“废弃物海洋倾倒",
+        "top20_covered": "12/20",
+        "top40_covered": "20/40",
+        "missing_top": [
+          "申请",
+          "海区",
+          "许可",
+          "6月",
+          "月1",
+          "1日"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2025-02",
+        "title": "关于公开征求国家生态环境标准《海洋倾倒区选划技术导则（征求意",
+        "top20_covered": "10/20",
+        "top40_covered": "11/40",
+        "missing_top": [
+          "求意",
+          "洋倾",
+          "区选",
+          "选划",
+          "见稿",
+          "联系"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2026-06",
+        "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 疏浚物（",
+        "top20_covered": "11/20",
+        "top40_covered": "17/40",
+        "missing_top": [
+          "求意",
+          "范疏",
+          "洋倾",
+          "见稿",
+          "联系",
+          "00"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2026-05",
+        "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 渔业废料",
+        "top20_covered": "10/20",
+        "top40_covered": "19/40",
+        "missing_top": [
+          "求意",
+          "范渔",
+          "洋倾",
+          "见稿",
+          "联系",
+          "00"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2026-04",
+        "title": "关于公开征求国家生态环境标准《海洋倾倒物质评价规范 惰性无机",
+        "top20_covered": "3/20",
+        "top40_covered": "9/40",
+        "missing_top": [
+          "求意",
+          "范惰",
+          "惰性",
+          "性无",
+          "无机",
+          "机地"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2026-03",
+        "title": "关于发布国家生态环境标准《海洋倾倒区选划技术导则》的公告",
+        "top20_covered": "15/20",
+        "top40_covered": "16/40",
+        "missing_top": [
+          "洋倾",
+          "区选",
+          "选划",
+          "倒区选",
+          "区选划"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2026-02",
+        "title": "关于发布国家生态环境标准《海洋倾倒在线监控技术规范》的公告",
+        "top20_covered": "13/20",
+        "top40_covered": "21/40",
+        "missing_top": [
+          "洋倾",
+          "倒在",
+          "在线",
+          "20",
+          "02",
+          "倾倒在"
+        ]
+      },
+      {
+        "asset_id": "OD-SEA-STD-2025-01",
+        "title": "关于公开征求国家生态环境标准《生态环境损害鉴定评估技术指南 ",
+        "top20_covered": "8/20",
+        "top40_covered": "12/40",
+        "missing_top": [
+          "求意",
+          "境损",
+          "损害",
+          "害鉴",
+          "鉴定",
+          "定评"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-EVENT-001",
+        "title": "马鼻镇泡沫塑料聚集事件（演示）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "事件",
+          "岸线",
+          "演示",
+          "示事",
+          "件马",
+          "马鼻"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-TELEMETRY-001",
+        "title": "黄岐渔港风浪与潮汐遥测记录（演示）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "渔港",
+          "风向",
+          "黄岐",
+          "岐渔",
+          "港演",
+          "演示"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-IMAGE-001",
+        "title": "黄岐渔港泡沫垃圾识别记录（演示）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "黄岐",
+          "岐渔",
+          "渔港",
+          "港演",
+          "演示",
+          "示识"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-MONITOR-001",
+        "title": "马鼻镇海漂垃圾监测汇总（演示）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "泡沫",
+          "马鼻",
+          "4件",
+          "鼻镇",
+          "镇近",
+          "近2"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-POLICY-001",
+        "title": "连江县海漂垃圾巡查处置指南（演示样本）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "垃圾",
+          "泡沫",
+          "海漂",
+          "漂垃",
+          "巡查",
+          "处置"
+        ]
+      },
+      {
+        "asset_id": "KA-DEMO-DATASET-001",
+        "title": "连江岸线多模态训练集 v1（演示）",
+        "top20_covered": "0/20",
+        "top40_covered": "0/40",
+        "missing_top": [
+          "岸线",
+          "识别",
+          "连江",
+          "江岸",
+          "线多",
+          "多模"
+        ]
+      }
+    ]
+  },
+  "honest_boundary": "确定性字符串核验，非人工标注金标准；抽取上限 max_nodes=100/max_relations=200 由接口 schema 决定"
+}
