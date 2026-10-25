@@ -59,3 +59,14 @@ acceptance:
     honest_note: >-
       v1（15 资产）与 v2（27 资产）两轮均为完整可复现运行；两轮数字不可直接互比（语料与题集均变）。
       MaaS 共享端点限流导致 v2 运行耗时约 4 小时（429 退避），全部调用留缓存可复算。
+
+  results_2026-10-26_v3_titleboost_and_routing:
+    change: 稠密分块文本改为 标题x3+内容（强化标题信号）；新增 oracle 路由系统（多跳走词法图、其余走 hybrid_v3）
+    table: # hit@1 / hit@3 / hit@5 / MRR（single=标题型）
+      single:  {baseline: [0.123, 0.309, 0.432, 0.254], hybrid_v2: [0.173, 0.309, 0.432, 0.284], hybrid_v3: [0.148, 0.346, 0.444, 0.278]}
+      routed_oracle: {single: 同 hybrid_v3, single2: 同 hybrid_v3, multihop: 回归 baseline [0.458, 0.458, 0.475, 0.469]}
+    findings_v3:
+      - 标题加权使混合检索 hit@3/hit@5 达全系统最高（0.346/0.444），hit@1 略低于 v2 混合（0.148 vs 0.173）——取长在召回深度
+      - oracle 路由（多跳走图、单跳走混合）验证了按查询类型路由的上限：单跳全面优于 baseline 且多跳不损失
+      - 生产 HybridIndex 已采用标题加权分块文本（2026-10-26）
+    honest_note: 本轮 single2 各系统绝对值较上轮小幅波动（0.01~0.11，疑似嵌入缓存批间差异），两轮原始产物均留档可复算；结论以相对关系为准

@@ -1,6 +1,6 @@
 {
   "registration": "R-KN-07/R-KN-08",
-  "run_at": "2026-10-25T16:15:52.563591+00:00",
+  "run_at": "2026-10-25T16:32:00.273442+00:00",
   "benchmark": {
     "counts": {
       "single": 81,
@@ -27,10 +27,10 @@
     },
     "single2": {
       "n": 100,
-      "hit@1": 0.14,
-      "hit@3": 0.23,
-      "hit@5": 0.42,
-      "mrr": 0.2258
+      "hit@1": 0.13,
+      "hit@3": 0.22,
+      "hit@5": 0.31,
+      "mrr": 0.2293
     },
     "multihop": {
       "n": 120,
@@ -41,9 +41,9 @@
     },
     "refuse": {
       "score_cutoff_fixed": 6.0,
-      "single_min_top1": 27.0,
+      "single_min_top1": 67.5,
       "refuse_max_top1": 46.5,
-      "separated": false
+      "separated": true
     }
   },
   "twostage": {
@@ -56,10 +56,10 @@
     },
     "single2": {
       "n": 100,
-      "hit@1": 0.14,
-      "hit@3": 0.21,
-      "hit@5": 0.25,
-      "mrr": 0.1855
+      "hit@1": 0.01,
+      "hit@3": 0.1,
+      "hit@5": 0.19,
+      "mrr": 0.0914
     },
     "multihop": {
       "n": 120,
@@ -85,10 +85,10 @@
     },
     "single2": {
       "n": 100,
-      "hit@1": 0.14,
-      "hit@3": 0.17,
-      "hit@5": 0.21,
-      "mrr": 0.1956
+      "hit@1": 0.03,
+      "hit@3": 0.29,
+      "hit@5": 0.38,
+      "mrr": 0.1859
     },
     "multihop": {
       "n": 120,
@@ -96,6 +96,52 @@
       "hit@3": 0.1667,
       "hit@5": 0.4583,
       "mrr": 0.1979
+    }
+  },
+  "hybrid_v3_titleboost": {
+    "single": {
+      "n": 81,
+      "hit@1": 0.1481,
+      "hit@3": 0.3457,
+      "hit@5": 0.4444,
+      "mrr": 0.2784
+    },
+    "single2": {
+      "n": 100,
+      "hit@1": 0.03,
+      "hit@3": 0.29,
+      "hit@5": 0.41,
+      "mrr": 0.1859
+    },
+    "multihop": {
+      "n": 120,
+      "hit@1": 0.075,
+      "hit@3": 0.1667,
+      "hit@5": 0.4583,
+      "mrr": 0.1979
+    }
+  },
+  "routed_oracle": {
+    "single": {
+      "n": 81,
+      "hit@1": 0.1481,
+      "hit@3": 0.3457,
+      "hit@5": 0.4444,
+      "mrr": 0.2784
+    },
+    "single2": {
+      "n": 100,
+      "hit@1": 0.03,
+      "hit@3": 0.29,
+      "hit@5": 0.41,
+      "mrr": 0.1859
+    },
+    "multihop": {
+      "n": 120,
+      "hit@1": 0.4583,
+      "hit@3": 0.4583,
+      "hit@5": 0.475,
+      "mrr": 0.469
     }
   },
   "per_item": {
@@ -184,20 +230,6 @@
         "top1_score": 118.5,
         "refuse_pred": null
       },
-      "single-OD-SEA-P-0": {
-        "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-PERMIT-2022-01",
-          "OD-SEA-EX-12",
-          "OD-SEA-STD-2025-01",
-          "OD-SEA-EX-06",
-          "OD-SEA-STD-2026-02",
-          "OD-SEA-STD-2026-03",
-          "OD-SEA-STD-2026-06"
-        ],
-        "top1_score": 343.5,
-        "refuse_pred": null
-      },
       "single-OD-SEA-P-1": {
         "ranked_assets": [
           "OD-SEA-EX-01",
@@ -212,7 +244,7 @@
         "top1_score": 339.0,
         "refuse_pred": null
       },
-      "single-OD-SEA-P-2": {
+      "single-OD-SEA-P-0": {
         "ranked_assets": [
           "OD-SEA-EX-01",
           "OD-SEA-PERMIT-2022-01",
@@ -223,7 +255,7 @@
           "OD-SEA-STD-2026-03",
           "OD-SEA-STD-2026-06"
         ],
-        "top1_score": 339.0,
+        "top1_score": 343.5,
         "refuse_pred": null
       },
       "single-OD-SEA-S-0": {
@@ -240,18 +272,18 @@
         "top1_score": 193.5,
         "refuse_pred": null
       },
-      "single-OD-SEA-S-2": {
+      "single-OD-SEA-P-2": {
         "ranked_assets": [
           "OD-SEA-EX-01",
-          "OD-SEA-STD-2025-01",
+          "OD-SEA-PERMIT-2022-01",
           "OD-SEA-EX-12",
-          "OD-SEA-STD-2026-06",
-          "OD-SEA-STD-2026-04",
-          "OD-SEA-STD-2026-05",
-          "OD-SEA-STD-2025-02",
-          "OD-SEA-STD-2026-02"
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-06"
         ],
-        "top1_score": 192.0,
+        "top1_score": 339.0,
         "refuse_pred": null
       },
       "single-OD-SEA-S-1": {
@@ -266,6 +298,20 @@
           "OD-SEA-STD-2026-02"
         ],
         "top1_score": 297.0,
+        "refuse_pred": null
+      },
+      "single-OD-SEA-S-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 192.0,
         "refuse_pred": null
       },
       "single-KA-DEMO--0": {
@@ -304,16 +350,16 @@
       },
       "entity-nod_2026-0": {
         "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-EX-08",
-          "OD-SEA-EX-03",
           "OD-SEA-EX-02",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
           "OD-SEA-EX-05",
           "OD-SEA-EX-04",
-          "OD-SEA-EX-12",
-          "OD-SEA-STD-2026-04"
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-STD-2026-03"
         ],
-        "top1_score": 27.0,
+        "top1_score": 67.5,
         "refuse_pred": null
       },
       "hop2-nod_20-nod_20-nod_20": {
@@ -379,19 +425,6 @@
       }
     },
     "twostage": {
-      "single-OD-SEA-E-0": {
-        "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-EX-06",
-          "OD-SEA-EX-03",
-          "OD-SEA-EX-08",
-          "OD-SEA-EX-11",
-          "OD-SEA-EX-12",
-          "OD-SEA-EX-02",
-          "OD-SEA-EX-05"
-        ],
-        "top1_score": 0.96044921875
-      },
       "single-OD-SEA-E-1": {
         "ranked_assets": [
           "OD-SEA-EX-01",
@@ -404,6 +437,19 @@
           "OD-SEA-EX-12"
         ],
         "top1_score": 0.97265625
+      },
+      "single-OD-SEA-E-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
+          "OD-SEA-EX-11",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-05"
+        ],
+        "top1_score": 0.96044921875
       },
       "single-OD-SEA-E-2": {
         "ranked_assets": [
@@ -457,19 +503,6 @@
         ],
         "top1_score": 0.96240234375
       },
-      "single-OD-SEA-P-0": {
-        "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-EX-12",
-          "OD-SEA-EX-03",
-          "OD-SEA-EX-10",
-          "OD-SEA-EX-06",
-          "OD-SEA-EX-08",
-          "OD-SEA-EX-09",
-          "OD-SEA-EX-11"
-        ],
-        "top1_score": 0.66455078125
-      },
       "single-OD-SEA-P-1": {
         "ranked_assets": [
           "OD-SEA-EX-01",
@@ -483,18 +516,18 @@
         ],
         "top1_score": 0.66650390625
       },
-      "single-OD-SEA-P-2": {
+      "single-OD-SEA-P-0": {
         "ranked_assets": [
-          "OD-SEA-EX-12",
           "OD-SEA-EX-01",
-          "OD-SEA-EX-10",
+          "OD-SEA-EX-12",
           "OD-SEA-EX-03",
+          "OD-SEA-EX-10",
           "OD-SEA-EX-06",
+          "OD-SEA-EX-08",
           "OD-SEA-EX-09",
-          "OD-SEA-EX-07",
           "OD-SEA-EX-11"
         ],
-        "top1_score": 0.525390625
+        "top1_score": 0.66455078125
       },
       "single-OD-SEA-S-0": {
         "ranked_assets": [
@@ -508,6 +541,19 @@
           "OD-SEA-EX-10"
         ],
         "top1_score": 0.1773681640625
+      },
+      "single-OD-SEA-P-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-09",
+          "OD-SEA-EX-07",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.525390625
       },
       "single-OD-SEA-S-1": {
         "ranked_assets": [
@@ -576,16 +622,16 @@
       },
       "entity-nod_2026-0": {
         "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-EX-10",
-          "OD-SEA-EX-03",
-          "OD-SEA-EX-07",
-          "OD-SEA-EX-08",
           "OD-SEA-EX-09",
-          "OD-SEA-EX-06",
-          "OD-SEA-EX-05"
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-05",
+          "OD-SEA-EX-08",
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11"
         ],
-        "top1_score": 0.36572265625
+        "top1_score": 0.345458984375
       },
       "hop2-nod_20-nod_20-nod_20": {
         "ranked_assets": [
@@ -745,19 +791,6 @@
         ],
         "top1_score": 0.8000332787486081
       },
-      "single-OD-SEA-P-0": {
-        "ranked_assets": [
-          "OD-SEA-PERMIT-2022-01",
-          "OD-SEA-EX-01",
-          "OD-SEA-STD-2026-03",
-          "OD-SEA-STD-2025-01",
-          "OD-SEA-STD-2026-02",
-          "OD-SEA-STD-2026-06",
-          "OD-SEA-EX-12",
-          "OD-SEA-EX-06"
-        ],
-        "top1_score": 0.6388293118312461
-      },
       "single-OD-SEA-P-1": {
         "ranked_assets": [
           "OD-SEA-PERMIT-2022-01",
@@ -771,18 +804,18 @@
         ],
         "top1_score": 0.6789690943241758
       },
-      "single-OD-SEA-P-2": {
+      "single-OD-SEA-P-0": {
         "ranked_assets": [
-          "OD-SEA-EX-01",
           "OD-SEA-PERMIT-2022-01",
-          "OD-SEA-STD-2025-01",
-          "OD-SEA-EX-12",
-          "OD-SEA-STD-2026-06",
-          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-01",
           "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
           "OD-SEA-EX-06"
         ],
-        "top1_score": 0.7268877214537571
+        "top1_score": 0.6388293118312461
       },
       "single-OD-SEA-S-0": {
         "ranked_assets": [
@@ -797,18 +830,18 @@
         ],
         "top1_score": 0.6785700266155879
       },
-      "single-OD-SEA-S-2": {
+      "single-OD-SEA-P-2": {
         "ranked_assets": [
-          "OD-SEA-STD-2025-01",
-          "OD-SEA-STD-2026-06",
-          "OD-SEA-EX-12",
-          "OD-SEA-STD-2026-04",
-          "OD-SEA-STD-2026-05",
           "OD-SEA-EX-01",
-          "OD-SEA-STD-2025-02",
-          "OD-SEA-STD-2026-02"
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-EX-06"
         ],
-        "top1_score": 0.7585031088947234
+        "top1_score": 0.7268877214537571
       },
       "single-OD-SEA-S-1": {
         "ranked_assets": [
@@ -822,6 +855,19 @@
           "OD-SEA-STD-2026-02"
         ],
         "top1_score": 0.7182138913097854
+      },
+      "single-OD-SEA-S-2": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.7585031088947234
       },
       "single-KA-DEMO--0": {
         "ranked_assets": [
@@ -864,16 +910,16 @@
       },
       "entity-nod_2026-0": {
         "ranked_assets": [
-          "OD-SEA-EX-01",
-          "OD-SEA-EX-12",
           "OD-SEA-EX-04",
-          "OD-SEA-EX-08",
-          "OD-SEA-STD-2026-04",
-          "OD-SEA-EX-03",
           "OD-SEA-EX-02",
-          "OD-SEA-EX-05"
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
+          "OD-SEA-EX-05",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-STD-2026-03"
         ],
-        "top1_score": 0.5083695548926317
+        "top1_score": 0.6368368544742938
       },
       "hop2-nod_20-nod_20-nod_20": {
         "ranked_assets": [
@@ -952,6 +998,582 @@
           "OD-SEA-EX-03"
         ],
         "top1_score": 0.4620138393453892
+      }
+    },
+    "hybrid_v3_titleboost": {
+      "single-OD-SEA-E-1": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.499643607179729
+      },
+      "single-OD-SEA-E-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.49627768187807886
+      },
+      "single-OD-SEA-E-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-EX-11",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-04"
+        ],
+        "top1_score": 0.5592398903107242
+      },
+      "single-OD-NOAA--0": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-11",
+          "OD-SEA-EX-02",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.532794647811206
+      },
+      "single-OD-NOAA--1": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.5230480707266179
+      },
+      "single-OD-NOAA--2": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-11",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-02"
+        ],
+        "top1_score": 0.6083749500686342
+      },
+      "single-OD-SEA-P-1": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-STD-2026-06"
+        ],
+        "top1_score": 0.5867680782808855
+      },
+      "single-OD-SEA-P-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-06"
+        ],
+        "top1_score": 0.56377028518092
+      },
+      "single-OD-SEA-S-0": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.6071100018747023
+      },
+      "single-OD-SEA-P-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-EX-06"
+        ],
+        "top1_score": 0.670319955664206
+      },
+      "single-OD-SEA-S-1": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.6459176805443089
+      },
+      "single-OD-SEA-S-2": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.6777722065065023
+      },
+      "single-KA-DEMO--0": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "KA-DEMO-EVENT-001",
+          "KA-DEMO-TELEMETRY-001",
+          "OD-SEA-EX-10",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-03"
+        ],
+        "top1_score": 0.42329898927337856
+      },
+      "single-KA-DEMO--1": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "KA-DEMO-EVENT-001",
+          "KA-DEMO-TELEMETRY-001",
+          "OD-SEA-EX-10",
+          "KA-DEMO-IMAGE-001",
+          "OD-SEA-EX-07",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.41629118869148984
+      },
+      "single-KA-DEMO--2": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11",
+          "KA-DEMO-EVENT-001"
+        ],
+        "top1_score": 0.45977527223085435
+      },
+      "entity-nod_2026-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-04",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-05",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.590067648908655
+      },
+      "hop2-nod_20-nod_20-nod_20": {
+        "ranked_assets": [
+          "OD-SEA-EX-08",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-05",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.49996201606609286
+      },
+      "refuse-00": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-08",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-05"
+        ],
+        "top1_score": 0.38397562955104736
+      },
+      "refuse-01": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "KA-DEMO-POLICY-001",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.5021604662606767
+      },
+      "refuse-02": {
+        "ranked_assets": [
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-01",
+          "KA-DEMO-IMAGE-001",
+          "OD-SEA-EX-10",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.5410308668183555
+      },
+      "refuse-03": {
+        "ranked_assets": [
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-06",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-01"
+        ],
+        "top1_score": 0.44087545154606655
+      },
+      "refuse-04": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-02",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-09"
+        ],
+        "top1_score": 0.42770435999764483
+      }
+    },
+    "routed_oracle": {
+      "single-OD-SEA-E-1": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-E-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-E-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-EX-11",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-04"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-NOAA--0": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-11",
+          "OD-SEA-EX-02",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-NOAA--1": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-NOAA--2": {
+        "ranked_assets": [
+          "OD-NOAA-MICROPLASTICS-2026",
+          "OD-SEA-EX-11",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-02"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-P-1": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-06",
+          "OD-SEA-STD-2026-06"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-P-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-06"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-S-0": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-P-2": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-EX-06"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-S-1": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.0
+      },
+      "single-OD-SEA-S-2": {
+        "ranked_assets": [
+          "OD-SEA-STD-2025-01",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-12",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.0
+      },
+      "single-KA-DEMO--0": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "KA-DEMO-EVENT-001",
+          "KA-DEMO-TELEMETRY-001",
+          "OD-SEA-EX-10",
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-03"
+        ],
+        "top1_score": 0.0
+      },
+      "single-KA-DEMO--1": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "KA-DEMO-EVENT-001",
+          "KA-DEMO-TELEMETRY-001",
+          "OD-SEA-EX-10",
+          "KA-DEMO-IMAGE-001",
+          "OD-SEA-EX-07",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.0
+      },
+      "single-KA-DEMO--2": {
+        "ranked_assets": [
+          "KA-DEMO-DATASET-001",
+          "KA-DEMO-POLICY-001",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11",
+          "KA-DEMO-EVENT-001"
+        ],
+        "top1_score": 0.0
+      },
+      "entity-nod_2026-0": {
+        "ranked_assets": [
+          "OD-SEA-EX-04",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-05",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-PERMIT-2022-01"
+        ],
+        "top1_score": 0.0
+      },
+      "hop2-nod_20-nod_20-nod_20": {
+        "ranked_assets": [
+          "OD-SEA-EX-02",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-08",
+          "OD-SEA-EX-05",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-EX-04",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-02"
+        ],
+        "top1_score": 0.0
+      },
+      "refuse-00": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-08",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-STD-2026-03",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-STD-2026-05"
+        ],
+        "top1_score": 0.0
+      },
+      "refuse-01": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "KA-DEMO-POLICY-001",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.0
+      },
+      "refuse-02": {
+        "ranked_assets": [
+          "OD-SEA-PERMIT-2022-01",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-01",
+          "KA-DEMO-IMAGE-001",
+          "OD-SEA-EX-10",
+          "OD-SEA-STD-2025-02",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-11"
+        ],
+        "top1_score": 0.0
+      },
+      "refuse-03": {
+        "ranked_assets": [
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-STD-2026-06",
+          "OD-SEA-EX-06",
+          "OD-SEA-STD-2026-05",
+          "OD-SEA-STD-2026-04",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-01",
+          "OD-SEA-STD-2025-01"
+        ],
+        "top1_score": 0.0
+      },
+      "refuse-04": {
+        "ranked_assets": [
+          "OD-SEA-EX-01",
+          "OD-SEA-EX-10",
+          "OD-SEA-EX-04",
+          "OD-SEA-EX-02",
+          "OD-SEA-STD-2026-02",
+          "OD-SEA-EX-03",
+          "OD-SEA-EX-12",
+          "OD-SEA-EX-09"
+        ],
+        "top1_score": 0.0
       }
     }
   }

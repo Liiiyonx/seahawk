@@ -224,10 +224,25 @@ def main() -> int:
     print("embedding corpus chunks ...")
     chunk_vecs = embed([c["text"] for c in chunks], key, cache)
     print("embedding done")
+    print("embedding title-boosted chunks (v3) ...")
+    NL = chr(10)
+    boosted_texts = []
+    for a in assets:
+        detail = get(f"/knowledge/assets/{a['asset_id']}")
+        versions = detail.get("versions") or [{}]
+        v0 = versions[0] or {}
+        content = v0.get("content_text") or json.dumps(v0.get("content_json") or {}, ensure_ascii=False)
+        title = a.get("title", "")
+        for ck in chunk_text(content):
+            boosted_texts.append(NL.join([title, title, title, ck])[:1800])
+    boosted_vecs = embed(boosted_texts, key, cache)
+    print("boosted embedding done")
 
     results_baseline: dict[str, dict] = {}
     results_twostage: dict[str, dict] = {}
     results_hybrid: dict[str, dict] = {}
+    results_hybrid_v3: dict[str, dict] = {}
+    results_routed: dict[str, dict] = {}
     rrcache = _rr_cache()
 
     progress = [0]
@@ -265,6 +280,14 @@ def main() -> int:
             "ranked_assets": ranked_b[:8],
             "top1_score": pairs and max(pairs, key=lambda x: x[1])[1] or 0.0,
         }
+        scored_v3 = [(c["asset_id"], cosine(qvec, v)) for c, v in zip(chunks, boosted_vecs)]
+        dense_v3 = rank_assets_from_scores(scored_v3)
+        results_hybrid_v3[it["id"]] = {
+            "ranked_assets": rrf_fuse(ranked_a, dense_v3)[:8],
+            "top1_score": max((sc for _, sc in scored_v3[:1]), default=0.0),
+        }
+        routed = results_baseline[it["id"]]["ranked_assets"] if it["category"] == "multihop" else results_hybrid_v3[it["id"]]["ranked_assets"]
+        results_routed[it["id"]] = {"ranked_assets": routed[:8], "top1_score": 0.0}
         with plock:
             progress[0] += 1
             if progress[0] % 25 == 0:
@@ -290,6 +313,8 @@ def main() -> int:
         "baseline": {c: metrics_for([i for i in items if i["category"] == c], results_baseline) for c in cats},
         "twostage": {c: metrics_for([i for i in items if i["category"] == c], results_twostage) for c in cats},
         "hybrid_rrf": {c: metrics_for([i for i in items if i["category"] == c], results_hybrid) for c in cats},
+        "hybrid_v3_titleboost": {c: metrics_for([i for i in items if i["category"] == c], results_hybrid_v3) for c in cats},
+        "routed_oracle": {c: metrics_for([i for i in items if i["category"] == c], results_routed) for c in cats},
     }
 
     # refusal separation (calibrated cutoff, reported transparently)
@@ -314,13 +339,16 @@ def main() -> int:
         "baseline": results_baseline,
         "twostage": results_twostage,
         "hybrid_rrf": results_hybrid,
+        "hybrid_v3_titleboost": results_hybrid_v3,
+        "routed_oracle": results_routed,
     }
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print("\n==== SUMMARY ====")
-    print(json.dumps({k: out[k] for k in ("baseline", "twostage", "hybrid_rrf") if k in out}, ensure_ascii=False, indent=2))
+    keys = ("baseline", "twostage", "hybrid_rrf", "hybrid_v3_titleboost", "routed_oracle")
+    print(json.dumps({k: out[k] for k in keys if k in out}, ensure_ascii=False, indent=2))
     print(f"\nwritten -> {out_path}")
     return 0
 

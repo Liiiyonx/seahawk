@@ -126,11 +126,12 @@ class HybridIndex:
             asset_id, asset_version_id, title, content = doc[0], doc[1], doc[2], doc[3]
             text = (content or "").strip()
             pieces = [text[i:i + self._CHUNK_CHARS] for i in range(0, len(text), self._CHUNK_CHARS)] or [""]
+            # 标题加权：R-KN-07 v3 评测显示 标题x3 前缀提升召回深度（hit@3/@5）
             for piece in pieces:
                 chunks.append(HybridChunk(
                     asset_id=asset_id,
                     asset_version_id=asset_version_id,
-                    text=f"{title}\n{piece}"[:1600],
+                    text="\n".join([title, title, title, piece])[:1800],
                 ))
         vectors = embed_texts([c.text for c in chunks])
         for chunk, vec in zip(chunks, vectors):
