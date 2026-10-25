@@ -70,3 +70,22 @@ acceptance:
       - oracle 路由（多跳走图、单跳走混合）验证了按查询类型路由的上限：单跳全面优于 baseline 且多跳不损失
       - 生产 HybridIndex 已采用标题加权分块文本（2026-10-26）
     honest_note: 本轮 single2 各系统绝对值较上轮小幅波动（0.01~0.11，疑似嵌入缓存批间差异），两轮原始产物均留档可复算；结论以相对关系为准
+
+  # ==================== 更正登记（2026-10-26 01:40，重要） ====================
+  correction_2026-10-26:
+    incident: >-
+      发现基准题 id 不唯一（306 题仅 22 个唯一 id，283 处同 id 不同题不同金标冲突），
+      导致所有按 id 键控的逐题分析与指标被系统性压低。v1/v2/v3 三段上述数字均出自污染运行，
+      仅作历史留档，不得再引用。
+    fix: scripts/fix_benchmark_ids.py（id 唯一化，题目/金标不变）+ 全部评测/消融/显著性/路由重跑；
+      更正说明与新旧对照见 ID_COLLISION_CORRECTION_20261026.md，冲突期产物保留
+      （benchmark_ids_collided_20261026.json / eval_306_snapshot_collided.json /
+       bm25_ablation_collided.json / eval_190_v1_collided.json）。
+    corrected_table: # hit@1 / hit@5 / MRR（更正后，冻结快照 eval_306_snapshot.json）
+      single_title_queries:   {bm25: [0.901, 1.000, 0.943], baseline: [0.519, 0.852, 0.647], twostage: [0.481, 0.481, 0.481], hybrid_rrf: [0.815, 1.000, 0.882]}
+      single2_entity_queries: {bm25: [0.510, 0.840, 0.642], baseline: [0.600, 0.930, 0.740], twostage: [0.370, 0.450, 0.410], hybrid_rrf: [0.510, 0.860, 0.650]}
+      multihop_2hop_queries:  {bm25: [0.692, 0.950, 0.791], baseline: [0.800, 0.983, 0.890], twostage: [0.575, 0.725, 0.631], hybrid_rrf: [0.783, 0.983, 0.870]}
+    corrected_findings:
+      - 无单一配置全能：BM25 称霸标题型（hit@1 0.901，p<1e-7 显著最优）；图扩展称霸实体（0.930）与多跳（0.983）；稠密+精排全题型显著最差
+      - 两系统规则路由器（标题覆盖≥0.5→BM25，其余→图扩展，scripts/run_router_eval.py）：显著优于全部单一配置（p<0.005），与逐题型最优 oracle 无显著差异（p=0.10）
+      - 拒答：无任何配置分数可分（词法出现 4 道可答题 0 分的地板重叠 / BM25 反转 / 稠密低尾重叠）；旧"词法可分"结论作废

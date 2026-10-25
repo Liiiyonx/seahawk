@@ -112,8 +112,12 @@ def main() -> int:
         kw = keyword_of(a.get("title", ""))
         gold = [a["asset_id"]]
         for ti, tpl in enumerate(SINGLE_TEMPLATES):
+            # full asset id: truncated ids collided across same-prefix families
+            # (OD-SEA-EX-01..12 all share "OD-SEA-E") and corrupted every
+            # id-keyed analysis -- see artifacts/knowledge-retrieval-eval/
+            # ID_COLLISION_CORRECTION_20261026.md
             single.append({
-                "id": f"single-{a['asset_id'][:8]}-{ti}",
+                "id": f"single-{a['asset_id']}-{ti}",
                 "question": tpl.format(kw=kw),
                 "gold_asset_ids": gold,
                 "category": "single",
@@ -130,7 +134,7 @@ def main() -> int:
             continue
         for ti, tpl in enumerate(ENTITY_TEMPLATES[:1]):
             single2.append({
-                "id": f"entity-{n['node_id'][:8]}-{ti}",
+                "id": f"entity-{n['node_id']}-{ti}",
                 "question": tpl.format(entity=ent),
                 "gold_asset_ids": [aid],
                 "category": "single2",
@@ -138,6 +142,7 @@ def main() -> int:
             })
 
     multihop: list[dict] = []
+    hop_seen: dict[tuple[str, str, str], int] = {}
     outgoing: dict[str, list[dict]] = {}
     for r in relations:
         outgoing.setdefault(r["source_node_id"], []).append(r)
@@ -159,8 +164,11 @@ def main() -> int:
                                       node_by_id.get(dst, {}).get("source_asset_id")} - {None})
                 if not gold_assets:
                     continue
+                hop_key = (src, mid, dst)
+                hop_seen[hop_key] = hop_seen.get(hop_key, -1) + 1
+                hop_suf = "" if hop_seen[hop_key] == 0 else f"-{hop_seen[hop_key]}"
                 multihop.append({
-                    "id": f"hop2-{src[:6]}-{mid[:6]}-{dst[:6]}",
+                    "id": f"hop2-{src}-{mid}-{dst}{hop_suf}",
                     "question": MULTIHOP_TEMPLATE.format(a=a_name, c=c_name),
                     "gold_asset_ids": gold_assets,
                     "category": "multihop",

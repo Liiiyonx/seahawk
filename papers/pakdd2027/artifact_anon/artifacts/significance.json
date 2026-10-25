@@ -1,0 +1,482 @@
+{
+  "description": "Wilcoxon signed-rank over per-question reciprocal rank; two-sided; zero diffs dropped",
+  "generated_at": "2026-10-25T17:31:35.217317+00:00",
+  "source_snapshot": {
+    "latest_run_at": "2026-10-25T17:30:40.721232+00:00",
+    "ontology_version_id": "ont_20261025131815_936b3738"
+  },
+  "configs": [
+    "baseline",
+    "bm25",
+    "hybrid_rrf",
+    "hybrid_v3_titleboost",
+    "routed_oracle",
+    "twostage"
+  ],
+  "metrics": {
+    "baseline": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.5185,
+        "hit@3": 0.716,
+        "hit@5": 0.8519,
+        "mrr": 0.647
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.6,
+        "hit@3": 0.87,
+        "hit@5": 0.93,
+        "mrr": 0.7398
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.8,
+        "hit@3": 0.9833,
+        "hit@5": 0.9833,
+        "mrr": 0.8903
+      }
+    },
+    "twostage": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.4815,
+        "hit@3": 0.4815,
+        "hit@5": 0.4815,
+        "mrr": 0.4815
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.37,
+        "hit@3": 0.42,
+        "hit@5": 0.45,
+        "mrr": 0.4099
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.575,
+        "hit@3": 0.6583,
+        "hit@5": 0.725,
+        "mrr": 0.6315
+      }
+    },
+    "hybrid_rrf": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.8148,
+        "hit@3": 0.9506,
+        "hit@5": 1.0,
+        "mrr": 0.8821
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.51,
+        "hit@3": 0.75,
+        "hit@5": 0.86,
+        "mrr": 0.6505
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.7833,
+        "hit@3": 0.975,
+        "hit@5": 0.9833,
+        "mrr": 0.8701
+      }
+    },
+    "hybrid_v3_titleboost": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.7778,
+        "hit@3": 0.9383,
+        "hit@5": 1.0,
+        "mrr": 0.8593
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.53,
+        "hit@3": 0.76,
+        "hit@5": 0.87,
+        "mrr": 0.6683
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.7917,
+        "hit@3": 0.975,
+        "hit@5": 0.9833,
+        "mrr": 0.8799
+      }
+    },
+    "routed_oracle": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.7778,
+        "hit@3": 0.9383,
+        "hit@5": 1.0,
+        "mrr": 0.8593
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.53,
+        "hit@3": 0.76,
+        "hit@5": 0.87,
+        "mrr": 0.6683
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.8,
+        "hit@3": 0.9833,
+        "hit@5": 0.9833,
+        "mrr": 0.8903
+      }
+    },
+    "bm25": {
+      "single": {
+        "n": 81,
+        "hit@1": 0.9012,
+        "hit@3": 0.9877,
+        "hit@5": 1.0,
+        "mrr": 0.9434
+      },
+      "single2": {
+        "n": 100,
+        "hit@1": 0.51,
+        "hit@3": 0.71,
+        "hit@5": 0.84,
+        "mrr": 0.6425
+      },
+      "multihop": {
+        "n": 120,
+        "hit@1": 0.6917,
+        "hit@3": 0.8667,
+        "hit@5": 0.95,
+        "mrr": 0.791
+      }
+    }
+  },
+  "pairwise_wilcoxon": {
+    "single": {
+      "baseline vs twostage": {
+        "n": 81,
+        "n_nonzero_diff": 58,
+        "mean_rr_diff": 0.1655,
+        "statistic": 542.0,
+        "p_value": 0.014403296567849931
+      },
+      "baseline vs hybrid_rrf": {
+        "n": 81,
+        "n_nonzero_diff": 37,
+        "mean_rr_diff": -0.2351,
+        "statistic": 0.0,
+        "p_value": 1.0638147235564756e-07
+      },
+      "baseline vs hybrid_v3_titleboost": {
+        "n": 81,
+        "n_nonzero_diff": 33,
+        "mean_rr_diff": -0.2123,
+        "statistic": 0.0,
+        "p_value": 5.101385712610492e-07
+      },
+      "baseline vs routed_oracle": {
+        "n": 81,
+        "n_nonzero_diff": 33,
+        "mean_rr_diff": -0.2123,
+        "statistic": 0.0,
+        "p_value": 5.101385712610492e-07
+      },
+      "baseline vs bm25": {
+        "n": 81,
+        "n_nonzero_diff": 39,
+        "mean_rr_diff": -0.2964,
+        "statistic": 0.0,
+        "p_value": 4.838429940408268e-08
+      },
+      "twostage vs hybrid_rrf": {
+        "n": 81,
+        "n_nonzero_diff": 46,
+        "mean_rr_diff": -0.4006,
+        "statistic": 51.0,
+        "p_value": 2.7048755344961127e-08
+      },
+      "twostage vs hybrid_v3_titleboost": {
+        "n": 81,
+        "n_nonzero_diff": 48,
+        "mean_rr_diff": -0.3778,
+        "statistic": 87.0,
+        "p_value": 1.1571338832539097e-07
+      },
+      "twostage vs routed_oracle": {
+        "n": 81,
+        "n_nonzero_diff": 48,
+        "mean_rr_diff": -0.3778,
+        "statistic": 87.0,
+        "p_value": 1.1571338832539097e-07
+      },
+      "twostage vs bm25": {
+        "n": 81,
+        "n_nonzero_diff": 42,
+        "mean_rr_diff": -0.4619,
+        "statistic": 0.0,
+        "p_value": 1.4787559661527838e-09
+      },
+      "hybrid_rrf vs hybrid_v3_titleboost": {
+        "n": 81,
+        "n_nonzero_diff": 8,
+        "mean_rr_diff": 0.0228,
+        "statistic": 5.5,
+        "p_value": 0.07599145580044094
+      },
+      "hybrid_rrf vs routed_oracle": {
+        "n": 81,
+        "n_nonzero_diff": 8,
+        "mean_rr_diff": 0.0228,
+        "statistic": 5.5,
+        "p_value": 0.07599145580044094
+      },
+      "hybrid_rrf vs bm25": {
+        "n": 81,
+        "n_nonzero_diff": 14,
+        "mean_rr_diff": -0.0613,
+        "statistic": 0.0,
+        "p_value": 0.0008962423329755406
+      },
+      "hybrid_v3_titleboost vs routed_oracle": {
+        "n": 81,
+        "n_nonzero_diff": 0,
+        "mean_rr_diff": 0.0,
+        "statistic": null,
+        "p_value": null,
+        "note": "no non-zero differences"
+      },
+      "hybrid_v3_titleboost vs bm25": {
+        "n": 81,
+        "n_nonzero_diff": 18,
+        "mean_rr_diff": -0.0842,
+        "statistic": 0.0,
+        "p_value": 0.00017470752825834431
+      },
+      "routed_oracle vs bm25": {
+        "n": 81,
+        "n_nonzero_diff": 18,
+        "mean_rr_diff": -0.0842,
+        "statistic": 0.0,
+        "p_value": 0.00017470752825834431
+      }
+    },
+    "single2": {
+      "baseline vs twostage": {
+        "n": 100,
+        "n_nonzero_diff": 72,
+        "mean_rr_diff": 0.33,
+        "statistic": 383.5,
+        "p_value": 1.4584998982539958e-07
+      },
+      "baseline vs hybrid_rrf": {
+        "n": 100,
+        "n_nonzero_diff": 43,
+        "mean_rr_diff": 0.0893,
+        "statistic": 235.0,
+        "p_value": 0.003994898742293587
+      },
+      "baseline vs hybrid_v3_titleboost": {
+        "n": 100,
+        "n_nonzero_diff": 45,
+        "mean_rr_diff": 0.0715,
+        "statistic": 304.0,
+        "p_value": 0.01578222788591097
+      },
+      "baseline vs routed_oracle": {
+        "n": 100,
+        "n_nonzero_diff": 45,
+        "mean_rr_diff": 0.0715,
+        "statistic": 304.0,
+        "p_value": 0.01578222788591097
+      },
+      "baseline vs bm25": {
+        "n": 100,
+        "n_nonzero_diff": 54,
+        "mean_rr_diff": 0.0974,
+        "statistic": 455.5,
+        "p_value": 0.013235333103538686
+      },
+      "twostage vs hybrid_rrf": {
+        "n": 100,
+        "n_nonzero_diff": 69,
+        "mean_rr_diff": -0.2407,
+        "statistic": 505.0,
+        "p_value": 2.393715128051656e-05
+      },
+      "twostage vs hybrid_v3_titleboost": {
+        "n": 100,
+        "n_nonzero_diff": 69,
+        "mean_rr_diff": -0.2585,
+        "statistic": 421.5,
+        "p_value": 2.33942541474977e-06
+      },
+      "twostage vs routed_oracle": {
+        "n": 100,
+        "n_nonzero_diff": 69,
+        "mean_rr_diff": -0.2585,
+        "statistic": 421.5,
+        "p_value": 2.33942541474977e-06
+      },
+      "twostage vs bm25": {
+        "n": 100,
+        "n_nonzero_diff": 59,
+        "mean_rr_diff": -0.2326,
+        "statistic": 169.5,
+        "p_value": 6.087189206483702e-08
+      },
+      "hybrid_rrf vs hybrid_v3_titleboost": {
+        "n": 100,
+        "n_nonzero_diff": 28,
+        "mean_rr_diff": -0.0178,
+        "statistic": 154.0,
+        "p_value": 0.2628461981347642
+      },
+      "hybrid_rrf vs routed_oracle": {
+        "n": 100,
+        "n_nonzero_diff": 28,
+        "mean_rr_diff": -0.0178,
+        "statistic": 154.0,
+        "p_value": 0.2628461981347642
+      },
+      "hybrid_rrf vs bm25": {
+        "n": 100,
+        "n_nonzero_diff": 55,
+        "mean_rr_diff": 0.008,
+        "statistic": 735.0,
+        "p_value": 0.7689047042694231
+      },
+      "hybrid_v3_titleboost vs routed_oracle": {
+        "n": 100,
+        "n_nonzero_diff": 0,
+        "mean_rr_diff": 0.0,
+        "statistic": null,
+        "p_value": null,
+        "note": "no non-zero differences"
+      },
+      "hybrid_v3_titleboost vs bm25": {
+        "n": 100,
+        "n_nonzero_diff": 52,
+        "mean_rr_diff": 0.0259,
+        "statistic": 586.0,
+        "p_value": 0.3475648868061829
+      },
+      "routed_oracle vs bm25": {
+        "n": 100,
+        "n_nonzero_diff": 52,
+        "mean_rr_diff": 0.0259,
+        "statistic": 586.0,
+        "p_value": 0.3475648868061829
+      }
+    },
+    "multihop": {
+      "baseline vs twostage": {
+        "n": 120,
+        "n_nonzero_diff": 54,
+        "mean_rr_diff": 0.2588,
+        "statistic": 124.0,
+        "p_value": 7.656746767127761e-08
+      },
+      "baseline vs hybrid_rrf": {
+        "n": 120,
+        "n_nonzero_diff": 14,
+        "mean_rr_diff": 0.0201,
+        "statistic": 30.5,
+        "p_value": 0.16304787461868464
+      },
+      "baseline vs hybrid_v3_titleboost": {
+        "n": 120,
+        "n_nonzero_diff": 14,
+        "mean_rr_diff": 0.0104,
+        "statistic": 42.5,
+        "p_value": 0.5208758726710963
+      },
+      "baseline vs routed_oracle": {
+        "n": 120,
+        "n_nonzero_diff": 0,
+        "mean_rr_diff": 0.0,
+        "statistic": null,
+        "p_value": null,
+        "note": "no non-zero differences"
+      },
+      "baseline vs bm25": {
+        "n": 120,
+        "n_nonzero_diff": 39,
+        "mean_rr_diff": 0.0992,
+        "statistic": 164.5,
+        "p_value": 0.0015772999664304171
+      },
+      "twostage vs hybrid_rrf": {
+        "n": 120,
+        "n_nonzero_diff": 56,
+        "mean_rr_diff": -0.2387,
+        "statistic": 208.5,
+        "p_value": 1.2565899607865514e-06
+      },
+      "twostage vs hybrid_v3_titleboost": {
+        "n": 120,
+        "n_nonzero_diff": 56,
+        "mean_rr_diff": -0.2484,
+        "statistic": 186.5,
+        "p_value": 4.87590064028009e-07
+      },
+      "twostage vs routed_oracle": {
+        "n": 120,
+        "n_nonzero_diff": 54,
+        "mean_rr_diff": -0.2588,
+        "statistic": 124.0,
+        "p_value": 7.656746767127761e-08
+      },
+      "twostage vs bm25": {
+        "n": 120,
+        "n_nonzero_diff": 53,
+        "mean_rr_diff": -0.1596,
+        "statistic": 257.5,
+        "p_value": 4.682982407814802e-05
+      },
+      "hybrid_rrf vs hybrid_v3_titleboost": {
+        "n": 120,
+        "n_nonzero_diff": 6,
+        "mean_rr_diff": -0.0097,
+        "statistic": 4.5,
+        "p_value": 0.20210204418937272
+      },
+      "hybrid_rrf vs routed_oracle": {
+        "n": 120,
+        "n_nonzero_diff": 14,
+        "mean_rr_diff": -0.0201,
+        "statistic": 30.5,
+        "p_value": 0.16304787461868464
+      },
+      "hybrid_rrf vs bm25": {
+        "n": 120,
+        "n_nonzero_diff": 44,
+        "mean_rr_diff": 0.0791,
+        "statistic": 280.0,
+        "p_value": 0.011735806415452939
+      },
+      "hybrid_v3_titleboost vs routed_oracle": {
+        "n": 120,
+        "n_nonzero_diff": 14,
+        "mean_rr_diff": -0.0104,
+        "statistic": 42.5,
+        "p_value": 0.5208758726710963
+      },
+      "hybrid_v3_titleboost vs bm25": {
+        "n": 120,
+        "n_nonzero_diff": 45,
+        "mean_rr_diff": 0.0888,
+        "statistic": 272.5,
+        "p_value": 0.00539722114642038
+      },
+      "routed_oracle vs bm25": {
+        "n": 120,
+        "n_nonzero_diff": 39,
+        "mean_rr_diff": 0.0992,
+        "statistic": 164.5,
+        "p_value": 0.0015772999664304171
+      }
+    }
+  }
+}

@@ -7,19 +7,28 @@
 
 | 文件 | 作用 |
 | --- | --- |
-| `main.tex` | 论文全文英文初稿（IEEEtran，检测数字全部来自 public-floatwaste-benchmark.md） |
-| `outline.md` | 骨架+口径红线（中文） |
-| `../PLAN.md` | 双轨总计划 |
+| `main.tex` | 论文全文英文**定稿级**（TikZ 双图、MCP 21工具真实清单表、QA引用层+部署现状小节、10条真实参考文献、4位小数与事实源逐字对齐） |
+| `main.pdf` | **本地编译：5页，0错误/0溢出/0警告**（MiKTeX 25.12 实测） |
+| `../verify_numbers.py` | 检测数字对账：论文中每个检测数字与 `public-floatwaste-benchmark.md` 逐字核对通过 |
+
+> 2026-10-26 极致化完成：补齐参考文献（YOLO-World CVPR'24、YOLO11、SC-FloatWaste Zenodo DOI、MCP、WasteShark/Clearbot、Gall&Thompson 2015 等10条，全部真实可查）；两张 TikZ 矢量图纯代码生成（Fig.1 三级闭环、Fig.2 决策管线含守卫拦截/审批/审计回放路径）；MCP 工具表按 `integrations/nexent/mcp_server/server.py` 源码逐条核实（知识7+证据链2+事件2+工单3+看板1+运行时6=21）；主结果表升为 table* 全宽。版心几何扫描通过。
 
 ## 编译
 
-Overleaf：IEEEtran 模板自带。上传 `main.tex`，pdfLaTeX 编译两遍。目标 6~8 页（当前初稿约 6 页文字+表，加参考文献约 7 页）。
+本机已装 MiKTeX：
+
+```bash
+cd papers/oceans2027
+pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
+```
+
+当前 4 页（IEEE 双栏很紧凑）；OCEANS 常规 6~8 页，后续加现场试验/更多讨论自然长到 5~6 页，无须注水。
 
 ## 提交前 checklist
 
-- [ ] **补参考文献**：main.tex 尾部 TODO 列了清单（监测网络、WasteShark/Clearbot、YOLO-World、YOLO11、MCP 规范、SC-FloatWaste 的 Zenodo DOI 10.5281/zenodo.21934286）
-- [ ] **补作者信息**：作者列表/单位/邮箱（OCEANS 单盲，实名）
-- [ ] 加图：Fig.1 三级闭环架构图、Fig.2 决策管线时序图（可从 `scripts/make_huawei_track3_polish_figures.py` 的示意图改英文版）
+- [x] ~~补参考文献~~（2026-10-26 已补齐 10 条）
+- [ ] **补作者信息**：合作者名单/邮箱（OCEANS 单盲实名；tex 内 \todo 标记处）
+- [x] ~~加图~~（TikZ Fig.1/Fig.2 已入 tex，矢量无需图片文件）
 - [ ] 数字复核：全部检测数字回 `docs/competitions/public-floatwaste-benchmark.md`（唯一事实源）
 - [ ] 口径红线自查（outline.md「写作红线」四条：不写国内首个/不写现场实测/本地测试集为空如实声明/76%时序指标不得混用）
 - [ ] OCEANS 门户注册（IEEE账户）+ 提交；格式按门户要求（IEEE PDF eXpress 合规）

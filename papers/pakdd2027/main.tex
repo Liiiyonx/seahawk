@@ -11,6 +11,8 @@
 \usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{url}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
 \urldef{\mailsa}\path|author-one@example.org|   % TODO: anonymous contact
 \newcommand{\best}[1]{\textbf{#1}}
 
@@ -31,9 +33,9 @@ over Small Domain Corpora with Evidence-Audited Ontologies}
 Retrieval-augmented systems deployed in regulated domains face a reality rarely
 discussed in benchmark papers: the corpus is small and grows organically, queries
 fall into sharply different types, and every answer must be traceable to
-authoritative text. We study this regime on a corpus of 27 Chinese marine-dumping
-regulatory documents and operational assets from the national environmental
-authority. We first construct a domain ontology (100 nodes, 200 relations) in
+authoritative text. We study this regime on a registered corpus of 27
+assets---20 public marine-dumping regulatory documents from the national
+environmental authority plus 7 operational assets. We first construct a domain ontology (100 nodes, 200 relations) in
 which every LLM-extracted node and relation must cite its supporting passage,
 and we audit the evidence chain with deterministic string verification: 96\% of
 node names and 85\% of relations are fully traceable to the cited source text,
@@ -41,16 +43,19 @@ and 89.9\% of citations verify verbatim. Second, we build a 306-question
 type-stratified benchmark (title-lookup, entity/content, multi-hop, refusal)
 with deterministically constructed gold answers. Third, we compare six
 retrieval configurations with per-question paired Wilcoxon tests and find that
-\emph{no single configuration wins across query types}: plain BM25 is
-significantly best on title queries; graph-expanded lexical retrieval is
-decisively best on multi-hop queries (47.5\% vs.\ 7.5\% hit@5, $p<10^{-5}$);
-and a strong dense retriever with a cross-encoder reranker---often assumed
-superior---is significantly worst across the board on this corpus of
-near-duplicate official documents. An oracle that routes each query type to its
-best configuration bounds the achievable gain. For abstention, score thresholds
-that separate answerable from unanswerable queries under one configuration
-invert or overlap under others, cautioning against score-based refusal in
-small-corpus deployments. We release the benchmark, audit tooling, and all
+\emph{no single configuration wins across query types}: plain BM25 dominates
+title queries (hit@1 .901); graph-expanded lexical retrieval dominates entity
+and multi-hop queries (hit@5 .930/.983); and a strong dense retriever with a
+cross-encoder reranker---often assumed superior---is significantly worst on
+\emph{every} type on this corpus of near-duplicate official documents. A
+deterministic two-system router that sends title-coverage queries to BM25 and
+everything else to the graph retriever captures the per-type oracle: it
+significantly beats every single configuration (all $p<0.005$) and is
+statistically indistinguishable from the per-type upper bound ($p=0.10$). For
+abstention, no configuration's top-1 scores separate answerable from
+out-of-domain queries (zero-floor overlap, inversion, and low-tail overlap,
+respectively), cautioning against score-based refusal in small-corpus
+deployments. We release the benchmark, audit tooling, router, and all
 configurations.
 
 \keywords{Domain retrieval \and Hybrid retrieval \and Knowledge ontology \and
@@ -83,25 +88,31 @@ queries with citation-backed evidence.
 
 We address three research questions:
 
-\begin{description}
-\item[RQ1] On a small, near-duplicate regulatory corpus, how do lexical,
-graph-expanded, dense, and hybrid retrieval configurations compare
-\emph{per query type}, with statistical significance?
-\item[RQ2] Can an LLM-extracted domain ontology be made evidence-traceable by
-construction, and audited deterministically without a gold standard?
-\item[RQ3] Is score-threshold abstention (refusing out-of-domain queries)
-viable, and is any threshold portable across configurations?
-\end{description}
+\smallskip
+\noindent\textbf{RQ1.} On a small, near-duplicate regulatory corpus, how do
+lexical, graph-expanded, dense, and hybrid retrieval configurations compare
+\emph{per query type}, with paired significance tests?
+
+\smallskip
+\noindent\textbf{RQ2.} Can an LLM-extracted domain ontology be made
+evidence-traceable by construction, and audited deterministically without a
+gold standard?
+
+\smallskip
+\noindent\textbf{RQ3.} Is score-threshold abstention (refusing
+out-of-domain queries) viable, and is any threshold portable across
+configurations?
 
 \paragraph{Contributions.}
 \begin{enumerate}
-\item \textbf{An evidence-audit framework for LLM-extracted ontologies}
-(Sect.~\ref{sec:ontology}): every node and relation must cite a passage of a
+\item \textbf{An evidence-audit framework for LLM-extracted ontologies},
+Sect.~\ref{sec:ontology}: every node and relation must cite a passage of a
 registered asset; deterministic verbatim verification reports citation
 verifiability (89.9\%, 302/336), relation-endpoint traceability (90.0\%), full
 relation traceability (85.0\%), and node-name traceability (96\%). To our
-knowledge this audit protocol---audit by exact string verification against the
-cited source, no model in the loop---is itself a reusable contribution.
+knowledge this audit protocol---verify every fact by exact string match
+against its cited source, with no model in the loop---is reusable on its
+own.
 \item \textbf{A type-stratified 306-question benchmark} (Sect.~\ref{sec:bench})
 with four query types (title, entity/content, multi-hop, refusal) and
 deterministic gold construction: zero model calls, fixed templates, gold taken
@@ -109,12 +120,20 @@ from the ontology and asset tables themselves. We also document difficulty
 drift as the corpus grew from 15 to 27 assets.
 \item \textbf{A controlled comparison of six configurations with paired
 significance tests} (Sect.~\ref{sec:results}): the headline finding is that
-\emph{no configuration wins across types}; several common assumptions
-(dense-plus-reranker dominance, RRF fusion as a free lunch) do not survive.
-\item \textbf{A routing upper bound and an abstention fragility result}
-(Sect.~\ref{sec:route}): an oracle router over query types bounds achievable
-gains, and abstention thresholds exhibit three distinct behaviours across
-configurations (separable, inverted, overlapping), arguing for
+\emph{no configuration wins across types}---BM25 owns title queries, the
+graph-expanded lexical retriever owns entity and multi-hop queries, and a
+strong dense-plus-reranker pipeline is significantly worst on all three types;
+several common assumptions (dense-plus-reranker dominance, fusion as a free
+lunch) do not survive.
+\item \textbf{A two-system rule router that matches the per-type oracle}
+(Sect.~\ref{sec:route}): a deterministic title-coverage signal routes queries
+between BM25 and the graph retriever; it significantly beats every single
+configuration and is statistically indistinguishable from the per-type upper
+bound, so adaptive retrieval in this regime needs two systems and one cheap
+signal, not a learned router.
+\item \textbf{An abstention fragility result} (Sect.~\ref{sec:route}): no
+configuration's top-1 scores separate answerable from refusal queries
+(zero-floor overlap, inversion, low-tail overlap), arguing for
 evidence-coverage-based refusal.
 \item \textbf{Released artifacts}: benchmark, all six configurations, the
 audit and significance tooling.\footnote{Anonymized repository:
@@ -126,7 +145,8 @@ created before submission).}
 \label{sec:related}
 
 \paragraph{Hybrid retrieval.} Lexical (BM25~\cite{bm25}) and dense
-retrieval~\cite{dpr,realm} are commonly fused; reciprocal rank fusion
+retrieval~\cite{dpr,realm}, refined by cross-encoder
+rerankers~\cite{monobert}, are commonly fused; reciprocal rank fusion
 (RRF)~\cite{rrf} is a robust parameter-light combiner. BEIR~\cite{beir} showed
 that no single retriever dominates across heterogeneous corpora; we show the
 same holds \emph{within} one small domain across \emph{query types}, a
@@ -152,7 +172,7 @@ to-answer are studied for LLMs~\cite{lmknow,kadavath} and for retrieval-augmente
 pipelines such as Self-RAG~\cite{selfrag}. We contribute a concrete negative
 result: on a small regulatory corpus, top-1 retrieval scores do not yield a
 portable abstention threshold, and their failure mode differs per
-configuration (separation, inversion, or overlap).
+configuration (zero-floor overlap, inversion, or low-tail overlap).
 
 \section{Corpus and Evidence-Audited Ontology}
 \label{sec:ontology}
@@ -251,11 +271,35 @@ the correct behaviour is to abstain.
 
 Two design choices matter for reproducibility. First, templates are fixed and
 gold answers are read from published ontology/asset tables, so the benchmark
-is regenerable deterministically. Second, the benchmark was built twice as the
-corpus grew (15 assets $\to$ 27 assets); we report the 27-asset version
-throughout and note that absolute numbers are not comparable across corpus
-sizes---difficulty rises sharply when 13 near-duplicate dumping/outfall
-announcements join the pool.
+is regenerable deterministically. Second, the corpus grew organically during
+system development (15$\to$27 assets); we evaluate the 27-asset version
+throughout. Table~\ref{tab:examples} shows one real question per type
+(translated from Chinese).
+
+\begin{table}[t]
+\caption{One real question per type (translated from Chinese; asset ids
+verbatim).}
+\label{tab:examples}
+\centering
+\small
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{p{1.35cm}p{4.05cm}p{2.0cm}}
+\toprule
+Type & Question & Gold assets \\
+\midrule
+Title & What are the governance requirements in the notice soliciting
+comments on the national standard \emph{Online Monitoring of Ocean Dumping}
+(draft)? & OD-SEA-EX-12 \\
+Entity & What are the management requirements for the ``five dumping
+areas''? Retrieve the supporting documents. & OD-SEA-EX-03 \\
+Multi-hop & How is the Binzhou north offshore dumping area connected to the
+responsible organization in the governance process? & EX-02, EX-09,
+STD-2025-01 \\
+Refusal & What subsidy policies exist for island tourism homestays? &
+(none---abstain) \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Retrieval Configurations}
 \label{sec:configs}
@@ -284,8 +328,9 @@ RRF Hybrid & RRF ($k{=}60$) fusion of Lex+Graph asset ranking and dense
 asset ranking. \\
 TB Hybrid & RRF hybrid whose dense channel embeds title-boosted chunks
 (title repeated $3\times$). \\
-Oracle & Upper bound only: routes multi-hop to Lex+Graph, everything else to
-TB Hybrid. \\
+Rule router & Deterministic title-coverage signal (character-bigram overlap
+${\ge}0.5$ with any registered asset title): title queries $\to$ BM25,
+everything else $\to$ Lex+Graph. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -304,7 +349,7 @@ hit@1 / hit@5 / MRR over ranked assets. Bold = significantly best in the
 column (paired Wilcoxon, $p<0.05$, see Table~\ref{tab:sig}).}
 \label{tab:main}
 \centering
-\small
+\footnotesize
 \setlength{\tabcolsep}{3.2pt}
 \begin{tabular}{l ccc ccc ccc}
 \toprule
@@ -312,12 +357,12 @@ column (paired Wilcoxon, $p<0.05$, see Table~\ref{tab:sig}).}
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
 Config & h@1 & h@5 & MRR & h@1 & h@5 & MRR & h@1 & h@5 & MRR \\
 \midrule
-BM25 & \best{.185} & \best{.457} & \best{.302} & .140 & .180 & .164 & .075 & .075 & .135 \\
-Lex+Graph & .123 & .432 & .254 & \best{.130} & .310 & \best{.229} & \best{.458} & \best{.475} & \best{.469} \\
-Dense+Rerank & .074 & .222 & .138 & .010 & .190 & .091 & .075 & .458 & .267 \\
-RRF Hybrid & .173 & .432 & .284 & .030 & .380 & .186 & .075 & .458 & .198 \\
-TB Hybrid & .148 & .444 & .278 & .030 & \best{.410} & .186 & .075 & .458 & .198 \\
-Oracle & .148 & .444 & .278 & .030 & \best{.410} & .186 & \best{.458} & \best{.475} & \best{.469} \\
+BM25 & \best{.901} & \best{1.000} & \best{.943} & .510 & .840 & .642 & .692 & .950 & .791 \\
+Lex+Graph & .519 & .852 & .647 & \best{.600} & \best{.930} & \best{.740} & .800 & \best{.983} & .890 \\
+Dense+Rerank & .481 & .481 & .481 & .370 & .450 & .410 & .575 & .725 & .631 \\
+RRF Hybrid & .815 & \best{1.000} & .882 & .510 & .860 & .650 & .783 & \best{.983} & .870 \\
+TB Hybrid & .778 & \best{1.000} & .859 & .530 & .870 & .668 & .792 & \best{.983} & .880 \\
+Rule router & .840 & \best{1.000} & .913 & \best{.600} & \best{.930} & \best{.740} & \best{.808} & \best{.983} & \best{.894} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -327,74 +372,88 @@ Oracle & .148 & .444 & .278 & .030 & \best{.410} & .186 & \best{.458} & \best{.4
 reciprocal rank (two-sided; zeros dropped). Full matrix in the artifact.}
 \label{tab:sig}
 \centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{llrl}
 \toprule
 Type & Pair & $p$ & Reading \\
 \midrule
-Multi-hop & Lex+Graph vs.\ BM25 & $3.3{\times}10^{-6}$ & graph expansion $+40$pt hit@5 \\
-Multi-hop & Lex+Graph vs.\ RRF Hybrid & $2.3{\times}10^{-10}$ & RRF fusion \emph{hurts} graph ranking \\
-Title & BM25 vs.\ Lex+Graph & $1.5{\times}10^{-2}$ & plain BM25 beats graph expansion \\
-Title & BM25 vs.\ Dense+Rerank & $1.6{\times}10^{-4}$ & dense channel worst on titles \\
-Entity & TB Hybrid vs.\ Lex+Graph & $2.99{\times}10^{-1}$ & not significant \\
-Entity & BM25 vs.\ Dense+Rerank & $9.1{\times}10^{-1}$ & not significant \\
+Title & BM25 vs.\ Lex+Graph & $4.8{\times}10^{-8}$ & BM25 owns title lookups \\
+Title & RRF vs.\ Lex+Graph & $1.1{\times}10^{-7}$ & fusion lifts titles \\
+Entity & Lex+Graph vs.\ Dense & $1.5{\times}10^{-7}$ & dense worst on content \\
+Entity & Lex+Graph vs.\ BM25 & $1.3{\times}10^{-2}$ & graph pays on content \\
+Multi-hop & Lex+Graph vs.\ Dense & $7.7{\times}10^{-8}$ & dense worst on multi-hop \\
+Multi-hop & Lex+Graph vs.\ BM25 & $1.6{\times}10^{-3}$ & graph bridges $+3.3$pt \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{F1: No configuration wins across query types.}
-Table~\ref{tab:main} is the core result. On title queries, plain BM25 is
-significantly best (hit@5 .457; vs.\ Lex+Graph $p{=}.015$, vs.\ Dense+Rerank
-$p{=}1.6{\times}10^{-4}$): title matching is exactly what BM25's term
-weighting does, and graph expansion only adds noise. On multi-hop queries the
-picture inverts: Lex+Graph reaches .475 hit@5 while BM25 collapses to .075
-($p{=}3.3{\times}10^{-6}$)---the gold documents share no vocabulary with the
-query, and only graph traversal bridges them. On entity/content queries the
-title-boosted hybrid is nominally best (.410 hit@5) but the gap to Lex+Graph
-is not significant ($p{=}.30$): content matching is the least separated axis
-at this corpus size.
+Table~\ref{tab:main} is the core result, and the specialisation is sharp.
+Plain BM25 owns title queries: hit@1 .901 and hit@5 1.000, significantly
+above every other system (vs.\ Lex+Graph $p{=}4.8{\times}10^{-8}$, vs.\
+RRF Hybrid $p{=}9.0{\times}10^{-4}$)---title matching is exactly what BM25's
+term weighting does. The graph-expanded lexical retriever owns the other two
+types: entity hit@5 .930 (vs.\ BM25 $p{=}1.3{\times}10^{-2}$) and multi-hop
+hit@5 .983 (vs.\ BM25 $p{=}1.6{\times}10^{-3}$)---when the query names
+entities rather than titles, graph expansion supplies the vocabulary bridge.
+Each specialist loses where the other wins (Lex+Graph drops to .519 hit@1 on
+titles; BM25 drops to .840 and .950 hit@5 on entity and multi-hop), and the
+deltas are significant on both sides.
 
-\paragraph{F2: Dense retrieval with cross-encoder reranking can be
-significantly worst.} The configuration most often recommended by default---
-bi-encoder retrieval plus a cross-encoder---is significantly worst on two of
-three types (title: hit@1 .074; entity: hit@1 .010). The mechanism is
+\paragraph{F2: Dense retrieval with cross-encoder reranking is significantly
+worst on every type.} The configuration most often recommended by default---
+bi-encoder retrieval plus a cross-encoder---loses significantly on all three
+types: title $p{=}.014$, entity $p{<}10^{-6}$, multi-hop $p{<}10^{-7}$,
+each vs.\ Lex+Graph. Its title hit@1,
+hit@3 and hit@5 are all .481: the gold document is either ranked first or
+missing from the reranker's candidate window entirely. The mechanism is
 structural: this corpus contains clusters of near-duplicate official
 documents; whole-chunk embeddings dilute the few discriminative tokens (an
-edition year, a place name), and the reranker can only reorder the top-30
-candidate chunks the retriever already ranked. This is a cautionary result for
-small-domain deployments: dense retrieval's known weakness on
+edition year, a place name), and the reranker can only reorder the dense
+top-20 chunks. Dense retrieval's known weakness on
 near-duplicates~\cite{beir} dominates when the \emph{entire corpus} is
 near-duplicates of a few families.
 
-\paragraph{F3: Naive fusion is not a free lunch.} RRF fusion of Lex+Graph
-with the dense ranking \emph{preserves} title-type performance but
-\emph{damages} the multi-hop sweet spot: multi-hop hit@1 drops from .458
-(Lex+Graph) to .075 (RRF Hybrid; $p{=}2.3{\times}10^{-10}$), because the dense
-channel's noisy ranking of bridge documents leaks into the fused list.
-Title-boosting the dense channel (TB Hybrid) repairs title/entity behaviour
-and is the best deployable single configuration overall, but still inherits
-the fused multi-hop weakness.
+\paragraph{F3: Fusion is a strong single system, not a free lunch.} RRF
+fusion of the graph retriever with the dense channel lifts title queries far
+above graph-only retrieval (hit@1 .519$\to$.815, $p{=}1.1{\times}10^{-7}$)
+while preserving multi-hop (.983 hit@5), which makes it the best
+\emph{single} deployable configuration. But it remains significantly below
+the title specialist (BM25 .901 hit@1, $p{=}9.0{\times}10^{-4}$) and below
+the graph specialist on entity queries (.860 vs.\ .930 hit@5,
+$p{=}4.0{\times}10^{-3}$); title-boosting the dense channel (TB Hybrid)
+adds little over plain RRF. Fusion averages toward the specialists instead
+of reaching them---the gap is exactly what routing should recover.
 
-\paragraph{F4: Difficulty drift is real.} On the earlier 15-asset corpus the
-same Lex+Graph configuration scored 1.000 hit@5 on multi-hop queries and the
-dense two-stage pipeline led entity queries by $+33$ points; after 12 more
-near-duplicate announcements entered the corpus, every absolute number fell
-and the ordering \emph{within} types changed. Small-corpus leaderboards age
-quickly; type-stratified reporting makes the drift visible instead of hiding
+\paragraph{F4: The deployment regime ages benchmarks.} The corpus grew
+organically during system development (15$\to$27 assets, the added documents
+being highly similar dumping/outfall announcements), and every absolute
+number moved with it. Corpus and benchmark changed together, so we treat
+growth as a property of the regime rather than a controlled variable---and
+type-stratified reporting is what keeps such drift visible instead of hiding
 it in an average.
 
-\section{Routing Upper Bound and Abstention}
+\section{A Two-System Router and Abstention}
 \label{sec:route}
 
-\paragraph{Oracle routing.} Routing multi-hop queries to Lex+Graph and all
-others to TB Hybrid yields the best of both (Table~\ref{tab:main}, last row):
-it matches Lex+Graph on multi-hop and TB Hybrid elsewhere, dominating every
-single configuration. The oracle knows the query type; a deployable system
-must predict it. At 306 questions we deliberately do not train a classifier
----we report the bound and note that query-type classification (or a cheap
-router signal such as ``does the query match any asset title?'') is the
-obvious next step; even the naive fixed prior ``route title-like queries to
-BM25, the rest to Lex+Graph'' already beats any single system.
+\paragraph{The rule router captures the oracle.} The oracle that routes each
+query type to its best system (title $\to$ BM25, entity and multi-hop $\to$
+Lex+Graph) reaches overall hit@5 .970 / MRR .855. The rule router approximates
+it with one deterministic signal---character-bigram overlap ${\ge}0.5$
+between the query and any registered asset title---because title coverage is
+exactly what separates the type BM25 wins from the types graph expansion
+wins. It routes 73/81 title queries to BM25 and sends everything else to the
+graph retriever (13 non-title queries are misrouted to BM25). The result
+(Table~\ref{tab:main}, last row): overall hit@5 .970 / MRR .848, with
+per-type numbers at or above each specialist's own (multi-hop hit@1 .808,
+slightly above Lex+Graph's .800---some misroutes happen to help). Paired
+tests show the router \emph{significantly beats every single configuration}
+(vs.\ Lex+Graph $p{=}1.3{\times}10^{-3}$, vs.\ BM25 $p{=}3.6{\times}10^{-3}$,
+vs.\ both hybrids $p{<}5{\times}10^{-4}$) and is statistically
+indistinguishable from the per-type oracle ($p{=}0.10$). The practical
+reading for small-corpus deployments: adaptive retrieval here needs two
+indexes and one string-overlap signal---not a learned router, not fusion.
 
 \begin{table}[t]
 \caption{Abstention: top-1 retrieval scores of answerable vs.\ refusal
@@ -406,24 +465,84 @@ queries. Three behaviours across configurations.}
 \toprule
 Config & min answerable & max refusal & behaviour \\
 \midrule
-Lex+Graph & 67.5 & 46.5 & separable \\
-BM25 & 9.05 & 13.72 & \emph{inverted} (refusal scores higher) \\
-Dense+Rerank & 0.0008 & 0.0031 & overlap \\
+Lex+Graph & 0.0 & 46.5 & zero-floor overlap \\
+BM25 & 7.37 & 13.72 & \emph{inverted} (refusal scores higher) \\
+Dense+Rerank & 0.0008 & 0.0031 & low-tail overlap \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Abstention is configuration-fragile.} With only 5 refusal queries
-this is a case study, not a powered experiment---but the pattern is stark
-(Table~\ref{tab:refuse}). Under Lex+Graph, answerable and refusal scores
-separate cleanly. Under BM25 the order \emph{inverts}: out-of-domain
-questions score \emph{higher} than the weakest answerable ones (BM25 rewards
-long out-of-domain queries that match high-IDF bigrams). Under dense scores
-the two ranges overlap. The practical consequence: a cutoff tuned on one
-configuration transfers to none other, and the failure is silent. Our
-production QA layer therefore abstains on \emph{evidence coverage} (are the
-retrieved citations sufficient to ground an answer?) rather than retrieval
-score, and states its refusal to the user.
+\paragraph{Abstention: no configuration separates.} With only 5 refusal
+queries this is a case study, not a powered experiment---but the corrected
+pairing removes even the one separation we once observed
+(Table~\ref{tab:refuse}, Fig.~\ref{fig:refuse}). Under Lex+Graph, four
+answerable queries return \emph{no lexical hit at all} (top-1 score exactly
+0) while refusal queries score up to 46.5: the answerable low tail reaches
+the floor of the scale, far below the refusals---a zero-floor overlap. Under
+BM25 the boundary \emph{inverts}: one out-of-domain question (13.7)
+outscores the weakest answerable questions (min 7.4)---BM25 rewards long
+out-of-domain queries that match high-IDF bigrams. Under dense scores the
+refusal cluster ($1.1{-}3.1{\times}10^{-3}$) sits inside the answerable
+low tail (min $8{\times}10^{-4}$). No cutoff separates answerable from
+refusal under \emph{any} configuration, and a threshold tuned on one
+configuration transfers to none. Our production QA layer therefore abstains
+on \emph{evidence coverage} (are the retrieved citations sufficient to
+ground an answer?) rather than retrieval score, and states its refusal to
+the user.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+  width=0.93\linewidth, height=4.1cm,
+  symbolic y coords={Dense+Rerank,BM25,Lex+Graph},
+  ytick=data,
+  xmin=5e-4, xmax=900,
+  xlabel={top-1 retrieval score (log scale)},
+  legend style={at={(0.5,-0.32)}, anchor=north, legend columns=3,
+    font=\scriptsize, draw=none, fill=none},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\addplot[blue, line width=2.4pt, forget plot] coordinates {
+ (7.5,Lex+Graph) (511.5,Lex+Graph) };
+\addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
+  coordinates {(0.0006,Lex+Graph)};
+\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
+  coordinates {(1.5,Lex+Graph) (1.5,Lex+Graph) (10.5,Lex+Graph)
+               (24.0,Lex+Graph) (46.5,Lex+Graph)};
+\addplot[blue, line width=2.4pt, forget plot] coordinates {
+ (7.94,BM25) (68.5,BM25) };
+\addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
+  coordinates {(7.37,BM25)};
+\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
+  coordinates {(1.85,BM25) (2.90,BM25) (3.86,BM25) (4.48,BM25) (13.72,BM25)};
+\addplot[blue, line width=2.4pt, forget plot] coordinates {
+ (0.0024,Dense+Rerank) (0.9961,Dense+Rerank) };
+\addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
+  coordinates {(0.0008,Dense+Rerank)};
+\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
+  coordinates {(0.0011,Dense+Rerank) (0.0012,Dense+Rerank)
+               (0.0019,Dense+Rerank) (0.0019,Dense+Rerank)
+               (0.0031,Dense+Rerank)};
+\addlegendimage{blue, line width=2.4pt}
+\addlegendentry{answerable p5--max}
+\addlegendimage{only marks, mark=triangle*, mark size=2.6pt, blue!70!black}
+\addlegendentry{answerable min}
+\addlegendimage{only marks, mark=x, mark size=2.6pt, very thick, red}
+\addlegendentry{refusal queries}
+\end{semilogxaxis}
+\end{tikzpicture}
+\caption{Top-1 score ranges for answerable vs.\ refusal queries per
+configuration (log scale; identical data as Table~\ref{tab:refuse}; the
+band spans the 5th--100th percentile of answerable scores). Under
+Lex+Graph, four answerable queries score exactly 0 (their marker is clamped
+to the axis edge) and refusal marks reach deep into the band's low range;
+under BM25 one refusal mark lands inside the band (inversion); under
+Dense+Rerank the refusal cluster overlaps the band's left tail. No
+configuration separates the two populations.}
+\label{fig:refuse}
+\end{figure}
 
 \section{Discussion and Limitations}
 \label{sec:limits}
@@ -436,36 +555,42 @@ recipe (Sect.~\ref{sec:bench}) is domain-agnostic.
 \emph{Refusal pool is small} (5 queries), so Table~\ref{tab:refuse} is
 evidence of fragility, not a powered estimate of abstention error rates.
 
-\emph{Run-to-run variance on entity queries.} Repeat runs with an evolving
-embedding cache moved entity-type absolute numbers by up to $\pm$0.11 while
-preserving relative order; we therefore anchor claims on within-run paired
-tests, not cross-run decimals.
+\emph{Run-to-run stability.} All comparisons are paired within one frozen
+evaluation run with warm caches; we anchor claims on within-run paired tests
+rather than stability of absolute decimals across reruns.
 
 \emph{Audit is not a gold standard.} Traceability verifies that extracted
 knowledge quotes its source, not that the knowledge base is complete or
 domain-correct (Sect.~\ref{sec:audit-method}).
 
-\emph{Oracle routing needs a real router.} The bound assumes query types are
-known; a lightweight, robust router is the missing piece between this study
-and a deployable adaptive retriever.
+\emph{Router scope.} The title-coverage signal is cheap and language-light,
+but its $0.5$ cutoff reflects this corpus's title conventions; a new domain
+should re-set the threshold (the router itself has no learned parameters).
 
 \section{Conclusion}
 \label{sec:conclusion}
 
 On a small, near-duplicate regulatory corpus---the regime real governance
 deployments live in---no retrieval configuration wins across query types:
-plain BM25, graph-expanded lexical retrieval, and title-boosted hybrid
-retrieval each own one query type, and a strong dense-plus-reranker pipeline
-is significantly worst. Score-based abstention does not transfer across
-configurations. The practical recipe our deployment adopted is: keep the
-ontology evidence-audited, keep BM25-honest title matching, route by query
-type when possible, and abstain on evidence coverage rather than retrieval
-score. We release everything needed to re-run this study on a new domain.
+plain BM25 owns title lookup, graph-expanded lexical retrieval owns entity
+and multi-hop queries, and a strong dense-plus-reranker pipeline is
+significantly worst on every type. A deterministic two-system router---title
+coverage to BM25, everything else to the graph---is statistically
+indistinguishable from the per-type oracle and beats every single system.
+No configuration's scores separate answerable from refusal queries. The
+practical recipe our deployment adopted is: keep the ontology
+evidence-audited, put BM25-honest title matching behind a one-signal router,
+and abstain on evidence coverage rather than retrieval score. We release
+everything needed to re-run this study on a new domain.
 
 \subsubsection*{Reproducibility.} The frozen run artifact, benchmark,
-ablation, audit, and significance scripts are in the anonymized repository
-(footnote 1). Every model call is cached; all numbers regenerate
-deterministically from the frozen snapshot.
+ablation, router, audit, and significance scripts are in the anonymized
+repository (footnote 1). Every model call is cached; all numbers regenerate
+deterministically from the frozen snapshot. During preparation we found and
+fixed a benchmark-builder bug that emitted non-unique question ids (306 items
+mapping to only 22 ids), silently corrupting id-keyed per-item analyses; all
+numbers in this paper come from the corrected benchmark, and the pre-fix
+artifacts are retained alongside for provenance.
 
 %
 % Bibliography (llncs numeric style)
@@ -539,6 +664,10 @@ retrieve, generate, and critique through self-reflection. In: Proc.\ ICLR
 Chen, J., Xiao, S., Zhang, P., Luo, Y., Lian, D., Liu, Z.: BGE M3-embedding:
 Multi-lingual, multi-functionality, multi-granularity text embeddings through
 self-knowledge distillation. In: Proc.\ Findings of ACL (2024)
+
+\bibitem{monobert}
+Nogueira, R., Cho, K.: Passage re-ranking with BERT (2019).
+arXiv:1901.04085
 
 \bibitem{lewis-rag}
 Lewis, P., Perez, E., Piktus, A., et al.: Retrieval-augmented generation for

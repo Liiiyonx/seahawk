@@ -11,8 +11,11 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{url}
 
-% TODO before submission: fill in the full author list and affiliation.
+% TODO before submission: complete co-author list, emails, and any funding note.
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
 \begin{document}
@@ -20,9 +23,10 @@
 \title{Oceanus: An Auditable LLM Governance Agent for Marine Debris
 Response in Aquaculture Zones}
 
-\author{\IEEEauthorblockN{Yongxiang Li\todo{complete author list}}
-\IEEEauthorblockA{\todo{affiliation}\\
-\todo{email}}}
+\author{\IEEEauthorblockN{Yongxiang Li\todo{complete co-author list}}
+\IEEEauthorblockA{\todo{school/department}, Fuzhou Institute of Technology,
+Fuzhou, China\\
+\todo{email addresses}}}
 
 \maketitle
 
@@ -108,14 +112,31 @@ same evidence-backed capabilities.
 \end{enumerate}
 
 \section{Related Work}
-\textbf{Monitoring and cleanup.} County-level video monitoring networks for
-floating debris have operated since 2020; commercial cleanup platforms
-(WasteShark, Clearbot) are single-machine products with onboard collection.
-Both strands treat decision-making as a human task. Oceanus keeps both ends
-replaceable---cameras and robots are endpoints---and concentrates the
-contribution in the decision layer. Compared on price and capability
+\textbf{Marine debris and monitoring.} Debris harms marine life across
+taxa~\cite{gall2015}, and coastal governments have deployed video
+monitoring and cleanup programmes for years; public tenders and municipal
+systems at city scale have existed in China since 2020. Commercial cleanup
+platforms---WasteShark~\cite{wasteshark}, Clearbot~\cite{clearbot}---are
+single-machine products with onboard collection. Both strands treat
+decision-making as a human task. Oceanus keeps both ends replaceable---
+cameras and robots are endpoints---and concentrates the contribution in
+the decision layer. Compared on price and capability
 (Table~\ref{tab:compare}), single-machine products leave the governance
 workflow unbuilt.
+
+\textbf{LLM agents, tool use, and auditability.} LLM-based autonomous
+agents~\cite{agentsurvey} couple planners to tool APIs; retrieval-augmented
+generation~\cite{lewis} grounds answers in retrieved text. Our concern is
+not planner design but the guardrails around it: deterministic policy
+checks before execution, human approval for out-of-policy actions---
+a human-in-the-loop pattern with long precedent in interactive machine
+learning~\cite{hitl}---and replayable traces that bind each step to
+versioned knowledge. \textbf{Open-vocabulary detection.} YOLO-World
+\cite{yoloworld} detects arbitrary text prompts zero-shot; supervised
+detectors such as YOLO11~\cite{yolo11} lead in accuracy when training data
+exists. We use the former as an operational capability (inspectors name a
+new debris class on site) and measure its real accuracy profile on a
+public benchmark~\cite{scfloatwaste} rather than assuming it.
 
 \begin{table}[t]
 \caption{Qualitative comparison with cleanup platforms. WasteShark list
@@ -164,10 +185,68 @@ platform still completes event understanding, planning, guard checks,
 approval, dispatch, audit, and replay---the configuration under which the
 system currently runs.
 
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  font=\scriptsize,
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+    minimum width=3.4cm, minimum height=0.78cm},
+  arr/.style={-{Stealth[length=2.2mm]}, thick},
+]
+\node[box] (edge) {Perception\\shore cameras + edge box\\3 interchangeable channels};
+\node[box, right=0.8cm of edge] (agent) {Governance agent\\plan $\to$ policy guard\\$\to$ approval $\to$ dispatch};
+\node[box, right=0.8cm of agent] (robot) {Execution\\MQTT surface robot\\three-bin sorting};
+\node[box, below=0.55cm of agent] (kb) {Knowledge layer\\versioned assets, audited\\ontology, evidence chains};
+\node[box, below=0.55cm of robot] (ops) {Operations data\\heat maps, work orders,\\reports, replay};
+\draw[arr] (edge) -- (agent);
+\draw[arr] (agent) -- (robot) node[midway, above, font=\tiny]{work order};
+\draw[arr] (robot) -- (ops);
+\draw[arr] (ops.west) -| ([xshift=-0.35cm]kb.south) -- (kb.south);
+\draw[arr] (kb) -- (agent);
+\end{tikzpicture}
+\caption{Three-tier governance loop. The knowledge layer binds every agent
+decision to versioned evidence; operations data flows back into knowledge
+and reporting.}
+\label{fig:arch}
+\end{figure*}
+
 \section{The Auditable Decision Pipeline}
 \label{sec:pipeline}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\scriptsize,
+  node distance=0.42cm and 0.42cm,
+  st/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+    minimum height=0.62cm},
+  gate/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+    minimum height=0.62cm, fill=black!6},
+  arr/.style={-{Stealth[length=2.2mm]}, thick},
+  rej/.style={-{Stealth[length=2.2mm]}, thick, dashed},
+]
+\node[st] (plan) {1 Plan};
+\node[gate, below=of plan] (guard) {2 Policy guard};
+\node[st, below=of guard] (dispatch) {4 Dispatch};
+\node[st, below=of dispatch] (exec) {5 Execute};
+\node[st, left=0.28cm of guard] (approve) {3 Human\\approval};
+\node[st, right=0.28cm of guard] (audit) {Audit log\\(versions)};
+\draw[arr] (plan) -- (guard);
+\draw[arr] (guard) -- node[left, font=\tiny]{in-policy} (dispatch);
+\draw[rej] (guard.west) -| node[above, pos=0.28, font=\tiny]{blocked} (approve.north);
+\draw[arr] (approve.south) |- (dispatch.west);
+\draw[arr] (dispatch) -- (exec);
+\draw[arr] (guard.east) -- node[above, font=\tiny]{trace} (audit.west);
+\draw[arr, dotted] (exec.east) -- ++(0.55,0) |- node[right, pos=0.75, font=\tiny]{replay} (audit.south);
+\end{tikzpicture}
+\caption{The accountability envelope around every response action. The
+policy guard blocks out-of-policy plans before execution; blocked or
+high-impact actions require human approval; every step is logged with
+knowledge-asset, ontology, and policy versions for later replay.}
+\label{fig:pipeline}
+\end{figure}
 The agent runtime executes a fixed accountability envelope around every
-response action:
+response action (Fig.~\ref{fig:pipeline}):
 
 \begin{enumerate}
 \item \textbf{Planning.} Given an event (detection cluster, location,
@@ -208,6 +287,26 @@ channels are compared side by side in the product UI under a
 \texttt{/vision-compare} view so their operating regimes are visible rather
 than claimed.
 
+\begin{table*}[t]
+\caption{Main results on the untouched test split (400 images, 1,490 boxes,
+3 regions, single class ``litter''). AP computed with all-point
+interpolation at model-side confidence floor 0.001 (not the operating
+threshold).}
+\label{tab:main}
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Channel & mAP@0.5 & mAP@50:95 & best F1 \\
+\midrule
+Zero-shot (YOLO-World~\cite{yoloworld}, imgsz 960) & 0.1432 & 0.0930 & 0.2702 \\
+Zero-shot (YOLO-World, imgsz 1280) & 0.1155 & 0.0744 & 0.2417 \\
+Fine-tuned (YOLO11s~\cite{yolo11}, imgsz 1280) & \textbf{0.5135} & \textbf{0.3444} &
+\textbf{0.5376} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \subsection{Evaluation protocol}
 Static-image accuracy is measured on the public SC-FloatWaste benchmark
 (CC~BY~4.0; 7,906 images, 27,583 boxes, 25 fine classes across three
@@ -223,26 +322,6 @@ choice. The zero-shot vocabulary was frozen in code \emph{before} the
 benchmark was adopted (plastic bottle, plastic waste, garbage, fishing net,
 foam debris, marine debris, discarded shoe). Every metric JSON records
 commands, dates, weight hashes, manifests, and claim boundaries.
-
-\begin{table}[t]
-\caption{Main results on the untouched test split (400 images, 1,490 boxes,
-3 regions, single class ``litter''). AP computed with all-point
-interpolation at model-side confidence floor 0.001 (not the operating
-threshold).}
-\label{tab:main}
-\centering
-\small
-\begin{tabular}{lrrr}
-\toprule
-Channel & mAP@0.5 & mAP@50:95 & best F1 \\
-\midrule
-Zero-shot (YOLO-World, imgsz 960) & 0.1432 & 0.0930 & 0.2702 \\
-Zero-shot (YOLO-World, imgsz 1280) & 0.1155 & 0.0744 & 0.2417 \\
-Fine-tuned (YOLO11s, imgsz 1280) & \textbf{0.5135} & \textbf{0.3444} &
-\textbf{0.5376} \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{table}[t]
 \caption{Per-region results (mAP@0.5). Training used Indonesia only; NSW
@@ -266,9 +345,9 @@ All (400 / 1,490) & 0.1432 & \textbf{0.5135} & --- \\
 \subsection{Findings, including negative ones}
 Table~\ref{tab:main} and Table~\ref{tab:regions} support four findings.
 (1)~Supervised training pays: fine-tuned YOLO11s lifts mAP@0.5 from 0.143
-to 0.514 (3.6$\times$; best F1 0.538 at precision 0.567 / recall 0.511).
+to 0.514 (3.6$\times$; best F1 0.5376 at precision 0.5665 / recall 0.5114).
 (2)~The zero-shot channel is precision-oriented: at confidence 0.05 it
-holds precision 0.505 at recall 0.063, and its dominant failure mode is
+holds precision 0.5054 at recall 0.0631, and its dominant failure mode is
 misses, not false alarms (Indonesia: 589 detections against 850 ground-truth
 boxes). This is the accuracy profile of a \emph{supplementary on-site
 extension channel}, not a primary alarm channel---which is exactly how the
@@ -311,17 +390,64 @@ queue rather than being silently accepted. Retrieval over these assets is
 multi-hop (ontology graph expansion) and every decision stores its evidence
 chain---asset versions, ontology version, policy version---for replay.
 
+The question-answering workbench enforces the same discipline at the user
+interface: answers carry inline numbered citations whose badges locate the
+grounding evidence card (including hop paths and asset-version references);
+when retrieved evidence is insufficient the interface shows an explicit
+refusal banner instead of a generated answer, and if the LLM call itself
+fails the system degrades to presenting the raw evidence list. Refusal is
+thus a first-class output, not an error path.
+
+\subsection{Deployment status}
+The decision-loop software and the MCP service run today as a single-node
+cloud deployment: a FastAPI backend with PostgreSQL/PostGIS, Redis, EMQX
+and MinIO, fronted by the MCP server (stdio and Streamable HTTP). The
+21-tool read-only surface has been exercised end-to-end by an external
+hosted agent platform: real question-answering calls through knowledge
+search and event tools completed successfully, with server-side logs
+matching the platform's call traces step by step. The robot remains a
+replaceable MQTT endpoint (offline in the current configuration); no field
+campaign has yet been run, so no on-site accuracy or cleanup-effectiveness
+claim is made anywhere in this paper.
+
 \subsection{MCP interoperability}
 The same capabilities are exposed to external agents through the Model
-Context Protocol: 21 read-only tools (knowledge search and retrieval,
-ontology queries, event and work-order reads, decision traces) over stdio
-or Streamable HTTP, with write tools disabled unless explicitly enabled.
-Outbound calls authenticate with a dedicated service account and refresh
-tokens before expiry; inbound HTTP uses a bearer token. Five reusable
-workflow skills ship with the server. Any MCP-capable agent can therefore
-pose questions and receive citation-backed answers from the same versioned
-evidence the governance decisions use---interoperability without giving up
-the audit chain.
+Context Protocol~\cite{mcp}: 21 read-only tools (Table~\ref{tab:mcp}) over
+stdio or Streamable HTTP, with write tools disabled unless explicitly
+enabled. Outbound calls authenticate with a dedicated service account and
+refresh tokens before expiry; inbound HTTP uses a bearer token. Five
+reusable workflow skills ship with the server. Any MCP-capable agent can
+therefore pose questions and receive citation-backed answers from the same
+versioned evidence the governance decisions use---interoperability without
+giving up the audit chain.
+
+\begin{table}[t]
+\caption{The 21 read-only MCP tools by category (write tools exist but are
+disabled unless explicitly enabled).}
+\label{tab:mcp}
+\centering
+\small
+\begin{tabular}{lp{5.1cm}}
+\toprule
+Category ($n$) & Tools \\
+\midrule
+Knowledge (7) & \texttt{knowledge\_} prefix: \texttt{list\_assets},
+\texttt{asset\_detail}, \texttt{list\_ontology\_versions},
+\texttt{ontology\_version\_detail}, \texttt{list\_ontology\_nodes},
+\texttt{list\_ontology\_relations}, \texttt{search} \\
+Decision evidence (2) & \texttt{knowledge\_list\_decisions},
+\texttt{knowledge\_\allowbreak decision\_\allowbreak evidence} \\
+Events (2) & \texttt{event\_list}, \texttt{event\_get} \\
+Work orders (3) & \texttt{task\_list}, \texttt{task\_get},
+\texttt{task\_ack\_history} \\
+Dashboard (1) & \texttt{dashboard\_get} \\
+Agent runtime (6) & \texttt{agent\_runtime\_status},
+\texttt{agent\_list\_runs}, \texttt{agent\_run\_detail},
+\texttt{agent\_run\_steps}, \texttt{agent\_list\_tools},
+\texttt{agent\_list\_approvals} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Limitations}
 (1)~No field deployment validation yet: perception accuracy is public-
@@ -346,8 +472,56 @@ perception and execution endpoints; the next step is the aquaculture-zone
 field campaign that will turn public-benchmark accuracy into local
 accuracy, under the same audit discipline.
 
-% TODO: add references before submission (monitoring networks, WasteShark/Clearbot,
-% YOLO-World, YOLO11, MCP spec, SC-FloatWaste dataset citation with Zenodo DOI
-% 10.5281/zenodo.21934286).
+%
+% References
+%
+\begin{thebibliography}{10}
+
+\bibitem{gall2015}
+S.~C. Gall and R.~C. Thompson, ``The impact of debris on marine life,''
+\emph{Marine Pollution Bulletin}, vol.~92, no.~1--2, pp. 170--179, 2015.
+
+\bibitem{wasteshark}
+RanMarine Technology, ``WasteShark aquadrone.'' [Online]. Available:
+\url{https://www.ranmarine.io}
+
+\bibitem{clearbot}
+Clearbot, ``AI-powered autonomous cleaning boats.'' [Online]. Available:
+\url{https://www.clearbot.org}
+
+\bibitem{agentsurvey}
+L.~Wang, C.~Ma, X.~Feng, Z.~Zhang, H.~Yang, J.~Zhang, Z.~Chen, J.~Tang,
+X.~Chen, Y.~Lin, W.~X. Zhao, Z.~Wei, and J.-R. Wen, ``A survey on large
+language model based autonomous agents,'' \emph{Frontiers of Computer
+Science}, vol.~18, no.~6, 2024.
+
+\bibitem{lewis}
+P.~Lewis, E.~Perez, A.~Piktus \emph{et~al.}, ``Retrieval-augmented
+generation for knowledge-intensive NLP tasks,'' in \emph{Proc. NeurIPS},
+2020.
+
+\bibitem{hitl}
+X.~Wu, L.~Xiao, Y.~Wu, Q.~Z. Sheng, and S.~Wang, ``A survey on
+human-in-the-loop machine learning,'' \emph{ACM Computing Surveys},
+vol.~55, no.~13s, pp. 1--35, 2022.
+
+\bibitem{yoloworld}
+Y.~Xu, T.~Zhang, M.~Zhang, R.~Guo, G.~Tian, Y.~Zhang, X.~Hu, X.~Wang,
+and J.~Dai, ``YOLO-World: Real-time open-vocabulary object detection,''
+in \emph{Proc. IEEE/CVF CVPR}, 2024.
+
+\bibitem{yolo11}
+Ultralytics, ``YOLO11 object detection model,'' 2024. [Online]. Available:
+\url{https://github.com/ultralytics/ultralytics}
+
+\bibitem{scfloatwaste}
+O.~Wu, ``SC-FloatWaste: A multi-region floating waste detection dataset,''
+Zenodo, CC BY 4.0. doi: 10.5281/zenodo.21934286.
+
+\bibitem{mcp}
+Anthropic, ``Model Context Protocol,'' 2024. [Online]. Available:
+\url{https://modelcontextprotocol.io}
+
+\end{thebibliography}
 
 \end{document}
