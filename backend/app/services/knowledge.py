@@ -1519,6 +1519,7 @@ class KnowledgeService:
                 ontology_version_id=payload.ontology_version_id,
                 hop_depth=payload.hop_depth,
                 limit=payload.limit,
+                retrieval_mode=getattr(payload, "retrieval_mode", "lexical"),
             ),
             township_scope=township_scope,
         )

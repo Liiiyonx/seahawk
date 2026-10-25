@@ -1,0 +1,549 @@
+% PAKDD 2027 Applied Data Science Track submission.
+% Compile: llncs.cls from Springer's LNCS author kit (llncs.zip), pdflatex.
+% Double-blind: keep author block anonymous until acceptance.
+% All numbers come from artifacts/knowledge-retrieval-eval/eval_306_snapshot.json,
+% bm25_ablation.json, significance.json, and ontology-evidence-audit/latest.json.
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{url}
+\urldef{\mailsa}\path|author-one@example.org|   % TODO: anonymous contact
+\newcommand{\best}[1]{\textbf{#1}}
+
+\title{Ask the Regulations: A Type-Stratified Study of Hybrid Retrieval
+over Small Domain Corpora with Evidence-Audited Ontologies}
+
+\titlerunning{Ask the Regulations: Type-Stratified Hybrid Retrieval with Evidence-Audited Ontologies}
+
+\author{Anonymous Submission \#XXXX}
+\authorrunning{Anonymous Submission}
+\institute{Paper ID XXXX}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Retrieval-augmented systems deployed in regulated domains face a reality rarely
+discussed in benchmark papers: the corpus is small and grows organically, queries
+fall into sharply different types, and every answer must be traceable to
+authoritative text. We study this regime on a corpus of 27 Chinese marine-dumping
+regulatory documents and operational assets from the national environmental
+authority. We first construct a domain ontology (100 nodes, 200 relations) in
+which every LLM-extracted node and relation must cite its supporting passage,
+and we audit the evidence chain with deterministic string verification: 96\% of
+node names and 85\% of relations are fully traceable to the cited source text,
+and 89.9\% of citations verify verbatim. Second, we build a 306-question
+type-stratified benchmark (title-lookup, entity/content, multi-hop, refusal)
+with deterministically constructed gold answers. Third, we compare six
+retrieval configurations with per-question paired Wilcoxon tests and find that
+\emph{no single configuration wins across query types}: plain BM25 is
+significantly best on title queries; graph-expanded lexical retrieval is
+decisively best on multi-hop queries (47.5\% vs.\ 7.5\% hit@5, $p<10^{-5}$);
+and a strong dense retriever with a cross-encoder reranker---often assumed
+superior---is significantly worst across the board on this corpus of
+near-duplicate official documents. An oracle that routes each query type to its
+best configuration bounds the achievable gain. For abstention, score thresholds
+that separate answerable from unanswerable queries under one configuration
+invert or overlap under others, cautioning against score-based refusal in
+small-corpus deployments. We release the benchmark, audit tooling, and all
+configurations.
+
+\keywords{Domain retrieval \and Hybrid retrieval \and Knowledge ontology \and
+Evidence audit \and Retrieval evaluation \and Abstention}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Most retrieval research is evaluated on large, heterogeneous corpora where
+dense retrieval and cross-encoder reranking are known to excel~\cite{beir,dpr}.
+The deployment reality in regulated domains---environmental compliance,
+permits, technical standards---is almost the opposite. The corpus is small
+(tens of documents, not millions) and grows one announcement at a time;
+documents are near-duplicates of each other, sharing boilerplate and titles
+that differ by a single edition number; queries fall into sharply different
+types, from title lookup to multi-hop reasoning across related instruments;
+and, because a wrong citation can mislead a real governance decision, every
+answer must be traceable to authoritative text. Small-corpus retrieval is not
+merely large-corpus retrieval with fewer documents: score distributions,
+ranking granularity, and the behaviour of fusion strategies all change.
+
+This paper reports a controlled, type-stratified study of retrieval in exactly
+this regime, on a real deployment: a knowledge service that backs a marine
+debris governance agent for aquaculture zones. The service ingests public
+regulatory documents from the national environmental authority (marine dumping
+area announcements, standards, permit rules, sewage outfall guidelines, and
+comprehensive governance plans), maintains a domain ontology, and answers
+queries with citation-backed evidence.
+
+We address three research questions:
+
+\begin{description}
+\item[RQ1] On a small, near-duplicate regulatory corpus, how do lexical,
+graph-expanded, dense, and hybrid retrieval configurations compare
+\emph{per query type}, with statistical significance?
+\item[RQ2] Can an LLM-extracted domain ontology be made evidence-traceable by
+construction, and audited deterministically without a gold standard?
+\item[RQ3] Is score-threshold abstention (refusing out-of-domain queries)
+viable, and is any threshold portable across configurations?
+\end{description}
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\item \textbf{An evidence-audit framework for LLM-extracted ontologies}
+(Sect.~\ref{sec:ontology}): every node and relation must cite a passage of a
+registered asset; deterministic verbatim verification reports citation
+verifiability (89.9\%, 302/336), relation-endpoint traceability (90.0\%), full
+relation traceability (85.0\%), and node-name traceability (96\%). To our
+knowledge this audit protocol---audit by exact string verification against the
+cited source, no model in the loop---is itself a reusable contribution.
+\item \textbf{A type-stratified 306-question benchmark} (Sect.~\ref{sec:bench})
+with four query types (title, entity/content, multi-hop, refusal) and
+deterministic gold construction: zero model calls, fixed templates, gold taken
+from the ontology and asset tables themselves. We also document difficulty
+drift as the corpus grew from 15 to 27 assets.
+\item \textbf{A controlled comparison of six configurations with paired
+significance tests} (Sect.~\ref{sec:results}): the headline finding is that
+\emph{no configuration wins across types}; several common assumptions
+(dense-plus-reranker dominance, RRF fusion as a free lunch) do not survive.
+\item \textbf{A routing upper bound and an abstention fragility result}
+(Sect.~\ref{sec:route}): an oracle router over query types bounds achievable
+gains, and abstention thresholds exhibit three distinct behaviours across
+configurations (separable, inverted, overlapping), arguing for
+evidence-coverage-based refusal.
+\item \textbf{Released artifacts}: benchmark, all six configurations, the
+audit and significance tooling.\footnote{Anonymized repository:
+\url{https://anonymous.4open.science/r/ask-the-regulations} (placeholder to be
+created before submission).}
+\end{enumerate}
+
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Hybrid retrieval.} Lexical (BM25~\cite{bm25}) and dense
+retrieval~\cite{dpr,realm} are commonly fused; reciprocal rank fusion
+(RRF)~\cite{rrf} is a robust parameter-light combiner. BEIR~\cite{beir} showed
+that no single retriever dominates across heterogeneous corpora; we show the
+same holds \emph{within} one small domain across \emph{query types}, a
+granularity usually hidden by corpus-level averages.
+
+\paragraph{KG-augmented retrieval.} GraphRAG~\cite{graphrag} and
+HippoRAG~\cite{hipporag} augment retrieval with graph structures extracted
+from text, mostly over large corpora. We study the complementary regime: a
+small, curated, versioned ontology where graph expansion is a precision
+instrument for multi-hop queries---and show it \emph{hurts} title queries
+relative to plain BM25.
+
+\paragraph{LLM knowledge construction and verifiability.} LLMs are now used to
+construct knowledge graphs~\cite{zhu2024llmkg,pan2024roadmap}, but extraction
+hallucination is a documented failure mode~\cite{hallucination-survey}. Our
+audit is a deterministic, model-free check that every extracted fact carries a
+verbatim-verifiable citation---related in spirit to grounding checks for
+RAG~\cite{rag-survey} but applied to ontology construction, where the unit of
+verification is a triple plus its cited evidence.
+
+\paragraph{Abstention in retrieval and RAG.} Calibration and knowing-when-not-
+to-answer are studied for LLMs~\cite{lmknow,kadavath} and for retrieval-augmented
+pipelines such as Self-RAG~\cite{selfrag}. We contribute a concrete negative
+result: on a small regulatory corpus, top-1 retrieval scores do not yield a
+portable abstention threshold, and their failure mode differs per
+configuration (separation, inversion, or overlap).
+
+\section{Corpus and Evidence-Audited Ontology}
+\label{sec:ontology}
+
+\subsection{Corpus}
+The evaluation corpus mirrors a production knowledge service for marine
+debris governance. It contains \textbf{27 assets}: 20 public regulatory
+documents harvested from two official columns of the national environmental
+authority (marine dumping-area announcements, national standards and their
+draft-for-comment notices, permit rules, sewage outfall technical guidelines,
+and a regional comprehensive governance plan), plus 7 operational demo assets
+(event records, telemetry, monitoring datasets) that the service also indexes.
+Each asset is registered once and versioned immutably.
+
+\subsection{Ontology construction with mandatory citations}
+The ontology (100 nodes, 200 relations over the current published version) is
+built through a candidate-extraction, human-review, publish lifecycle. The
+extraction layer mixes rule-based extraction (167 relations) and LLM
+extraction (33 relations). The invariant that makes the ontology auditable is
+\emph{mandatory evidence}: every node and every relation must carry at least
+one evidence item $\langle$asset\_id, asset\_version\_id, citation$\rangle$,
+where \emph{citation} is a snippet of the cited asset's text. Ontology
+publishing records the version id, so downstream decisions can pin an ontology
+version.
+
+\subsection{Deterministic evidence audit}
+\label{sec:audit-method}
+The audit verifies, per relation: (i) each cited snippet appears \emph{verbatim}
+(normalized whitespace) in the cited asset's registered text; and (ii) both
+endpoint names occur in the text of a successfully verified citing document.
+Per node: the node name (or an alias) occurs in its source document. All checks
+are exact string operations over the same registered corpus---no model calls,
+no manual annotation claims. We deliberately call this an
+\emph{evidence-traceability audit}, not a gold-standard precision/recall
+evaluation: a fully traceable relation can still be domain-silly, and recall
+of ``all true facts'' is undefined without expert annotation.
+
+\begin{table}[t]
+\caption{Evidence audit of the published ontology (27 assets, 100 nodes,
+200 relations).}
+\label{tab:audit}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Audit metric & Result & Rate \\
+\midrule
+Citations verbatim-verifiable & 302/336 & 89.9\% \\
+Relation endpoints traceable & 180/200 & 90.0\% \\
+Relations fully traceable (citations + endpoints) & 170/200 & 85.0\% \\
+Node names traceable to source doc & 96/100 & 96.0\% \\
+\midrule
+Extraction method & 167 rule / 33 LLM & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:audit} shows the audit outcome. The 11\% non-verbatim
+citations are concentrated in LLM-extracted relations whose snippets
+paraphrase rather than quote; they are flagged, not silently accepted. The
+untraceable sample is logged with reasons (\emph{citation-not-in-doc},
+\emph{endpoint-missing-in-citing-doc}) and feeds the human review queue.
+
+\section{A Type-Stratified Benchmark}
+\label{sec:bench}
+
+\begin{table}[t]
+\caption{Benchmark composition. Gold answers are constructed
+deterministically from the ontology and asset tables; zero model calls.}
+\label{tab:bench}
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+Type & $n$ & Gold & Construction \\
+\midrule
+Title lookup (single) & 81 & 1 asset & 3 fixed templates over asset titles \\
+Entity/content (single2) & 100 & 1 asset & 2 fixed templates per reviewed \\
+ & & & ontology entity; no title words \\
+Multi-hop & 120 & source assets & 2-hop chains $A{\to}B{\to}C$ from \\
+ & & of chain & published relations \\
+Refusal & 5 & none & out-of-domain questions \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The benchmark has 306 questions in four types (Table~\ref{tab:bench}),
+motivated by the traffic a governance knowledge service actually sees:
+\emph{title lookup} (``what does the notice on X require?''), where the title
+is the strongest lexical signal; \emph{entity/content queries}, which name an
+entity or requirement but never use title words, forcing content-level
+matching; \emph{multi-hop queries} derived from two-hop relation chains, whose
+gold assets are the sources of the chain entities---no single document
+mentions both endpoints; and \emph{refusal queries} (out-of-domain), for which
+the correct behaviour is to abstain.
+
+Two design choices matter for reproducibility. First, templates are fixed and
+gold answers are read from published ontology/asset tables, so the benchmark
+is regenerable deterministically. Second, the benchmark was built twice as the
+corpus grew (15 assets $\to$ 27 assets); we report the 27-asset version
+throughout and note that absolute numbers are not comparable across corpus
+sizes---difficulty rises sharply when 13 near-duplicate dumping/outfall
+announcements join the pool.
+
+\section{Retrieval Configurations}
+\label{sec:configs}
+
+All configurations share the corpus representation: assets are chunked at 800
+characters, each chunk prefixed with the asset title (capped at 1600
+characters). Table~\ref{tab:configs} summarizes the six systems.
+
+\begin{table}[t]
+\caption{The six configurations.}
+\label{tab:configs}
+\centering
+\small
+\begin{tabular}{lp{8.2cm}}
+\toprule
+Name & Description \\
+\midrule
+BM25 & BM25 over chunks ($k_1{=}1.5$, $b{=}0.75$); CJK text tokenized as
+character bigrams, ASCII runs as whole tokens; no graph expansion. \\
+Lex+Graph & Production retriever: weighted lexical scoring (title $\times$6,
+body $\times$1.5, standard-number $\times$2) plus one-hop ontology graph
+expansion. \\
+Dense+Rerank & BGE-M3 embeddings; cosine top-30 chunks; BGE-Reranker-V2-M3
+reranks top-20 chunks; asset rank = its best chunk. \\
+RRF Hybrid & RRF ($k{=}60$) fusion of Lex+Graph asset ranking and dense
+asset ranking. \\
+TB Hybrid & RRF hybrid whose dense channel embeds title-boosted chunks
+(title repeated $3\times$). \\
+Oracle & Upper bound only: routes multi-hop to Lex+Graph, everything else to
+TB Hybrid. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+BM25 uses our own index (deterministic tokenizer, no segmenter dependency);
+Lex+Graph is the deployed production service; Dense+Rerank and the hybrids run
+in the evaluation harness over identical chunks. All model calls are cached;
+every number in this paper is recomputable from the frozen run artifact.
+
+\section{Results}
+\label{sec:results}
+
+\begin{table}[t]
+\caption{Main results on the 306-question benchmark (frozen run). Per type:
+hit@1 / hit@5 / MRR over ranked assets. Bold = significantly best in the
+column (paired Wilcoxon, $p<0.05$, see Table~\ref{tab:sig}).}
+\label{tab:main}
+\centering
+\small
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{l ccc ccc ccc}
+\toprule
+& \multicolumn{3}{c}{Title ($n{=}81$)} & \multicolumn{3}{c}{Entity ($n{=}100$)} & \multicolumn{3}{c}{Multi-hop ($n{=}120$)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Config & h@1 & h@5 & MRR & h@1 & h@5 & MRR & h@1 & h@5 & MRR \\
+\midrule
+BM25 & \best{.185} & \best{.457} & \best{.302} & .140 & .180 & .164 & .075 & .075 & .135 \\
+Lex+Graph & .123 & .432 & .254 & \best{.130} & .310 & \best{.229} & \best{.458} & \best{.475} & \best{.469} \\
+Dense+Rerank & .074 & .222 & .138 & .010 & .190 & .091 & .075 & .458 & .267 \\
+RRF Hybrid & .173 & .432 & .284 & .030 & .380 & .186 & .075 & .458 & .198 \\
+TB Hybrid & .148 & .444 & .278 & .030 & \best{.410} & .186 & .075 & .458 & .198 \\
+Oracle & .148 & .444 & .278 & .030 & \best{.410} & .186 & \best{.458} & \best{.475} & \best{.469} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Selected paired Wilcoxon signed-rank tests over per-question
+reciprocal rank (two-sided; zeros dropped). Full matrix in the artifact.}
+\label{tab:sig}
+\centering
+\small
+\begin{tabular}{llrl}
+\toprule
+Type & Pair & $p$ & Reading \\
+\midrule
+Multi-hop & Lex+Graph vs.\ BM25 & $3.3{\times}10^{-6}$ & graph expansion $+40$pt hit@5 \\
+Multi-hop & Lex+Graph vs.\ RRF Hybrid & $2.3{\times}10^{-10}$ & RRF fusion \emph{hurts} graph ranking \\
+Title & BM25 vs.\ Lex+Graph & $1.5{\times}10^{-2}$ & plain BM25 beats graph expansion \\
+Title & BM25 vs.\ Dense+Rerank & $1.6{\times}10^{-4}$ & dense channel worst on titles \\
+Entity & TB Hybrid vs.\ Lex+Graph & $2.99{\times}10^{-1}$ & not significant \\
+Entity & BM25 vs.\ Dense+Rerank & $9.1{\times}10^{-1}$ & not significant \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{F1: No configuration wins across query types.}
+Table~\ref{tab:main} is the core result. On title queries, plain BM25 is
+significantly best (hit@5 .457; vs.\ Lex+Graph $p{=}.015$, vs.\ Dense+Rerank
+$p{=}1.6{\times}10^{-4}$): title matching is exactly what BM25's term
+weighting does, and graph expansion only adds noise. On multi-hop queries the
+picture inverts: Lex+Graph reaches .475 hit@5 while BM25 collapses to .075
+($p{=}3.3{\times}10^{-6}$)---the gold documents share no vocabulary with the
+query, and only graph traversal bridges them. On entity/content queries the
+title-boosted hybrid is nominally best (.410 hit@5) but the gap to Lex+Graph
+is not significant ($p{=}.30$): content matching is the least separated axis
+at this corpus size.
+
+\paragraph{F2: Dense retrieval with cross-encoder reranking can be
+significantly worst.} The configuration most often recommended by default---
+bi-encoder retrieval plus a cross-encoder---is significantly worst on two of
+three types (title: hit@1 .074; entity: hit@1 .010). The mechanism is
+structural: this corpus contains clusters of near-duplicate official
+documents; whole-chunk embeddings dilute the few discriminative tokens (an
+edition year, a place name), and the reranker can only reorder the top-30
+candidate chunks the retriever already ranked. This is a cautionary result for
+small-domain deployments: dense retrieval's known weakness on
+near-duplicates~\cite{beir} dominates when the \emph{entire corpus} is
+near-duplicates of a few families.
+
+\paragraph{F3: Naive fusion is not a free lunch.} RRF fusion of Lex+Graph
+with the dense ranking \emph{preserves} title-type performance but
+\emph{damages} the multi-hop sweet spot: multi-hop hit@1 drops from .458
+(Lex+Graph) to .075 (RRF Hybrid; $p{=}2.3{\times}10^{-10}$), because the dense
+channel's noisy ranking of bridge documents leaks into the fused list.
+Title-boosting the dense channel (TB Hybrid) repairs title/entity behaviour
+and is the best deployable single configuration overall, but still inherits
+the fused multi-hop weakness.
+
+\paragraph{F4: Difficulty drift is real.} On the earlier 15-asset corpus the
+same Lex+Graph configuration scored 1.000 hit@5 on multi-hop queries and the
+dense two-stage pipeline led entity queries by $+33$ points; after 12 more
+near-duplicate announcements entered the corpus, every absolute number fell
+and the ordering \emph{within} types changed. Small-corpus leaderboards age
+quickly; type-stratified reporting makes the drift visible instead of hiding
+it in an average.
+
+\section{Routing Upper Bound and Abstention}
+\label{sec:route}
+
+\paragraph{Oracle routing.} Routing multi-hop queries to Lex+Graph and all
+others to TB Hybrid yields the best of both (Table~\ref{tab:main}, last row):
+it matches Lex+Graph on multi-hop and TB Hybrid elsewhere, dominating every
+single configuration. The oracle knows the query type; a deployable system
+must predict it. At 306 questions we deliberately do not train a classifier
+---we report the bound and note that query-type classification (or a cheap
+router signal such as ``does the query match any asset title?'') is the
+obvious next step; even the naive fixed prior ``route title-like queries to
+BM25, the rest to Lex+Graph'' already beats any single system.
+
+\begin{table}[t]
+\caption{Abstention: top-1 retrieval scores of answerable vs.\ refusal
+queries. Three behaviours across configurations.}
+\label{tab:refuse}
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+Config & min answerable & max refusal & behaviour \\
+\midrule
+Lex+Graph & 67.5 & 46.5 & separable \\
+BM25 & 9.05 & 13.72 & \emph{inverted} (refusal scores higher) \\
+Dense+Rerank & 0.0008 & 0.0031 & overlap \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Abstention is configuration-fragile.} With only 5 refusal queries
+this is a case study, not a powered experiment---but the pattern is stark
+(Table~\ref{tab:refuse}). Under Lex+Graph, answerable and refusal scores
+separate cleanly. Under BM25 the order \emph{inverts}: out-of-domain
+questions score \emph{higher} than the weakest answerable ones (BM25 rewards
+long out-of-domain queries that match high-IDF bigrams). Under dense scores
+the two ranges overlap. The practical consequence: a cutoff tuned on one
+configuration transfers to none other, and the failure is silent. Our
+production QA layer therefore abstains on \emph{evidence coverage} (are the
+retrieved citations sufficient to ground an answer?) rather than retrieval
+score, and states its refusal to the user.
+
+\section{Discussion and Limitations}
+\label{sec:limits}
+
+\emph{Single domain, single language.} The corpus is Chinese regulatory text;
+the benchmark templates and the near-duplicate structure are domain-shaped.
+Replication on a second regulatory domain is future work; the construction
+recipe (Sect.~\ref{sec:bench}) is domain-agnostic.
+
+\emph{Refusal pool is small} (5 queries), so Table~\ref{tab:refuse} is
+evidence of fragility, not a powered estimate of abstention error rates.
+
+\emph{Run-to-run variance on entity queries.} Repeat runs with an evolving
+embedding cache moved entity-type absolute numbers by up to $\pm$0.11 while
+preserving relative order; we therefore anchor claims on within-run paired
+tests, not cross-run decimals.
+
+\emph{Audit is not a gold standard.} Traceability verifies that extracted
+knowledge quotes its source, not that the knowledge base is complete or
+domain-correct (Sect.~\ref{sec:audit-method}).
+
+\emph{Oracle routing needs a real router.} The bound assumes query types are
+known; a lightweight, robust router is the missing piece between this study
+and a deployable adaptive retriever.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+On a small, near-duplicate regulatory corpus---the regime real governance
+deployments live in---no retrieval configuration wins across query types:
+plain BM25, graph-expanded lexical retrieval, and title-boosted hybrid
+retrieval each own one query type, and a strong dense-plus-reranker pipeline
+is significantly worst. Score-based abstention does not transfer across
+configurations. The practical recipe our deployment adopted is: keep the
+ontology evidence-audited, keep BM25-honest title matching, route by query
+type when possible, and abstain on evidence coverage rather than retrieval
+score. We release everything needed to re-run this study on a new domain.
+
+\subsubsection*{Reproducibility.} The frozen run artifact, benchmark,
+ablation, audit, and significance scripts are in the anonymized repository
+(footnote 1). Every model call is cached; all numbers regenerate
+deterministically from the frozen snapshot.
+
+%
+% Bibliography (llncs numeric style)
+%
+\begin{thebibliography}{25}
+
+\bibitem{bm25}
+Robertson, S., Zaragoza, H.: The probabilistic relevance framework: BM25 and
+beyond. Found.\ Trends Inf.\ Retr.\ \textbf{3}(4), 333--389 (2009)
+
+\bibitem{dpr}
+Karpukhin, V., Oguz, B., Min, S., Lewis, P., Wu, L., Edunov, S., Chen, D.,
+Yih, W.: Dense passage retrieval for open-domain question answering. In:
+Proc.\ EMNLP (2020)
+
+\bibitem{realm}
+Guu, K., Lee, K., Tung, Z., Pasupat, P., Chang, M.: REALM: Retrieval-augmented
+language model pre-training. In: Proc.\ ICML (2020)
+
+\bibitem{rrf}
+Cormack, G.V., Clarke, C.L.A., Buettcher, S.: Reciprocal rank fusion
+outperforms Condorcet and individual rank learning methods. In: Proc.\ SIGIR
+(2009)
+
+\bibitem{beir}
+Thakur, N., Reimers, N., R{\"u}ckl{\'e}, A., Srivastava, A., Gurevych, I.:
+BEIR: A heterogeneous benchmark for zero-shot evaluation of information
+retrieval models. In: Proc.\ NeurIPS Datasets and Benchmarks (2021)
+
+\bibitem{graphrag}
+Edge, D., Trinh, H., Cheng, N., et al.: From local to global: A Graph RAG
+approach to query-focused summarization (2024). arXiv:2404.16130
+
+\bibitem{hipporag}
+Guti{\'e}rrez, B.J., Shu, Y., Gu, Y., Yasunaga, M., Su, Y.: HippoRAG:
+Neurobiologically inspired long-term memory for large language models. In:
+Proc.\ NeurIPS (2024)
+
+\bibitem{zhu2024llmkg}
+Zhu, Y., Wang, X., Chen, J., et al.: LLMs for knowledge graph construction and
+reasoning: recent capabilities and future opportunities. World Wide Web
+\textbf{27}, 58 (2024)
+
+\bibitem{pan2024roadmap}
+Pan, S., Luo, L., Wang, Y., et al.: Unifying large language models and
+knowledge graphs: A roadmap. IEEE TKDE \textbf{36}(7), 3580--3599 (2024)
+
+\bibitem{hallucination-survey}
+Ji, Z., Lee, N., Frieske, R., et al.: Survey of hallucination in natural
+language generation. ACM Comput.\ Surv.\ \textbf{55}(12), 1--38 (2023)
+
+\bibitem{rag-survey}
+Gao, Y., Xiong, Y., Gao, X., et al.: Retrieval-augmented generation for large
+language models: A survey (2023). arXiv:2312.10997
+
+\bibitem{lmknow}
+Yin, Z., Sun, J., Chang, C., Guo, Q., Dai, J., Huang, X., Qiu, X.: Do large
+language models know what they do not know? In: Proc.\ Findings of ACL
+(2023)
+
+\bibitem{kadavath}
+Kadavath, S., Conerly, T., Askell, A., et al.: Language models (mostly) know
+what they know (2022). arXiv:2207.05221
+
+\bibitem{selfrag}
+Asai, A., Wu, Z., Wang, Y., Sil, A., Hajishirzi, H.: Self-RAG: Learning to
+retrieve, generate, and critique through self-reflection. In: Proc.\ ICLR
+(2024)
+
+\bibitem{bge-m3}
+Chen, J., Xiao, S., Zhang, P., Luo, Y., Lian, D., Liu, Z.: BGE M3-embedding:
+Multi-lingual, multi-functionality, multi-granularity text embeddings through
+self-knowledge distillation. In: Proc.\ Findings of ACL (2024)
+
+\bibitem{lewis-rag}
+Lewis, P., Perez, E., Piktus, A., et al.: Retrieval-augmented generation for
+knowledge-intensive NLP tasks. In: Proc.\ NeurIPS (2020)
+
+\end{thebibliography}
+
+\end{document}

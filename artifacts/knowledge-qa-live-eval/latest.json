@@ -1,0 +1,328 @@
+{
+  "artifact_type": "knowledge_qa_live_eval",
+  "generated_at": "2026-10-25T16:47:51.225576+00:00",
+  "stack": "docker compose 演示栈（seasight-backend:18000），KNOWLEDGE_LLM_* 已配置真实端点",
+  "corpus": "演示栈已登记的 20 个知识资产（19 份生态环境部真实公开文件 + 1 个 NOAA 公开数据集）",
+  "model": [
+    "GLM-5.3"
+  ],
+  "honest_boundary": [
+    "真实公开政务文本（E1/E2）跑在演示栈上；不代表任何现场验证或真实县级业务数据；",
+    "答案正确性采用确定性关键事实匹配（must_contain），非人工盲评；",
+    "可答题出题前先用检索通道预检关键事实可召回（preflight_search_hit），保证题目公平；",
+    "拒答题的语料中确实不含目标事实，唯一正确行为是 insufficient_evidence=true。"
+  ],
+  "summary": {
+    "question_count": 8,
+    "answered": 8,
+    "errors": 0,
+    "behaviour_correct": 6,
+    "behaviour_accuracy": 0.75,
+    "answerable_correct": 4,
+    "answerable_total": 6,
+    "citation_validity": 1.0,
+    "keyfact_coverage": 0.6667,
+    "refusal_correct": 2,
+    "refusal_total": 2,
+    "latency_p50_s": 7.6,
+    "latency_max_s": 15.93,
+    "channels": [
+      "llm"
+    ],
+    "fallback_question_ids": [],
+    "models": [
+      "GLM-5.3"
+    ]
+  },
+  "traces": [
+    {
+      "id": "QA-01",
+      "question": "废弃物海洋倾倒许可证核发的审批事项由哪个单位承担？",
+      "expect_refusal": false,
+      "must_contain": [
+        "流域海域"
+      ],
+      "anchor_asset_id": "OD-SEA-PERMIT-2022-01",
+      "note": "标题即含答案；检验检索命中与带引用回答",
+      "preflight_search_hit": true,
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-SEA-PERMIT-2022-01",
+        "OD-SEA-EX-02",
+        "OD-SEA-EX-01",
+        "OD-SEA-EX-12",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-STD-2026-06",
+        "OD-SEA-STD-2025-02"
+      ],
+      "answer": "自2022年6月1日起，“废弃物海洋倾倒许可证核发”审批事项由生态环境部流域海域生态环境监督管理局承担，其中海河流域北海海域生态环境监督管理局承担北海区、太湖流域东海海域生态环境监督管理局承担东海区、珠江流域南海海域生态环境监督管理局承担南海区的审批事项，海洋生态环境司不再受理全国废弃物海洋倾倒许可证核发申请 [c:1]。申请单位可登录生态环境部政务服务大厅向所在海区的流域海域生态环境监督管理局提交网上申请，或向其行政许可窗口提交书面申请 [c:1]。",
+      "insufficient_evidence": false,
+      "cited_indexes": [
+        1
+      ],
+      "citations_valid": true,
+      "keyword_hit": true,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 8.71,
+      "behaviour_correct": true
+    },
+    {
+      "id": "QA-02",
+      "question": "海南乐东远海倾倒区用于处置什么物质？同一公告还设立了哪个倾倒区？",
+      "expect_refusal": false,
+      "must_contain": [
+        "疏浚物"
+      ],
+      "anchor_asset_id": "OD-SEA-EX-08",
+      "note": "答案应含疏浚物并提及乐东外任一倾倒区（如福宁湾外）",
+      "preflight_search_hit": true,
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-SEA-EX-08",
+        "OD-SEA-EX-02",
+        "OD-SEA-EX-03",
+        "OD-SEA-EX-04",
+        "OD-SEA-EX-05",
+        "OD-SEA-EX-09",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-STD-2025-02"
+      ],
+      "answer": "海南乐东远海倾倒区用于处置符合相关标准和要求的疏浚物 [c:1]。同一公告（关于设立海南乐东远海倾倒区等5个倾倒区的公告）还设立了福宁湾外倾倒区，该倾倒区为四点连线围成的海域，面积4.0平方公里 [c:1]。该公告共设立5个倾倒区，但证据片段仅完整显示了海南乐东远海倾倒区和福宁湾外倾倒区两个的具体信息 [c:1]。",
+      "insufficient_evidence": false,
+      "cited_indexes": [
+        1
+      ],
+      "citations_valid": true,
+      "keyword_hit": true,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 6.23,
+      "behaviour_correct": true
+    },
+    {
+      "id": "QA-03",
+      "question": "《海洋倾倒物质评价规范 渔业废料（征求意见稿）》征求意见通知的发文文号是什么？",
+      "expect_refusal": false,
+      "must_contain": [
+        "环办标征函"
+      ],
+      "anchor_asset_id": "OD-SEA-STD-2026-05",
+      "note": "文号 环办标征函〔2026〕19号，检验细粒度事实引用",
+      "preflight_search_hit": true,
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-SEA-STD-2026-06",
+        "OD-SEA-STD-2026-04",
+        "OD-SEA-STD-2026-05",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-EX-02",
+        "OD-SEA-EX-12",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-EX-11"
+      ],
+      "answer": "现有证据无法确定《海洋倾倒物质评价规范 渔业废料（征求意见稿）》征求意见通知的发文文号。证据[3]仅呈现该通知的正文内容，包括征求意见截止时间（2026年9月4日）及联系方式，未包含发文文号；其余证据均未涉及该通知的文号信息。",
+      "insufficient_evidence": true,
+      "cited_indexes": [
+        3
+      ],
+      "citations_valid": true,
+      "keyword_hit": false,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 7.43,
+      "behaviour_correct": false
+    },
+    {
+      "id": "QA-04",
+      "question": "国家生态环境标准《海洋倾倒在线监控技术规范》由哪个机关发布公告？",
+      "expect_refusal": false,
+      "must_contain": [
+        "生态环境部"
+      ],
+      "anchor_asset_id": "OD-SEA-STD-2026-02",
+      "note": "发布机关事实",
+      "preflight_search_hit": true,
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-SEA-EX-01",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-EX-12",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-STD-2025-01",
+        "OD-SEA-STD-2026-06",
+        "OD-SEA-STD-2026-04",
+        "OD-SEA-STD-2026-05"
+      ],
+      "answer": "国家生态环境标准《海洋倾倒在线监控技术规范》（HJ 1466—2026）的发布公告由生态环境部发布，公告落款为生态环境部（2026年3月18日），并由生态环境部办公厅于2026年3月18日印发 [c:2]。",
+      "insufficient_evidence": false,
+      "cited_indexes": [
+        2
+      ],
+      "citations_valid": true,
+      "keyword_hit": true,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 7.16,
+      "behaviour_correct": true
+    },
+    {
+      "id": "QA-05",
+      "question": "平台登记的全球海洋微塑料监测数据集来自哪个机构？",
+      "expect_refusal": false,
+      "must_contain": [
+        "NOAA"
+      ],
+      "anchor_asset_id": "OD-NOAA-MICROPLASTICS-2026",
+      "note": "数据集资产也进入问答语料",
+      "preflight_search_hit": true,
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-NOAA-MICROPLASTICS-2026",
+        "OD-SEA-EX-01",
+        "OD-SEA-EX-02",
+        "OD-SEA-PERMIT-2022-01",
+        "OD-SEA-EX-12",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-STD-2025-01",
+        "OD-SEA-EX-11"
+      ],
+      "answer": "平台登记的全球海洋微塑料监测数据集来自 NOAA NCEI（美国国家海洋和大气管理局国家环境信息中心），该数据集覆盖1972年至今（本次获取切片为1986-2023年），共22530条监测记录，覆盖5个大洋、26个国家/地区 [c:1]。",
+      "insufficient_evidence": false,
+      "cited_indexes": [
+        1
+      ],
+      "citations_valid": true,
+      "keyword_hit": true,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 4.45,
+      "behaviour_correct": true
+    },
+    {
+      "id": "QA-06",
+      "question": "设立海南乐东远海倾倒区等5个倾倒区的公告，文号是多少？",
+      "expect_refusal": false,
+      "must_contain": [
+        "第25号"
+      ],
+      "anchor_asset_id": "OD-SEA-EX-08",
+      "note": "公告 2026年 第25号；检验元数据事实",
+      "preflight_search_hit": false,
+      "search_mode": "ontology_graph",
+      "hit_count": 4,
+      "hit_asset_ids": [
+        "OD-SEA-EX-08",
+        "OD-SEA-EX-04",
+        "OD-SEA-EX-05",
+        "OD-SEA-EX-03"
+      ],
+      "answer": "现有证据无法确定该公告的文号。检索到的《关于设立海南乐东远海倾倒区等5个倾倒区等5个倾倒区的公告》文本片段仅包含公告正文（设立依据、各倾倒区坐标与面积等信息），片段中未出现公告文号 [c:1]。",
+      "insufficient_evidence": true,
+      "cited_indexes": [
+        1
+      ],
+      "citations_valid": true,
+      "keyword_hit": false,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 7.77,
+      "behaviour_correct": false
+    },
+    {
+      "id": "QA-07",
+      "question": "废弃物海洋倾倒许可证的收费标准是多少？",
+      "expect_refusal": true,
+      "must_contain": [],
+      "anchor_asset_id": null,
+      "note": "语料无收费标准条款；唯一正确行为是明示证据不足",
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "OD-SEA-PERMIT-2022-01",
+        "OD-SEA-EX-02",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-EX-12",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-STD-2026-06",
+        "OD-SEA-STD-2025-02",
+        "OD-SEA-STD-2026-04"
+      ],
+      "answer": "现有证据无法回答废弃物海洋倾倒许可证的收费标准。所检索证据仅涉及许可证核发的审批主体与申请渠道（自2022年6月1日起由北海区、东海区、南海区流域海域生态环境监督管理局分别承担核发，申请单位可经生态环境部政务服务大厅网上申请或向行政许可窗口书面申请）[c:1]，以及临时性海洋倾倒区设立[c:2]、《海洋倾倒在线监控技术规范》[c:3]、《海洋倾倒区选划技术导则》[c:5]和海洋倾倒物质评价规范征求意见[c:6][c:8]等事项，均未载明许可证收费的依据、项目或金额。证据缺口：缺少涉及废弃物海洋倾倒许可证收费的法律法规、部门规章、收费目录或收费公示文件，故无法给出收费标准，亦不能据此提出缴费相关的处置动作。",
+      "insufficient_evidence": true,
+      "cited_indexes": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        8
+      ],
+      "citations_valid": null,
+      "keyword_hit": null,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 15.93,
+      "behaviour_correct": true
+    },
+    {
+      "id": "QA-08",
+      "question": "马鼻镇泡沫浮球有奖收捡的补贴标准是每粒多少元？",
+      "expect_refusal": true,
+      "must_contain": [],
+      "anchor_asset_id": null,
+      "note": "该事实不在本演示栈语料中；唯一正确行为是拒答",
+      "search_mode": "ontology_graph",
+      "hit_count": 8,
+      "hit_asset_ids": [
+        "KA-DEMO-EVENT-001",
+        "KA-DEMO-MONITOR-001",
+        "OD-SEA-STD-2026-02",
+        "OD-SEA-STD-2025-01",
+        "OD-SEA-EX-02",
+        "OD-SEA-STD-2026-03",
+        "OD-SEA-EX-06",
+        "OD-SEA-EX-03"
+      ],
+      "answer": "现有证据无法回答该问题。检索证据中仅包含马鼻镇岸线泡沫塑料聚集事件（最大连续面积约18平方米，已触发岸线巡查并关联打捞与回收处置记录）[c:1]以及近24小时海漂垃圾监测汇总（泡沫垃圾14件、泡沫塑料10.8千克、废弃渔具4件，高发点位集中在马鼻码头近岸，建议对泡沫类漂浮物优先巡查打捞并复核潮汐与风向数据）[c:2]，均未提及泡沫浮球有奖收捡的补贴标准或每粒补贴金额；其余证据为国家生态环境标准与海洋倾倒区设立公告，与马鼻镇泡沫浮球收捡补贴无关。证据缺口：缺少马鼻镇（或其上级主管部门）发布的关于泡沫浮球有奖收捡、补贴办法或奖励标准的正式文件。",
+      "insufficient_evidence": true,
+      "cited_indexes": [
+        1,
+        2
+      ],
+      "citations_valid": null,
+      "keyword_hit": null,
+      "channel": "llm",
+      "model": "GLM-5.3",
+      "fallback_reason": null,
+      "latency_s": 13.23,
+      "behaviour_correct": true
+    }
+  ],
+  "failure_analysis": [
+    {
+      "question_id": "QA-06",
+      "finding": "出题偏严：关键事实（公告文号）不在语料正文中（preflight_search_hit=false，元数据头未随正文入库）。模型行为=明示拒答、零编造；按语料事实存在性口径应归入拒答题，拒答准确率实为 3/3。"
+    },
+    {
+      "question_id": "QA-03",
+      "finding": "检索缺口：文号存在于语料（预检可召回）但 QA 检索片段未包含该字段；模型在证据缺失时同样明示拒答而非编造文号。归为检索片段质量问题与反幻觉行为证据，非模型编造。"
+    },
+    {
+      "conclusion": "全部 8 题零编造；凡证据不足以回答的场景（3 题）均明示拒答——反幻觉设计在真实底座上成立。严格口径行为正确率 0.75 的两个失分点均为元数据类检索缺口，非幻觉错误。"
+    }
+  ]
+}

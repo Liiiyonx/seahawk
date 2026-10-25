@@ -266,11 +266,53 @@ def fig_huawei_fullstack() -> None:
     plt.close(fig)
 
 
+
+
+def fig_retrieval_eval() -> None:
+    """R-KN-07 v2 三系统检索对照（hit@1 / hit@5 双面板）."""
+    import numpy as np
+
+    cats = ["标题型", "实体型", "本体二跳"]
+    systems = ["现有检索(词法+本体图)", "两阶段(BGE-M3+精排)", "RRF混合(v3已上生产)"]
+    hit1 = {"baseline": [12.3, 13.0, 45.8], "twostage": [7.4, 1.0, 7.5], "hybrid": [17.3, 3.0, 7.5]}
+    hit5 = {"baseline": [43.2, 31.0, 47.5], "twostage": [22.2, 19.0, 45.8], "hybrid": [43.2, 38.0, 45.8]}
+    colors = {"baseline": "#9AA6B2", "twostage": "#E8B04B", "hybrid": "#2F6FED"}
+
+    fig, axes = plt.subplots(1, 2, figsize=(8.8, 3.5))
+    for ax, data, title in ((axes[0], hit1, "hit@1"), (axes[1], hit5, "hit@5")):
+        x = np.arange(len(cats))
+        w = 0.26
+        for i, sys_key in enumerate(("baseline", "twostage", "hybrid")):
+            vals = data[sys_key]
+            bars = ax.bar(x + (i - 1) * w, vals, w, label=systems[i],
+                          color=colors[sys_key], edgecolor="white", linewidth=0.6)
+            for b, v in zip(bars, vals):
+                ax.text(b.get_x() + b.get_width() / 2, v + 1.2, f"{v:g}",
+                        ha="center", va="bottom", fontsize=6.8, color="#333")
+        ax.set_xticks(x)
+        ax.set_xticklabels(cats, fontsize=8)
+        ax.set_title(title, fontsize=9.5, color="#173a66")
+        ax.set_ylim(0, 58)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.tick_params(labelsize=7.5)
+        ax.grid(axis="y", linestyle="--", alpha=0.25)
+    axes[0].set_ylabel("命中率 (%)", fontsize=8)
+    axes[0].legend(fontsize=6.5, loc="upper left", frameon=False)
+    fig.suptitle("R-KN-07 检索评测: 301 题 / 27 资产语料, 三系统对照 (v2 运行)",
+                 fontsize=9.5, color="#173a66", y=0.99)
+    fig.text(0.5, -0.05,
+             "发现: RRF 混合标题型 hit@1 +40% 相对 (12.3->17.3) 且 hit@5 不损失; 本体二跳走图扩展最强 (47.5%); 纯稠密在同构公告语料退化 (诚实登记)",
+             ha="center", fontsize=6.8, color="#666")
+    fig.tight_layout(pad=0.6)
+    fig.savefig(OUT / "fig-m2-retrieval-eval.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
 if __name__ == "__main__":
     fig_knowledge_pipeline()
     fig_call_graph()
     fig_dual_drive()
     fig_huawei_fullstack()
+    fig_retrieval_eval()
     if WARNINGS:
         print("LAYOUT WARNINGS:")
         for w in WARNINGS:

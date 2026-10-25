@@ -247,6 +247,7 @@ class KnowledgeQARequest(BaseModel):
     ontology_version_id: str | None = Field(default=None, max_length=64)
     hop_depth: int = Field(default=2, ge=1, le=3)
     limit: int = Field(default=8, ge=1, le=20)
+    retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
 
 
 class KnowledgeQAOut(BaseModel):
