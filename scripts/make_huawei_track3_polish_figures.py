@@ -269,13 +269,13 @@ def fig_huawei_fullstack() -> None:
 
 
 def fig_retrieval_eval() -> None:
-    """R-KN-07 v2 三系统检索对照（hit@1 / hit@5 双面板）."""
+    """R-KN-07 三系统检索对照（hit@1 / hit@5 双面板，2026-10-26 id 更正后冻结快照）."""
     import numpy as np
 
     cats = ["标题型", "实体型", "本体二跳"]
     systems = ["现有检索(词法+本体图)", "两阶段(BGE-M3+精排)", "RRF混合(v3已上生产)"]
-    hit1 = {"baseline": [12.3, 13.0, 45.8], "twostage": [7.4, 1.0, 7.5], "hybrid": [17.3, 3.0, 7.5]}
-    hit5 = {"baseline": [43.2, 31.0, 47.5], "twostage": [22.2, 19.0, 45.8], "hybrid": [43.2, 38.0, 45.8]}
+    hit1 = {"baseline": [51.9, 60.0, 80.0], "twostage": [48.1, 37.0, 57.5], "hybrid": [81.5, 51.0, 78.3]}
+    hit5 = {"baseline": [85.2, 93.0, 98.3], "twostage": [48.1, 45.0, 72.5], "hybrid": [100.0, 86.0, 98.3]}
     colors = {"baseline": "#9AA6B2", "twostage": "#E8B04B", "hybrid": "#2F6FED"}
 
     fig, axes = plt.subplots(1, 2, figsize=(8.8, 3.5))
@@ -292,16 +292,16 @@ def fig_retrieval_eval() -> None:
         ax.set_xticks(x)
         ax.set_xticklabels(cats, fontsize=8)
         ax.set_title(title, fontsize=9.5, color="#173a66")
-        ax.set_ylim(0, 58)
+        ax.set_ylim(0, 112)
         ax.spines[["top", "right"]].set_visible(False)
         ax.tick_params(labelsize=7.5)
         ax.grid(axis="y", linestyle="--", alpha=0.25)
     axes[0].set_ylabel("命中率 (%)", fontsize=8)
     axes[0].legend(fontsize=6.5, loc="upper left", frameon=False)
-    fig.suptitle("R-KN-07 检索评测: 301 题 / 27 资产语料, 三系统对照 (v2 运行)",
+    fig.suptitle("R-KN-07 检索评测: 306 题 / 27 资产语料, 三系统对照 (id 更正后冻结快照)",
                  fontsize=9.5, color="#173a66", y=0.99)
     fig.text(0.5, -0.05,
-             "发现: RRF 混合标题型 hit@1 +40% 相对 (12.3->17.3) 且 hit@5 不损失; 本体二跳走图扩展最强 (47.5%); 纯稠密在同构公告语料退化 (诚实登记)",
+             "发现: 无全能配置——BM25 称霸标题型(hit@1 90.1%), 图扩展称霸实体(93.0%)/多跳(98.3%); RRF 混合标题型 hit@1 81.5%(+57% 相对)且多跳不损失; 稠密+精排全题型显著最差 (诚实登记)",
              ha="center", fontsize=6.8, color="#666")
     fig.tight_layout(pad=0.6)
     fig.savefig(OUT / "fig-m2-retrieval-eval.png", dpi=200, bbox_inches="tight")

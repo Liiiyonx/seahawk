@@ -99,7 +99,7 @@
 | **R-NX-08** | `R-NX-08_COMPLETED.yaml` + `R-NX-08_ws-frames.json` | **托管平台完整 Skill 问答已完成**（9 分钟 1933 帧、真实模型、证据不足如实拒答；含完整修复链） |
 | R-NX-09 | `R-NX-09_recheck.yaml` | 本地官方源码部署完整 LLM Skill 问答（8 步 31 次工具调用、2777 字回答） |
 | **R-NX-10** | `R-NX-10_COMPLETED.yaml` + `evidence/hosted-qa-2026-10-25/`（12 张截图 + 2 份 ECS 服务端日志） | **托管平台 MCP 工具面真实调用验证已完成**（2026-10-25：两次问答共 6 次 MCP 调用、event_list 500 后自动重试成功、knowledge_search 200、平台调用链与服务端日志逐条对应） |
-| **R-KN-07** | `R-KN-07_retrieval-benchmark.yaml` + `R-KN-07_benchmark.json` + `R-KN-07_eval-results.json` | **检索评测基准与三系统对照**（2026-10-26：301 题[标题/实体/多跳/拒答]、27 资产语料；RRF 混合标题型 hit@1 +40% 相对提升并已合入生产接口 retrieval_mode=hybrid） |
+| **R-KN-07** | `R-KN-07_retrieval-benchmark.yaml` + `R-KN-07_benchmark.json` + `R-KN-07_eval-results.json` | **检索评测基准与三系统对照**（2026-10-26：306 题[标题/实体/多跳/拒答]、27 资产语料（id 更正后口径）；RRF 混合标题型 hit@1 81.5%（+57% 相对）并已合入生产接口 retrieval_mode=hybrid） |
 | **R-KN-08** | `R-KN-08_audit.yaml` + `R-KN-08_audit.json` | **本体证据可回溯审计**（2026-10-26：引用可回溯 89.9%、关系完全可回溯 85.0%、节点 96.0%；确定性核验零模型调用） |
 | R-KN-01~03 | `R-KN-01_latest.json`、`R-KN-02_ontology-eval.json`、`R-KN-03_incremental-eval.json` | 知识进化闭环 / 本体抽取确定性评测 / 增量维护对比（省 63.19%） |
 | R-KN-04 | `R-KN-04_knowledge-qa-trace.json` | 知识域问答轨迹（hop=0 直接引用） |
