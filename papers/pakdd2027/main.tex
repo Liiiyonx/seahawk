@@ -316,7 +316,7 @@ Refusal & What subsidy policies exist for island tourism homestays? &
 \end{tabular}
 \end{table}
 
-\section{Retrieval Configurations}
+\section{Experimental Setup}
 \label{sec:configs}
 
 All configurations share the corpus representation: assets are chunked at 800
@@ -352,7 +352,19 @@ everything else $\to$ Lex+Graph. \\
 
 BM25 uses our own index (deterministic tokenizer, no segmenter dependency);
 Lex+Graph is the deployed production service; Dense+Rerank and the hybrids run
-in the evaluation harness over identical chunks. All model calls are cached;
+in the evaluation harness over identical chunks.
+
+\paragraph{Metrics.} We report hit@\{1,3,5\} and MRR over the ranked asset
+list of each system; refusal queries carry no gold asset and are analysed
+separately in Sect.~\ref{sec:route}. All significance claims use two-sided
+paired Wilcoxon signed-rank tests over per-question reciprocal rank, with
+Holm correction within families (Sect.~\ref{sec:route}).
+
+\paragraph{Implementation details.} The harness is pure Python. BGE-M3
+embeddings and BGE-Reranker-V2-M3 relevance scores are obtained from a
+managed inference endpoint and cached, so every number regenerates from the
+frozen artifact without further model calls; the lexical+graph baseline is
+the production service queried over HTTP on the same machine. All model calls are cached;
 every number in this paper is recomputable from the frozen run artifact.
 
 \section{Results}
@@ -648,14 +660,14 @@ evidence-audited, put BM25-honest title matching behind a one-signal router,
 and abstain on evidence coverage rather than retrieval score. We release
 everything needed to re-run this study on a new domain.
 
-\subsubsection*{Reproducibility.} The frozen run artifact, benchmark,
-ablation, router, audit, and significance scripts are in the anonymized
-repository (footnote 1). Every model call is cached; all numbers regenerate
-deterministically from the frozen snapshot. During preparation we found and
-fixed a benchmark-builder bug that emitted non-unique question ids (306 items
-mapping to only 22 ids), silently corrupting id-keyed per-item analyses; all
-numbers in this paper come from the corrected benchmark, and the pre-fix
-artifacts are retained alongside for provenance.
+\subsubsection*{Reproducibility Statement.} The frozen run artifact,
+benchmark, ablation, router, audit, and significance scripts are in the
+anonymized repository (footnote 1). Every model call is cached; all numbers
+regenerate deterministically from the frozen snapshot. During preparation we
+found and fixed a benchmark-builder bug that emitted non-unique question ids
+(306 items mapping to only 22 ids), silently corrupting id-keyed per-item
+analyses; all numbers in this paper come from the corrected benchmark, and
+the pre-fix artifacts are retained alongside for provenance.
 
 %
 % Bibliography (llncs numeric style)
