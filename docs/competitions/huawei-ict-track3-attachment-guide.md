@@ -86,7 +86,7 @@
 
 ## 五、Agent 配置与平台验收证据
 
-### 5.1 登记号 → 包内文件对照（07_证据包/，29 个文件全部按登记号命名）
+### 5.1 登记号 → 包内文件对照（07_证据包/，31 个文件：29 个按登记号命名，另含 R-KN-07 路由评测、id 冲突更正说明与公开语料清单，另有 evidence/ 子目录）
 
 | 登记号 | 包内文件 | 内容 |
 | --- | --- | --- |
@@ -99,7 +99,7 @@
 | **R-NX-08** | `R-NX-08_COMPLETED.yaml` + `R-NX-08_ws-frames.json` | **托管平台完整 Skill 问答已完成**（9 分钟 1933 帧、真实模型、证据不足如实拒答；含完整修复链） |
 | R-NX-09 | `R-NX-09_recheck.yaml` | 本地官方源码部署完整 LLM Skill 问答（8 步 31 次工具调用、2777 字回答） |
 | **R-NX-10** | `R-NX-10_COMPLETED.yaml` + `evidence/hosted-qa-2026-10-25/`（12 张截图 + 2 份 ECS 服务端日志） | **托管平台 MCP 工具面真实调用验证已完成**（2026-10-25：两次问答共 6 次 MCP 调用、event_list 500 后自动重试成功、knowledge_search 200、平台调用链与服务端日志逐条对应） |
-| **R-KN-07** | `R-KN-07_retrieval-benchmark.yaml` + `R-KN-07_benchmark.json` + `R-KN-07_eval-results.json` | **检索评测基准与三系统对照**（2026-10-26：306 题[标题/实体/多跳/拒答]、27 资产语料（id 更正后口径）；RRF 混合标题型 hit@1 81.5%（+57% 相对）并已合入生产接口 retrieval_mode=hybrid） |
+| **R-KN-07** | `R-KN-07_retrieval-benchmark.yaml` + `R-KN-07_benchmark.json` + `R-KN-07_eval-results.json` + `R-KN-07_routing-eval.json` | **检索评测基准与三系统对照**（2026-10-26：306 题[标题/实体/多跳/拒答]、27 资产语料（id 更正后口径）；RRF 混合标题型 hit@1 81.5%（+57% 相对）并已合入生产接口 retrieval_mode=hybrid；两系统规则路由器总体 hit@1 74.8%/hit@5 97.0%，显著优于全部单一系统且≈逐题型最优） |
 | **R-KN-08** | `R-KN-08_audit.yaml` + `R-KN-08_audit.json` | **本体证据可回溯审计**（2026-10-26：引用可回溯 89.9%、关系完全可回溯 85.0%、节点 96.0%；确定性核验零模型调用） |
 | R-KN-01~03 | `R-KN-01_latest.json`、`R-KN-02_ontology-eval.json`、`R-KN-03_incremental-eval.json` | 知识进化闭环 / 本体抽取确定性评测 / 增量维护对比（省 63.19%） |
 | R-KN-04 | `R-KN-04_knowledge-qa-trace.json` | 知识域问答轨迹（hop=0 直接引用） |
@@ -173,6 +173,7 @@ MCP 工具面真实调用验证——两次预览调试问答共 6 次 MCP 调�
 
 | 日期 | 变更 | 操作人 |
 | --- | --- | --- |
+| 2026-10-26 | 基准 id 冲突更正：证据包换入更正后 benchmark/eval/yaml + 新增 R-KN-07_routing-eval.json（路由器）与 ID_COLLISION_CORRECTION_20261026.md（更正说明，材料 1/2/3 检索数字同步更正口径）；§5.1 计数 29→31 | liyongxiang + ZCode |
 | 2026-10-26 | 新增 R-KN-07（检索基准与三系统评测）/R-KN-08（本体证据审计）登记与证据文件；§5.1 计数 24→29 | liyongxiang + ZCode |
 | 2026-10-25 | **R-NX-10 完成**：新增托管平台 MCP 工具面真实调用验收登记与证据目录（`R-NX-10_COMPLETED.yaml` + `evidence/hosted-qa-2026-10-25/`），§〇/§5.1/§5.2/§六 同步更新；R-NX-08 的“工具面恢复待办”口径收口 | liyongxiang + ZCode |
 | 2026-10-25 | **v1.2 国奖打磨版**：①§〇/§一/§五 导航与路径全部对齐提交包新结构（04_代码附件 / 06_示例问答截图 / 07_证据包 / 08_演示视频）；②新增§二完整代码附件说明（zip 与开源仓库一致）与§5.1 登记号→包内文件对照表；③§5.2 口径提醒改为“双端均已完成”（消除 v1.1 与 R-NX-08 完成状态矛盾的残留）；④§六自检逐项落勾并附口径说明 | liyongxiang + ZCode |
