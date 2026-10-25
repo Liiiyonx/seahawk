@@ -1,6 +1,6 @@
 {
   "registration": "R-KN-07",
-  "built_at": "2026-10-25T13:18:53.087540+00:00",
+  "built_at": "2026-10-25T15:49:23.222149+00:00",
   "ontology_version_id": "ont_20261025131815_936b3738",
   "asset_count": 27,
   "node_count": 100,
@@ -745,26 +745,8 @@
       "title_hint": "5个倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "5个倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "5个倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于http的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "http"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "http工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -781,26 +763,8 @@
       "title_hint": "hysjgyc"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "hysjgyc工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-06"
-      ],
-      "category": "single2",
-      "title_hint": "hysjgyc"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于www.mee.gov.cn的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "www.mee.gov.cn"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "www.mee.gov.cn工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -817,26 +781,8 @@
       "title_hint": "个倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "个倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "个倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于中华人民共和国海洋倾废管理条例的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "中华人民共和国海洋倾废管理条例"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "中华人民共和国海洋倾废管理条例工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -853,26 +799,8 @@
       "title_hint": "中华人民共和国海洋环境保护法"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "中华人民共和国海洋环境保护法工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "中华人民共和国海洋环境保护法"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于中华人民共和国生态环境法典的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "中华人民共和国生态环境法典"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "中华人民共和国生态环境法典工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -889,26 +817,8 @@
       "title_hint": "京市东城区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "京市东城区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "京市东城区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于京市东城区东长的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "京市东城区东长"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "京市东城区东长工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -925,26 +835,8 @@
       "title_hint": "企望湾外远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "企望湾外远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "企望湾外远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-03"
-      ],
-      "category": "single2",
-      "title_hint": "倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-03"
       ],
@@ -961,26 +853,8 @@
       "title_hint": "倾倒物质名"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "倾倒物质名工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-11"
-      ],
-      "category": "single2",
-      "title_hint": "倾倒物质名"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于入河入海排污口的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "入河入海排污口"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "入河入海排污口工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -997,26 +871,8 @@
       "title_hint": "入河入海排污口监督管理技术指南"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "入河入海排污口监督管理技术指南工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-06"
-      ],
-      "category": "single2",
-      "title_hint": "入河入海排污口监督管理技术指南"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于关海域疏浚物的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "关海域疏浚物"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "关海域疏浚物工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1033,26 +889,8 @@
       "title_hint": "兴化湾外倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "兴化湾外倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "兴化湾外倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于农业农村的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "农业农村"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "农业农村工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-05"
       ],
@@ -1069,26 +907,8 @@
       "title_hint": "办公厅"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "办公厅工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "办公厅"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于办公厅20的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "办公厅20"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "办公厅20工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -1105,26 +925,8 @@
       "title_hint": "务院办公厅关"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "务院办公厅关工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "务院办公厅关"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于围头湾外倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "围头湾外倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "围头湾外倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1141,26 +943,8 @@
       "title_hint": "天津南部倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "天津南部倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "天津南部倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于崔家潞湾外远海倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-04"
-      ],
-      "category": "single2",
-      "title_hint": "崔家潞湾外远海倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "崔家潞湾外远海倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-04"
       ],
@@ -1177,26 +961,8 @@
       "title_hint": "废弃物海洋倾倒许可证核发"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "废弃物海洋倾倒许可证核发工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "废弃物海洋倾倒许可证核发"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于廉州湾外倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "廉州湾外倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "廉州湾外倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-05"
       ],
@@ -1213,26 +979,8 @@
       "title_hint": "态环境"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "态环境工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "态环境"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于技术指南的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "技术指南"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "技术指南工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -1249,26 +997,8 @@
       "title_hint": "技术规范"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "技术规范工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "技术规范"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于指南的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "指南"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "指南工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -1285,26 +1015,8 @@
       "title_hint": "排污口监督管理"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "排污口监督管理工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污口监督管理"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于政许的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "政许"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "政许工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-PERMIT-2022-01"
       ],
@@ -1321,26 +1033,8 @@
       "title_hint": "标准内容"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "标准内容工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "标准内容"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于标准名称的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "标准名称"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "标准名称工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -1357,26 +1051,8 @@
       "title_hint": "标准自2"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "标准自2工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "标准自2"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于法规的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "法规"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "法规工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -1393,26 +1069,8 @@
       "title_hint": "流域海域"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "流域海域工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "流域海域"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于浙江大陈北部倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "浙江大陈北部倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "浙江大陈北部倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1429,26 +1087,8 @@
       "title_hint": "海南乐东远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海南乐东远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-08"
-      ],
-      "category": "single2",
-      "title_hint": "海南乐东远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海域的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "海域"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海域工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-PERMIT-2022-01"
       ],
@@ -1465,26 +1105,8 @@
       "title_hint": "海域生态"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海域生态工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "海域生态"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海排污口监督管理的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "海排污口监督管理"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海排污口监督管理工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -1501,26 +1123,8 @@
       "title_hint": "海洋倾倒区选划技术导则"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒区选划技术导则工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-03"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒区选划技术导则"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海洋倾倒在线监控技术规范的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒在线监控技术规范"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒在线监控技术规范工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -1537,26 +1141,8 @@
       "title_hint": "海洋倾倒物质评价规范"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒物质评价规范工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-06"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒物质评价规范"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海洋可倾倒物质名录的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-11"
-      ],
-      "category": "single2",
-      "title_hint": "海洋可倾倒物质名录"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海洋可倾倒物质名录工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-11"
       ],
@@ -1573,26 +1159,8 @@
       "title_hint": "海洋生态环境司"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海洋生态环境司工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "海洋生态环境司"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海洋生物水质的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-07"
-      ],
-      "category": "single2",
-      "title_hint": "海洋生物水质"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海洋生物水质工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-07"
       ],
@@ -1609,26 +1177,8 @@
       "title_hint": "海警局"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海警局工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-04"
-      ],
-      "category": "single2",
-      "title_hint": "海警局"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于湾外倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "湾外倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "湾外倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1645,26 +1195,8 @@
       "title_hint": "滨州北部远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "滨州北部远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-09"
-      ],
-      "category": "single2",
-      "title_hint": "滨州北部远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于物海洋的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-06"
-      ],
-      "category": "single2",
-      "title_hint": "物海洋"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "物海洋工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-06"
       ],
@@ -1681,26 +1213,8 @@
       "title_hint": "物质评价规范"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "物质评价规范工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-06"
-      ],
-      "category": "single2",
-      "title_hint": "物质评价规范"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于环境保护法的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "环境保护法"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "环境保护法工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -1717,26 +1231,8 @@
       "title_hint": "生态环境司"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "生态环境司工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "生态环境司"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于生态环境损害鉴定评估技术指南的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "生态环境损害鉴定评估技术指南"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "生态环境损害鉴定评估技术指南工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -1753,26 +1249,8 @@
       "title_hint": "生态环境标准"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "生态环境标准工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "生态环境标准"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于生态环境法典的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "生态环境法典"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "生态环境法典工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -1789,26 +1267,8 @@
       "title_hint": "生态环境监督管理局"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "生态环境监督管理局工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "生态环境监督管理局"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于疏浚物的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "疏浚物"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "疏浚物工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1825,26 +1285,8 @@
       "title_hint": "监控技术规范"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "监控技术规范工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "监控技术规范"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于监督管理的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "监督管理"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "监督管理工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-PERMIT-2022-01"
       ],
@@ -1861,26 +1303,8 @@
       "title_hint": "监督管理局"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "监督管理局工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-PERMIT-2022-01"
-      ],
-      "category": "single2",
-      "title_hint": "监督管理局"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于碣石湾外倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "碣石湾外倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "碣石湾外倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-05"
       ],
@@ -1897,26 +1321,8 @@
       "title_hint": "福宁湾外倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "福宁湾外倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-08"
-      ],
-      "category": "single2",
-      "title_hint": "福宁湾外倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于符合相关标准的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "符合相关标准"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "符合相关标准工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-02"
       ],
@@ -1933,26 +1339,8 @@
       "title_hint": "第3"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "第3工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "第3"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于线监控的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "线监控"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "线监控工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -1969,26 +1357,8 @@
       "title_hint": "线监控技术"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "线监控技术工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "线监控技术"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于线监控设备的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "线监控设备"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "线监控设备工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-02"
       ],
@@ -2005,26 +1375,8 @@
       "title_hint": "组织"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "组织工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "组织"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于舟山市周边海域倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "舟山市周边海域倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "舟山市周边海域倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-03"
       ],
@@ -2041,26 +1393,8 @@
       "title_hint": "莱州湾外远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "莱州湾外远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "莱州湾外远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于评估技术指南的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "评估技术指南"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "评估技术指南工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2025-01"
       ],
@@ -2077,26 +1411,8 @@
       "title_hint": "象山石浦檀头山倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "象山石浦檀头山倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-04"
-      ],
-      "category": "single2",
-      "title_hint": "象山石浦檀头山倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于运输的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "运输"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "运输工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-05"
       ],
@@ -2113,26 +1429,8 @@
       "title_hint": "远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于重点海域综合治理攻坚战行动方案的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-10"
-      ],
-      "category": "single2",
-      "title_hint": "重点海域综合治理攻坚战行动方案"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "重点海域综合治理攻坚战行动方案工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-10"
       ],
@@ -2149,26 +1447,8 @@
       "title_hint": "面反馈"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "面反馈工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2025-01"
-      ],
-      "category": "single2",
-      "title_hint": "面反馈"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于鳌江口倾倒区的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-08"
-      ],
-      "category": "single2",
-      "title_hint": "鳌江口倾倒区"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "鳌江口倾倒区工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-08"
       ],
@@ -2185,26 +1465,8 @@
       "title_hint": "黄河口外远海倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "黄河口外远海倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "黄河口外远海倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于中国海警局的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-05"
-      ],
-      "category": "single2",
-      "title_hint": "中国海警局"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "中国海警局工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-05"
       ],
@@ -2221,26 +1483,8 @@
       "title_hint": "临时性海洋倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "临时性海洋倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "临时性海洋倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于入河排污口设置审批的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "入河排污口设置审批"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "入河排污口设置审批工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -2257,26 +1501,8 @@
       "title_hint": "入海排污口规范化建设"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "入海排污口规范化建设工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-06"
-      ],
-      "category": "single2",
-      "title_hint": "入海排污口规范化建设"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于入海排污口设置备案的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "入海排污口设置备案"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "入海排污口设置备案工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -2293,26 +1519,8 @@
       "title_hint": "国家海洋环境监测中心"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "国家海洋环境监测中心工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-11"
-      ],
-      "category": "single2",
-      "title_hint": "国家海洋环境监测中心"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于惰性无机地质材料的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-04"
-      ],
-      "category": "single2",
-      "title_hint": "惰性无机地质材料"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "惰性无机地质材料工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-04"
       ],
@@ -2329,26 +1537,8 @@
       "title_hint": "排污口排查"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "排污口排查工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污口排查"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于排污口整治的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污口整治"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "排污口整治工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -2365,26 +1555,8 @@
       "title_hint": "排污口溯源"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "排污口溯源工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污口溯源"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于排污口监测的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污口监测"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "排污口监测工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -2401,26 +1573,8 @@
       "title_hint": "排污许可证"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "排污许可证工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "排污许可证"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于流域海域生态环境监督管理局的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "流域海域生态环境监督管理局"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "流域海域生态环境监督管理局工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -2437,26 +1591,8 @@
       "title_hint": "海洋倾倒区"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒区工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-03"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒区"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于海洋倾倒区选划的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-03"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒区选划"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒区选划工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-03"
       ],
@@ -2473,26 +1609,8 @@
       "title_hint": "海洋倾倒在线监控设备"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "海洋倾倒在线监控设备工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-02"
-      ],
-      "category": "single2",
-      "title_hint": "海洋倾倒在线监控设备"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于渔业废料的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-STD-2026-05"
-      ],
-      "category": "single2",
-      "title_hint": "渔业废料"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "渔业废料工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-STD-2026-05"
       ],
@@ -2509,26 +1627,8 @@
       "title_hint": "倾倒需求"
     },
     {
-      "id": "entity-nod_2026-1",
-      "question": "倾倒需求工作应遵循哪些规定？",
-      "gold_asset_ids": [
-        "OD-SEA-EX-02"
-      ],
-      "category": "single2",
-      "title_hint": "倾倒需求"
-    },
-    {
       "id": "entity-nod_2026-0",
       "question": "关于河湖长制的管理要求是什么？请检索依据文件。",
-      "gold_asset_ids": [
-        "OD-SEA-EX-01"
-      ],
-      "category": "single2",
-      "title_hint": "河湖长制"
-    },
-    {
-      "id": "entity-nod_2026-1",
-      "question": "河湖长制工作应遵循哪些规定？",
       "gold_asset_ids": [
         "OD-SEA-EX-01"
       ],
@@ -4281,7 +3381,7 @@
   ],
   "counts": {
     "single": 81,
-    "single2": 200,
+    "single2": 100,
     "multihop": 120,
     "refuse": 5
   },

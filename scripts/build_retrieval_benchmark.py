@@ -128,7 +128,7 @@ def main() -> int:
         aid = n.get("source_asset_id")
         if not ent or len(ent) > 16 or not aid:
             continue
-        for ti, tpl in enumerate(ENTITY_TEMPLATES):
+        for ti, tpl in enumerate(ENTITY_TEMPLATES[:1]):
             single2.append({
                 "id": f"entity-{n['node_id'][:8]}-{ti}",
                 "question": tpl.format(entity=ent),
@@ -167,7 +167,7 @@ def main() -> int:
                     "chain": [a_name, node_by_id.get(mid, {}).get("name", "?"), c_name],
                 })
     # cap multihop to keep the benchmark balanced (chains are numerous & redundant)
-    multihop = multihop[:80]
+    multihop = multihop[:120]
 
     refuse = [
         {"id": f"refuse-{i:02d}", "question": q, "gold_asset_ids": [], "category": "refuse",

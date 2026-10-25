@@ -26,6 +26,7 @@ import json
 import math
 import os
 import time
+import threading
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -59,14 +60,14 @@ def http_json(url: str, payload: dict, headers: dict, timeout: int = 120) -> dic
         url, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Content-Type": "application/json", **headers}, method="POST",
     )
-    for attempt in range(8):
+    for attempt in range(40):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
-            if exc.code == 429 and attempt < 7:  # MaaS rate limit: long backoff
-                wait = 8 + 7 * attempt
-                print(f"  429 -> sleep {wait}s")
+            if exc.code == 429 and attempt < 39:  # MaaS shared-key limit: patient backoff
+                wait = min(60, 8 + 6 * attempt)
+                print(f"  429 -> sleep {wait}s", flush=True)
                 time.sleep(wait)
                 continue
             raise
@@ -127,16 +128,21 @@ def _rr_save(cache: dict) -> None:
     RR_CACHE_PATH.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
 
 
+_RR_LOCK = threading.Lock()
+
+
 def rerank(query: str, docs: list[str], key: str, rrcache: dict | None = None) -> list[dict]:
     k = hashlib.sha1(("|".join([query] + docs)).encode("utf-8")).hexdigest()
-    if rrcache is not None and k in rrcache:
-        return rrcache[k]
+    with _RR_LOCK:
+        if rrcache is not None and k in rrcache:
+            return rrcache[k]
     d = http_json(f"{MaaS_URL}/rerank",
                   {"model": RERANK_MODEL, "query": query, "documents": docs},
                   {"Authorization": f"Bearer {key}"})
-    if rrcache is not None:
-        rrcache[k] = d["results"]
-        _rr_save(rrcache)
+    with _RR_LOCK:
+        if rrcache is not None:
+            rrcache[k] = d["results"]
+            _rr_save(rrcache)
     return d["results"]
 
 
@@ -224,9 +230,13 @@ def main() -> int:
     results_hybrid: dict[str, dict] = {}
     rrcache = _rr_cache()
 
-    for idx, it in enumerate(items):
+    progress = [0]
+    plock = threading.Lock()
+
+    def process_item(it: dict) -> None:
         q = it["question"]
         # ---- baseline ----
+        ranked_a: list[str] = []
         if not args.skip_baseline:
             hits = backend_search(q, top_k=8)
             ranked_a = [h["asset_id"] for h in hits]
@@ -243,10 +253,11 @@ def main() -> int:
         order = sorted(range(len(scored)), key=lambda i: -scored[i][1])[:TOPK_RERANK_DOCS]
         cand = [chunks[i] for i in order]
         dense_ranked = rank_assets_from_scores(scored)
-        results_hybrid[it["id"]] = {
-            "ranked_assets": rrf_fuse(ranked_a, dense_ranked)[:8],
-            "top1_score": max((sc for _, sc in scored[:1]), default=0.0),
-        }
+        if not args.skip_baseline:
+            results_hybrid[it["id"]] = {
+                "ranked_assets": rrf_fuse(ranked_a, dense_ranked)[:8],
+                "top1_score": max((sc for _, sc in scored[:1]), default=0.0),
+            }
         rr = rerank(q, [c["text"][:1200] for c in cand], key, rrcache)
         pairs = [(cand[r["index"]]["asset_id"], r["relevance_score"]) for r in rr]
         ranked_b = rank_assets_from_scores(pairs)
@@ -254,9 +265,15 @@ def main() -> int:
             "ranked_assets": ranked_b[:8],
             "top1_score": pairs and max(pairs, key=lambda x: x[1])[1] or 0.0,
         }
-        time.sleep(0.35)
-        if (idx + 1) % 20 == 0:
-            print(f"  {idx + 1}/{len(items)} items")
+        with plock:
+            progress[0] += 1
+            if progress[0] % 25 == 0:
+                print(f"  {progress[0]}/{len(items)} items", flush=True)
+
+    import concurrent.futures
+    print(f"items: {len(items)} / 2 workers", flush=True)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        list(pool.map(process_item, items))
 
     EMB_CACHE.parent.mkdir(parents=True, exist_ok=True)
     EMB_CACHE.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
