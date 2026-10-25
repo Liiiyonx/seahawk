@@ -122,6 +122,15 @@ if not (0.09 < route_p["routed_rule vs oracle_v2"] < 0.12):
     fails.append(f"router p vs oracle_v2 drifted: {route_p['routed_rule vs oracle_v2']}")
 print("  ok router p-values vs routing_eval.json (drift-checked)")
 check("holm note", pakdd, "largest adjusted $p$ .013")
+sweep = json.loads((EVAL / "routing_threshold_sweep.json").read_text(encoding="utf-8"))
+h5s = [s["overall"]["hit@5"] for s in sweep["sweep"] if 0.2 <= s["threshold"] <= 0.5]
+if not (min(h5s) >= 0.95 and max(h5s) <= 0.9701):
+    fails.append(f"sweep plateau claim broken: h5 in [0.2,0.5] = {sorted(set(h5s))}")
+else:
+    print(f"  ok sweep plateau: h5 {min(h5s):.3f}-{max(h5s):.3f} within [.95,.97]")
+check("sweep sentence", pakdd, "within .95--.97 for any cutoff in $[0.2, 0.5]$")
+check("sweep mrr gain", pakdd, "$+.023$, paired\n$p{=}.022$")
+check("sweep routing count", pakdd, "194/301")
 check("router vs oracle", pakdd, "($p{=}0.10$)")
 check("router overall", pakdd, "hit@5 .970 / MRR .848")
 check("oracle overall", pakdd, "hit@5 .970 / MRR .855")

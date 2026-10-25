@@ -459,8 +459,14 @@ vs.\ both hybrids $p{<}5{\times}10^{-4}$) and is statistically
 indistinguishable from the per-type oracle ($p{=}0.10$). All highlighted
 comparisons in Tables~\ref{tab:sig} and~\ref{tab:confusion} survive Holm
 correction within their test families (largest adjusted $p$ .013 for the
-specialist contrasts; $9.9{\times}10^{-4}$ for the router family). The
-practical reading for small-corpus deployments: adaptive retrieval here
+specialist contrasts; $9.9{\times}10^{-4}$ for the router family). A post-hoc
+threshold sweep (0.1--0.9; artifact) shows the router is not knife-edge:
+overall hit@5 stays within .95--.97 for any cutoff in $[0.2, 0.5]$. The sweep
+also reveals that a lower cutoff (0.2, routing 194/301 queries to BM25) would
+yield slightly higher MRR than our a-priori 0.5 ($+.023$, paired
+$p{=}.022$)---we keep the a-priori value to avoid post-hoc tuning and
+recommend a per-domain sweep in practice. The practical
+reading for small-corpus deployments: adaptive retrieval here
 needs two indexes and one string-overlap signal---not a learned router, not
 fusion.
 
@@ -592,8 +598,10 @@ knowledge quotes its source, not that the knowledge base is complete or
 domain-correct (Sect.~\ref{sec:audit-method}).
 
 \emph{Router scope.} The title-coverage signal is cheap and language-light,
-but its $0.5$ cutoff reflects this corpus's title conventions; a new domain
-should re-set the threshold (the router itself has no learned parameters).
+but its $0.5$ cutoff reflects this corpus's title conventions; the sensitivity
+sweep (Sect.~\ref{sec:route}) is the calibration recipe for a new domain, and
+neural-sparse or late-interaction retrievers (SPLADE, ColBERT) were not
+evaluated---the comparison targets the configurations actually deployed.
 
 \section{Conclusion}
 \label{sec:conclusion}
