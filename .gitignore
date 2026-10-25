@@ -211,3 +211,5 @@ submission_build/
 探海灵眸_机械臂识别_存档_*.zip
 output/pdf/
 review_render/
+tmp_cloudflared_linux
+tmp_sync_builder2.py
