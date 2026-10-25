@@ -187,6 +187,50 @@ platform still completes event understanding, planning, guard checks,
 approval, dispatch, audit, and replay---the configuration under which the
 system currently runs.
 
+\subsection{Execution endpoint protocol}
+Execution endpoints (edge boxes, robots) attach over MQTT through a fixed
+topic tree, designed for the shore-side reality of intermittent 4G coverage
+and solar-powered devices: retained status topics with last-will messages
+give immediate offline detection, and the protocol deliberately avoids
+QoS~2---deduplication is enforced at the business layer with a
+\texttt{(device\_id, seq)} unique constraint, since protocol-level
+exactly-once delivery does not remove the need for idempotent ingestion.
+Telemetry (heartbeats, battery, bin fill levels) is sent QoS~0 and may drop
+frames; events and commands are QoS~1. Site identity lives in the topic
+hierarchy (\texttt{marine/\{site\}/\{device\}/...}), making the site the
+access-control boundary without per-device scripting. Work orders follow an
+explicit state machine,
+\texttt{pending $\to$ assigned $\to$ navigating $\to$ collecting $\to$ done}
+(with cancellation from any live state), and an unacknowledged assignment
+rolls back to \texttt{pending} and is redispatched---the robot is thus a
+replaceable endpoint whose failure modes are protocol-visible rather than
+silent.
+
+\begin{table}[t]
+\caption{MQTT topic contract (subset). Device-to-platform except
+\texttt{cmd} and \texttt{robot/\{id\}/task}, which are platform-to-device;
+QoS and retain flags are fixed by the contract shared across the algorithm,
+hardware, and platform teams.}
+\label{tab:mqtt}
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lcl}
+\toprule
+Topic & QoS & Retain \\
+\midrule
+\texttt{marine/\{s\}/\{d\}/event} & 1 & no \\
+\texttt{marine/\{s\}/\{d\}/telemetry} & 0 & no \\
+\texttt{marine/\{s\}/\{d\}/status} & 1 & LWT \\
+\texttt{marine/\{s\}/\{d\}/cmd} & 1 & no \\
+\texttt{marine/\{s\}/\{d\}/cmd/ack} & 1 & no \\
+\texttt{robot/\{id\}/task} & 1 & no \\
+\texttt{robot/\{id\}/task/progress} & 1 & no \\
+\texttt{robot/\{id\}/cmd/ack} & 1 & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \begin{figure*}[t]
 \centering
 \begin{tikzpicture}[

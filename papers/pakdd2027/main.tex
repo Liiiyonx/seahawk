@@ -598,10 +598,22 @@ configuration separates the two populations.}
 \section{Discussion and Limitations}
 \label{sec:limits}
 
-\emph{Single domain, single language.} The corpus is Chinese regulatory text;
-the benchmark templates and the near-duplicate structure are domain-shaped.
-Replication on a second regulatory domain is future work; the construction
-recipe (Sect.~\ref{sec:bench}) is domain-agnostic.
+\paragraph{Threats to validity.}
+\emph{Construct:} benchmark questions are generated from the same tables the
+retrievers index---title queries quote titles (favouring BM25), entity and
+multi-hop queries carry ontology vocabulary (favouring graph expansion).
+This mirrors real governance traffic, where users cite instrument titles
+and entity names---which is exactly the signal the router exploits---but it
+also means absolute numbers are protocol-relative and must not be compared
+with open-domain benchmarks. \emph{Internal:} all contrasts are paired
+within one frozen run with warm caches, so embedding batch variance cannot
+reorder systems within a comparison. \emph{External:} see the single-domain
+limitation below.
+
+\emph{Single domain, single language.} The corpus is Chinese regulatory
+text; the benchmark templates and the near-duplicate structure are shaped
+by the domain. Replication on a second regulatory domain is future work;
+the construction recipe (Sect.~\ref{sec:bench}) is domain-agnostic.
 
 \emph{Refusal pool is small} (5 queries), so Table~\ref{tab:refuse} is
 evidence of fragility, not a powered estimate of abstention error rates.
