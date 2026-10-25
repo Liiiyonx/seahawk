@@ -1,0 +1,45 @@
+acceptance:
+  record_id: R-KN-07
+  date: "2026-10-25"
+  status: completed
+  title: 检索评测基准集与三系统对照评测（baseline 词法+图 / BGE-M3+Reranker 两阶段 / RRF 混合）
+
+  benchmark:
+    builder: scripts/build_retrieval_benchmark.py
+    artifact: artifacts/knowledge-retrieval-eval/benchmark.json
+    corpus: 本地后端 15 资产（8 份生态环境部公开文件 + 7 份演示资产），已发布本体 30 节点/60 关系
+    items:
+      single: 45（标题型问题，每资产 3 模板）
+      single2: 60（实体型问题，本体已审核实体 2 模板——问题不含标题词，考内容级检索）
+      multihop: 80（本体 2 跳关系链 A→B→C 构造，金标准=链上实体来源资产）
+      refuse: 5（域外问题，无金标准资产）
+    determinism: 模板固定、金标准全部取自本体/资产表本身，构建过程零模型调用
+
+  systems:
+    baseline: 生产检索器（POST /knowledge/search：词法打分 标题x6/正文x1.5/标准号x2 + 本体图扩展 hop_depth=1）
+    twostage: BGE-M3 稠密召回（资产分块 800 字，cosine top-30）+ BGE-Reranker-V2-M3 精排（top-20 块）
+    hybrid_rrf: baseline 与稠密资产排序的 RRF 融合（k=60）
+
+  results_2026-10-25_v1:
+    runner: scripts/run_retrieval_eval.py
+    artifact: artifacts/knowledge-retrieval-eval/latest.json
+    table: # hit@1 / hit@3 / hit@5 / MRR
+      single_title_queries:  {baseline: [0.267, 0.533, 0.711, 0.442], twostage: [0.267, 0.489, 0.644, 0.423], hybrid: [0.267, 0.511, 0.711, 0.436]}
+      single2_entity_queries: {baseline: [0.300, 0.500, 0.533, 0.416], twostage: [0.300, 0.550, 0.867, 0.498], hybrid: [0.300, 0.517, 0.633, 0.478]}
+      multihop_2hop_queries:  {baseline: [0.650, 0.988, 1.000, 0.772], twostage: [0.650, 0.700, 0.700, 0.716], hybrid: [0.650, 0.963, 1.000, 0.764]}
+
+  findings:
+    - "内容型查询（single2）上两阶段检索大幅胜出：hit@5 86.7% vs 53.3%（+33.4pt）、MRR +0.082 —— 稠密向量补齐了词法在无标题词问题上的短板"
+    - "多跳查询上现有本体图扩展是最强通道（hit@5 100%）：纯稠密检索丢失桥接文档（70%），RRF 混合恢复至 100% 且保住 single2 增益 —— 图扩展是本项目检索侧的护城河"
+    - "hit@1 三系统同为 26.7%/30.0%：15 资产中 4 份同系列标准共享实体，top-1 区分度受语料规模限制（扩充语料后复评）"
+    - "拒答可分性：本轮两套系统的 top-1 分数在 single 与 refuse 间均有重叠（baseline 37.5/49.5；两阶段 0.0035/0.0079），固定阈值 6.0 与校准阈值均不完全可分 —— 拒答判定不能只靠检索分，需结合证据覆盖判定（现有 QA 层设计一致），如实登记"
+
+  honest_boundary: >-
+    语料仅 15 资产（含 7 演示资产），区分度受限，v1 数字为小语料下相对结论；
+    拒答池仅 5 题且其中 1 题与标准文本存在词法重叠；扩语料后将以 v2 复评并更新材料口径。
+    两阶段/混合为评测 harness 实现（scripts/run_retrieval_eval.py），尚未合入生产检索接口。
+
+  next:
+    - 扩公开语料（生态环境部海洋类公告 8 → 30+ 份），v2 复评
+    - v2 数字达标后将 RRF 混合合入生产检索（/knowledge/search 增加混合模式参数）
+    - 材料 1/2 检索小节以 v2 数字定量化更新
