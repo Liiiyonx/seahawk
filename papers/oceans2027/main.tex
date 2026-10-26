@@ -8,6 +8,7 @@
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
@@ -146,7 +147,10 @@ price from public listing (approx.\ USD 23,600), converted at 7.2 CNY/USD.}
 \label{tab:compare}
 \centering
 \small
-\begin{tabular}{p{1.9cm}p{2.7cm}p{2.9cm}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{1.75cm}
+                >{\raggedright\arraybackslash}p{2.95cm}
+                >{\raggedright\arraybackslash}p{3.25cm}}
 \toprule
  & Cleanup platforms & Oceanus \\
 \midrule
@@ -155,22 +159,10 @@ Decision & manual & plan $\to$ guard $\to$ approve $\to$ execute $\to$ replay \\
 New classes & product change & add a vocabulary word on site \\
 Basis & none & versioned regulatory evidence chain \\
 Sorting & none / single bay & three-bin coarse sorting + shore-side fine sorting \\
-Indicative cost & $\sim$USD 23.6k (WasteShark) & commodity hardware, open stack \\
+Indicative cost & \mbox{$\sim$USD 23.6k} (WasteShark) & commodity hardware, open stack \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\textbf{LLM agents and tool use.} Agent frameworks couple LLM planners to
-tool APIs; our concern is not planner design but the guardrails around it:
-policy checks before execution, human approval for out-of-policy actions,
-and replayable traces. \textbf{Auditability and grounding.} Binding
-generated text to retrieved evidence is studied as attribution and
-grounding; we apply the same discipline to ontology construction, where the
-audit unit is a triple plus its citation. \textbf{Open-vocabulary
-detection.} YOLO-World and similar models detect arbitrary text prompts
-zero-shot; we use this as an operational capability (inspectors can name a
-new debris class on site) and measure its real accuracy profile on a public
-benchmark rather than assuming it.
 
 \section{System Architecture}
 Oceanus organizes a three-tier loop: (i) \emph{perception}---shore-based
@@ -207,27 +199,28 @@ replaceable endpoint whose failure modes are protocol-visible rather than
 silent.
 
 \begin{table}[t]
-\caption{MQTT topic contract (subset). Device-to-platform except
-\texttt{cmd} and \texttt{robot/\{id\}/task}, which are platform-to-device;
-QoS and retain flags are fixed by the contract shared across the algorithm,
-hardware, and platform teams.}
+\caption{MQTT topic contract (subset). All topics are device-to-platform
+except \texttt{cmd} and \texttt{robot/\{id\}/...}, which are
+platform-to-device.}
 \label{tab:mqtt}
 \centering
 \small
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{lcl}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcl@{}}
 \toprule
 Topic & QoS & Retain \\
 \midrule
-\texttt{marine/\{s\}/\{d\}/event} & 1 & no \\
-\texttt{marine/\{s\}/\{d\}/telemetry} & 0 & no \\
-\texttt{marine/\{s\}/\{d\}/status} & 1 & LWT \\
-\texttt{marine/\{s\}/\{d\}/cmd} & 1 & no \\
-\texttt{marine/\{s\}/\{d\}/cmd/ack} & 1 & no \\
+\texttt{marine/\{site\}/\{dev\}/event} & 1 & no \\
+\texttt{marine/\{site\}/\{dev\}/telemetry} & 0 & no \\
+\texttt{marine/\{site\}/\{dev\}/status} & 1 & LWT \\
+\texttt{marine/\{site\}/\{dev\}/cmd} & 1 & no \\
+\texttt{marine/\{site\}/\{dev\}/cmd/ack} & 1 & no \\
 \texttt{robot/\{id\}/task} & 1 & no \\
 \texttt{robot/\{id\}/task/progress} & 1 & no \\
 \texttt{robot/\{id\}/cmd/ack} & 1 & no \\
 \bottomrule
+\multicolumn{3}{@{}l@{}}{\footnotesize LWT: retained last-will message
+(immediate offline detection).}
 \end{tabular}
 \end{table}
 
@@ -247,7 +240,7 @@ Topic & QoS & Retain \\
 \draw[arr] (edge) -- (agent);
 \draw[arr] (agent) -- (robot) node[midway, above, font=\tiny]{work order};
 \draw[arr] (robot) -- (ops);
-\draw[arr] (ops.west) -| ([xshift=-0.35cm]kb.south) -- (kb.south);
+\draw[arr] (ops.south) -- ++(0,-0.35) -| (kb.south);
 \draw[arr] (kb) -- (agent);
 \end{tikzpicture}
 \caption{Three-tier governance loop. The knowledge layer binds every agent
@@ -275,11 +268,11 @@ and reporting.}
 \node[gate, below=of plan] (guard) {2 Policy guard};
 \node[st, below=of guard] (dispatch) {4 Dispatch};
 \node[st, below=of dispatch] (exec) {5 Execute};
-\node[st, left=0.28cm of guard] (approve) {3 Human\\approval};
-\node[st, right=0.28cm of guard] (audit) {Audit log\\(versions)};
+\node[st, left=0.55cm of guard] (approve) {3 Human\\approval};
+\node[st, right=0.55cm of guard] (audit) {Audit log\\(versions)};
 \draw[arr] (plan) -- (guard);
 \draw[arr] (guard) -- node[left, font=\tiny]{in-policy} (dispatch);
-\draw[rej] (guard.west) -| node[above, pos=0.28, font=\tiny]{blocked} (approve.north);
+\draw[rej] (guard.west) -- node[above, font=\tiny]{blocked} (approve.east);
 \draw[arr] (approve.south) |- (dispatch.west);
 \draw[arr] (dispatch) -- (exec);
 \draw[arr] (guard.east) -- node[above, font=\tiny]{trace} (audit.west);

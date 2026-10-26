@@ -213,3 +213,4 @@ output/pdf/
 review_render/
 tmp_cloudflared_linux
 tmp_sync_builder2.py
+papers/render/

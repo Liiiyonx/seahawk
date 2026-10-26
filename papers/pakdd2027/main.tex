@@ -560,34 +560,50 @@ the user.
   width=0.93\linewidth, height=4.1cm,
   symbolic y coords={Dense+Rerank,BM25,Lex+Graph},
   ytick=data,
-  xmin=5e-4, xmax=900,
+  xmin=3e-4, xmax=800,
+  log ticks with fixed point,
+  xmajorgrids=true,
+  xminorgrids=true,
+  grid style={dashed, black!22},
+  minor grid style={black!10},
   xlabel={top-1 retrieval score (log scale)},
-  legend style={at={(0.5,-0.32)}, anchor=north, legend columns=3,
-    font=\scriptsize, draw=none, fill=none},
+  legend style={at={(0.5,-0.34)}, anchor=north, legend columns=2,
+    column sep=16pt, font=\scriptsize, draw=none, fill=none},
   tick label style={font=\scriptsize},
   label style={font=\scriptsize},
 ]
 \addplot[blue, line width=2.4pt, forget plot] coordinates {
  (7.5,Lex+Graph) (511.5,Lex+Graph) };
+\addplot[densely dashed, blue!55!black, line width=1pt, forget plot]
+  coordinates {(4.5e-4,Lex+Graph) (7.5,Lex+Graph) };
 \addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
-  coordinates {(5.2e-4,Lex+Graph)};
-\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
-  coordinates {(1.5,Lex+Graph) (1.5,Lex+Graph) (10.5,Lex+Graph)
-               (24.0,Lex+Graph) (46.5,Lex+Graph)};
+  coordinates {(4.5e-4,Lex+Graph)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=3.2pt] coordinates {(1.5,Lex+Graph) (24.0,Lex+Graph)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot]
+  coordinates {(10.5,Lex+Graph) (46.5,Lex+Graph)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=-3.2pt] coordinates {(1.5,Lex+Graph)};
 \addplot[blue, line width=2.4pt, forget plot] coordinates {
  (7.94,BM25) (68.5,BM25) };
 \addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
   coordinates {(7.37,BM25)};
-\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
-  coordinates {(1.85,BM25) (2.90,BM25) (3.86,BM25) (4.48,BM25) (13.72,BM25)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=2.8pt] coordinates {(1.85,BM25) (4.48,BM25)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot]
+  coordinates {(2.90,BM25) (13.72,BM25)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=-2.8pt] coordinates {(3.86,BM25)};
 \addplot[blue, line width=2.4pt, forget plot] coordinates {
  (0.0024,Dense+Rerank) (0.9961,Dense+Rerank) };
 \addplot[only marks, mark=triangle*, mark size=2.6pt, blue!70!black, forget plot]
   coordinates {(0.0008,Dense+Rerank)};
-\addplot[only marks, mark=x, mark size=2.6pt, very thick, red, forget plot]
-  coordinates {(0.0011,Dense+Rerank) (0.0012,Dense+Rerank)
-               (0.0019,Dense+Rerank) (0.0019,Dense+Rerank)
-               (0.0031,Dense+Rerank)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=4pt] coordinates {(0.0011,Dense+Rerank) (0.0019,Dense+Rerank)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot]
+  coordinates {(0.0012,Dense+Rerank) (0.0031,Dense+Rerank)};
+\addplot[only marks, mark=x, mark size=2.4pt, very thick, red, forget plot,
+  yshift=-4pt] coordinates {(0.0019,Dense+Rerank)};
 \addlegendimage{blue, line width=2.4pt}
 \addlegendentry{answerable p5--max}
 \addlegendimage{only marks, mark=triangle*, mark size=2.6pt, blue!70!black}
@@ -598,12 +614,13 @@ the user.
 \end{tikzpicture}
 \caption{Top-1 score ranges for answerable vs.\ refusal queries per
 configuration (log scale; identical data as Table~\ref{tab:refuse}; the
-band spans the 5th--100th percentile of answerable scores). Under
-Lex+Graph, four answerable queries score exactly 0 (their marker is clamped
-to the axis floor) and refusal marks reach deep into the band's low range;
-under BM25 one refusal mark lands inside the band (inversion); under
-Dense+Rerank the refusal cluster overlaps the band's left tail. No
-configuration separates the two populations.}
+band spans the 5th--100th percentile of answerable scores; coincident
+refusal marks within a row are offset vertically for visibility). Under
+Lex+Graph, four answerable queries score exactly 0 (marker at the scale
+floor, dotted leader to the band) and refusal marks reach deep into the
+band's low range; under BM25 one refusal mark lands inside the band
+(inversion); under Dense+Rerank the refusal cluster overlaps the band's
+left tail. No configuration separates the two populations.}
 \label{fig:refuse}
 \end{figure}
 
